@@ -16,6 +16,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ServicesVisaRouteImport } from './routes/services.visa'
+import { Route as ServicesConsultancyRouteImport } from './routes/services.consultancy'
 import { Route as ServicesAccountingRouteImport } from './routes/services.accounting'
 
 const SignupRoute = SignupRouteImport.update({
@@ -53,6 +54,11 @@ const ServicesVisaRoute = ServicesVisaRouteImport.update({
   path: '/services/visa',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServicesConsultancyRoute = ServicesConsultancyRouteImport.update({
+  id: '/services/consultancy',
+  path: '/services/consultancy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesAccountingRoute = ServicesAccountingRouteImport.update({
   id: '/services/accounting',
   path: '/services/accounting',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/services/accounting': typeof ServicesAccountingRoute
+  '/services/consultancy': typeof ServicesConsultancyRoute
   '/services/visa': typeof ServicesVisaRoute
   '/services/': typeof ServicesIndexRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/services/accounting': typeof ServicesAccountingRoute
+  '/services/consultancy': typeof ServicesConsultancyRoute
   '/services/visa': typeof ServicesVisaRoute
   '/services': typeof ServicesIndexRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/services/accounting': typeof ServicesAccountingRoute
+  '/services/consultancy': typeof ServicesConsultancyRoute
   '/services/visa': typeof ServicesVisaRoute
   '/services/': typeof ServicesIndexRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/services/accounting'
+    | '/services/consultancy'
     | '/services/visa'
     | '/services/'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/services/accounting'
+    | '/services/consultancy'
     | '/services/visa'
     | '/services'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/services/accounting'
+    | '/services/consultancy'
     | '/services/visa'
     | '/services/'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
   ServicesAccountingRoute: typeof ServicesAccountingRoute
+  ServicesConsultancyRoute: typeof ServicesConsultancyRoute
   ServicesVisaRoute: typeof ServicesVisaRoute
   ServicesIndexRoute: typeof ServicesIndexRoute
 }
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesVisaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/services/consultancy': {
+      id: '/services/consultancy'
+      path: '/services/consultancy'
+      fullPath: '/services/consultancy'
+      preLoaderRoute: typeof ServicesConsultancyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/services/accounting': {
       id: '/services/accounting'
       path: '/services/accounting'
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
   ServicesAccountingRoute: ServicesAccountingRoute,
+  ServicesConsultancyRoute: ServicesConsultancyRoute,
   ServicesVisaRoute: ServicesVisaRoute,
   ServicesIndexRoute: ServicesIndexRoute,
 }
