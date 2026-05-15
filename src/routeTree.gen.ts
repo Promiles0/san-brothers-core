@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DevRouteImport } from './routes/dev'
@@ -26,6 +27,11 @@ import { Route as ServicesAccountingRouteImport } from './routes/services.accoun
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/dev': typeof DevRoute
   '/faq': typeof FaqRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
   '/services/accounting': typeof ServicesAccountingRoute
   '/services/consultancy': typeof ServicesConsultancyRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByTo {
   '/dev': typeof DevRoute
   '/faq': typeof FaqRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
   '/services/accounting': typeof ServicesAccountingRoute
   '/services/consultancy': typeof ServicesConsultancyRoute
@@ -128,6 +136,7 @@ export interface FileRoutesById {
   '/dev': typeof DevRoute
   '/faq': typeof FaqRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
   '/services/accounting': typeof ServicesAccountingRoute
   '/services/consultancy': typeof ServicesConsultancyRoute
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
     | '/dev'
     | '/faq'
     | '/login'
+    | '/pricing'
     | '/signup'
     | '/services/accounting'
     | '/services/consultancy'
@@ -160,6 +170,7 @@ export interface FileRouteTypes {
     | '/dev'
     | '/faq'
     | '/login'
+    | '/pricing'
     | '/signup'
     | '/services/accounting'
     | '/services/consultancy'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/dev'
     | '/faq'
     | '/login'
+    | '/pricing'
     | '/signup'
     | '/services/accounting'
     | '/services/consultancy'
@@ -191,6 +203,7 @@ export interface RootRouteChildren {
   DevRoute: typeof DevRoute
   FaqRoute: typeof FaqRoute
   LoginRoute: typeof LoginRoute
+  PricingRoute: typeof PricingRoute
   SignupRoute: typeof SignupRoute
   ServicesAccountingRoute: typeof ServicesAccountingRoute
   ServicesConsultancyRoute: typeof ServicesConsultancyRoute
@@ -206,6 +219,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -303,6 +323,7 @@ const rootRouteChildren: RootRouteChildren = {
   DevRoute: DevRoute,
   FaqRoute: FaqRoute,
   LoginRoute: LoginRoute,
+  PricingRoute: PricingRoute,
   SignupRoute: SignupRoute,
   ServicesAccountingRoute: ServicesAccountingRoute,
   ServicesConsultancyRoute: ServicesConsultancyRoute,
