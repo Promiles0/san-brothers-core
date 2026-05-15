@@ -1,0 +1,22 @@
+{
+  "common": {
+    "brand": "San Brothers Global Digital Ecosystem",
+    "tagline": "Urufatiro rwarangiye. Amapaji rusange araza vuba.",
+    "login": "Injira",
+    "signup": "Iyandikishe",
+    "logout": "Sohoka"
+  },
+  "nav": {
+    "home": "Ahabanza",
+    "services": "Serivisi",
+    "about": "Abo turi bo",
+    "contact": "Twandikire",
+    "pricing": "Ibiciro",
+    "faq": "Ibibazo bikunze kubazwa"
+  },
+  "theme": {
+    "light": "Urumuri",
+    "dark": "Umwijima",
+    "system": "Sisitemu"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "common": {
+    "brand": "San Brothers 全球数字生态系统",
+    "tagline": "基础已搭建,公共页面即将推出。",
+    "login": "登录",
+    "signup": "注册",
+    "logout": "退出"
+  },
+  "nav": {
+    "home": "首页",
+    "services": "服务",
+    "about": "关于我们",
+    "contact": "联系我们",
+    "pricing": "定价",
+    "faq": "常见问题"
+  },
+  "theme": {
+    "light": "浅色",
+    "dark": "深色",
+    "system": "跟随系统"
+  }
+}

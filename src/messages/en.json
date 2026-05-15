@@ -1,0 +1,22 @@
+{
+  "common": {
+    "brand": "San Brothers Global Digital Ecosystem",
+    "tagline": "Foundation built. Public pages coming next.",
+    "login": "Login",
+    "signup": "Sign up",
+    "logout": "Logout"
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "about": "About",
+    "contact": "Contact",
+    "pricing": "Pricing",
+    "faq": "FAQ"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  }
+}
