@@ -4,19 +4,72 @@
     "tagline": "Urufatiro rwarangiye. Amapaji rusange araza vuba.",
     "login": "Injira",
     "signup": "Iyandikishe",
-    "logout": "Sohoka"
+    "logout": "Sohoka",
+    "getStarted": "Tangira",
+    "learnMore": "Menya byinshi",
+    "apply": "Saba",
+    "contactUs": "Tuvugishe",
+    "exploreServices": "Reba serivisi"
   },
   "nav": {
     "home": "Ahabanza",
     "services": "Serivisi",
-    "about": "Abo turi bo",
-    "contact": "Twandikire",
+    "about": "Ibyerekeye",
+    "contact": "Duhamagare",
     "pricing": "Ibiciro",
     "faq": "Ibibazo bikunze kubazwa"
   },
-  "theme": {
-    "light": "Urumuri",
-    "dark": "Umwijima",
-    "system": "Sisitemu"
+  "footer": {
+    "about": "Ibyerekeye",
+    "services": "Serivisi",
+    "resources": "Ibikoresho",
+    "legal": "Amategeko",
+    "contact": "Duhamagare"
+  },
+  "theme": { "light": "Urumuri", "dark": "Umwijima", "system": "Sisitemu" },
+  "services": {
+    "visa": "Viza n'Uburenganzira",
+    "accounting": "Serivisi z'Ibaruramari",
+    "consultancy": "Inama z'Ubucuruzi",
+    "translation": "Ubusemuzi"
+  },
+  "home": {
+    "heroTitle": "Umufatanyabikorwa wawe wizewe mu Serivisi z'Umwuga ku Isi",
+    "heroSubtitle": "Ibaruramari, viza, ubusemuzi, n'inkunga y'ubucuruzi — byateguriwe abakiriya bo mu Rwanda no ku isi.",
+    "trustStrip": "Twizewe n'abakiriya b'Abanyarwanda n'Abashinwa · 1,000+ basabwe neza",
+    "servicesHeading": "Serivisi zacu",
+    "whyHeading": "Kuki San Brothers",
+    "howHeading": "Uko bikorwa",
+    "partnerHeading": "Ubufatanye bwacu",
+    "testimonialsHeading": "Ibyo abakiriya bavuga",
+    "ctaHeading": "Witeguye gutangira?",
+    "ctaSubtitle": "Fungura konti yawe ku buntu mu munota 2."
+  },
+  "servicesPage": {
+    "heroTitle": "Serivisi zacu",
+    "heroSubtitle": "Inkunga y'umwuga muri buri ntambwe"
+  },
+  "about": {
+    "heroTitle": "Ibyerekeye San Brothers",
+    "heroSubtitle": "Umwuga. Kwizerwa. Ubunyangamugayo.",
+    "storyHeading": "Inkuru yacu",
+    "valuesHeading": "Indangagaciro",
+    "officeHeading": "Aho biro biherereye",
+    "contactHeading": "Twandikire"
+  },
+  "contact": {
+    "heroTitle": "Twandikire",
+    "heroSubtitle": "Dusubiza mu munsi umwe w'akazi",
+    "formHeading": "Twoherereze ubutumwa",
+    "infoHeading": "Amakuru yo kutuvugisha"
+  },
+  "faq": {
+    "heroTitle": "Ibibazo bikunze kubazwa",
+    "heroSubtitle": "Ibisubizo ku bibazo bikunze",
+    "searchPlaceholder": "Shakisha ibibazo..."
+  },
+  "pricing": {
+    "heroTitle": "Ibiciro bigaragara",
+    "heroSubtitle": "Nta mafaranga ahishe. Wishyura icyo ukoresha."
   }
 }
