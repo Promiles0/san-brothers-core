@@ -1,10 +1,15 @@
 {
   "common": {
-    "brand": "San Brothers 全球数字生态系统",
+    "brand": "三兄弟全球数字生态系统",
     "tagline": "基础已搭建,公共页面即将推出。",
     "login": "登录",
     "signup": "注册",
-    "logout": "退出"
+    "logout": "退出",
+    "getStarted": "立即开始",
+    "learnMore": "了解更多",
+    "apply": "申请",
+    "contactUs": "联系我们",
+    "exploreServices": "浏览服务"
   },
   "nav": {
     "home": "首页",
@@ -14,9 +19,57 @@
     "pricing": "定价",
     "faq": "常见问题"
   },
-  "theme": {
-    "light": "浅色",
-    "dark": "深色",
-    "system": "跟随系统"
+  "footer": {
+    "about": "关于",
+    "services": "服务",
+    "resources": "资源",
+    "legal": "法律",
+    "contact": "联系"
+  },
+  "theme": { "light": "浅色", "dark": "深色", "system": "跟随系统" },
+  "services": {
+    "visa": "签证与许可",
+    "accounting": "会计服务",
+    "consultancy": "商业咨询",
+    "translation": "翻译与口译"
+  },
+  "home": {
+    "heroTitle": "您值得信赖的全球专业服务伙伴",
+    "heroSubtitle": "为卢旺达及全球客户提供会计、签证、翻译和商业支持。",
+    "trustStrip": "卢旺达和中国客户的信赖之选 · 1,000+ 成功申请",
+    "servicesHeading": "我们的服务",
+    "whyHeading": "为什么选择三兄弟",
+    "howHeading": "服务流程",
+    "partnerHeading": "我们的合作伙伴",
+    "testimonialsHeading": "客户评价",
+    "ctaHeading": "准备好开始了吗?",
+    "ctaSubtitle": "两分钟内免费创建账户。"
+  },
+  "servicesPage": {
+    "heroTitle": "我们的服务",
+    "heroSubtitle": "为您的每一步提供专业支持"
+  },
+  "about": {
+    "heroTitle": "关于三兄弟",
+    "heroSubtitle": "专业。可靠。高效。",
+    "storyHeading": "我们的故事",
+    "valuesHeading": "核心价值",
+    "officeHeading": "办公地点",
+    "contactHeading": "联系方式"
+  },
+  "contact": {
+    "heroTitle": "联系我们",
+    "heroSubtitle": "我们将在一个工作日内回复",
+    "formHeading": "发送消息",
+    "infoHeading": "联系信息"
+  },
+  "faq": {
+    "heroTitle": "常见问题",
+    "heroSubtitle": "关于我们服务的常见问题解答",
+    "searchPlaceholder": "搜索问题..."
+  },
+  "pricing": {
+    "heroTitle": "透明定价",
+    "heroSubtitle": "无隐藏费用,按需付费。"
   }
 }

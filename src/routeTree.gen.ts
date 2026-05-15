@@ -10,13 +10,28 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as DevRouteImport } from './routes/dev'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ServicesIndexRouteImport } from './routes/services.index'
+import { Route as ServicesVisaRouteImport } from './routes/services.visa'
+import { Route as ServicesTranslationRouteImport } from './routes/services.translation'
+import { Route as ServicesConsultancyRouteImport } from './routes/services.consultancy'
+import { Route as ServicesAccountingRouteImport } from './routes/services.accounting'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -24,9 +39,29 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevRoute = DevRouteImport.update({
+  id: '/dev',
+  path: '/dev',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -34,39 +69,147 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServicesIndexRoute = ServicesIndexRouteImport.update({
+  id: '/services/',
+  path: '/services/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesVisaRoute = ServicesVisaRouteImport.update({
+  id: '/services/visa',
+  path: '/services/visa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesTranslationRoute = ServicesTranslationRouteImport.update({
+  id: '/services/translation',
+  path: '/services/translation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesConsultancyRoute = ServicesConsultancyRouteImport.update({
+  id: '/services/consultancy',
+  path: '/services/consultancy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesAccountingRoute = ServicesAccountingRouteImport.update({
+  id: '/services/accounting',
+  path: '/services/accounting',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
+  '/dev': typeof DevRoute
+  '/faq': typeof FaqRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
+  '/services/accounting': typeof ServicesAccountingRoute
+  '/services/consultancy': typeof ServicesConsultancyRoute
+  '/services/translation': typeof ServicesTranslationRoute
+  '/services/visa': typeof ServicesVisaRoute
+  '/services/': typeof ServicesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
+  '/dev': typeof DevRoute
+  '/faq': typeof FaqRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
+  '/services/accounting': typeof ServicesAccountingRoute
+  '/services/consultancy': typeof ServicesConsultancyRoute
+  '/services/translation': typeof ServicesTranslationRoute
+  '/services/visa': typeof ServicesVisaRoute
+  '/services': typeof ServicesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
+  '/dev': typeof DevRoute
+  '/faq': typeof FaqRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
+  '/services/accounting': typeof ServicesAccountingRoute
+  '/services/consultancy': typeof ServicesConsultancyRoute
+  '/services/translation': typeof ServicesTranslationRoute
+  '/services/visa': typeof ServicesVisaRoute
+  '/services/': typeof ServicesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login' | '/signup'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/dashboard'
+    | '/dev'
+    | '/faq'
+    | '/login'
+    | '/pricing'
+    | '/signup'
+    | '/services/accounting'
+    | '/services/consultancy'
+    | '/services/translation'
+    | '/services/visa'
+    | '/services/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/signup'
-  id: '__root__' | '/' | '/dashboard' | '/login' | '/signup'
+  to:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/dashboard'
+    | '/dev'
+    | '/faq'
+    | '/login'
+    | '/pricing'
+    | '/signup'
+    | '/services/accounting'
+    | '/services/consultancy'
+    | '/services/translation'
+    | '/services/visa'
+    | '/services'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/dashboard'
+    | '/dev'
+    | '/faq'
+    | '/login'
+    | '/pricing'
+    | '/signup'
+    | '/services/accounting'
+    | '/services/consultancy'
+    | '/services/translation'
+    | '/services/visa'
+    | '/services/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
+  DevRoute: typeof DevRoute
+  FaqRoute: typeof FaqRoute
   LoginRoute: typeof LoginRoute
+  PricingRoute: typeof PricingRoute
   SignupRoute: typeof SignupRoute
+  ServicesAccountingRoute: typeof ServicesAccountingRoute
+  ServicesConsultancyRoute: typeof ServicesConsultancyRoute
+  ServicesTranslationRoute: typeof ServicesTranslationRoute
+  ServicesVisaRoute: typeof ServicesVisaRoute
+  ServicesIndexRoute: typeof ServicesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -78,11 +221,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev': {
+      id: '/dev'
+      path: '/dev'
+      fullPath: '/dev'
+      preLoaderRoute: typeof DevRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -92,6 +256,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -99,14 +277,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/services/': {
+      id: '/services/'
+      path: '/services'
+      fullPath: '/services/'
+      preLoaderRoute: typeof ServicesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services/visa': {
+      id: '/services/visa'
+      path: '/services/visa'
+      fullPath: '/services/visa'
+      preLoaderRoute: typeof ServicesVisaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services/translation': {
+      id: '/services/translation'
+      path: '/services/translation'
+      fullPath: '/services/translation'
+      preLoaderRoute: typeof ServicesTranslationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services/consultancy': {
+      id: '/services/consultancy'
+      path: '/services/consultancy'
+      fullPath: '/services/consultancy'
+      preLoaderRoute: typeof ServicesConsultancyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services/accounting': {
+      id: '/services/accounting'
+      path: '/services/accounting'
+      fullPath: '/services/accounting'
+      preLoaderRoute: typeof ServicesAccountingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
+  DevRoute: DevRoute,
+  FaqRoute: FaqRoute,
   LoginRoute: LoginRoute,
+  PricingRoute: PricingRoute,
   SignupRoute: SignupRoute,
+  ServicesAccountingRoute: ServicesAccountingRoute,
+  ServicesConsultancyRoute: ServicesConsultancyRoute,
+  ServicesTranslationRoute: ServicesTranslationRoute,
+  ServicesVisaRoute: ServicesVisaRoute,
+  ServicesIndexRoute: ServicesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

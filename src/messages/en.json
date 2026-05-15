@@ -4,7 +4,12 @@
     "tagline": "Foundation built. Public pages coming next.",
     "login": "Login",
     "signup": "Sign up",
-    "logout": "Logout"
+    "logout": "Logout",
+    "getStarted": "Get Started",
+    "learnMore": "Learn more",
+    "apply": "Apply",
+    "contactUs": "Talk to Us",
+    "exploreServices": "Explore Services"
   },
   "nav": {
     "home": "Home",
@@ -14,9 +19,57 @@
     "pricing": "Pricing",
     "faq": "FAQ"
   },
-  "theme": {
-    "light": "Light",
-    "dark": "Dark",
-    "system": "System"
+  "footer": {
+    "about": "About",
+    "services": "Services",
+    "resources": "Resources",
+    "legal": "Legal",
+    "contact": "Contact"
+  },
+  "theme": { "light": "Light", "dark": "Dark", "system": "System" },
+  "services": {
+    "visa": "Visa & Permit Facilitation",
+    "accounting": "Accounting Services",
+    "consultancy": "Business Consultancy",
+    "translation": "Translation & Interpretation"
+  },
+  "home": {
+    "heroTitle": "Your Trusted Partner for Global Professional Services",
+    "heroSubtitle": "Accounting, visas, translation, and business support — built for clients in Rwanda and around the world.",
+    "trustStrip": "Trusted by Rwandan and Chinese clients · 1,000+ successful applications",
+    "servicesHeading": "Our Services",
+    "whyHeading": "Why San Brothers",
+    "howHeading": "How It Works",
+    "partnerHeading": "Our Partnership",
+    "testimonialsHeading": "What Clients Say",
+    "ctaHeading": "Ready to get started?",
+    "ctaSubtitle": "Create your free account in under 2 minutes."
+  },
+  "servicesPage": {
+    "heroTitle": "Our Services",
+    "heroSubtitle": "Professional support for every step of your journey"
+  },
+  "about": {
+    "heroTitle": "About San Brothers",
+    "heroSubtitle": "Professional. Reliable. Efficient.",
+    "storyHeading": "Our Story",
+    "valuesHeading": "Core Values",
+    "officeHeading": "Office Location",
+    "contactHeading": "Contact"
+  },
+  "contact": {
+    "heroTitle": "Get in Touch",
+    "heroSubtitle": "We respond within one business day",
+    "formHeading": "Send us a message",
+    "infoHeading": "Contact Information"
+  },
+  "faq": {
+    "heroTitle": "Frequently Asked Questions",
+    "heroSubtitle": "Answers to common questions about our services",
+    "searchPlaceholder": "Search questions..."
+  },
+  "pricing": {
+    "heroTitle": "Transparent Pricing",
+    "heroSubtitle": "No hidden fees. Pay only for what you use."
   }
 }
