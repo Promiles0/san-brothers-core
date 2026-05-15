@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ServicePage } from "@/components/marketing/service-page";
+import { ServicePage, type SubService, type DocGroup } from "@/components/marketing/service-page";
+import { useI18n } from "@/lib/providers/i18n-provider";
 
 export const Route = createFileRoute("/services/accounting")({
   head: () => ({
@@ -8,30 +9,39 @@ export const Route = createFileRoute("/services/accounting")({
       { name: "description", content: "Bookkeeping, tax preparation, financial reporting and audit support." },
     ],
   }),
-  component: () => (
-    <ServicePage
-      title="Accounting Services"
-      subtitle="Bookkeeping, tax filing, and financial reporting for SMEs and individuals."
-      primaryCtaIntent="accounting-consultation"
-      primaryCtaLabel="Request an Accounting Consultation"
-      subServices={[
-        { slug: "bookkeeping", title: "Bookkeeping", desc: "Accurate month-to-month records you can rely on.",
-          bullets: ["Daily transaction entry", "Bank reconciliation", "Monthly summary", "Cloud-based access"] },
-        { slug: "tax-filing", title: "Tax Preparation", desc: "Prepare and file taxes correctly and on time.",
-          bullets: ["VAT", "PAYE", "Income tax", "Withholding tax"], comingSoon: true },
-        { slug: "financial-reporting", title: "Financial Reporting", desc: "Clear monthly and annual reports for decision-making.",
-          bullets: ["Income statement", "Balance sheet", "Cash flow", "Custom KPIs"] },
-        { slug: "financial-analysis", title: "Financial Analysis", desc: "Insight into performance and profitability.",
-          bullets: ["Trend analysis", "Ratio analysis", "Budget vs actual", "Forecasting"] },
-        { slug: "audit-support", title: "Audit Support", desc: "We prepare your books and stand by you during audits.",
-          bullets: ["Audit-ready records", "Document gathering", "Auditor liaison", "Post-audit follow-up"] },
-        { slug: "tax-compliance", title: "Tax Compliance & Advisory", desc: "Stay compliant and minimize risk with ongoing advisory.",
-          bullets: ["RRA filings", "Compliance calendar", "Advisory calls", "Penalty resolution"] },
-      ]}
-      docs={[
-        { title: "Bookkeeping setup", items: ["Bank statements (last 3 months)", "Invoices and receipts", "Payroll register", "Existing chart of accounts (if any)"] },
-        { title: "Tax filing", items: ["TIN certificate", "RRA login (optional)", "Sales records", "Purchase records", "Payroll records"] },
-      ]}
-    />
-  ),
+  component: AccountingPage,
 });
+
+function AccountingPage() {
+  const { t, tRaw } = useI18n();
+  const subKeys = [
+    { slug: "bookkeeping", key: "bookkeeping" },
+    { slug: "tax-filing", key: "tax", comingSoon: true },
+    { slug: "financial-reporting", key: "reporting" },
+    { slug: "financial-analysis", key: "analysis" },
+    { slug: "audit-support", key: "audit" },
+    { slug: "tax-compliance", key: "compliance" },
+  ];
+  const subServices: SubService[] = subKeys.map((k) => ({
+    slug: k.slug,
+    title: t(`accountingSvc.sub.${k.key}.title`),
+    desc: t(`accountingSvc.sub.${k.key}.desc`),
+    bullets: tRaw<string[]>(`accountingSvc.sub.${k.key}.bullets`) ?? [],
+    comingSoon: k.comingSoon,
+  }));
+  const docs: DocGroup[] = ["setup", "tax"].map((k) => ({
+    title: t(`accountingSvc.docs.${k}.title`),
+    items: tRaw<string[]>(`accountingSvc.docs.${k}.items`) ?? [],
+  }));
+
+  return (
+    <ServicePage
+      title={t("accountingSvc.title")}
+      subtitle={t("accountingSvc.subtitle")}
+      primaryCtaIntent="accounting-consultation"
+      primaryCtaLabel={t("accountingSvc.cta")}
+      subServices={subServices}
+      docs={docs}
+    />
+  );
+}

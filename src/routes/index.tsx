@@ -23,37 +23,33 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const { t } = useI18n();
+  const { t, tRaw } = useI18n();
 
   const services = [
-    { icon: Plane, title: t("services.visa"), desc: "Tourist, business, student visas and work permits handled end to end.", href: "/services/visa" },
-    { icon: Calculator, title: t("services.accounting"), desc: "Bookkeeping, tax filing, and financial reporting for SMEs and individuals.", href: "/services/accounting" },
-    { icon: Briefcase, title: t("services.consultancy"), desc: "Company registration, advisory, and admin support for businesses.", href: "/services/consultancy" },
-    { icon: Languages, title: t("services.translation"), desc: "Document translation and live interpreters in multiple languages.", href: "/services/translation" },
+    { icon: Plane, title: t("services.visa"), desc: t("home.serviceDesc.visa"), href: "/services/visa" },
+    { icon: Calculator, title: t("services.accounting"), desc: t("home.serviceDesc.accounting"), href: "/services/accounting" },
+    { icon: Briefcase, title: t("services.consultancy"), desc: t("home.serviceDesc.consultancy"), href: "/services/consultancy" },
+    { icon: Languages, title: t("services.translation"), desc: t("home.serviceDesc.translation"), href: "/services/translation" },
   ];
 
   const why = [
-    { icon: ShieldCheck, title: "International Standards", desc: "Processes built around best-practice compliance, security, and confidentiality." },
-    { icon: Clock, title: "24/7 Online Access", desc: "Submit requests, upload documents, and track progress at any hour." },
-    { icon: Globe, title: "Multilingual Support", desc: "We work in English, 中文, Kinyarwanda, French, and Arabic." },
+    { icon: ShieldCheck, title: t("home.why.intl.title"), desc: t("home.why.intl.desc") },
+    { icon: Clock, title: t("home.why.access.title"), desc: t("home.why.access.desc") },
+    { icon: Globe, title: t("home.why.multi.title"), desc: t("home.why.multi.desc") },
   ];
 
   const steps = [
-    { icon: UserPlus, title: "Register", desc: "Create a secure account." },
-    { icon: List, title: "Choose service", desc: "Pick the help you need." },
-    { icon: Upload, title: "Upload documents", desc: "Securely share your files." },
-    { icon: CheckCircle, title: "Track to completion", desc: "Follow each step in real time." },
+    { icon: UserPlus, title: t("home.steps.register.title"), desc: t("home.steps.register.desc") },
+    { icon: List, title: t("home.steps.choose.title"), desc: t("home.steps.choose.desc") },
+    { icon: Upload, title: t("home.steps.upload.title"), desc: t("home.steps.upload.desc") },
+    { icon: CheckCircle, title: t("home.steps.track.title"), desc: t("home.steps.track.desc") },
   ];
 
-  const testimonials = [
-    { quote: "San Brothers handled my student visa to China end to end. I never had to chase them for an update.", name: "Aline M.", loc: "Kigali" },
-    { quote: "Their accounting team filed our taxes faster than our previous firm. Worth every franc.", name: "Jean Paul K.", loc: "Kigali" },
-    { quote: "Got a Chinese-to-Kinyarwanda translator within minutes. The platform is a lifesaver for tourists.", name: "Wang Wei", loc: "Beijing" },
-  ];
+  const testimonials = tRaw<{ quote: string; name: string; loc: string }[]>("home.testimonials") ?? [];
+  const stepLabel = t("home.stepLabel");
 
   return (
     <PublicLayout>
-      {/* HERO */}
       <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-primary/10 via-background to-accent/5 dark:from-primary/30 dark:via-background dark:to-primary/10">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-20 md:grid-cols-2 md:items-center md:px-6 md:py-28">
           <div>
@@ -91,7 +87,6 @@ function Home() {
         </div>
       </section>
 
-      {/* SERVICES */}
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-6">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl">{t("home.servicesHeading")}</h2>
         <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -112,7 +107,6 @@ function Home() {
         </div>
       </section>
 
-      {/* WHY */}
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-6">
           <h2 className="text-3xl font-bold tracking-tight md:text-4xl">{t("home.whyHeading")}</h2>
@@ -130,13 +124,12 @@ function Home() {
         </div>
       </section>
 
-      {/* HOW */}
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-6">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl">{t("home.howHeading")}</h2>
         <ol className="mt-10 grid gap-6 md:grid-cols-4">
           {steps.map((s, i) => (
             <li key={s.title} className="relative rounded-xl border border-border bg-card p-6">
-              <div className="text-xs font-semibold text-muted-foreground">STEP {i + 1}</div>
+              <div className="text-xs font-semibold text-muted-foreground">{stepLabel} {i + 1}</div>
               <div className="mt-3 grid h-10 w-10 place-items-center rounded-lg bg-primary text-primary-foreground">
                 <s.icon className="h-5 w-5" />
               </div>
@@ -147,18 +140,13 @@ function Home() {
         </ol>
       </section>
 
-      {/* PARTNER */}
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center md:px-6">
           <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("home.partnerHeading")}</h2>
-          <p className="mt-4 text-muted-foreground">
-            San Brothers partners with Best of the Best Company Ltd for product shipping & logistics,
-            China sourcing, and scholarship applications.
-          </p>
+          <p className="mt-4 text-muted-foreground">{t("home.partnerText")}</p>
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-6">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl">{t("home.testimonialsHeading")}</h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">

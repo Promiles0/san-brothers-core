@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ServicePage } from "@/components/marketing/service-page";
+import { ServicePage, type SubService } from "@/components/marketing/service-page";
+import { useI18n } from "@/lib/providers/i18n-provider";
 
 export const Route = createFileRoute("/services/consultancy")({
   head: () => ({
@@ -8,24 +9,33 @@ export const Route = createFileRoute("/services/consultancy")({
       { name: "description", content: "Company registration, advisory, and admin support for businesses." },
     ],
   }),
-  component: () => (
-    <ServicePage
-      title="Business Consultancy"
-      subtitle="Company registration, advisory, and admin support for businesses of every size."
-      primaryCtaIntent="consultancy-intro"
-      primaryCtaLabel="Book a Free Consultation"
-      subServices={[
-        { slug: "company-registration", title: "Company Registration", desc: "Register your company in Rwanda with confidence.",
-          bullets: ["Name search", "RDB registration", "Tax registration", "Bank account opening"], comingSoon: true },
-        { slug: "document-processing", title: "Document Processing", desc: "Help with notarization, legalization, and apostille.",
-          bullets: ["Notary services", "Apostille / legalization", "Certified copies", "Embassy submissions"] },
-        { slug: "trade-investment", title: "Trade & Investment Advisory", desc: "Guidance for investors entering the Rwandan market.",
-          bullets: ["Market entry strategy", "Sector analysis", "Investor licensing", "Local partnerships"] },
-        { slug: "business-planning", title: "Business Planning", desc: "Build a clear plan to grow your business or attract funding.",
-          bullets: ["Business model canvas", "Financial projections", "Pitch deck review", "Strategy workshop"] },
-        { slug: "admin-support", title: "Administrative Support", desc: "Outsource everyday admin work to us.",
-          bullets: ["Office mail", "Document drafting", "Translations coordination", "Calendar management"] },
-      ]}
-    />
-  ),
+  component: ConsultancyPage,
 });
+
+function ConsultancyPage() {
+  const { t, tRaw } = useI18n();
+  const subKeys = [
+    { slug: "company-registration", key: "company", comingSoon: true },
+    { slug: "document-processing", key: "docs" },
+    { slug: "trade-investment", key: "trade" },
+    { slug: "business-planning", key: "planning" },
+    { slug: "admin-support", key: "admin" },
+  ];
+  const subServices: SubService[] = subKeys.map((k) => ({
+    slug: k.slug,
+    title: t(`consultancySvc.sub.${k.key}.title`),
+    desc: t(`consultancySvc.sub.${k.key}.desc`),
+    bullets: tRaw<string[]>(`consultancySvc.sub.${k.key}.bullets`) ?? [],
+    comingSoon: k.comingSoon,
+  }));
+
+  return (
+    <ServicePage
+      title={t("consultancySvc.title")}
+      subtitle={t("consultancySvc.subtitle")}
+      primaryCtaIntent="consultancy-intro"
+      primaryCtaLabel={t("consultancySvc.cta")}
+      subServices={subServices}
+    />
+  );
+}

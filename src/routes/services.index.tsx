@@ -16,31 +16,15 @@ export const Route = createFileRoute("/services/")({
   component: ServicesOverview,
 });
 
-function ServicesOverview() {
-  const { t } = useI18n();
+const CARDS = [
+  { key: "visa", icon: Plane, href: "/services/visa", svcKey: "services.visa" },
+  { key: "accounting", icon: Calculator, href: "/services/accounting", svcKey: "services.accounting" },
+  { key: "consultancy", icon: Briefcase, href: "/services/consultancy", svcKey: "services.consultancy" },
+  { key: "translation", icon: Languages, href: "/services/translation", svcKey: "services.translation" },
+] as const;
 
-  const services = [
-    {
-      icon: Plane, title: t("services.visa"), href: "/services/visa",
-      desc: "End-to-end visa and permit support for travel, business, study, and work. We handle paperwork, embassy submission, and follow-up.",
-      sub: ["Tourist Visa", "Business Visa", "Student Visa", "Work Permit", "Visa Consultation"],
-    },
-    {
-      icon: Calculator, title: t("services.accounting"), href: "/services/accounting",
-      desc: "Full-cycle accounting: bookkeeping, financial reporting, audit support and tax compliance for SMEs and individuals.",
-      sub: ["Bookkeeping", "Tax Preparation", "Financial Reporting", "Audit Support", "Tax Compliance Advisory"],
-    },
-    {
-      icon: Briefcase, title: t("services.consultancy"), href: "/services/consultancy",
-      desc: "Company registration, trade & investment advisory, business planning, and admin support for new and growing businesses.",
-      sub: ["Company Registration", "Document Processing", "Trade & Investment Advisory", "Business Planning", "Administrative Support"],
-    },
-    {
-      icon: Languages, title: t("services.translation"), href: "/services/translation",
-      desc: "Document translation and live interpreters across English, Chinese, Kinyarwanda, French and Arabic. Powered by our dedicated translation portal.",
-      sub: ["Document Translation", "Live Interpreters", "Legal Translation", "Multilingual Support"],
-    },
-  ];
+function ServicesOverview() {
+  const { t, tRaw } = useI18n();
 
   return (
     <PublicLayout>
@@ -48,38 +32,41 @@ function ServicesOverview() {
 
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
         <div className="grid gap-6 md:grid-cols-2">
-          {services.map((s) => (
-            <Card key={s.title} className="transition-shadow hover:shadow-md">
-              <CardContent className="flex flex-col gap-4 p-8">
-                <div className="grid h-14 w-14 place-items-center rounded-xl bg-primary/10 text-primary">
-                  <s.icon className="h-7 w-7" />
-                </div>
-                <h2 className="text-2xl font-semibold">{s.title}</h2>
-                <p className="text-muted-foreground">{s.desc}</p>
-                <ul className="grid gap-1 text-sm text-muted-foreground sm:grid-cols-2">
-                  {s.sub.map((x) => (
-                    <li key={x} className="flex gap-2"><span className="text-primary">•</span>{x}</li>
-                  ))}
-                </ul>
-                <Button className="mt-2 self-start" asChild>
-                  <a href={s.href}>Learn More</a>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+          {CARDS.map((s) => {
+            const sub = tRaw<string[]>(`servicesPage.cards.${s.key}.sub`) ?? [];
+            return (
+              <Card key={s.key} className="transition-shadow hover:shadow-md">
+                <CardContent className="flex flex-col gap-4 p-8">
+                  <div className="grid h-14 w-14 place-items-center rounded-xl bg-primary/10 text-primary">
+                    <s.icon className="h-7 w-7" />
+                  </div>
+                  <h2 className="text-2xl font-semibold">{t(s.svcKey)}</h2>
+                  <p className="text-muted-foreground">{t(`servicesPage.cards.${s.key}.desc`)}</p>
+                  <ul className="grid gap-1 text-sm text-muted-foreground sm:grid-cols-2">
+                    {sub.map((x) => (
+                      <li key={x} className="flex gap-2"><span className="text-primary">•</span>{x}</li>
+                    ))}
+                  </ul>
+                  <Button className="mt-2 self-start" asChild>
+                    <a href={s.href}>{t("servicesPage.learnMore")}</a>
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 rounded-xl border border-border bg-muted/30 px-6 py-6 md:flex-row">
           <p className="text-sm text-muted-foreground">
-            Need translation help right now? Visit <span className="font-semibold text-foreground">We Speak Your Language</span>.
+            {t("servicesPage.translationStrip")} <span className="font-semibold text-foreground">{t("servicesPage.weSpeakBrand")}</span>.
           </p>
           <Button variant="outline" asChild>
-            <a href="/services/translation" className="gap-2">Open Translation <ArrowRight className="h-4 w-4" /></a>
+            <a href="/services/translation" className="gap-2">{t("servicesPage.openTranslation")} <ArrowRight className="h-4 w-4" /></a>
           </Button>
         </div>
       </section>
 
-      <CtaBanner />
+      <CtaBanner title={t("home.ctaHeading")} subtitle={t("home.ctaSubtitle")} label={t("common.getStarted")} />
     </PublicLayout>
   );
 }

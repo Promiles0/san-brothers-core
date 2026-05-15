@@ -31,7 +31,7 @@ function Contact() {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Message received! We'll respond within 24 hours.");
+    toast.success(t("contact.toast"));
     (e.target as HTMLFormElement).reset();
     setSubject("");
   };
@@ -46,42 +46,42 @@ function Contact() {
           <Card>
             <CardContent className="p-6 md:p-8">
               <p className="mb-4 rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-                Have an account? <a href="/login" className="font-medium text-primary hover:underline">Log in</a> to chat with us directly in your dashboard.
+                {t("contact.haveAccount")} <a href="/login" className="font-medium text-primary hover:underline">{t("contact.logInLink")}</a> {t("contact.haveAccountTail")}
               </p>
               <h2 className="text-xl font-semibold">{t("contact.formHeading")}</h2>
               <form onSubmit={onSubmit} className="mt-6 grid gap-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="grid gap-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input id="name" required placeholder="Your name" />
+                    <Label htmlFor="name">{t("contact.labels.name")}</Label>
+                    <Input id="name" required placeholder={t("contact.placeholders.name")} />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" required placeholder="you@example.com" />
+                    <Label htmlFor="email">{t("contact.labels.email")}</Label>
+                    <Input id="email" type="email" required placeholder={t("contact.placeholders.email")} />
                   </div>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" type="tel" placeholder="+250 ..." />
+                  <Label htmlFor="phone">{t("contact.labels.phone")}</Label>
+                  <Input id="phone" type="tel" placeholder={t("contact.placeholders.phone")} />
                 </div>
                 <div className="grid gap-2">
-                  <Label>Subject</Label>
+                  <Label>{t("contact.labels.subject")}</Label>
                   <Select value={subject} onValueChange={setSubject}>
-                    <SelectTrigger><SelectValue placeholder="Choose a subject" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("contact.placeholders.subject")} /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="visa">Visa & Permits</SelectItem>
-                      <SelectItem value="accounting">Accounting</SelectItem>
-                      <SelectItem value="consultancy">Business Consultancy</SelectItem>
-                      <SelectItem value="translation">Translation</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="visa">{t("contact.subjects.visa")}</SelectItem>
+                      <SelectItem value="accounting">{t("contact.subjects.accounting")}</SelectItem>
+                      <SelectItem value="consultancy">{t("contact.subjects.consultancy")}</SelectItem>
+                      <SelectItem value="translation">{t("contact.subjects.translation")}</SelectItem>
+                      <SelectItem value="other">{t("contact.subjects.other")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="message">Message</Label>
-                  <Textarea id="message" rows={5} required placeholder="How can we help?" />
+                  <Label htmlFor="message">{t("contact.labels.message")}</Label>
+                  <Textarea id="message" rows={5} required placeholder={t("contact.placeholders.message")} />
                 </div>
-                <Button type="submit" size="lg" className="justify-self-start">Send Message</Button>
+                <Button type="submit" size="lg" className="justify-self-start">{t("contact.send")}</Button>
               </form>
             </CardContent>
           </Card>
@@ -92,8 +92,8 @@ function Contact() {
               <div className="flex gap-3">
                 <MapPin className="h-5 w-5 shrink-0 text-primary" />
                 <div className="text-sm">
-                  <div className="font-medium">Florida House, 2nd Floor</div>
-                  <div className="text-muted-foreground">KN 70 Street, Kigali, Rwanda</div>
+                  <div className="font-medium">{t("contact.address1")}</div>
+                  <div className="text-muted-foreground">{t("contact.address2")}</div>
                 </div>
               </div>
               <div className="flex gap-3">
@@ -110,14 +110,14 @@ function Contact() {
               </div>
               <div className="flex gap-3">
                 <Clock className="h-5 w-5 shrink-0 text-primary" />
-                <div className="text-sm">Mon–Fri 8:00–18:00 CAT</div>
+                <div className="text-sm">{t("contact.hours")}</div>
               </div>
             </CardContent>
           </Card>
         </div>
 
         <div className="mt-10 grid h-64 place-items-center rounded-xl border border-dashed border-border bg-muted text-sm text-muted-foreground">
-          Kigali · Rwanda
+          {t("contact.mapLabel")}
         </div>
       </section>
     </PublicLayout>

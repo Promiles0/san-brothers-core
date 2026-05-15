@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ServicePage } from "@/components/marketing/service-page";
+import { ServicePage, type SubService, type DocGroup } from "@/components/marketing/service-page";
+import { useI18n } from "@/lib/providers/i18n-provider";
 
 export const Route = createFileRoute("/services/visa")({
   head: () => ({
@@ -8,29 +9,37 @@ export const Route = createFileRoute("/services/visa")({
       { name: "description", content: "Tourist, business, student visas and work permits handled end to end." },
     ],
   }),
-  component: () => (
-    <ServicePage
-      title="Visa & Permit Facilitation"
-      subtitle="Tourist, business, student visas and work permits — handled end to end."
-      primaryCtaIntent="visa-consultation"
-      primaryCtaLabel="Request a Visa Consultation"
-      subServices={[
-        { slug: "tourist-visa", title: "Tourist Visa", desc: "Short-stay visa support for travel and family visits.",
-          bullets: ["Valid passport (6+ months)", "Travel itinerary", "Hotel booking", "Bank statements"] },
-        { slug: "business-visa", title: "Business Visa", desc: "Visas for meetings, conferences, and trade visits.",
-          bullets: ["Invitation letter", "Company registration", "Travel insurance", "Bank statements"] },
-        { slug: "student-visa", title: "Student Visa", desc: "End-to-end help for studies in China and beyond.",
-          bullets: ["Admission letter", "Academic records", "Health certificate", "Financial proof"] },
-        { slug: "work-permit", title: "Work Permit", desc: "Work authorization documentation and renewals.",
-          bullets: ["Employment contract", "Background check", "Medical exam", "Educational credentials"] },
-        { slug: "visa-consultation", title: "Visa Consultation", desc: "1:1 advice on the best visa path for your situation.",
-          bullets: ["30-minute call", "Eligibility review", "Documents checklist", "Timeline estimate"] },
-      ]}
-      docs={[
-        { title: "Tourist Visa", items: ["Valid passport", "Recent photos", "Travel itinerary", "Hotel booking", "Bank statements"] },
-        { title: "Student Visa (China)", items: ["JW202 / JW201 form", "Admission notice", "Passport", "Photos", "Physical exam form", "Bank statements"] },
-        { title: "Work Permit", items: ["Signed employment contract", "Health certificate", "Police clearance", "Education credentials", "Passport"] },
-      ]}
-    />
-  ),
+  component: VisaPage,
 });
+
+function VisaPage() {
+  const { t, tRaw } = useI18n();
+  const subKeys = [
+    { slug: "tourist-visa", key: "tourist" },
+    { slug: "business-visa", key: "business" },
+    { slug: "student-visa", key: "student" },
+    { slug: "work-permit", key: "work" },
+    { slug: "visa-consultation", key: "consult" },
+  ];
+  const subServices: SubService[] = subKeys.map((k) => ({
+    slug: k.slug,
+    title: t(`visa.sub.${k.key}.title`),
+    desc: t(`visa.sub.${k.key}.desc`),
+    bullets: tRaw<string[]>(`visa.sub.${k.key}.bullets`) ?? [],
+  }));
+  const docs: DocGroup[] = ["tourist", "studentChina", "work"].map((k) => ({
+    title: t(`visa.docs.${k}.title`),
+    items: tRaw<string[]>(`visa.docs.${k}.items`) ?? [],
+  }));
+
+  return (
+    <ServicePage
+      title={t("visa.title")}
+      subtitle={t("visa.subtitle")}
+      primaryCtaIntent="visa-consultation"
+      primaryCtaLabel={t("visa.cta")}
+      subServices={subServices}
+      docs={docs}
+    />
+  );
+}

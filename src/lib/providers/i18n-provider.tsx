@@ -12,19 +12,20 @@ interface I18nContextValue {
   locale: Locale;
   setLocale: (l: Locale) => void;
   t: (key: string) => string;
+  tRaw: <T = unknown>(key: string) => T;
 }
 
 const I18nContext = createContext<I18nContextValue | null>(null);
 
 const STORAGE_KEY = "sb-locale";
 
-function resolveKey(messages: Messages, key: string): string {
+function resolveKey(messages: Messages, key: string): unknown {
   return key.split(".").reduce<unknown>((acc, k) => {
     if (acc && typeof acc === "object" && k in (acc as Record<string, unknown>)) {
       return (acc as Record<string, unknown>)[k];
     }
     return undefined;
-  }, messages) as string ?? key;
+  }, messages);
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
@@ -43,10 +44,14 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     setLocaleState(l);
   };
 
-  const t = (key: string) => resolveKey(dictionaries[locale], key);
+  const t = (key: string): string => {
+    const v = resolveKey(dictionaries[locale], key);
+    return typeof v === "string" ? v : key;
+  };
+  const tRaw = <T,>(key: string): T => resolveKey(dictionaries[locale], key) as T;
 
   return (
-    <I18nContext.Provider value={{ locale, setLocale, t }}>
+    <I18nContext.Provider value={{ locale, setLocale, t, tRaw }}>
       {children}
     </I18nContext.Provider>
   );
