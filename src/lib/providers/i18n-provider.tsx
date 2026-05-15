@@ -44,10 +44,14 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     setLocaleState(l);
   };
 
-  const t = (key: string) => resolveKey(dictionaries[locale], key);
+  const t = (key: string): string => {
+    const v = resolveKey(dictionaries[locale], key);
+    return typeof v === "string" ? v : key;
+  };
+  const tRaw = <T,>(key: string): T => resolveKey(dictionaries[locale], key) as T;
 
   return (
-    <I18nContext.Provider value={{ locale, setLocale, t }}>
+    <I18nContext.Provider value={{ locale, setLocale, t, tRaw }}>
       {children}
     </I18nContext.Provider>
   );
