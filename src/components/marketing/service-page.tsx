@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/accordion";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { PageHero, CtaBanner } from "@/components/marketing/page-sections";
+import { useI18n } from "@/lib/providers/i18n-provider";
 
 export interface SubService {
   slug: string;
@@ -33,35 +34,36 @@ interface ServicePageProps {
   docs?: DocGroup[];
 }
 
-const PROCESS = [
-  { icon: UserPlus, title: "Register" },
-  { icon: Upload, title: "Upload Documents" },
-  { icon: ClipboardCheck, title: "Secretary Review" },
-  { icon: Send, title: "Manager Submits" },
-  { icon: CheckCircle, title: "Receive Result" },
-] satisfies { icon: LucideIcon; title: string }[];
+const PROCESS_KEYS: { icon: LucideIcon; key: string }[] = [
+  { icon: UserPlus, key: "register" },
+  { icon: Upload, key: "upload" },
+  { icon: ClipboardCheck, key: "review" },
+  { icon: Send, key: "submit" },
+  { icon: CheckCircle, key: "result" },
+];
 
 export function ServicePage({
-  title, subtitle, primaryCtaIntent, primaryCtaLabel = "Request a Consultation",
+  title, subtitle, primaryCtaIntent, primaryCtaLabel,
   subServices, docs,
 }: ServicePageProps) {
+  const { t } = useI18n();
   return (
     <PublicLayout>
       <PageHero title={title} subtitle={subtitle}>
         <Button size="lg" asChild>
-          <a href={`/signup?intent=${primaryCtaIntent}`}>{primaryCtaLabel}</a>
+          <a href={`/signup?intent=${primaryCtaIntent}`}>{primaryCtaLabel ?? t("common.apply")}</a>
         </Button>
       </PageHero>
 
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
-        <h2 className="text-2xl font-bold tracking-tight md:text-3xl">What we handle</h2>
+        <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("servicePage.whatWeHandle")}</h2>
         <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {subServices.map((s) => (
             <Card key={s.slug} className="flex flex-col">
               <CardContent className="flex flex-1 flex-col gap-3 p-6">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="text-lg font-semibold">{s.title}</h3>
-                  {s.comingSoon ? <Badge variant="secondary">Coming soon</Badge> : null}
+                  {s.comingSoon ? <Badge variant="secondary">{t("servicePage.comingSoon")}</Badge> : null}
                 </div>
                 <p className="text-sm text-muted-foreground">{s.desc}</p>
                 <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
@@ -70,7 +72,7 @@ export function ServicePage({
                   ))}
                 </ul>
                 <Button variant="outline" size="sm" className="mt-auto self-start" asChild>
-                  <a href={`/signup?intent=${s.slug}`}>Apply</a>
+                  <a href={`/signup?intent=${s.slug}`}>{t("servicePage.applyBtn")}</a>
                 </Button>
               </CardContent>
             </Card>
@@ -80,15 +82,15 @@ export function ServicePage({
 
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-6">
-          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">How the process works</h2>
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("servicePage.howProcess")}</h2>
           <ol className="mt-8 grid gap-4 md:grid-cols-5">
-            {PROCESS.map((p, i) => (
-              <li key={p.title} className="rounded-xl border border-border bg-card p-5">
-                <div className="text-xs font-semibold text-muted-foreground">STEP {i + 1}</div>
+            {PROCESS_KEYS.map((p, i) => (
+              <li key={p.key} className="rounded-xl border border-border bg-card p-5">
+                <div className="text-xs font-semibold text-muted-foreground">{t("servicePage.stepLabel")} {i + 1}</div>
                 <div className="mt-2 grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground">
                   <p.icon className="h-4 w-4" />
                 </div>
-                <div className="mt-2 text-sm font-semibold">{p.title}</div>
+                <div className="mt-2 text-sm font-semibold">{t(`servicePage.process.${p.key}`)}</div>
               </li>
             ))}
           </ol>
@@ -97,7 +99,7 @@ export function ServicePage({
 
       {docs && docs.length > 0 ? (
         <section className="mx-auto max-w-4xl px-4 py-16 md:px-6">
-          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Documents you'll need</h2>
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("servicePage.documents")}</h2>
           <Accordion type="single" collapsible className="mt-6">
             {docs.map((d) => (
               <AccordionItem key={d.title} value={d.title}>
@@ -115,7 +117,7 @@ export function ServicePage({
         </section>
       ) : null}
 
-      <CtaBanner />
+      <CtaBanner title={t("home.ctaHeading")} subtitle={t("home.ctaSubtitle")} label={t("common.getStarted")} />
     </PublicLayout>
   );
 }
