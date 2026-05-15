@@ -19,13 +19,13 @@ const I18nContext = createContext<I18nContextValue | null>(null);
 
 const STORAGE_KEY = "sb-locale";
 
-function resolveKey(messages: Messages, key: string): string {
+function resolveKey(messages: Messages, key: string): unknown {
   return key.split(".").reduce<unknown>((acc, k) => {
     if (acc && typeof acc === "object" && k in (acc as Record<string, unknown>)) {
       return (acc as Record<string, unknown>)[k];
     }
     return undefined;
-  }, messages) as string ?? key;
+  }, messages);
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
