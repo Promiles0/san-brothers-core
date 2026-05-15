@@ -19,9 +19,9 @@ function About() {
   const { t } = useI18n();
 
   const values = [
-    { icon: ShieldCheck, title: "Professional", desc: "We treat every client engagement with the rigor it deserves — clear processes, accurate work, accountable outcomes." },
-    { icon: Clock, title: "Reliable", desc: "Predictable timelines, honest updates, and no chasing for status. We do what we say we'll do." },
-    { icon: Sparkles, title: "Efficient", desc: "Modern tools and a digital-first workflow let us serve clients faster without cutting corners." },
+    { icon: ShieldCheck, title: t("about.values.professional.title"), desc: t("about.values.professional.desc") },
+    { icon: Clock, title: t("about.values.reliable.title"), desc: t("about.values.reliable.desc") },
+    { icon: Sparkles, title: t("about.values.efficient.title"), desc: t("about.values.efficient.desc") },
   ];
 
   return (
@@ -31,16 +31,8 @@ function About() {
       <section className="mx-auto max-w-4xl px-4 py-16 md:px-6">
         <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("about.storyHeading")}</h2>
         <div className="mt-4 space-y-4 text-muted-foreground">
-          <p>
-            San Brothers Company Ltd is a Rwandan professional services firm based in Kigali. We help individuals and
-            businesses navigate complex paperwork — from visas and work permits to accounting, company registration,
-            and translation — with a calm, modern, end-to-end approach.
-          </p>
-          <p>
-            We serve a mix of Rwandan clients, international students, businesses, and travelers. Our team works in
-            English, Chinese, Kinyarwanda, French, and Arabic, and our digital platform lets you submit, track, and
-            complete your work without ever needing to walk into an office.
-          </p>
+          <p>{t("about.story.p1")}</p>
+          <p>{t("about.story.p2")}</p>
         </div>
       </section>
 
@@ -68,10 +60,10 @@ function About() {
           <Card>
             <CardContent className="flex flex-col gap-3 p-6">
               <div className="flex items-center gap-2 text-primary"><MapPin className="h-5 w-5" /><h3 className="text-lg font-semibold text-foreground">{t("about.officeHeading")}</h3></div>
-              <p className="text-sm text-muted-foreground">Florida House, 2nd Floor</p>
-              <p className="text-sm text-muted-foreground">KN 70 Street, Kigali, Rwanda</p>
+              <p className="text-sm text-muted-foreground">{t("about.address1")}</p>
+              <p className="text-sm text-muted-foreground">{t("about.address2")}</p>
               <div className="mt-3 grid h-40 place-items-center rounded-lg border border-dashed border-border bg-muted text-sm text-muted-foreground">
-                Map placeholder · Kigali
+                {t("about.mapPlaceholder")}
               </div>
             </CardContent>
           </Card>
@@ -92,15 +84,12 @@ function About() {
 
       <section className="border-t border-border bg-muted/30">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center md:px-6">
-          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Our Partnership</h2>
-          <p className="mt-4 text-muted-foreground">
-            San Brothers partners with Best of the Best Company Ltd for product shipping & logistics,
-            China sourcing, and scholarship applications.
-          </p>
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("about.partnership.title")}</h2>
+          <p className="mt-4 text-muted-foreground">{t("about.partnership.text")}</p>
         </div>
       </section>
 
-      <CtaBanner />
+      <CtaBanner title={t("home.ctaHeading")} subtitle={t("home.ctaSubtitle")} label={t("common.getStarted")} />
     </PublicLayout>
   );
 }
