@@ -12,6 +12,7 @@ interface I18nContextValue {
   locale: Locale;
   setLocale: (l: Locale) => void;
   t: (key: string) => string;
+  tRaw: <T = unknown>(key: string) => T;
 }
 
 const I18nContext = createContext<I18nContextValue | null>(null);
