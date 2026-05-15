@@ -1,0 +1,59 @@
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import en from "@/messages/en.json";
+import zh from "@/messages/zh.json";
+import rw from "@/messages/rw.json";
+import type { Locale } from "@/lib/types";
+
+type Messages = typeof en;
+
+const dictionaries: Record<Locale, Messages> = { en, zh, rw };
+
+interface I18nContextValue {
+  locale: Locale;
+  setLocale: (l: Locale) => void;
+  t: (key: string) => string;
+}
+
+const I18nContext = createContext<I18nContextValue | null>(null);
+
+const STORAGE_KEY = "sb-locale";
+
+function resolveKey(messages: Messages, key: string): string {
+  return key.split(".").reduce<unknown>((acc, k) => {
+    if (acc && typeof acc === "object" && k in (acc as Record<string, unknown>)) {
+      return (acc as Record<string, unknown>)[k];
+    }
+    return undefined;
+  }, messages) as string ?? key;
+}
+
+export function I18nProvider({ children }: { children: ReactNode }) {
+  const [locale, setLocaleState] = useState<Locale>("en");
+
+  useEffect(() => {
+    const stored = (localStorage.getItem(STORAGE_KEY) as Locale | null) ?? "en";
+    setLocaleState(stored);
+    document.documentElement.lang = stored;
+  }, []);
+
+  const setLocale = (l: Locale) => {
+    localStorage.setItem(STORAGE_KEY, l);
+    document.cookie = `${STORAGE_KEY}=${l}; path=/; max-age=31536000`;
+    document.documentElement.lang = l;
+    setLocaleState(l);
+  };
+
+  const t = (key: string) => resolveKey(dictionaries[locale], key);
+
+  return (
+    <I18nContext.Provider value={{ locale, setLocale, t }}>
+      {children}
+    </I18nContext.Provider>
+  );
+}
+
+export function useI18n() {
+  const ctx = useContext(I18nContext);
+  if (!ctx) throw new Error("useI18n must be used within I18nProvider");
+  return ctx;
+}
