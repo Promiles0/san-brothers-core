@@ -1,7 +1,7 @@
 {
   "common": {
     "brand": "三兄弟全球数字生态系统",
-    "tagline": "基础已搭建,公共页面即将推出。",
+    "tagline": "基础已搭建，公共页面即将推出。",
     "login": "登录",
     "signup": "注册",
     "logout": "退出",
@@ -9,7 +9,8 @@
     "learnMore": "了解更多",
     "apply": "申请",
     "contactUs": "联系我们",
-    "exploreServices": "浏览服务"
+    "exploreServices": "浏览服务",
+    "openPortal": "打开平台"
   },
   "nav": {
     "home": "首页",
@@ -24,7 +25,15 @@
     "services": "服务",
     "resources": "资源",
     "legal": "法律",
-    "contact": "联系"
+    "contact": "联系",
+    "copyright": "三兄弟全球数字生态系统。",
+    "links": {
+      "company": "公司", "team": "团队", "careers": "招聘",
+      "visa": "签证", "accounting": "会计", "translation": "翻译", "consultancy": "咨询",
+      "blog": "博客", "helpCenter": "帮助中心", "api": "API",
+      "privacy": "隐私政策", "terms": "服务条款", "cookies": "Cookie",
+      "support": "客户支持", "sales": "销售合作", "press": "媒体"
+    }
   },
   "theme": { "light": "浅色", "dark": "深色", "system": "跟随系统" },
   "services": {
@@ -36,40 +45,280 @@
   "home": {
     "heroTitle": "您值得信赖的全球专业服务伙伴",
     "heroSubtitle": "为卢旺达及全球客户提供会计、签证、翻译和商业支持。",
-    "trustStrip": "卢旺达和中国客户的信赖之选 · 1,000+ 成功申请",
+    "trustStrip": "深受卢旺达及中国客户信赖 · 1,000+ 项成功案例",
     "servicesHeading": "我们的服务",
     "whyHeading": "为什么选择三兄弟",
     "howHeading": "服务流程",
     "partnerHeading": "我们的合作伙伴",
+    "partnerText": "三兄弟有限公司与 Best of the Best Company Ltd 携手合作，提供产品物流运输、中国采购及奖学金申请等服务。",
     "testimonialsHeading": "客户评价",
-    "ctaHeading": "准备好开始了吗?",
-    "ctaSubtitle": "两分钟内免费创建账户。"
+    "ctaHeading": "准备好开始了吗？",
+    "ctaSubtitle": "两分钟内免费创建账户。",
+    "stepLabel": "第",
+    "serviceDesc": {
+      "visa": "全程办理旅游、商务、留学签证及工作许可。",
+      "accounting": "为中小企业及个人提供记账、报税及财务报告服务。",
+      "consultancy": "公司注册、商业咨询及行政支持服务。",
+      "translation": "多语种文件翻译及在线口译服务。"
+    },
+    "why": {
+      "intl": { "title": "国际化标准", "desc": "依照行业最佳实践，确保合规、安全与保密。" },
+      "access": { "title": "全天候在线", "desc": "随时随地提交申请、上传文件并跟踪进度。" },
+      "multi": { "title": "多语种服务", "desc": "支持英语、中文、卢旺达语、法语和阿拉伯语。" }
+    },
+    "steps": {
+      "register": { "title": "注册账户", "desc": "创建一个安全账户。" },
+      "choose": { "title": "选择服务", "desc": "挑选您所需的服务。" },
+      "upload": { "title": "上传文件", "desc": "安全地共享您的资料。" },
+      "track": { "title": "全程跟踪", "desc": "实时掌握每一步进展。" }
+    },
+    "testimonials": [
+      { "quote": "三兄弟全程帮我办理了赴华留学签证，全程无需我反复跟进。", "name": "Aline M.", "loc": "基加利" },
+      { "quote": "他们的会计团队比我们之前的事务所更快完成了报税，物超所值。", "name": "Jean Paul K.", "loc": "基加利" },
+      { "quote": "几分钟内就联系到中文-卢旺达语翻译，对游客来说真是救星。", "name": "王伟", "loc": "北京" }
+    ]
   },
   "servicesPage": {
     "heroTitle": "我们的服务",
-    "heroSubtitle": "为您的每一步提供专业支持"
+    "heroSubtitle": "为您旅程的每一步提供专业支持",
+    "learnMore": "了解更多",
+    "translationStrip": "需要即时翻译？请访问",
+    "weSpeakBrand": "We Speak Your Language",
+    "openTranslation": "进入翻译平台",
+    "cards": {
+      "visa": {
+        "desc": "为旅游、商务、留学和工作提供端到端的签证和许可办理服务，包括文件准备、使馆递交和后续跟进。",
+        "sub": ["旅游签证", "商务签证", "学生签证", "工作许可", "签证咨询"]
+      },
+      "accounting": {
+        "desc": "为中小企业和个人提供全周期会计服务：记账、财务报告、审计支持及税务合规。",
+        "sub": ["记账服务", "税务申报", "财务报告", "审计支持", "税务合规咨询"]
+      },
+      "consultancy": {
+        "desc": "公司注册、贸易与投资咨询、商业规划及行政支持，助力企业起步与成长。",
+        "sub": ["公司注册", "文件办理", "贸易与投资咨询", "商业规划", "行政支持"]
+      },
+      "translation": {
+        "desc": "提供英语、中文、卢旺达语、法语和阿拉伯语的文件翻译及在线口译服务，由我们专属翻译平台支持。",
+        "sub": ["文件翻译", "在线口译", "法律翻译", "多语种支持"]
+      }
+    }
+  },
+  "servicePage": {
+    "whatWeHandle": "我们提供的服务",
+    "howProcess": "服务流程",
+    "documents": "您需要准备的资料",
+    "comingSoon": "即将上线",
+    "applyBtn": "申请",
+    "stepLabel": "第",
+    "process": {
+      "register": "注册",
+      "upload": "上传文件",
+      "review": "秘书审核",
+      "submit": "经理提交",
+      "result": "获得结果"
+    }
+  },
+  "visa": {
+    "title": "签证与许可办理",
+    "subtitle": "全程办理旅游、商务、留学签证及工作许可。",
+    "cta": "申请签证咨询",
+    "sub": {
+      "tourist": { "title": "旅游签证", "desc": "短期出行及探亲访友签证支持。",
+        "bullets": ["有效护照（6个月以上）", "行程安排", "酒店预订", "银行流水"] },
+      "business": { "title": "商务签证", "desc": "适用于商务会议、行业展会及考察访问。",
+        "bullets": ["邀请函", "公司注册资料", "旅行保险", "银行流水"] },
+      "student": { "title": "学生签证", "desc": "全程协助赴中国及其他国家留学。",
+        "bullets": ["录取通知书", "学历证明", "健康证明", "资金证明"] },
+      "work": { "title": "工作许可", "desc": "工作授权文件办理及续签服务。",
+        "bullets": ["劳动合同", "无犯罪证明", "体检报告", "学历证书"] },
+      "consult": { "title": "签证咨询", "desc": "一对一为您规划最适合的签证方案。",
+        "bullets": ["30分钟通话", "资格评估", "文件清单", "时间预估"] }
+    },
+    "docs": {
+      "tourist": { "title": "旅游签证", "items": ["有效护照", "近期照片", "行程安排", "酒店预订", "银行流水"] },
+      "studentChina": { "title": "中国留学签证", "items": ["JW202 / JW201 表格", "录取通知书", "护照", "照片", "体检表", "银行流水"] },
+      "work": { "title": "工作许可", "items": ["签署的劳动合同", "健康证明", "无犯罪记录证明", "学历证书", "护照"] }
+    }
+  },
+  "accountingSvc": {
+    "title": "会计服务",
+    "subtitle": "为中小企业及个人提供记账、报税及财务报告服务。",
+    "cta": "申请会计咨询",
+    "sub": {
+      "bookkeeping": { "title": "记账服务", "desc": "可靠精准的月度账务记录。",
+        "bullets": ["每日交易录入", "银行对账", "月度汇总", "云端访问"] },
+      "tax": { "title": "税务申报", "desc": "准确、按时完成各类税务申报。",
+        "bullets": ["增值税 (VAT)", "个人所得税 (PAYE)", "企业所得税", "预扣税"] },
+      "reporting": { "title": "财务报告", "desc": "清晰的月度及年度财务报告，助力科学决策。",
+        "bullets": ["利润表", "资产负债表", "现金流量表", "定制 KPI"] },
+      "analysis": { "title": "财务分析", "desc": "深入分析企业经营表现与盈利能力。",
+        "bullets": ["趋势分析", "比率分析", "预算与实际对比", "财务预测"] },
+      "audit": { "title": "审计支持", "desc": "为审计做好充分准备并全程协助。",
+        "bullets": ["审计就绪账册", "资料整理", "审计师对接", "审计后跟进"] },
+      "compliance": { "title": "税务合规与咨询", "desc": "持续合规咨询，降低税务风险。",
+        "bullets": ["卢旺达税务局 (RRA) 申报", "合规日历", "咨询会议", "罚款处理"] }
+    },
+    "docs": {
+      "setup": { "title": "记账启动资料", "items": ["近三个月银行对账单", "发票及收据", "工资记录", "现有会计科目表（如有）"] },
+      "tax": { "title": "税务申报资料", "items": ["纳税人识别号 (TIN) 证书", "RRA 登录信息（可选）", "销售记录", "采购记录", "工资记录"] }
+    }
+  },
+  "consultancySvc": {
+    "title": "商业咨询",
+    "subtitle": "为各类规模企业提供公司注册、咨询及行政支持服务。",
+    "cta": "预约免费咨询",
+    "sub": {
+      "company": { "title": "公司注册", "desc": "助您安心在卢旺达完成公司注册。",
+        "bullets": ["公司名称查询", "RDB 注册", "税务登记", "银行开户"] },
+      "docs": { "title": "文件办理", "desc": "协助公证、认证及海牙认证手续。",
+        "bullets": ["公证服务", "认证 / 海牙认证", "认证副本", "使馆递交"] },
+      "trade": { "title": "贸易与投资咨询", "desc": "为有意进入卢旺达市场的投资者提供指导。",
+        "bullets": ["市场进入策略", "行业分析", "投资人许可", "本地合作对接"] },
+      "planning": { "title": "商业规划", "desc": "制定清晰的商业计划，助力企业成长与融资。",
+        "bullets": ["商业模式画布", "财务预测", "路演方案审阅", "战略研讨会"] },
+      "admin": { "title": "行政支持", "desc": "将日常行政工作交由我们处理。",
+        "bullets": ["邮件代收", "文件起草", "翻译协调", "日程管理"] }
+    }
+  },
+  "translationSvc": {
+    "title": "翻译与口译",
+    "subtitle": "全天候提供文件翻译、在线口译及多语种支持服务。",
+    "weSpeakLabel": "We Speak Your Language",
+    "panelTitle": "专属即时翻译平台",
+    "panelText": "几分钟内即可联系在线口译人员，提交文件翻译需求并安全付款。专为旅客、企业、学生及法律团队打造。",
+    "openPortal": "进入翻译平台",
+    "docBtn": "文件翻译",
+    "features": {
+      "live": { "title": "在线口译", "desc": "几分钟内即可接通语音口译。" },
+      "doc": { "title": "文件翻译", "desc": "认证文件翻译，支持多种格式。" },
+      "legal": { "title": "法律翻译", "desc": "符合法庭标准的法律文件翻译。" },
+      "multi": { "title": "多语种支持", "desc": "支持5种以上语言，全天24小时在线。" }
+    },
+    "languages": "支持语言：英语 · 中文 · 卢旺达语 · 法语 · 阿拉伯语（更多语种即将上线）",
+    "ctaTitle": "现在就需要翻译？",
+    "ctaSubtitle": "进入 We Speak Your Language，几分钟内即可接通。",
+    "ctaLabel": "进入平台"
   },
   "about": {
     "heroTitle": "关于三兄弟",
     "heroSubtitle": "专业。可靠。高效。",
     "storyHeading": "我们的故事",
+    "story": {
+      "p1": "三兄弟有限公司是一家总部位于卢旺达基加利的专业服务公司。我们以沉稳、现代、端到端的方式，帮助个人和企业处理签证、工作许可、会计、公司注册及翻译等复杂事务。",
+      "p2": "我们的客户涵盖卢旺达本地客户、国际留学生、企业及商旅人士。团队精通英语、中文、卢旺达语、法语和阿拉伯语，您可通过我们的数字化平台完成提交、跟踪和办结，无需亲临办公室。"
+    },
     "valuesHeading": "核心价值",
+    "values": {
+      "professional": { "title": "专业", "desc": "我们以应有的严谨对待每一次客户合作——流程清晰、执行精准、结果可靠。" },
+      "reliable": { "title": "可靠", "desc": "时间可控、进度透明，无需反复跟进。承诺必达。" },
+      "efficient": { "title": "高效", "desc": "现代化工具与数字优先的工作流程，让我们在保证质量的前提下更快服务客户。" }
+    },
     "officeHeading": "办公地点",
-    "contactHeading": "联系方式"
+    "address1": "Florida House, 2nd Floor",
+    "address2": "KN 70 Street, Kigali, Rwanda",
+    "mapPlaceholder": "地图占位 · 基加利",
+    "contactHeading": "联系方式",
+    "partnership": {
+      "title": "合作伙伴",
+      "text": "三兄弟有限公司与 Best of the Best Company Ltd 携手合作，提供产品物流运输、中国采购及奖学金申请等服务。"
+    }
   },
   "contact": {
     "heroTitle": "联系我们",
     "heroSubtitle": "我们将在一个工作日内回复",
-    "formHeading": "发送消息",
-    "infoHeading": "联系信息"
+    "haveAccount": "已有账户？",
+    "logInLink": "登录",
+    "haveAccountTail": "在您的控制台中直接与我们沟通。",
+    "formHeading": "向我们留言",
+    "infoHeading": "联系信息",
+    "labels": { "name": "姓名", "email": "邮箱", "phone": "电话", "subject": "主题", "message": "留言" },
+    "placeholders": { "name": "您的姓名", "email": "you@example.com", "phone": "+250 ...", "subject": "请选择主题", "message": "我们能为您提供什么帮助？" },
+    "subjects": { "visa": "签证与许可", "accounting": "会计", "consultancy": "商业咨询", "translation": "翻译", "other": "其他" },
+    "send": "发送留言",
+    "toast": "已收到您的留言！我们将在24小时内回复。",
+    "hours": "周一至周五 8:00–18:00（中非时间）",
+    "address1": "Florida House, 2nd Floor",
+    "address2": "KN 70 Street, Kigali, Rwanda",
+    "mapLabel": "卢旺达 · 基加利"
   },
   "faq": {
     "heroTitle": "常见问题",
     "heroSubtitle": "关于我们服务的常见问题解答",
-    "searchPlaceholder": "搜索问题..."
+    "searchPlaceholder": "搜索问题...",
+    "groups": {
+      "general": {
+        "title": "综合",
+        "items": [
+          { "q": "三兄弟提供哪些服务？", "a": "我们提供四大核心业务：签证与许可办理、会计服务、商业咨询，以及翻译与口译。所有服务均可在基加利办公室或通过线上平台办理。" },
+          { "q": "我需要注册才能使用网站吗？", "a": "您可以无需注册浏览公开信息，但如需申请服务、上传文件或与我们的团队沟通，需要先免费注册账户。" },
+          { "q": "我的信息安全吗？", "a": "安全。所有文件和个人资料均加密存储，仅由负责您案件的工作人员可访问。未经您的书面同意，我们绝不与第三方共享。" }
+        ]
+      },
+      "visa": {
+        "title": "签证与许可",
+        "items": [
+          { "q": "学生签证申请需要多长时间？", "a": "中国学生签证通常在递交使馆后4–10个工作日内出结果，具体取决于季节。文件准备一般需要在递交前再花费1–2周。" },
+          { "q": "申请中国学生签证需要哪些材料？", "a": "通常包括：有效护照、JW202/JW201 表格、录取通知书、近期照片、完整的体检表及资金证明。咨询后我们会提供专属清单。" },
+          { "q": "你们能保证签证一定通过吗？", "a": "无法保证。最终决定权始终在使馆。我们能保证的是：完整、准确的申请材料和清晰的指导，这能显著提升通过率。" }
+        ]
+      },
+      "accounting": {
+        "title": "会计",
+        "items": [
+          { "q": "你们能代我向卢旺达税务局 (RRA) 申报税务吗？", "a": "可以。在您授权后，我们将通过 RRA 平台准备并申报增值税 (VAT)、个人所得税 (PAYE)、预扣税及企业所得税。RRA 直连功能正在规划中。" },
+          { "q": "每月记账费用是多少？", "a": "小型企业记账起价为每月 50,000 卢旺达法郎 (RWF)，根据交易量和复杂度调整。简短沟通后我们会提供报价。" }
+        ]
+      },
+      "translation": {
+        "title": "翻译",
+        "items": [
+          { "q": "在线口译如何使用？", "a": "在翻译平台选择语言对后，我们会在几分钟内通过语音或视频接通可用口译员。通话结束后按分钟计费。" },
+          { "q": "你们支持卢旺达语吗？", "a": "支持。卢旺达语是我们的核心语言之一，可与英语、中文、法语和阿拉伯语互译。" },
+          { "q": "有免费试用吗？", "a": "有。新用户可获得一段免费的口译试用时长，文件翻译则在开始前预先报价。" }
+        ]
+      },
+      "payments": {
+        "title": "付款",
+        "items": [
+          { "q": "你们接受哪些付款方式？", "a": "我们接受 Mobile Money（MTN、Airtel）、卢旺达法郎 (RWF) 银行转账，以及美元国际银行卡支付。系统将自动开具收据。" }
+        ]
+      }
+    }
   },
   "pricing": {
     "heroTitle": "透明定价",
-    "heroSubtitle": "无隐藏费用,按需付费。"
+    "heroSubtitle": "无隐藏费用，按需付费。",
+    "allPrices": "所有价格以卢旺达法郎 (RWF) 计价。国际客户可使用美元支付。",
+    "tabs": { "visa": "签证服务", "accounting": "会计服务", "consultancy": "商业咨询", "translation": "翻译服务" },
+    "mostPopular": "热门之选",
+    "contactQuote": "具体报价请联系我们",
+    "getStarted": "立即开始",
+    "translationStrip": "在线口译及文件翻译价格请访问我们的专属平台 ——",
+    "weSpeakBrand": "We Speak Your Language",
+    "openPortal": "进入平台",
+    "bottom": { "whatIncluded": "包含哪些内容？", "howFees": "费用如何计算？", "refund": "退款政策" },
+    "plans": {
+      "visa": [
+        { "name": "旅游签证", "price": "起价 80,000 RWF", "intent": "tourist-visa", "features": ["材料清单", "申请审核", "递交支持"] },
+        { "name": "学生签证", "price": "起价 150,000 RWF", "intent": "student-visa", "popular": true, "features": ["全套材料准备", "使馆递交", "面试辅导", "进度跟踪"] },
+        { "name": "工作许可", "price": "起价 200,000 RWF", "intent": "work-permit", "features": ["全程办理", "雇主对接", "续签提醒"] }
+      ],
+      "accounting": [
+        { "name": "入门版", "price": "起价 50,000 RWF / 月", "intent": "bookkeeping", "features": ["最多 50 笔交易", "月度汇总", "邮件支持"] },
+        { "name": "标准版", "price": "起价 120,000 RWF / 月", "intent": "tax-filing", "popular": true, "features": ["最多 200 笔交易", "增值税与个税申报", "季度报告"] },
+        { "name": "高级版", "price": "起价 250,000 RWF / 月", "intent": "tax-compliance", "features": ["不限交易笔数", "全面税务合规", "专属会计师"] }
+      ],
+      "consultancy": [
+        { "name": "公司注册", "price": "起价 180,000 RWF", "intent": "company-registration", "features": ["公司名称查询及 RDB 注册", "税务登记", "银行对接"] },
+        { "name": "商业计划书", "price": "起价 350,000 RWF", "intent": "business-planning", "popular": true, "features": ["调研访谈", "财务模型", "路演级文档"] },
+        { "name": "投资咨询", "price": "定制报价", "intent": "trade-investment", "features": ["市场进入策略", "许可办理支持", "本地合作对接"] }
+      ],
+      "translation": [
+        { "name": "文件翻译（每页）", "price": "起价 8,000 RWF", "intent": "document-translation", "features": ["标准交付时间", "可提供认证副本"] },
+        { "name": "在线口译", "price": "起价 1,500 RWF / 分钟", "intent": "live-interpreter", "popular": true, "features": ["几分钟内接通", "语音或视频", "按分钟计费"] },
+        { "name": "法律翻译", "price": "起价 12,000 RWF / 页", "intent": "legal-translation", "features": ["法庭级品质", "可办理公证"] }
+      ]
+    }
   }
 }
