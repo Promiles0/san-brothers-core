@@ -18,7 +18,13 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TranslateIndexRouteImport } from './routes/translate/index'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
+import { Route as TranslatePricingRouteImport } from './routes/translate/pricing'
+import { Route as TranslateLiveRouteImport } from './routes/translate/live'
+import { Route as TranslateLanguagesRouteImport } from './routes/translate/languages'
+import { Route as TranslateHowItWorksRouteImport } from './routes/translate/how-it-works'
+import { Route as TranslateDocumentRouteImport } from './routes/translate/document'
 import { Route as ServicesVisaRouteImport } from './routes/services.visa'
 import { Route as ServicesTranslationRouteImport } from './routes/services.translation'
 import { Route as ServicesConsultancyRouteImport } from './routes/services.consultancy'
@@ -69,9 +75,39 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TranslateIndexRoute = TranslateIndexRouteImport.update({
+  id: '/translate/',
+  path: '/translate/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesIndexRoute = ServicesIndexRouteImport.update({
   id: '/services/',
   path: '/services/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TranslatePricingRoute = TranslatePricingRouteImport.update({
+  id: '/translate/pricing',
+  path: '/translate/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TranslateLiveRoute = TranslateLiveRouteImport.update({
+  id: '/translate/live',
+  path: '/translate/live',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TranslateLanguagesRoute = TranslateLanguagesRouteImport.update({
+  id: '/translate/languages',
+  path: '/translate/languages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TranslateHowItWorksRoute = TranslateHowItWorksRouteImport.update({
+  id: '/translate/how-it-works',
+  path: '/translate/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TranslateDocumentRoute = TranslateDocumentRouteImport.update({
+  id: '/translate/document',
+  path: '/translate/document',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesVisaRoute = ServicesVisaRouteImport.update({
@@ -109,7 +145,13 @@ export interface FileRoutesByFullPath {
   '/services/consultancy': typeof ServicesConsultancyRoute
   '/services/translation': typeof ServicesTranslationRoute
   '/services/visa': typeof ServicesVisaRoute
+  '/translate/document': typeof TranslateDocumentRoute
+  '/translate/how-it-works': typeof TranslateHowItWorksRoute
+  '/translate/languages': typeof TranslateLanguagesRoute
+  '/translate/live': typeof TranslateLiveRoute
+  '/translate/pricing': typeof TranslatePricingRoute
   '/services/': typeof ServicesIndexRoute
+  '/translate/': typeof TranslateIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -125,7 +167,13 @@ export interface FileRoutesByTo {
   '/services/consultancy': typeof ServicesConsultancyRoute
   '/services/translation': typeof ServicesTranslationRoute
   '/services/visa': typeof ServicesVisaRoute
+  '/translate/document': typeof TranslateDocumentRoute
+  '/translate/how-it-works': typeof TranslateHowItWorksRoute
+  '/translate/languages': typeof TranslateLanguagesRoute
+  '/translate/live': typeof TranslateLiveRoute
+  '/translate/pricing': typeof TranslatePricingRoute
   '/services': typeof ServicesIndexRoute
+  '/translate': typeof TranslateIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -142,7 +190,13 @@ export interface FileRoutesById {
   '/services/consultancy': typeof ServicesConsultancyRoute
   '/services/translation': typeof ServicesTranslationRoute
   '/services/visa': typeof ServicesVisaRoute
+  '/translate/document': typeof TranslateDocumentRoute
+  '/translate/how-it-works': typeof TranslateHowItWorksRoute
+  '/translate/languages': typeof TranslateLanguagesRoute
+  '/translate/live': typeof TranslateLiveRoute
+  '/translate/pricing': typeof TranslatePricingRoute
   '/services/': typeof ServicesIndexRoute
+  '/translate/': typeof TranslateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -160,7 +214,13 @@ export interface FileRouteTypes {
     | '/services/consultancy'
     | '/services/translation'
     | '/services/visa'
+    | '/translate/document'
+    | '/translate/how-it-works'
+    | '/translate/languages'
+    | '/translate/live'
+    | '/translate/pricing'
     | '/services/'
+    | '/translate/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -176,7 +236,13 @@ export interface FileRouteTypes {
     | '/services/consultancy'
     | '/services/translation'
     | '/services/visa'
+    | '/translate/document'
+    | '/translate/how-it-works'
+    | '/translate/languages'
+    | '/translate/live'
+    | '/translate/pricing'
     | '/services'
+    | '/translate'
   id:
     | '__root__'
     | '/'
@@ -192,7 +258,13 @@ export interface FileRouteTypes {
     | '/services/consultancy'
     | '/services/translation'
     | '/services/visa'
+    | '/translate/document'
+    | '/translate/how-it-works'
+    | '/translate/languages'
+    | '/translate/live'
+    | '/translate/pricing'
     | '/services/'
+    | '/translate/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -209,7 +281,13 @@ export interface RootRouteChildren {
   ServicesConsultancyRoute: typeof ServicesConsultancyRoute
   ServicesTranslationRoute: typeof ServicesTranslationRoute
   ServicesVisaRoute: typeof ServicesVisaRoute
+  TranslateDocumentRoute: typeof TranslateDocumentRoute
+  TranslateHowItWorksRoute: typeof TranslateHowItWorksRoute
+  TranslateLanguagesRoute: typeof TranslateLanguagesRoute
+  TranslateLiveRoute: typeof TranslateLiveRoute
+  TranslatePricingRoute: typeof TranslatePricingRoute
   ServicesIndexRoute: typeof ServicesIndexRoute
+  TranslateIndexRoute: typeof TranslateIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -277,11 +355,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/translate/': {
+      id: '/translate/'
+      path: '/translate'
+      fullPath: '/translate/'
+      preLoaderRoute: typeof TranslateIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/services/': {
       id: '/services/'
       path: '/services'
       fullPath: '/services/'
       preLoaderRoute: typeof ServicesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/translate/pricing': {
+      id: '/translate/pricing'
+      path: '/translate/pricing'
+      fullPath: '/translate/pricing'
+      preLoaderRoute: typeof TranslatePricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/translate/live': {
+      id: '/translate/live'
+      path: '/translate/live'
+      fullPath: '/translate/live'
+      preLoaderRoute: typeof TranslateLiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/translate/languages': {
+      id: '/translate/languages'
+      path: '/translate/languages'
+      fullPath: '/translate/languages'
+      preLoaderRoute: typeof TranslateLanguagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/translate/how-it-works': {
+      id: '/translate/how-it-works'
+      path: '/translate/how-it-works'
+      fullPath: '/translate/how-it-works'
+      preLoaderRoute: typeof TranslateHowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/translate/document': {
+      id: '/translate/document'
+      path: '/translate/document'
+      fullPath: '/translate/document'
+      preLoaderRoute: typeof TranslateDocumentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services/visa': {
@@ -329,7 +449,13 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesConsultancyRoute: ServicesConsultancyRoute,
   ServicesTranslationRoute: ServicesTranslationRoute,
   ServicesVisaRoute: ServicesVisaRoute,
+  TranslateDocumentRoute: TranslateDocumentRoute,
+  TranslateHowItWorksRoute: TranslateHowItWorksRoute,
+  TranslateLanguagesRoute: TranslateLanguagesRoute,
+  TranslateLiveRoute: TranslateLiveRoute,
+  TranslatePricingRoute: TranslatePricingRoute,
   ServicesIndexRoute: ServicesIndexRoute,
+  TranslateIndexRoute: TranslateIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
