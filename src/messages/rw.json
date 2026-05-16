@@ -28,14 +28,29 @@
     "contact": "Duhamagare",
     "copyright": "San Brothers Global Digital Ecosystem.",
     "links": {
-      "company": "Sosiyete", "team": "Ikipe", "careers": "Akazi",
-      "visa": "Visa", "accounting": "Ibaruramari", "translation": "Ubusemuzi", "consultancy": "Inama",
-      "blog": "Blog", "helpCenter": "Ihuriro ry'ubufasha", "api": "API",
-      "privacy": "Ubuzima bwite", "terms": "Amabwiriza", "cookies": "Cookies",
-      "support": "Ubufasha", "sales": "Ubucuruzi", "press": "Itangazamakuru"
+      "company": "Sosiyete",
+      "team": "Ikipe",
+      "careers": "Akazi",
+      "visa": "Visa",
+      "accounting": "Ibaruramari",
+      "translation": "Ubusemuzi",
+      "consultancy": "Inama",
+      "blog": "Blog",
+      "helpCenter": "Ihuriro ry'ubufasha",
+      "api": "API",
+      "privacy": "Ubuzima bwite",
+      "terms": "Amabwiriza",
+      "cookies": "Cookies",
+      "support": "Ubufasha",
+      "sales": "Ubucuruzi",
+      "press": "Itangazamakuru"
     }
   },
-  "theme": { "light": "Urumuri", "dark": "Umwijima", "system": "Sisitemu" },
+  "theme": {
+    "light": "Urumuri",
+    "dark": "Umwijima",
+    "system": "Sisitemu"
+  },
   "services": {
     "visa": "Viza n'Uburenganzira",
     "accounting": "Serivisi z'Ibaruramari",
@@ -62,20 +77,53 @@
       "translation": "Ubusemuzi bw'inyandiko n'abasemuzi mu ndimi nyinshi."
     },
     "why": {
-      "intl": { "title": "Inzira mpuzamahanga", "desc": "Inzira zubahiriza amategeko, umutekano, no kubika amabanga." },
-      "access": { "title": "Murashobora kutugeraho 24/7", "desc": "Saba serivisi, ohereza inyandiko, kandi ukurikirane uko bigenda igihe icyo ari cyo cyose." },
-      "multi": { "title": "Indimi nyinshi", "desc": "Dukora mu Cyongereza, Igishinwa (中文), Ikinyarwanda, Igifaransa, n'Icyarabu." }
+      "intl": {
+        "title": "Inzira mpuzamahanga",
+        "desc": "Inzira zubahiriza amategeko, umutekano, no kubika amabanga."
+      },
+      "access": {
+        "title": "Murashobora kutugeraho 24/7",
+        "desc": "Saba serivisi, ohereza inyandiko, kandi ukurikirane uko bigenda igihe icyo ari cyo cyose."
+      },
+      "multi": {
+        "title": "Indimi nyinshi",
+        "desc": "Dukora mu Cyongereza, Igishinwa (中文), Ikinyarwanda, Igifaransa, n'Icyarabu."
+      }
     },
     "steps": {
-      "register": { "title": "Iyandikishe", "desc": "Fungura konti yizewe." },
-      "choose": { "title": "Hitamo serivisi", "desc": "Hitamo ubufasha ukeneye." },
-      "upload": { "title": "Ohereza inyandiko", "desc": "Sangiza dosiye zawe mu mutekano." },
-      "track": { "title": "Kurikirana kugeza ku iherezo", "desc": "Kurikirana buri ntambwe igihe nyacyo." }
+      "register": {
+        "title": "Iyandikishe",
+        "desc": "Fungura konti yizewe."
+      },
+      "choose": {
+        "title": "Hitamo serivisi",
+        "desc": "Hitamo ubufasha ukeneye."
+      },
+      "upload": {
+        "title": "Ohereza inyandiko",
+        "desc": "Sangiza dosiye zawe mu mutekano."
+      },
+      "track": {
+        "title": "Kurikirana kugeza ku iherezo",
+        "desc": "Kurikirana buri ntambwe igihe nyacyo."
+      }
     },
     "testimonials": [
-      { "quote": "San Brothers banyifashije muri byose mu kubona viza yo kwiga mu Bushinwa. Sinari nkeneye no kubabaza buri munsi.", "name": "Aline M.", "loc": "Kigali" },
-      { "quote": "Itsinda ry'ibaruramari ryabo ryanyemereye gusora vuba kuruta abandi twari twarakoresheje. Bikwiye buri faranga.", "name": "Jean Paul K.", "loc": "Kigali" },
-      { "quote": "Mbonye umusemuzi w'Igishinwa-Ikinyarwanda mu minota mike gusa. Iyi platform ni ubutabazi ku ba mukerarugendo.", "name": "Wang Wei", "loc": "Beijing" }
+      {
+        "quote": "San Brothers banyifashije muri byose mu kubona viza yo kwiga mu Bushinwa. Sinari nkeneye no kubabaza buri munsi.",
+        "name": "Aline M.",
+        "loc": "Kigali"
+      },
+      {
+        "quote": "Itsinda ry'ibaruramari ryabo ryanyemereye gusora vuba kuruta abandi twari twarakoresheje. Bikwiye buri faranga.",
+        "name": "Jean Paul K.",
+        "loc": "Kigali"
+      },
+      {
+        "quote": "Mbonye umusemuzi w'Igishinwa-Ikinyarwanda mu minota mike gusa. Iyi platform ni ubutabazi ku ba mukerarugendo.",
+        "name": "Wang Wei",
+        "loc": "Beijing"
+      }
     ]
   },
   "servicesPage": {
@@ -88,19 +136,42 @@
     "cards": {
       "visa": {
         "desc": "Inkunga yuzuye mu kubona viza n'uburenganzira ku ngendo, ubucuruzi, kwiga no gukora. Twita ku nyandiko, kuzitanga muri ambasade, no gukurikirana.",
-        "sub": ["Viza y'ubukerarugendo", "Viza y'ubucuruzi", "Viza yo kwiga", "Uburenganzira bwo gukora", "Inama kuri viza"]
+        "sub": [
+          "Viza y'ubukerarugendo",
+          "Viza y'ubucuruzi",
+          "Viza yo kwiga",
+          "Uburenganzira bwo gukora",
+          "Inama kuri viza"
+        ]
       },
       "accounting": {
         "desc": "Ibaruramari ryuzuye: kubika ibitabo, raporo z'imari, ubufasha mu igenzura n'amategeko y'imisoro ku bigo bito no ku bantu ku giti cyabo.",
-        "sub": ["Kubika ibitabo (Bookkeeping)", "Gutegura imisoro", "Raporo z'imari", "Ubufasha mu igenzura (Audit)", "Inama ku misoro"]
+        "sub": [
+          "Kubika ibitabo (Bookkeeping)",
+          "Gutegura imisoro",
+          "Raporo z'imari",
+          "Ubufasha mu igenzura (Audit)",
+          "Inama ku misoro"
+        ]
       },
       "consultancy": {
         "desc": "Kwandikisha sosiyete, inama ku bucuruzi n'ishoramari, gutegura ubucuruzi, n'inkunga mu micungire ku bigo bishya n'ibikura.",
-        "sub": ["Kwandikisha sosiyete", "Gutunganya inyandiko", "Inama ku bucuruzi & ishoramari", "Gutegura ubucuruzi", "Inkunga mu micungire"]
+        "sub": [
+          "Kwandikisha sosiyete",
+          "Gutunganya inyandiko",
+          "Inama ku bucuruzi & ishoramari",
+          "Gutegura ubucuruzi",
+          "Inkunga mu micungire"
+        ]
       },
       "translation": {
         "desc": "Ubusemuzi bw'inyandiko n'abasemuzi muri Cyongereza, Igishinwa, Ikinyarwanda, Igifaransa n'Icyarabu, bishyigikiwe na platform yacu yihariye.",
-        "sub": ["Ubusemuzi bw'inyandiko", "Abasemuzi mu kanya", "Ubusemuzi bw'amategeko", "Inkunga mu ndimi nyinshi"]
+        "sub": [
+          "Ubusemuzi bw'inyandiko",
+          "Abasemuzi mu kanya",
+          "Ubusemuzi bw'amategeko",
+          "Inkunga mu ndimi nyinshi"
+        ]
       }
     }
   },
@@ -124,21 +195,89 @@
     "subtitle": "Viza z'ubukerarugendo, ubucuruzi, kwiga n'uburenganzira bwo gukora — bikorwa uhereye ku ntangiriro kugeza ku iherezo.",
     "cta": "Saba inama kuri viza",
     "sub": {
-      "tourist": { "title": "Viza y'ubukerarugendo", "desc": "Inkunga ya viza y'igihe gito ku ngendo no gusura imiryango.",
-        "bullets": ["Pasiporo ifite agaciro (amezi 6+)", "Gahunda y'urugendo", "Hoteri yabitswe", "Raporo za banki"] },
-      "business": { "title": "Viza y'ubucuruzi", "desc": "Viza z'inama, amahuriro, n'ingendo z'ubucuruzi.",
-        "bullets": ["Ibaruwa y'ubutumire", "Iyandikwa rya sosiyete", "Ubwishingizi bw'urugendo", "Raporo za banki"] },
-      "student": { "title": "Viza yo kwiga", "desc": "Inkunga yuzuye yo kwiga mu Bushinwa no ahandi.",
-        "bullets": ["Ibaruwa yo kwemererwa", "Inyandiko z'amashuri", "Icyemezo cy'ubuzima", "Ikimenyetso cy'amafaranga"] },
-      "work": { "title": "Uburenganzira bwo gukora", "desc": "Inyandiko z'uburenganzira bwo gukora no kuyongera igihe.",
-        "bullets": ["Amasezerano y'akazi", "Ikimenyetso cy'imyitwarire", "Isuzuma ry'ubuzima", "Impamyabumenyi"] },
-      "consult": { "title": "Inama kuri viza", "desc": "Inama umuntu ku wundi ku nzira nziza ya viza ikwiriye uko ubayeho.",
-        "bullets": ["Ikiganiro cy'iminota 30", "Isuzuma ry'uburenganzira", "Urutonde rw'inyandiko", "Igihe cyateganijwe"] }
+      "tourist": {
+        "title": "Viza y'ubukerarugendo",
+        "desc": "Inkunga ya viza y'igihe gito ku ngendo no gusura imiryango.",
+        "bullets": [
+          "Pasiporo ifite agaciro (amezi 6+)",
+          "Gahunda y'urugendo",
+          "Hoteri yabitswe",
+          "Raporo za banki"
+        ]
+      },
+      "business": {
+        "title": "Viza y'ubucuruzi",
+        "desc": "Viza z'inama, amahuriro, n'ingendo z'ubucuruzi.",
+        "bullets": [
+          "Ibaruwa y'ubutumire",
+          "Iyandikwa rya sosiyete",
+          "Ubwishingizi bw'urugendo",
+          "Raporo za banki"
+        ]
+      },
+      "student": {
+        "title": "Viza yo kwiga",
+        "desc": "Inkunga yuzuye yo kwiga mu Bushinwa no ahandi.",
+        "bullets": [
+          "Ibaruwa yo kwemererwa",
+          "Inyandiko z'amashuri",
+          "Icyemezo cy'ubuzima",
+          "Ikimenyetso cy'amafaranga"
+        ]
+      },
+      "work": {
+        "title": "Uburenganzira bwo gukora",
+        "desc": "Inyandiko z'uburenganzira bwo gukora no kuyongera igihe.",
+        "bullets": [
+          "Amasezerano y'akazi",
+          "Ikimenyetso cy'imyitwarire",
+          "Isuzuma ry'ubuzima",
+          "Impamyabumenyi"
+        ]
+      },
+      "consult": {
+        "title": "Inama kuri viza",
+        "desc": "Inama umuntu ku wundi ku nzira nziza ya viza ikwiriye uko ubayeho.",
+        "bullets": [
+          "Ikiganiro cy'iminota 30",
+          "Isuzuma ry'uburenganzira",
+          "Urutonde rw'inyandiko",
+          "Igihe cyateganijwe"
+        ]
+      }
     },
     "docs": {
-      "tourist": { "title": "Viza y'ubukerarugendo", "items": ["Pasiporo ifite agaciro", "Amafoto agezweho", "Gahunda y'urugendo", "Hoteri yabitswe", "Raporo za banki"] },
-      "studentChina": { "title": "Viza yo kwiga (Ubushinwa)", "items": ["Ifishi JW202 / JW201", "Ibaruwa yo kwemererwa", "Pasiporo", "Amafoto", "Ifishi y'isuzuma ry'ubuzima", "Raporo za banki"] },
-      "work": { "title": "Uburenganzira bwo gukora", "items": ["Amasezerano y'akazi yashyizweho umukono", "Icyemezo cy'ubuzima", "Icyemezo cy'imyitwarire (Police clearance)", "Impamyabumenyi", "Pasiporo"] }
+      "tourist": {
+        "title": "Viza y'ubukerarugendo",
+        "items": [
+          "Pasiporo ifite agaciro",
+          "Amafoto agezweho",
+          "Gahunda y'urugendo",
+          "Hoteri yabitswe",
+          "Raporo za banki"
+        ]
+      },
+      "studentChina": {
+        "title": "Viza yo kwiga (Ubushinwa)",
+        "items": [
+          "Ifishi JW202 / JW201",
+          "Ibaruwa yo kwemererwa",
+          "Pasiporo",
+          "Amafoto",
+          "Ifishi y'isuzuma ry'ubuzima",
+          "Raporo za banki"
+        ]
+      },
+      "work": {
+        "title": "Uburenganzira bwo gukora",
+        "items": [
+          "Amasezerano y'akazi yashyizweho umukono",
+          "Icyemezo cy'ubuzima",
+          "Icyemezo cy'imyitwarire (Police clearance)",
+          "Impamyabumenyi",
+          "Pasiporo"
+        ]
+      }
     }
   },
   "accountingSvc": {
@@ -146,22 +285,87 @@
     "subtitle": "Kubika ibitabo, gusora, na raporo z'imari ku bigo bito no ku bantu ku giti cyabo.",
     "cta": "Saba inama z'ibaruramari",
     "sub": {
-      "bookkeeping": { "title": "Kubika ibitabo (Bookkeeping)", "desc": "Inyandiko z'ukwezi ku kwezi nyazo wishingikiriza.",
-        "bullets": ["Kwinjiza ibikorwa bya buri munsi", "Kuringaniza konti za banki", "Inshamake y'ukwezi", "Kubona kuri internet (cloud)"] },
-      "tax": { "title": "Gutegura imisoro", "desc": "Gutegura no gutanga imisoro neza kandi ku gihe.",
-        "bullets": ["VAT", "PAYE", "Umusoro ku nyungu", "Withholding tax"] },
-      "reporting": { "title": "Raporo z'imari", "desc": "Raporo zumvikana z'ukwezi n'umwaka zifasha mu gufata ibyemezo.",
-        "bullets": ["Raporo y'inyungu (Income statement)", "Balance sheet", "Cash flow", "KPI zihariye"] },
-      "analysis": { "title": "Isesengura ry'imari", "desc": "Kumva neza imikorere n'inyungu by'ikigo cyawe.",
-        "bullets": ["Isesengura ry'igihe (trend)", "Isesengura ry'imibare (ratio)", "Ingengo vs ibyabaye", "Iteganyamigambi"] },
-      "audit": { "title": "Ubufasha mu igenzura (Audit)", "desc": "Dutegura ibitabo byawe kandi tukaguherekeza mu gihe cy'igenzura.",
-        "bullets": ["Ibitabo biteguye igenzura", "Gukusanya inyandiko", "Guhuza n'umugenzuzi", "Gukurikirana nyuma y'igenzura"] },
-      "compliance": { "title": "Kubahiriza imisoro & inama", "desc": "Komeza kubahiriza amategeko ugabanya ibyago binyuze mu nama z'umwuga.",
-        "bullets": ["Gutanga raporo muri RRA (Rwanda Revenue Authority)", "Kalendari yo kubahiriza", "Ibiganiro by'inama", "Gukemura ihazabu"] }
+      "bookkeeping": {
+        "title": "Kubika ibitabo (Bookkeeping)",
+        "desc": "Inyandiko z'ukwezi ku kwezi nyazo wishingikiriza.",
+        "bullets": [
+          "Kwinjiza ibikorwa bya buri munsi",
+          "Kuringaniza konti za banki",
+          "Inshamake y'ukwezi",
+          "Kubona kuri internet (cloud)"
+        ]
+      },
+      "tax": {
+        "title": "Gutegura imisoro",
+        "desc": "Gutegura no gutanga imisoro neza kandi ku gihe.",
+        "bullets": [
+          "VAT",
+          "PAYE",
+          "Umusoro ku nyungu",
+          "Withholding tax"
+        ]
+      },
+      "reporting": {
+        "title": "Raporo z'imari",
+        "desc": "Raporo zumvikana z'ukwezi n'umwaka zifasha mu gufata ibyemezo.",
+        "bullets": [
+          "Raporo y'inyungu (Income statement)",
+          "Balance sheet",
+          "Cash flow",
+          "KPI zihariye"
+        ]
+      },
+      "analysis": {
+        "title": "Isesengura ry'imari",
+        "desc": "Kumva neza imikorere n'inyungu by'ikigo cyawe.",
+        "bullets": [
+          "Isesengura ry'igihe (trend)",
+          "Isesengura ry'imibare (ratio)",
+          "Ingengo vs ibyabaye",
+          "Iteganyamigambi"
+        ]
+      },
+      "audit": {
+        "title": "Ubufasha mu igenzura (Audit)",
+        "desc": "Dutegura ibitabo byawe kandi tukaguherekeza mu gihe cy'igenzura.",
+        "bullets": [
+          "Ibitabo biteguye igenzura",
+          "Gukusanya inyandiko",
+          "Guhuza n'umugenzuzi",
+          "Gukurikirana nyuma y'igenzura"
+        ]
+      },
+      "compliance": {
+        "title": "Kubahiriza imisoro & inama",
+        "desc": "Komeza kubahiriza amategeko ugabanya ibyago binyuze mu nama z'umwuga.",
+        "bullets": [
+          "Gutanga raporo muri RRA (Rwanda Revenue Authority)",
+          "Kalendari yo kubahiriza",
+          "Ibiganiro by'inama",
+          "Gukemura ihazabu"
+        ]
+      }
     },
     "docs": {
-      "setup": { "title": "Gutangira bookkeeping", "items": ["Raporo za banki (amezi 3 ashize)", "Faktire n'inyemezabuguzi", "Urutonde rw'imishahara", "Chart of accounts (niba isanzwe)"] },
-      "tax": { "title": "Gutanga imisoro", "items": ["Icyemezo cya TIN", "Konti ya RRA (bishoboka)", "Inyandiko z'ibyacurujwe", "Inyandiko z'ibyaguzwe", "Urutonde rw'imishahara"] }
+      "setup": {
+        "title": "Gutangira bookkeeping",
+        "items": [
+          "Raporo za banki (amezi 3 ashize)",
+          "Faktire n'inyemezabuguzi",
+          "Urutonde rw'imishahara",
+          "Chart of accounts (niba isanzwe)"
+        ]
+      },
+      "tax": {
+        "title": "Gutanga imisoro",
+        "items": [
+          "Icyemezo cya TIN",
+          "Konti ya RRA (bishoboka)",
+          "Inyandiko z'ibyacurujwe",
+          "Inyandiko z'ibyaguzwe",
+          "Urutonde rw'imishahara"
+        ]
+      }
     }
   },
   "consultancySvc": {
@@ -169,16 +373,56 @@
     "subtitle": "Kwandikisha sosiyete, gutanga inama, no kuyifasha mu micungire — ku bigo by'ingero zose.",
     "cta": "Tegura inama y'ubuntu",
     "sub": {
-      "company": { "title": "Kwandikisha sosiyete", "desc": "Andikisha sosiyete yawe mu Rwanda mu mutekano.",
-        "bullets": ["Gushaka izina", "Kwiyandikisha muri RDB", "Kwiyandikisha mu misoro", "Gufungura konti ya banki"] },
-      "docs": { "title": "Gutunganya inyandiko", "desc": "Ubufasha mu kwemeza inyandiko (notary, apostille).",
-        "bullets": ["Serivisi za noteri", "Apostille / kwemeza", "Kopi zemejwe", "Gutanga muri ambasade"] },
-      "trade": { "title": "Inama ku bucuruzi & ishoramari", "desc": "Ubuyobozi ku bashoramari binjira ku isoko ry'u Rwanda.",
-        "bullets": ["Uburyo bwo kwinjira ku isoko", "Isesengura ry'urwego", "Uruhushya rw'umushoramari", "Guhuza n'abafatanyabikorwa"] },
-      "planning": { "title": "Gutegura ubucuruzi", "desc": "Tegura gahunda isobanutse yo gukura no kubona inkunga y'amafaranga.",
-        "bullets": ["Business model canvas", "Iteganyamari", "Isuzuma rya pitch deck", "Ihuriro rya strategy"] },
-      "admin": { "title": "Inkunga mu micungire", "desc": "Tubahire imirimo ya buri munsi yo gucunga ibikorwa.",
-        "bullets": ["Ubutumwa bw'ibiro", "Gutegura inyandiko", "Guhuza ubusemuzi", "Gucunga kalendari"] }
+      "company": {
+        "title": "Kwandikisha sosiyete",
+        "desc": "Andikisha sosiyete yawe mu Rwanda mu mutekano.",
+        "bullets": [
+          "Gushaka izina",
+          "Kwiyandikisha muri RDB",
+          "Kwiyandikisha mu misoro",
+          "Gufungura konti ya banki"
+        ]
+      },
+      "docs": {
+        "title": "Gutunganya inyandiko",
+        "desc": "Ubufasha mu kwemeza inyandiko (notary, apostille).",
+        "bullets": [
+          "Serivisi za noteri",
+          "Apostille / kwemeza",
+          "Kopi zemejwe",
+          "Gutanga muri ambasade"
+        ]
+      },
+      "trade": {
+        "title": "Inama ku bucuruzi & ishoramari",
+        "desc": "Ubuyobozi ku bashoramari binjira ku isoko ry'u Rwanda.",
+        "bullets": [
+          "Uburyo bwo kwinjira ku isoko",
+          "Isesengura ry'urwego",
+          "Uruhushya rw'umushoramari",
+          "Guhuza n'abafatanyabikorwa"
+        ]
+      },
+      "planning": {
+        "title": "Gutegura ubucuruzi",
+        "desc": "Tegura gahunda isobanutse yo gukura no kubona inkunga y'amafaranga.",
+        "bullets": [
+          "Business model canvas",
+          "Iteganyamari",
+          "Isuzuma rya pitch deck",
+          "Ihuriro rya strategy"
+        ]
+      },
+      "admin": {
+        "title": "Inkunga mu micungire",
+        "desc": "Tubahire imirimo ya buri munsi yo gucunga ibikorwa.",
+        "bullets": [
+          "Ubutumwa bw'ibiro",
+          "Gutegura inyandiko",
+          "Guhuza ubusemuzi",
+          "Gucunga kalendari"
+        ]
+      }
     }
   },
   "translationSvc": {
@@ -190,10 +434,22 @@
     "openPortal": "Fungura urubuga rw'ubusemuzi",
     "docBtn": "Ubusemuzi bw'inyandiko",
     "features": {
-      "live": { "title": "Abasemuzi mu kanya", "desc": "Abasemuzi b'amajwi mu minota mike." },
-      "doc": { "title": "Ubusemuzi bw'inyandiko", "desc": "Ubusemuzi bwemejwe ku miterere itandukanye y'inyandiko." },
-      "legal": { "title": "Ubusemuzi bw'amategeko", "desc": "Ubusemuzi bukomeye bukoreshwa mu nkiko." },
-      "multi": { "title": "Inkunga mu ndimi nyinshi", "desc": "Ubufasha mu ndimi 5+, 24/7." }
+      "live": {
+        "title": "Abasemuzi mu kanya",
+        "desc": "Abasemuzi b'amajwi mu minota mike."
+      },
+      "doc": {
+        "title": "Ubusemuzi bw'inyandiko",
+        "desc": "Ubusemuzi bwemejwe ku miterere itandukanye y'inyandiko."
+      },
+      "legal": {
+        "title": "Ubusemuzi bw'amategeko",
+        "desc": "Ubusemuzi bukomeye bukoreshwa mu nkiko."
+      },
+      "multi": {
+        "title": "Inkunga mu ndimi nyinshi",
+        "desc": "Ubufasha mu ndimi 5+, 24/7."
+      }
     },
     "languages": "Bihari mu: English · 中文 · Kinyarwanda · Français · العربية (izindi ziraza)",
     "ctaTitle": "Ukeneye ubusemuzi nonaha?",
@@ -210,9 +466,18 @@
     },
     "valuesHeading": "Indangagaciro",
     "values": {
-      "professional": { "title": "Umwuga", "desc": "Buri murimo w'umukiriya tuwukoresha ubwitange bukwiriye — inzira zumvikana, akazi nyako, n'ibyavuye mu kazi twishingiraho." },
-      "reliable": { "title": "Kwizerwa", "desc": "Igihe giteganyijwe, amakuru y'ukuri, kandi ntibikenewe ko ubaza buri saha. Ibyo tuvuga ni byo dukora." },
-      "efficient": { "title": "Ubunyangamugayo", "desc": "Ibikoresho bigezweho n'akazi gakoreshwa muri digital biraduha amahirwe yo gukorera abakiriya vuba ariko nta gace dushyizemo." }
+      "professional": {
+        "title": "Umwuga",
+        "desc": "Buri murimo w'umukiriya tuwukoresha ubwitange bukwiriye — inzira zumvikana, akazi nyako, n'ibyavuye mu kazi twishingiraho."
+      },
+      "reliable": {
+        "title": "Kwizerwa",
+        "desc": "Igihe giteganyijwe, amakuru y'ukuri, kandi ntibikenewe ko ubaza buri saha. Ibyo tuvuga ni byo dukora."
+      },
+      "efficient": {
+        "title": "Ubunyangamugayo",
+        "desc": "Ibikoresho bigezweho n'akazi gakoreshwa muri digital biraduha amahirwe yo gukorera abakiriya vuba ariko nta gace dushyizemo."
+      }
     },
     "officeHeading": "Aho biro biherereye",
     "address1": "Florida House, 2nd Floor",
@@ -232,9 +497,27 @@
     "haveAccountTail": "kugira ngo uvugane natwe muri dashboard yawe.",
     "formHeading": "Twoherereze ubutumwa",
     "infoHeading": "Amakuru yo kutuvugisha",
-    "labels": { "name": "Amazina", "email": "Imeri", "phone": "Telefoni", "subject": "Ingingo", "message": "Ubutumwa" },
-    "placeholders": { "name": "Amazina yawe", "email": "you@example.com", "phone": "+250 ...", "subject": "Hitamo ingingo", "message": "Twagufasha ate?" },
-    "subjects": { "visa": "Viza n'uburenganzira", "accounting": "Ibaruramari", "consultancy": "Inama z'ubucuruzi", "translation": "Ubusemuzi", "other": "Ibindi" },
+    "labels": {
+      "name": "Amazina",
+      "email": "Imeri",
+      "phone": "Telefoni",
+      "subject": "Ingingo",
+      "message": "Ubutumwa"
+    },
+    "placeholders": {
+      "name": "Amazina yawe",
+      "email": "you@example.com",
+      "phone": "+250 ...",
+      "subject": "Hitamo ingingo",
+      "message": "Twagufasha ate?"
+    },
+    "subjects": {
+      "visa": "Viza n'uburenganzira",
+      "accounting": "Ibaruramari",
+      "consultancy": "Inama z'ubucuruzi",
+      "translation": "Ubusemuzi",
+      "other": "Ibindi"
+    },
     "send": "Ohereza ubutumwa",
     "toast": "Twakiriye ubutumwa bwawe! Tuzasubiza mu masaha 24.",
     "hours": "Mbere–Gatanu 8:00–18:00 CAT",
@@ -250,38 +533,74 @@
       "general": {
         "title": "Rusange",
         "items": [
-          { "q": "Ni izihe serivisi San Brothers itanga?", "a": "Dutanga inzego enye z'ingenzi: viza n'uburenganzira, ibaruramari, inama z'ubucuruzi, n'ubusemuzi. Serivisi zose zitangirwa ku biro byacu i Kigali no kuri platform yacu kuri internet." },
-          { "q": "Ngomba kwiyandikisha kugira ngo nkoreshe urubuga?", "a": "Ushobora kureba amakuru rusange utiyandikishije, ariko kugira ngo usabe serivisi, wohereze inyandiko, cyangwa uvugane n'ikipe yacu, ukeneye konti y'ubuntu." },
-          { "q": "Amakuru yanjye ari mu mutekano?", "a": "Yego. Inyandiko n'amakuru bwite bibikwa mu buryo bwa encryption kandi bigerwaho gusa n'abakozi bashinzwe dosiye yawe. Ntidusangiza amakuru yawe abandi udatanze uruhushya rwanditse." }
+          {
+            "q": "Ni izihe serivisi San Brothers itanga?",
+            "a": "Dutanga inzego enye z'ingenzi: viza n'uburenganzira, ibaruramari, inama z'ubucuruzi, n'ubusemuzi. Serivisi zose zitangirwa ku biro byacu i Kigali no kuri platform yacu kuri internet."
+          },
+          {
+            "q": "Ngomba kwiyandikisha kugira ngo nkoreshe urubuga?",
+            "a": "Ushobora kureba amakuru rusange utiyandikishije, ariko kugira ngo usabe serivisi, wohereze inyandiko, cyangwa uvugane n'ikipe yacu, ukeneye konti y'ubuntu."
+          },
+          {
+            "q": "Amakuru yanjye ari mu mutekano?",
+            "a": "Yego. Inyandiko n'amakuru bwite bibikwa mu buryo bwa encryption kandi bigerwaho gusa n'abakozi bashinzwe dosiye yawe. Ntidusangiza amakuru yawe abandi udatanze uruhushya rwanditse."
+          }
         ]
       },
       "visa": {
         "title": "Viza n'Uburenganzira",
         "items": [
-          { "q": "Bisaba igihe kingana iki kubona viza yo kwiga?", "a": "Viza nyinshi z'abanyeshuri b'Ubushinwa zifatwa mu minsi 4–10 y'akazi nyuma yo kuzitanga muri ambasade, bitewe n'igihe cy'umwaka. Gutegura inyandiko bisaba ibyumweru 1–2 mbere yo gutanga." },
-          { "q": "Ni izihe nyandiko nkenera kuri viza yo kwiga mu Bushinwa?", "a": "Ubusanzwe: pasiporo ifite agaciro, ifishi JW202/JW201, ibaruwa yo kwemererwa, amafoto agezweho, ifishi y'isuzuma ry'ubuzima, n'ikimenyetso cy'amafaranga. Tukoherereza urutonde rwihariye nyuma y'inama." },
-          { "q": "Mwakwemeza ko viza izemerwa?", "a": "Oya. Icyemezo cya nyuma giterwa na ambasade. Icyo twemeza ni ko dosiye yawe izaba yuzuye, nyayo, kandi ufite ubuyobozi busobanutse — ibyo bigatuma amahirwe yo kwemerwa yiyongera cyane." }
+          {
+            "q": "Bisaba igihe kingana iki kubona viza yo kwiga?",
+            "a": "Viza nyinshi z'abanyeshuri b'Ubushinwa zifatwa mu minsi 4–10 y'akazi nyuma yo kuzitanga muri ambasade, bitewe n'igihe cy'umwaka. Gutegura inyandiko bisaba ibyumweru 1–2 mbere yo gutanga."
+          },
+          {
+            "q": "Ni izihe nyandiko nkenera kuri viza yo kwiga mu Bushinwa?",
+            "a": "Ubusanzwe: pasiporo ifite agaciro, ifishi JW202/JW201, ibaruwa yo kwemererwa, amafoto agezweho, ifishi y'isuzuma ry'ubuzima, n'ikimenyetso cy'amafaranga. Tukoherereza urutonde rwihariye nyuma y'inama."
+          },
+          {
+            "q": "Mwakwemeza ko viza izemerwa?",
+            "a": "Oya. Icyemezo cya nyuma giterwa na ambasade. Icyo twemeza ni ko dosiye yawe izaba yuzuye, nyayo, kandi ufite ubuyobozi busobanutse — ibyo bigatuma amahirwe yo kwemerwa yiyongera cyane."
+          }
         ]
       },
       "accounting": {
         "title": "Ibaruramari",
         "items": [
-          { "q": "Mwasora muri RRA mu izina ryanjye?", "a": "Yego. Iyo udutanze uruhushya, dutegura kandi tugatanga VAT, PAYE, withholding tax, n'umusoro ku nyungu binyuze kuri portal ya RRA. Guhuza neza na RRA biri muri gahunda." },
-          { "q": "Bookkeeping y'ukwezi itwara amafaranga angahe?", "a": "Bookkeeping itangira kuri 50,000 RWF/ukwezi ku bigo bito, kandi yiyongera bitewe n'ibikorwa n'urwego. Tugutegurira igiciro nyuma y'ikiganiro gito." }
+          {
+            "q": "Mwasora muri RRA mu izina ryanjye?",
+            "a": "Yego. Iyo udutanze uruhushya, dutegura kandi tugatanga VAT, PAYE, withholding tax, n'umusoro ku nyungu binyuze kuri portal ya RRA. Guhuza neza na RRA biri muri gahunda."
+          },
+          {
+            "q": "Bookkeeping y'ukwezi itwara amafaranga angahe?",
+            "a": "Bookkeeping itangira kuri 50,000 RWF/ukwezi ku bigo bito, kandi yiyongera bitewe n'ibikorwa n'urwego. Tugutegurira igiciro nyuma y'ikiganiro gito."
+          }
         ]
       },
       "translation": {
         "title": "Ubusemuzi",
         "items": [
-          { "q": "Bigenda bite kuri telefoni n'umusemuzi mu kanya?", "a": "Kuri urubuga rw'ubusemuzi uhitamo indimi ebyiri, hanyuma tukaguhuza n'umusemuzi uhari mu minota mike binyuze ku ijwi cyangwa kuri video. Wishyura kuri buri munota nyuma y'ikiganiro." },
-          { "q": "Mwasemurira mu Kinyarwanda?", "a": "Yego. Ikinyarwanda ni rumwe mu ndimi z'ibanze, gihuzwa n'Icyongereza, Igishinwa, Igifaransa, n'Icyarabu." },
-          { "q": "Hari igihe cyo kugerageza ku buntu?", "a": "Yego. Abakiriya bashya bahabwa igihe gito cy'umusemuzi ku buntu mbere yo kwishyura. Ku busemuzi bw'inyandiko, igiciro gitangwa mbere y'akazi gatangira." }
+          {
+            "q": "Bigenda bite kuri telefoni n'umusemuzi mu kanya?",
+            "a": "Kuri urubuga rw'ubusemuzi uhitamo indimi ebyiri, hanyuma tukaguhuza n'umusemuzi uhari mu minota mike binyuze ku ijwi cyangwa kuri video. Wishyura kuri buri munota nyuma y'ikiganiro."
+          },
+          {
+            "q": "Mwasemurira mu Kinyarwanda?",
+            "a": "Yego. Ikinyarwanda ni rumwe mu ndimi z'ibanze, gihuzwa n'Icyongereza, Igishinwa, Igifaransa, n'Icyarabu."
+          },
+          {
+            "q": "Hari igihe cyo kugerageza ku buntu?",
+            "a": "Yego. Abakiriya bashya bahabwa igihe gito cy'umusemuzi ku buntu mbere yo kwishyura. Ku busemuzi bw'inyandiko, igiciro gitangwa mbere y'akazi gatangira."
+          }
         ]
       },
       "payments": {
         "title": "Kwishyura",
         "items": [
-          { "q": "Ni ubuhe buryo bwo kwishyura mwemera?", "a": "Twemera Mobile Money (MTN, Airtel), kohereza muri banki muri RWF, no kwishyura ku makarita mpuzamahanga muri USD. Inyemezabuguzi zitangwa mu buryo bwikora." }
+          {
+            "q": "Ni ubuhe buryo bwo kwishyura mwemera?",
+            "a": "Twemera Mobile Money (MTN, Airtel), kohereza muri banki muri RWF, no kwishyura ku makarita mpuzamahanga muri USD. Inyemezabuguzi zitangwa mu buryo bwikora."
+          }
         ]
       }
     }
@@ -290,35 +609,446 @@
     "heroTitle": "Ibiciro bigaragara",
     "heroSubtitle": "Nta mafaranga ahishe. Wishyura icyo ukoresha gusa.",
     "allPrices": "Ibiciro byose biri muri RWF. Ku mpuzamahanga twemera kwishyura muri USD.",
-    "tabs": { "visa": "Viza", "accounting": "Ibaruramari", "consultancy": "Inama", "translation": "Ubusemuzi" },
+    "tabs": {
+      "visa": "Viza",
+      "accounting": "Ibaruramari",
+      "consultancy": "Inama",
+      "translation": "Ubusemuzi"
+    },
     "mostPopular": "Bikundwa cyane",
     "contactQuote": "Twandikire ubone igiciro nyacyo",
     "getStarted": "Tangira",
     "translationStrip": "Ibiciro by'umusemuzi mu kanya n'ubusemuzi bw'inyandiko biri kuri platform yihariye —",
     "weSpeakBrand": "We Speak Your Language",
     "openPortal": "Fungura urubuga",
-    "bottom": { "whatIncluded": "Ni iki kirimo?", "howFees": "Amafaranga abarwa bite?", "refund": "Politiki yo gusubiza" },
+    "bottom": {
+      "whatIncluded": "Ni iki kirimo?",
+      "howFees": "Amafaranga abarwa bite?",
+      "refund": "Politiki yo gusubiza"
+    },
     "plans": {
       "visa": [
-        { "name": "Viza y'ubukerarugendo", "price": "Uhereye 80,000 RWF", "intent": "tourist-visa", "features": ["Urutonde rw'inyandiko", "Isuzuma rya dosiye", "Inkunga yo gutanga"] },
-        { "name": "Viza yo kwiga", "price": "Uhereye 150,000 RWF", "intent": "student-visa", "popular": true, "features": ["Gutegura inyandiko zose", "Gutanga muri ambasade", "Imyitozo y'ikiganiro", "Gukurikirana"] },
-        { "name": "Uburenganzira bwo gukora", "price": "Uhereye 200,000 RWF", "intent": "work-permit", "features": ["Gucunga byose", "Guhuza n'umukoresha", "Kwibutsa kwongera igihe"] }
+        {
+          "name": "Viza y'ubukerarugendo",
+          "price": "Uhereye 80,000 RWF",
+          "intent": "tourist-visa",
+          "features": [
+            "Urutonde rw'inyandiko",
+            "Isuzuma rya dosiye",
+            "Inkunga yo gutanga"
+          ]
+        },
+        {
+          "name": "Viza yo kwiga",
+          "price": "Uhereye 150,000 RWF",
+          "intent": "student-visa",
+          "popular": true,
+          "features": [
+            "Gutegura inyandiko zose",
+            "Gutanga muri ambasade",
+            "Imyitozo y'ikiganiro",
+            "Gukurikirana"
+          ]
+        },
+        {
+          "name": "Uburenganzira bwo gukora",
+          "price": "Uhereye 200,000 RWF",
+          "intent": "work-permit",
+          "features": [
+            "Gucunga byose",
+            "Guhuza n'umukoresha",
+            "Kwibutsa kwongera igihe"
+          ]
+        }
       ],
       "accounting": [
-        { "name": "Starter", "price": "Uhereye 50,000 RWF / ukwezi", "intent": "bookkeeping", "features": ["Ibikorwa kugeza 50", "Inshamake y'ukwezi", "Ubufasha kuri imeri"] },
-        { "name": "Standard", "price": "Uhereye 120,000 RWF / ukwezi", "intent": "tax-filing", "popular": true, "features": ["Ibikorwa kugeza 200", "Gutanga VAT & PAYE", "Raporo z'igihembwe"] },
-        { "name": "Premium", "price": "Uhereye 250,000 RWF / ukwezi", "intent": "tax-compliance", "features": ["Ibikorwa nta mubare ntarengwa", "Kubahiriza imisoro byose", "Umubaruramari wihariye"] }
+        {
+          "name": "Starter",
+          "price": "Uhereye 50,000 RWF / ukwezi",
+          "intent": "bookkeeping",
+          "features": [
+            "Ibikorwa kugeza 50",
+            "Inshamake y'ukwezi",
+            "Ubufasha kuri imeri"
+          ]
+        },
+        {
+          "name": "Standard",
+          "price": "Uhereye 120,000 RWF / ukwezi",
+          "intent": "tax-filing",
+          "popular": true,
+          "features": [
+            "Ibikorwa kugeza 200",
+            "Gutanga VAT & PAYE",
+            "Raporo z'igihembwe"
+          ]
+        },
+        {
+          "name": "Premium",
+          "price": "Uhereye 250,000 RWF / ukwezi",
+          "intent": "tax-compliance",
+          "features": [
+            "Ibikorwa nta mubare ntarengwa",
+            "Kubahiriza imisoro byose",
+            "Umubaruramari wihariye"
+          ]
+        }
       ],
       "consultancy": [
-        { "name": "Kwandikisha sosiyete", "price": "Uhereye 180,000 RWF", "intent": "company-registration", "features": ["Gushaka izina & kwiyandikisha muri RDB", "Kwiyandikisha mu misoro", "Guhuza na banki"] },
-        { "name": "Business Plan", "price": "Uhereye 350,000 RWF", "intent": "business-planning", "popular": true, "features": ["Ibiganiro by'isuzuma", "Financial model", "Inyandiko ya pitch"] },
-        { "name": "Inama z'ishoramari", "price": "Igiciro cyihariye", "intent": "trade-investment", "features": ["Strategy yo kwinjira ku isoko", "Inkunga mu mpushya", "Guhuza n'abafatanyabikorwa baho"] }
+        {
+          "name": "Kwandikisha sosiyete",
+          "price": "Uhereye 180,000 RWF",
+          "intent": "company-registration",
+          "features": [
+            "Gushaka izina & kwiyandikisha muri RDB",
+            "Kwiyandikisha mu misoro",
+            "Guhuza na banki"
+          ]
+        },
+        {
+          "name": "Business Plan",
+          "price": "Uhereye 350,000 RWF",
+          "intent": "business-planning",
+          "popular": true,
+          "features": [
+            "Ibiganiro by'isuzuma",
+            "Financial model",
+            "Inyandiko ya pitch"
+          ]
+        },
+        {
+          "name": "Inama z'ishoramari",
+          "price": "Igiciro cyihariye",
+          "intent": "trade-investment",
+          "features": [
+            "Strategy yo kwinjira ku isoko",
+            "Inkunga mu mpushya",
+            "Guhuza n'abafatanyabikorwa baho"
+          ]
+        }
       ],
       "translation": [
-        { "name": "Inyandiko (kuri buri rupapuro)", "price": "Uhereye 8,000 RWF", "intent": "document-translation", "features": ["Igihe gisanzwe", "Kopi zemejwe iyo bisabwe"] },
-        { "name": "Umusemuzi mu kanya", "price": "Uhereye 1,500 RWF / umunota", "intent": "live-interpreter", "popular": true, "features": ["Kuvugana mu minota mike", "Ijwi cyangwa video", "Wishyura kuri buri munota"] },
-        { "name": "Ubusemuzi bw'amategeko", "price": "Uhereye 12,000 RWF / urupapuro", "intent": "legal-translation", "features": ["Ubwiza bukoreshwa mu nkiko", "Notarization irahari"] }
+        {
+          "name": "Inyandiko (kuri buri rupapuro)",
+          "price": "Uhereye 8,000 RWF",
+          "intent": "document-translation",
+          "features": [
+            "Igihe gisanzwe",
+            "Kopi zemejwe iyo bisabwe"
+          ]
+        },
+        {
+          "name": "Umusemuzi mu kanya",
+          "price": "Uhereye 1,500 RWF / umunota",
+          "intent": "live-interpreter",
+          "popular": true,
+          "features": [
+            "Kuvugana mu minota mike",
+            "Ijwi cyangwa video",
+            "Wishyura kuri buri munota"
+          ]
+        },
+        {
+          "name": "Ubusemuzi bw'amategeko",
+          "price": "Uhereye 12,000 RWF / urupapuro",
+          "intent": "legal-translation",
+          "features": [
+            "Ubwiza bukoreshwa mu nkiko",
+            "Notarization irahari"
+          ]
+        }
       ]
+    }
+  },
+  "translate": {
+    "brand": {
+      "wordmark": "Turavuga Ururimi Rwawe"
+    },
+    "nav": {
+      "backToCorporate": "Garuka kuri San Brothers Corporate",
+      "home": "Ahabanza",
+      "howItWorks": "Uko bikora",
+      "languages": "Indimi",
+      "pricing": "Ibiciro",
+      "getHelpNow": "Saba Ubufasha Nonaha"
+    },
+    "footer": {
+      "partOf": "Igice cya San Brothers Company Ltd",
+      "corporateSite": "Urubuga rw'ikigo",
+      "address": "Florida House, KN 70 St, Kigali"
+    },
+    "home": {
+      "eyebrow": "TURAVUGA URURIMI RWAWE",
+      "hero": {
+        "title": "Ukeneye ubufasha mu rurimi rwawe?",
+        "subtitle": "Abasemuzi nzima barahari ubu. Inyandiko zisemurwa n'abanyamwuga.",
+        "primaryCta": "Vugana n'Umusemuzi Nonaha",
+        "secondaryCta": "Semura Inyandiko",
+        "note": "Iminota 5 ya mbere ni ubuntu · Nta karita y'inguzanyo isabwa",
+        "morePlus": "+ izindi"
+      },
+      "howHeading": "Uko bikora",
+      "step": "Intambwe",
+      "steps": {
+        "choose": {
+          "title": "Hitamo indimi zawe",
+          "desc": "Icyongereza ujya mu Kinyarwanda? Igishinwa mu Gifaransa? Tubwire."
+        },
+        "match": {
+          "title": "Uhuzwa mu masegonda make",
+          "desc": "Tuguhuza n'umusemuzi uvuga indimi zombi kandi uri online."
+        },
+        "talk": {
+          "title": "Vugana cyangwa ohereza inyandiko",
+          "desc": "Telefoni cyangwa video, cyangwa ohereza dosiye. Birangiye."
+        }
+      },
+      "offeringsHeading": "Ibyo dusemura",
+      "offerings": {
+        "live": {
+          "title": "Ubusemuzi bw'ako kanya",
+          "desc": "Telefoni cyangwa video y'ako kanya n'umusemuzi nzima."
+        },
+        "doc": {
+          "title": "Ubusemuzi bw'Inyandiko",
+          "desc": "Amabaruwa, impamyabushobozi z'ishuri, amasezerano y'ubucuruzi."
+        },
+        "legal": {
+          "title": "Ubusemuzi bw'Amategeko",
+          "desc": "Ubusemuzi bwemewe ku nyandiko zemewe."
+        },
+        "multi": {
+          "title": "Ubufasha mu Ndimi Nyinshi",
+          "desc": "Ubufasha ku mafishi, urubuga, n'izindi nyandiko."
+        }
+      },
+      "why": {
+        "human": {
+          "title": "Abasemuzi nzima",
+          "desc": "Abanyamwuga bahuguwe — atari mashini ya AI. Ukuri, urukurikirane, n'ibanga."
+        },
+        "always": {
+          "title": "Turahari 24/7",
+          "desc": "Ku manywa cyangwa nijoro, ku munsi w'akazi cyangwa weekend, hari uhari kugufasha."
+        },
+        "pay": {
+          "title": "Wishyura icyo wakoresheje gusa",
+          "desc": "Gura iminota, iyandikishe ku kwezi cyangwa fata day pass. Nta mafaranga ahishe."
+        }
+      },
+      "scenariosHeading": "Ibibazo nyabyo, ubufasha nyabwo",
+      "scenarios": {
+        "airport": {
+          "scenario": "Ngeze ku kibuga cy'indege cya KGL kandi sinzi Ikinyarwanda.",
+          "solution": "Bona umusemuzi mu masegonda make."
+        },
+        "diploma": {
+          "scenario": "Nkeneye gusemura impamyabumenyi yanjye y'Igishinwa kugira ngo ninjire muri kaminuza mu Rwanda.",
+          "solution": "Yoherezeho ubu, uyibone mu masaha 24."
+        },
+        "business": {
+          "scenario": "Nkora ibyangombwa by'ubucuruzi ariko ifishi yo kwiyandikisha iri mu Gifaransa.",
+          "solution": "Vugana n'umuntu ukuyobora intambwe ku yindi."
+        }
+      }
+    },
+    "howItWorks": {
+      "title": "Uko Bikora",
+      "subtitle": "Kuva ku kwiyandikisha kugeza ku musemuzi mu munota wa 2",
+      "steps": [
+        {
+          "title": "Iyandikishe mu masegonda 30",
+          "desc": "Izina, email cyangwa telefoni, ijambobanga. Twohereza kode yo kwemeza."
+        },
+        {
+          "title": "Hitamo icyo ukeneye",
+          "desc": "Umusemuzi w'ako kanya, ubusemuzi bw'inyandiko, cyangwa ubw'amategeko."
+        },
+        {
+          "title": "Hitamo indimi zawe",
+          "desc": "Uva mu rurimi uki ujya mu rundi."
+        },
+        {
+          "title": "Gerageza ubuntu (iminota 5 ya mbere)",
+          "desc": "Gerageza serivisi mbere yo kwishyura."
+        },
+        {
+          "title": "Gura iminota cyangwa wiyandikishe",
+          "desc": "Ishyura icyo wakoresheje, cyangwa ubone uburenganzira bwuzuye."
+        },
+        {
+          "title": "Komeza guhuzwa",
+          "desc": "Abakiriya basubira bashobora guhuzwa n'umusemuzi umwe niba ahari."
+        }
+      ],
+      "expect": {
+        "heading": "Ibyo witegereza",
+        "points": [
+          "Abasemuzi bose ni abantu nzima — ntabwo ari AI.",
+          "Ikiganiro gishobora kuba telefoni cyangwa video — uhitamo.",
+          "Inyandiko zigaruka mu buryo bwa PDF, byiteguye kumanura.",
+          "Byose ni ibanga kandi byashyizwemo umutekano."
+        ]
+      }
+    },
+    "languages": {
+      "title": "Indimi Dushyigikira",
+      "subtitle": "Ubusemuzi bw'ako kanya n'ubw'inyandiko muri:",
+      "liveDocs": "Live + Inyandiko",
+      "comingSoon": "Biraza vuba",
+      "notListed": "Ukeneye ururimi rutari kuri urutonde? Tuvugishe — twongera abasemuzi bashya buri cyumweru.",
+      "requestCta": "Saba ururimi rushya"
+    },
+    "document": {
+      "title": "Ubusemuzi bw'Inyandiko",
+      "subtitle": "Yohereza. Turaisemura. Uyisubizwa.",
+      "flow": {
+        "upload": "Ohereza",
+        "translate": "Semura",
+        "download": "Manura"
+      },
+      "itemsHeading": "Ibyo dusemura",
+      "items": [
+        "Amabaruwa bwite",
+        "Amanota n'impamyabumenyi z'ishuri",
+        "Amasezerano y'ubucuruzi",
+        "Inyandiko z'amategeko (zemewe)",
+        "Raporo z'ubuvuzi",
+        "Impapuro z'amavuko/ubukwe",
+        "Konti ya banki",
+        "Ikindi cyose — turabaza"
+      ],
+      "turnaround": {
+        "heading": "Igihe byatwara",
+        "rows": [
+          {
+            "label": "Inyandiko ngufi (urupapuro 1–3)",
+            "time": "Amasaha 24"
+          },
+          {
+            "label": "Bisanzwe (urupapuro 4–10)",
+            "time": "Iminsi 2–3 y'akazi"
+          },
+          {
+            "label": "Ndende cyangwa za tekiniki (10+)",
+            "time": "Iminsi 5–7 y'akazi"
+          },
+          {
+            "label": "Byihutirwa / byemewe",
+            "time": "Tuvugishe ku giciro"
+          }
+        ]
+      },
+      "formats": {
+        "heading": "Imiterere ya dosiye yemewe",
+        "list": [
+          "PDF",
+          "Word",
+          "JPG",
+          "PNG",
+          "Inyandiko zafotowe"
+        ]
+      }
+    },
+    "live": {
+      "title": "Ibiganiro by'Umusemuzi w'Ako Kanya",
+      "subtitle": "Vugana n'umuntu nzima mu masegonda make",
+      "how": {
+        "heading": "Uko ikiganiro gikora",
+        "steps": [
+          "Hitamo indimi zawe.",
+          "Kanda \"Shaka Umusemuzi\".",
+          "Tuguhuza n'umuntu uvuga indimi zombi.",
+          "Telefoni cyangwa video — uhitamo.",
+          "Ganira igihe cyose ukeneye."
+        ]
+      },
+      "uses": {
+        "heading": "Aho byifashishwa",
+        "items": [
+          "Ku kibuga cy'indege, ibitaro, biro za leta",
+          "Inama z'ubucuruzi n'abafatanyabikorwa b'abanyamahanga",
+          "Guhamagara umuntu udavuga ururimi rwawe",
+          "Kuzura ifishi"
+        ]
+      },
+      "trial": {
+        "eyebrow": "Igeragezwa ku buntu",
+        "heading": "Iminota 5 ya mbere ni ubuntu",
+        "points": [
+          "Umusemuzi nzima (atari AI)",
+          "Nta karita y'inguzanyo isabwa",
+          "Nta nshingano nyuma y'igeragezwa"
+        ]
+      },
+      "pricing": {
+        "heading": "Incamake y'ibiciro",
+        "points": [
+          "Ishyura uko ukoresha, uhereye kuri 500 RWF/umunota",
+          "Day pass irahari",
+          "Iyandikisha rya buri kwezi ku bakoresha kenshi"
+        ],
+        "seeFull": "Reba ibiciro byose"
+      }
+    },
+    "pricing": {
+      "title": "Ibiciro Byoroshye, Ishyura uko Ukoresha",
+      "subtitle": "Tangirana n'iminota 5 y'ubuntu. Nta karita y'inguzanyo isabwa.",
+      "tabs": {
+        "payg": "Ishyura uko ukoresha",
+        "daily": "Pass y'umunsi",
+        "monthly": "Buri kwezi",
+        "yearly": "Buri mwaka"
+      },
+      "mostPopular": "BIKUNZWE CYANE",
+      "tierPopular": "Bikunzwe",
+      "tiers": {
+        "starter": "Itangiriro",
+        "pro": "Pro",
+        "halfday": "Igice cy'umunsi",
+        "fullday": "Umunsi wose",
+        "light": "Bike",
+        "business": "Ubucuruzi",
+        "casual": "Bisanzwe",
+        "heavy": "Byinshi"
+      },
+      "minutes": "iminota",
+      "validity": {
+        "24h": "amasaha 24",
+        "month": "ukwezi",
+        "year": "umwaka"
+      },
+      "buy": "Gura",
+      "subscribe": "Iyandikishe",
+      "docHeading": "Ibiciro by'Ubusemuzi bw'Inyandiko",
+      "docStandard": {
+        "title": "Ubusemuzi busanzwe"
+      },
+      "docCertified": {
+        "title": "Ubusemuzi bwemewe"
+      },
+      "page": "urupapuro",
+      "docNote": "Igiciro nyacyo gishingira ku burebure n'ubukomere. Wohereje wabona igiciro nyacyo.",
+      "faq": {
+        "heading": "Ibibazo bikunze kubazwa",
+        "expire": {
+          "q": "Iminota irarangira?",
+          "a": "Ku ishyura uko ukoresha: ntirarangira. Ku biyandikishije, bishobora kwimukira ku kwezi 2 nibura."
+        },
+        "cancel": {
+          "q": "Nshobora guhagarika igihe icyo aricyo cyose?",
+          "a": "Yego. Hagarika mbere yo kongera kwishyura; igihe cy'ubu kikomeza."
+        },
+        "payments": {
+          "q": "Ni izihe nzira zo kwishyura?",
+          "a": "MoMo (MTN/Airtel), amakarita, PayPal."
+        }
+      }
+    },
+    "finalCta": {
+      "heading": "Ubufasha buri ku rutoki rumwe",
+      "subtitle": "Gerageza iminota 5 ku buntu. Nta karita y'inguzanyo isabwa.",
+      "button": "Tangira Nonaha"
     }
   }
 }
