@@ -28,14 +28,29 @@
     "contact": "Contact",
     "copyright": "San Brothers Global Digital Ecosystem.",
     "links": {
-      "company": "Company", "team": "Team", "careers": "Careers",
-      "visa": "Visa", "accounting": "Accounting", "translation": "Translation", "consultancy": "Consultancy",
-      "blog": "Blog", "helpCenter": "Help Center", "api": "API",
-      "privacy": "Privacy", "terms": "Terms", "cookies": "Cookies",
-      "support": "Support", "sales": "Sales", "press": "Press"
+      "company": "Company",
+      "team": "Team",
+      "careers": "Careers",
+      "visa": "Visa",
+      "accounting": "Accounting",
+      "translation": "Translation",
+      "consultancy": "Consultancy",
+      "blog": "Blog",
+      "helpCenter": "Help Center",
+      "api": "API",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "cookies": "Cookies",
+      "support": "Support",
+      "sales": "Sales",
+      "press": "Press"
     }
   },
-  "theme": { "light": "Light", "dark": "Dark", "system": "System" },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
   "services": {
     "visa": "Visa & Permit Facilitation",
     "accounting": "Accounting Services",
@@ -62,20 +77,53 @@
       "translation": "Document translation and live interpreters in multiple languages."
     },
     "why": {
-      "intl": { "title": "International Standards", "desc": "Processes built around best-practice compliance, security, and confidentiality." },
-      "access": { "title": "24/7 Online Access", "desc": "Submit requests, upload documents, and track progress at any hour." },
-      "multi": { "title": "Multilingual Support", "desc": "We work in English, 中文, Kinyarwanda, French, and Arabic." }
+      "intl": {
+        "title": "International Standards",
+        "desc": "Processes built around best-practice compliance, security, and confidentiality."
+      },
+      "access": {
+        "title": "24/7 Online Access",
+        "desc": "Submit requests, upload documents, and track progress at any hour."
+      },
+      "multi": {
+        "title": "Multilingual Support",
+        "desc": "We work in English, 中文, Kinyarwanda, French, and Arabic."
+      }
     },
     "steps": {
-      "register": { "title": "Register", "desc": "Create a secure account." },
-      "choose": { "title": "Choose service", "desc": "Pick the help you need." },
-      "upload": { "title": "Upload documents", "desc": "Securely share your files." },
-      "track": { "title": "Track to completion", "desc": "Follow each step in real time." }
+      "register": {
+        "title": "Register",
+        "desc": "Create a secure account."
+      },
+      "choose": {
+        "title": "Choose service",
+        "desc": "Pick the help you need."
+      },
+      "upload": {
+        "title": "Upload documents",
+        "desc": "Securely share your files."
+      },
+      "track": {
+        "title": "Track to completion",
+        "desc": "Follow each step in real time."
+      }
     },
     "testimonials": [
-      { "quote": "San Brothers handled my student visa to China end to end. I never had to chase them for an update.", "name": "Aline M.", "loc": "Kigali" },
-      { "quote": "Their accounting team filed our taxes faster than our previous firm. Worth every franc.", "name": "Jean Paul K.", "loc": "Kigali" },
-      { "quote": "Got a Chinese-to-Kinyarwanda translator within minutes. The platform is a lifesaver for tourists.", "name": "Wang Wei", "loc": "Beijing" }
+      {
+        "quote": "San Brothers handled my student visa to China end to end. I never had to chase them for an update.",
+        "name": "Aline M.",
+        "loc": "Kigali"
+      },
+      {
+        "quote": "Their accounting team filed our taxes faster than our previous firm. Worth every franc.",
+        "name": "Jean Paul K.",
+        "loc": "Kigali"
+      },
+      {
+        "quote": "Got a Chinese-to-Kinyarwanda translator within minutes. The platform is a lifesaver for tourists.",
+        "name": "Wang Wei",
+        "loc": "Beijing"
+      }
     ]
   },
   "servicesPage": {
@@ -88,19 +136,42 @@
     "cards": {
       "visa": {
         "desc": "End-to-end visa and permit support for travel, business, study, and work. We handle paperwork, embassy submission, and follow-up.",
-        "sub": ["Tourist Visa", "Business Visa", "Student Visa", "Work Permit", "Visa Consultation"]
+        "sub": [
+          "Tourist Visa",
+          "Business Visa",
+          "Student Visa",
+          "Work Permit",
+          "Visa Consultation"
+        ]
       },
       "accounting": {
         "desc": "Full-cycle accounting: bookkeeping, financial reporting, audit support and tax compliance for SMEs and individuals.",
-        "sub": ["Bookkeeping", "Tax Preparation", "Financial Reporting", "Audit Support", "Tax Compliance Advisory"]
+        "sub": [
+          "Bookkeeping",
+          "Tax Preparation",
+          "Financial Reporting",
+          "Audit Support",
+          "Tax Compliance Advisory"
+        ]
       },
       "consultancy": {
         "desc": "Company registration, trade & investment advisory, business planning, and admin support for new and growing businesses.",
-        "sub": ["Company Registration", "Document Processing", "Trade & Investment Advisory", "Business Planning", "Administrative Support"]
+        "sub": [
+          "Company Registration",
+          "Document Processing",
+          "Trade & Investment Advisory",
+          "Business Planning",
+          "Administrative Support"
+        ]
       },
       "translation": {
         "desc": "Document translation and live interpreters across English, Chinese, Kinyarwanda, French and Arabic. Powered by our dedicated translation portal.",
-        "sub": ["Document Translation", "Live Interpreters", "Legal Translation", "Multilingual Support"]
+        "sub": [
+          "Document Translation",
+          "Live Interpreters",
+          "Legal Translation",
+          "Multilingual Support"
+        ]
       }
     }
   },
@@ -124,21 +195,89 @@
     "subtitle": "Tourist, business, student visas and work permits — handled end to end.",
     "cta": "Request a Visa Consultation",
     "sub": {
-      "tourist": { "title": "Tourist Visa", "desc": "Short-stay visa support for travel and family visits.",
-        "bullets": ["Valid passport (6+ months)", "Travel itinerary", "Hotel booking", "Bank statements"] },
-      "business": { "title": "Business Visa", "desc": "Visas for meetings, conferences, and trade visits.",
-        "bullets": ["Invitation letter", "Company registration", "Travel insurance", "Bank statements"] },
-      "student": { "title": "Student Visa", "desc": "End-to-end help for studies in China and beyond.",
-        "bullets": ["Admission letter", "Academic records", "Health certificate", "Financial proof"] },
-      "work": { "title": "Work Permit", "desc": "Work authorization documentation and renewals.",
-        "bullets": ["Employment contract", "Background check", "Medical exam", "Educational credentials"] },
-      "consult": { "title": "Visa Consultation", "desc": "1:1 advice on the best visa path for your situation.",
-        "bullets": ["30-minute call", "Eligibility review", "Documents checklist", "Timeline estimate"] }
+      "tourist": {
+        "title": "Tourist Visa",
+        "desc": "Short-stay visa support for travel and family visits.",
+        "bullets": [
+          "Valid passport (6+ months)",
+          "Travel itinerary",
+          "Hotel booking",
+          "Bank statements"
+        ]
+      },
+      "business": {
+        "title": "Business Visa",
+        "desc": "Visas for meetings, conferences, and trade visits.",
+        "bullets": [
+          "Invitation letter",
+          "Company registration",
+          "Travel insurance",
+          "Bank statements"
+        ]
+      },
+      "student": {
+        "title": "Student Visa",
+        "desc": "End-to-end help for studies in China and beyond.",
+        "bullets": [
+          "Admission letter",
+          "Academic records",
+          "Health certificate",
+          "Financial proof"
+        ]
+      },
+      "work": {
+        "title": "Work Permit",
+        "desc": "Work authorization documentation and renewals.",
+        "bullets": [
+          "Employment contract",
+          "Background check",
+          "Medical exam",
+          "Educational credentials"
+        ]
+      },
+      "consult": {
+        "title": "Visa Consultation",
+        "desc": "1:1 advice on the best visa path for your situation.",
+        "bullets": [
+          "30-minute call",
+          "Eligibility review",
+          "Documents checklist",
+          "Timeline estimate"
+        ]
+      }
     },
     "docs": {
-      "tourist": { "title": "Tourist Visa", "items": ["Valid passport", "Recent photos", "Travel itinerary", "Hotel booking", "Bank statements"] },
-      "studentChina": { "title": "Student Visa (China)", "items": ["JW202 / JW201 form", "Admission notice", "Passport", "Photos", "Physical exam form", "Bank statements"] },
-      "work": { "title": "Work Permit", "items": ["Signed employment contract", "Health certificate", "Police clearance", "Education credentials", "Passport"] }
+      "tourist": {
+        "title": "Tourist Visa",
+        "items": [
+          "Valid passport",
+          "Recent photos",
+          "Travel itinerary",
+          "Hotel booking",
+          "Bank statements"
+        ]
+      },
+      "studentChina": {
+        "title": "Student Visa (China)",
+        "items": [
+          "JW202 / JW201 form",
+          "Admission notice",
+          "Passport",
+          "Photos",
+          "Physical exam form",
+          "Bank statements"
+        ]
+      },
+      "work": {
+        "title": "Work Permit",
+        "items": [
+          "Signed employment contract",
+          "Health certificate",
+          "Police clearance",
+          "Education credentials",
+          "Passport"
+        ]
+      }
     }
   },
   "accountingSvc": {
@@ -146,22 +285,87 @@
     "subtitle": "Bookkeeping, tax filing, and financial reporting for SMEs and individuals.",
     "cta": "Request an Accounting Consultation",
     "sub": {
-      "bookkeeping": { "title": "Bookkeeping", "desc": "Accurate month-to-month records you can rely on.",
-        "bullets": ["Daily transaction entry", "Bank reconciliation", "Monthly summary", "Cloud-based access"] },
-      "tax": { "title": "Tax Preparation", "desc": "Prepare and file taxes correctly and on time.",
-        "bullets": ["VAT", "PAYE", "Income tax", "Withholding tax"] },
-      "reporting": { "title": "Financial Reporting", "desc": "Clear monthly and annual reports for decision-making.",
-        "bullets": ["Income statement", "Balance sheet", "Cash flow", "Custom KPIs"] },
-      "analysis": { "title": "Financial Analysis", "desc": "Insight into performance and profitability.",
-        "bullets": ["Trend analysis", "Ratio analysis", "Budget vs actual", "Forecasting"] },
-      "audit": { "title": "Audit Support", "desc": "We prepare your books and stand by you during audits.",
-        "bullets": ["Audit-ready records", "Document gathering", "Auditor liaison", "Post-audit follow-up"] },
-      "compliance": { "title": "Tax Compliance & Advisory", "desc": "Stay compliant and minimize risk with ongoing advisory.",
-        "bullets": ["RRA filings", "Compliance calendar", "Advisory calls", "Penalty resolution"] }
+      "bookkeeping": {
+        "title": "Bookkeeping",
+        "desc": "Accurate month-to-month records you can rely on.",
+        "bullets": [
+          "Daily transaction entry",
+          "Bank reconciliation",
+          "Monthly summary",
+          "Cloud-based access"
+        ]
+      },
+      "tax": {
+        "title": "Tax Preparation",
+        "desc": "Prepare and file taxes correctly and on time.",
+        "bullets": [
+          "VAT",
+          "PAYE",
+          "Income tax",
+          "Withholding tax"
+        ]
+      },
+      "reporting": {
+        "title": "Financial Reporting",
+        "desc": "Clear monthly and annual reports for decision-making.",
+        "bullets": [
+          "Income statement",
+          "Balance sheet",
+          "Cash flow",
+          "Custom KPIs"
+        ]
+      },
+      "analysis": {
+        "title": "Financial Analysis",
+        "desc": "Insight into performance and profitability.",
+        "bullets": [
+          "Trend analysis",
+          "Ratio analysis",
+          "Budget vs actual",
+          "Forecasting"
+        ]
+      },
+      "audit": {
+        "title": "Audit Support",
+        "desc": "We prepare your books and stand by you during audits.",
+        "bullets": [
+          "Audit-ready records",
+          "Document gathering",
+          "Auditor liaison",
+          "Post-audit follow-up"
+        ]
+      },
+      "compliance": {
+        "title": "Tax Compliance & Advisory",
+        "desc": "Stay compliant and minimize risk with ongoing advisory.",
+        "bullets": [
+          "RRA filings",
+          "Compliance calendar",
+          "Advisory calls",
+          "Penalty resolution"
+        ]
+      }
     },
     "docs": {
-      "setup": { "title": "Bookkeeping setup", "items": ["Bank statements (last 3 months)", "Invoices and receipts", "Payroll register", "Existing chart of accounts (if any)"] },
-      "tax": { "title": "Tax filing", "items": ["TIN certificate", "RRA login (optional)", "Sales records", "Purchase records", "Payroll records"] }
+      "setup": {
+        "title": "Bookkeeping setup",
+        "items": [
+          "Bank statements (last 3 months)",
+          "Invoices and receipts",
+          "Payroll register",
+          "Existing chart of accounts (if any)"
+        ]
+      },
+      "tax": {
+        "title": "Tax filing",
+        "items": [
+          "TIN certificate",
+          "RRA login (optional)",
+          "Sales records",
+          "Purchase records",
+          "Payroll records"
+        ]
+      }
     }
   },
   "consultancySvc": {
@@ -169,16 +373,56 @@
     "subtitle": "Company registration, advisory, and admin support for businesses of every size.",
     "cta": "Book a Free Consultation",
     "sub": {
-      "company": { "title": "Company Registration", "desc": "Register your company in Rwanda with confidence.",
-        "bullets": ["Name search", "RDB registration", "Tax registration", "Bank account opening"] },
-      "docs": { "title": "Document Processing", "desc": "Help with notarization, legalization, and apostille.",
-        "bullets": ["Notary services", "Apostille / legalization", "Certified copies", "Embassy submissions"] },
-      "trade": { "title": "Trade & Investment Advisory", "desc": "Guidance for investors entering the Rwandan market.",
-        "bullets": ["Market entry strategy", "Sector analysis", "Investor licensing", "Local partnerships"] },
-      "planning": { "title": "Business Planning", "desc": "Build a clear plan to grow your business or attract funding.",
-        "bullets": ["Business model canvas", "Financial projections", "Pitch deck review", "Strategy workshop"] },
-      "admin": { "title": "Administrative Support", "desc": "Outsource everyday admin work to us.",
-        "bullets": ["Office mail", "Document drafting", "Translations coordination", "Calendar management"] }
+      "company": {
+        "title": "Company Registration",
+        "desc": "Register your company in Rwanda with confidence.",
+        "bullets": [
+          "Name search",
+          "RDB registration",
+          "Tax registration",
+          "Bank account opening"
+        ]
+      },
+      "docs": {
+        "title": "Document Processing",
+        "desc": "Help with notarization, legalization, and apostille.",
+        "bullets": [
+          "Notary services",
+          "Apostille / legalization",
+          "Certified copies",
+          "Embassy submissions"
+        ]
+      },
+      "trade": {
+        "title": "Trade & Investment Advisory",
+        "desc": "Guidance for investors entering the Rwandan market.",
+        "bullets": [
+          "Market entry strategy",
+          "Sector analysis",
+          "Investor licensing",
+          "Local partnerships"
+        ]
+      },
+      "planning": {
+        "title": "Business Planning",
+        "desc": "Build a clear plan to grow your business or attract funding.",
+        "bullets": [
+          "Business model canvas",
+          "Financial projections",
+          "Pitch deck review",
+          "Strategy workshop"
+        ]
+      },
+      "admin": {
+        "title": "Administrative Support",
+        "desc": "Outsource everyday admin work to us.",
+        "bullets": [
+          "Office mail",
+          "Document drafting",
+          "Translations coordination",
+          "Calendar management"
+        ]
+      }
     }
   },
   "translationSvc": {
@@ -190,10 +434,22 @@
     "openPortal": "Open Translation Portal",
     "docBtn": "Document Translation",
     "features": {
-      "live": { "title": "Live Interpreters", "desc": "On-demand voice interpreters in minutes." },
-      "doc": { "title": "Document Translation", "desc": "Certified document translation across formats." },
-      "legal": { "title": "Legal Translation", "desc": "Court-grade translation for legal documents." },
-      "multi": { "title": "Multilingual Support", "desc": "Help in 5+ languages, 24/7." }
+      "live": {
+        "title": "Live Interpreters",
+        "desc": "On-demand voice interpreters in minutes."
+      },
+      "doc": {
+        "title": "Document Translation",
+        "desc": "Certified document translation across formats."
+      },
+      "legal": {
+        "title": "Legal Translation",
+        "desc": "Court-grade translation for legal documents."
+      },
+      "multi": {
+        "title": "Multilingual Support",
+        "desc": "Help in 5+ languages, 24/7."
+      }
     },
     "languages": "Available in English · 中文 · Kinyarwanda · Français · العربية (more coming)",
     "ctaTitle": "Need translation right now?",
@@ -210,9 +466,18 @@
     },
     "valuesHeading": "Core Values",
     "values": {
-      "professional": { "title": "Professional", "desc": "We treat every client engagement with the rigor it deserves — clear processes, accurate work, accountable outcomes." },
-      "reliable": { "title": "Reliable", "desc": "Predictable timelines, honest updates, and no chasing for status. We do what we say we'll do." },
-      "efficient": { "title": "Efficient", "desc": "Modern tools and a digital-first workflow let us serve clients faster without cutting corners." }
+      "professional": {
+        "title": "Professional",
+        "desc": "We treat every client engagement with the rigor it deserves — clear processes, accurate work, accountable outcomes."
+      },
+      "reliable": {
+        "title": "Reliable",
+        "desc": "Predictable timelines, honest updates, and no chasing for status. We do what we say we'll do."
+      },
+      "efficient": {
+        "title": "Efficient",
+        "desc": "Modern tools and a digital-first workflow let us serve clients faster without cutting corners."
+      }
     },
     "officeHeading": "Office Location",
     "address1": "Florida House, 2nd Floor",
@@ -232,9 +497,27 @@
     "haveAccountTail": "to chat with us directly in your dashboard.",
     "formHeading": "Send us a message",
     "infoHeading": "Contact Information",
-    "labels": { "name": "Name", "email": "Email", "phone": "Phone", "subject": "Subject", "message": "Message" },
-    "placeholders": { "name": "Your name", "email": "you@example.com", "phone": "+250 ...", "subject": "Choose a subject", "message": "How can we help?" },
-    "subjects": { "visa": "Visa & Permits", "accounting": "Accounting", "consultancy": "Business Consultancy", "translation": "Translation", "other": "Other" },
+    "labels": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "subject": "Subject",
+      "message": "Message"
+    },
+    "placeholders": {
+      "name": "Your name",
+      "email": "you@example.com",
+      "phone": "+250 ...",
+      "subject": "Choose a subject",
+      "message": "How can we help?"
+    },
+    "subjects": {
+      "visa": "Visa & Permits",
+      "accounting": "Accounting",
+      "consultancy": "Business Consultancy",
+      "translation": "Translation",
+      "other": "Other"
+    },
     "send": "Send Message",
     "toast": "Message received! We'll respond within 24 hours.",
     "hours": "Mon–Fri 8:00–18:00 CAT",
@@ -250,38 +533,74 @@
       "general": {
         "title": "General",
         "items": [
-          { "q": "What services does San Brothers offer?", "a": "We offer four core service areas: visa and permit facilitation, accounting, business consultancy, and translation/interpretation. All services are delivered both in our Kigali office and through our online platform." },
-          { "q": "Do I need to register to use the website?", "a": "You can browse public information without an account, but to request services, upload documents, or chat with our team you need a free account." },
-          { "q": "Is my information secure?", "a": "Yes. Documents and personal data are stored encrypted and only accessible to staff assigned to your case. We do not share your data with third parties without your written consent." }
+          {
+            "q": "What services does San Brothers offer?",
+            "a": "We offer four core service areas: visa and permit facilitation, accounting, business consultancy, and translation/interpretation. All services are delivered both in our Kigali office and through our online platform."
+          },
+          {
+            "q": "Do I need to register to use the website?",
+            "a": "You can browse public information without an account, but to request services, upload documents, or chat with our team you need a free account."
+          },
+          {
+            "q": "Is my information secure?",
+            "a": "Yes. Documents and personal data are stored encrypted and only accessible to staff assigned to your case. We do not share your data with third parties without your written consent."
+          }
         ]
       },
       "visa": {
         "title": "Visa & Permits",
         "items": [
-          { "q": "How long does a student visa application take?", "a": "Most Chinese student visas are decided in 4–10 business days after submission to the embassy, depending on season. Document preparation usually adds 1–2 weeks before submission." },
-          { "q": "What documents do I need for a Chinese student visa?", "a": "Typically: a valid passport, the JW202/JW201 form, your admission notice, recent photos, a completed physical examination form, and proof of funds. We send a tailored checklist after your consultation." },
-          { "q": "Can you guarantee visa approval?", "a": "No. The final decision is always made by the embassy. What we do guarantee is a complete, accurate application package and clear guidance — both of which significantly improve your chances." }
+          {
+            "q": "How long does a student visa application take?",
+            "a": "Most Chinese student visas are decided in 4–10 business days after submission to the embassy, depending on season. Document preparation usually adds 1–2 weeks before submission."
+          },
+          {
+            "q": "What documents do I need for a Chinese student visa?",
+            "a": "Typically: a valid passport, the JW202/JW201 form, your admission notice, recent photos, a completed physical examination form, and proof of funds. We send a tailored checklist after your consultation."
+          },
+          {
+            "q": "Can you guarantee visa approval?",
+            "a": "No. The final decision is always made by the embassy. What we do guarantee is a complete, accurate application package and clear guidance — both of which significantly improve your chances."
+          }
         ]
       },
       "accounting": {
         "title": "Accounting",
         "items": [
-          { "q": "Do you file taxes with RRA on my behalf?", "a": "Yes. With your authorization we prepare and file VAT, PAYE, withholding tax, and income tax through the RRA portal. Direct RRA integration is on our roadmap." },
-          { "q": "What's the cost of bookkeeping per month?", "a": "Bookkeeping starts from 50,000 RWF/month for small businesses and scales with transaction volume and complexity. We send a quote after a short discovery call." }
+          {
+            "q": "Do you file taxes with RRA on my behalf?",
+            "a": "Yes. With your authorization we prepare and file VAT, PAYE, withholding tax, and income tax through the RRA portal. Direct RRA integration is on our roadmap."
+          },
+          {
+            "q": "What's the cost of bookkeeping per month?",
+            "a": "Bookkeeping starts from 50,000 RWF/month for small businesses and scales with transaction volume and complexity. We send a quote after a short discovery call."
+          }
         ]
       },
       "translation": {
         "title": "Translation",
         "items": [
-          { "q": "How do live interpreter calls work?", "a": "From the translation portal you select a language pair, and we connect you to an available interpreter within minutes via voice or video. You're billed per minute after the call ends." },
-          { "q": "Do you support Kinyarwanda?", "a": "Yes. Kinyarwanda is one of our core languages, paired with English, Chinese, French, and Arabic." },
-          { "q": "Is there a free trial?", "a": "Yes. New users get a short free interpreter session to try the service before paying. Document translation is quoted before any work begins." }
+          {
+            "q": "How do live interpreter calls work?",
+            "a": "From the translation portal you select a language pair, and we connect you to an available interpreter within minutes via voice or video. You're billed per minute after the call ends."
+          },
+          {
+            "q": "Do you support Kinyarwanda?",
+            "a": "Yes. Kinyarwanda is one of our core languages, paired with English, Chinese, French, and Arabic."
+          },
+          {
+            "q": "Is there a free trial?",
+            "a": "Yes. New users get a short free interpreter session to try the service before paying. Document translation is quoted before any work begins."
+          }
         ]
       },
       "payments": {
         "title": "Payments",
         "items": [
-          { "q": "What payment methods do you accept?", "a": "We accept Mobile Money (MTN, Airtel), bank transfer in RWF, and international card payments in USD. Receipts are issued automatically." }
+          {
+            "q": "What payment methods do you accept?",
+            "a": "We accept Mobile Money (MTN, Airtel), bank transfer in RWF, and international card payments in USD. Receipts are issued automatically."
+          }
         ]
       }
     }
@@ -290,35 +609,446 @@
     "heroTitle": "Transparent Pricing",
     "heroSubtitle": "No hidden fees. Pay only for what you use.",
     "allPrices": "All prices in RWF. International payments accepted in USD.",
-    "tabs": { "visa": "Visa Services", "accounting": "Accounting", "consultancy": "Consultancy", "translation": "Translation" },
+    "tabs": {
+      "visa": "Visa Services",
+      "accounting": "Accounting",
+      "consultancy": "Consultancy",
+      "translation": "Translation"
+    },
     "mostPopular": "Most Popular",
     "contactQuote": "Contact for exact quote",
     "getStarted": "Get Started",
     "translationStrip": "Live interpreter and document translation pricing is on our dedicated portal —",
     "weSpeakBrand": "We Speak Your Language",
     "openPortal": "Open Portal",
-    "bottom": { "whatIncluded": "What's included?", "howFees": "How are fees calculated?", "refund": "Refund policy" },
+    "bottom": {
+      "whatIncluded": "What's included?",
+      "howFees": "How are fees calculated?",
+      "refund": "Refund policy"
+    },
     "plans": {
       "visa": [
-        { "name": "Tourist Visa", "price": "From 80,000 RWF", "intent": "tourist-visa", "features": ["Document checklist", "Application review", "Submission support"] },
-        { "name": "Student Visa", "price": "From 150,000 RWF", "intent": "student-visa", "popular": true, "features": ["Full document prep", "Embassy submission", "Interview coaching", "Status tracking"] },
-        { "name": "Work Permit", "price": "From 200,000 RWF", "intent": "work-permit", "features": ["End-to-end handling", "Employer coordination", "Renewal reminders"] }
+        {
+          "name": "Tourist Visa",
+          "price": "From 80,000 RWF",
+          "intent": "tourist-visa",
+          "features": [
+            "Document checklist",
+            "Application review",
+            "Submission support"
+          ]
+        },
+        {
+          "name": "Student Visa",
+          "price": "From 150,000 RWF",
+          "intent": "student-visa",
+          "popular": true,
+          "features": [
+            "Full document prep",
+            "Embassy submission",
+            "Interview coaching",
+            "Status tracking"
+          ]
+        },
+        {
+          "name": "Work Permit",
+          "price": "From 200,000 RWF",
+          "intent": "work-permit",
+          "features": [
+            "End-to-end handling",
+            "Employer coordination",
+            "Renewal reminders"
+          ]
+        }
       ],
       "accounting": [
-        { "name": "Starter", "price": "From 50,000 RWF / mo", "intent": "bookkeeping", "features": ["Up to 50 transactions", "Monthly summary", "Email support"] },
-        { "name": "Standard", "price": "From 120,000 RWF / mo", "intent": "tax-filing", "popular": true, "features": ["Up to 200 transactions", "VAT & PAYE filing", "Quarterly reports"] },
-        { "name": "Premium", "price": "From 250,000 RWF / mo", "intent": "tax-compliance", "features": ["Unlimited transactions", "Full tax compliance", "Dedicated accountant"] }
+        {
+          "name": "Starter",
+          "price": "From 50,000 RWF / mo",
+          "intent": "bookkeeping",
+          "features": [
+            "Up to 50 transactions",
+            "Monthly summary",
+            "Email support"
+          ]
+        },
+        {
+          "name": "Standard",
+          "price": "From 120,000 RWF / mo",
+          "intent": "tax-filing",
+          "popular": true,
+          "features": [
+            "Up to 200 transactions",
+            "VAT & PAYE filing",
+            "Quarterly reports"
+          ]
+        },
+        {
+          "name": "Premium",
+          "price": "From 250,000 RWF / mo",
+          "intent": "tax-compliance",
+          "features": [
+            "Unlimited transactions",
+            "Full tax compliance",
+            "Dedicated accountant"
+          ]
+        }
       ],
       "consultancy": [
-        { "name": "Company Registration", "price": "From 180,000 RWF", "intent": "company-registration", "features": ["Name search & RDB filing", "Tax registration", "Bank intro"] },
-        { "name": "Business Plan", "price": "From 350,000 RWF", "intent": "business-planning", "popular": true, "features": ["Discovery sessions", "Financial model", "Pitch-ready document"] },
-        { "name": "Investor Advisory", "price": "Custom quote", "intent": "trade-investment", "features": ["Market entry strategy", "Licensing support", "Local partner intros"] }
+        {
+          "name": "Company Registration",
+          "price": "From 180,000 RWF",
+          "intent": "company-registration",
+          "features": [
+            "Name search & RDB filing",
+            "Tax registration",
+            "Bank intro"
+          ]
+        },
+        {
+          "name": "Business Plan",
+          "price": "From 350,000 RWF",
+          "intent": "business-planning",
+          "popular": true,
+          "features": [
+            "Discovery sessions",
+            "Financial model",
+            "Pitch-ready document"
+          ]
+        },
+        {
+          "name": "Investor Advisory",
+          "price": "Custom quote",
+          "intent": "trade-investment",
+          "features": [
+            "Market entry strategy",
+            "Licensing support",
+            "Local partner intros"
+          ]
+        }
       ],
       "translation": [
-        { "name": "Document (per page)", "price": "From 8,000 RWF", "intent": "document-translation", "features": ["Standard turnaround", "Certified copies on request"] },
-        { "name": "Live Interpreter", "price": "From 1,500 RWF / min", "intent": "live-interpreter", "popular": true, "features": ["Connect in minutes", "Voice or video", "Pay per minute"] },
-        { "name": "Legal Translation", "price": "From 12,000 RWF / page", "intent": "legal-translation", "features": ["Court-grade quality", "Notarization available"] }
+        {
+          "name": "Document (per page)",
+          "price": "From 8,000 RWF",
+          "intent": "document-translation",
+          "features": [
+            "Standard turnaround",
+            "Certified copies on request"
+          ]
+        },
+        {
+          "name": "Live Interpreter",
+          "price": "From 1,500 RWF / min",
+          "intent": "live-interpreter",
+          "popular": true,
+          "features": [
+            "Connect in minutes",
+            "Voice or video",
+            "Pay per minute"
+          ]
+        },
+        {
+          "name": "Legal Translation",
+          "price": "From 12,000 RWF / page",
+          "intent": "legal-translation",
+          "features": [
+            "Court-grade quality",
+            "Notarization available"
+          ]
+        }
       ]
+    }
+  },
+  "translate": {
+    "brand": {
+      "wordmark": "We Speak Your Language"
+    },
+    "nav": {
+      "backToCorporate": "Back to San Brothers Corporate",
+      "home": "Home",
+      "howItWorks": "How it works",
+      "languages": "Languages",
+      "pricing": "Pricing",
+      "getHelpNow": "Get Help Now"
+    },
+    "footer": {
+      "partOf": "Part of San Brothers Company Ltd",
+      "corporateSite": "Corporate site",
+      "address": "Florida House, KN 70 St, Kigali"
+    },
+    "home": {
+      "eyebrow": "WE SPEAK YOUR LANGUAGE",
+      "hero": {
+        "title": "Need help in your language?",
+        "subtitle": "Live translators available right now. Documents translated by professionals.",
+        "primaryCta": "Talk to a Translator Now",
+        "secondaryCta": "Translate a Document",
+        "note": "First 5 minutes free · No credit card to try",
+        "morePlus": "+ more"
+      },
+      "howHeading": "How it works",
+      "step": "Step",
+      "steps": {
+        "choose": {
+          "title": "Choose your languages",
+          "desc": "From English to Kinyarwanda? Chinese to French? Tell us."
+        },
+        "match": {
+          "title": "Get matched in seconds",
+          "desc": "We find a translator who speaks both languages and is online now."
+        },
+        "talk": {
+          "title": "Talk or send your document",
+          "desc": "Live audio/video call or upload your file. Done."
+        }
+      },
+      "offeringsHeading": "What we translate",
+      "offerings": {
+        "live": {
+          "title": "Live Interpretation",
+          "desc": "Real-time voice or video calls with a human translator."
+        },
+        "doc": {
+          "title": "Document Translation",
+          "desc": "Personal letters, school records, business contracts."
+        },
+        "legal": {
+          "title": "Legal Translation",
+          "desc": "Certified translation for official documents."
+        },
+        "multi": {
+          "title": "Multilingual Support",
+          "desc": "Help with forms, websites, anything written."
+        }
+      },
+      "why": {
+        "human": {
+          "title": "Real human translators",
+          "desc": "Trained professionals — not AI machine translation. Accurate, contextual, and confidential."
+        },
+        "always": {
+          "title": "Available 24/7",
+          "desc": "Day or night, weekday or weekend, someone is online and ready to help."
+        },
+        "pay": {
+          "title": "Pay only for what you use",
+          "desc": "Buy minutes by the bundle, subscribe monthly, or grab a day pass. No hidden fees."
+        }
+      },
+      "scenariosHeading": "Real situations, real help",
+      "scenarios": {
+        "airport": {
+          "scenario": "I just landed at KGL airport and don't speak Kinyarwanda.",
+          "solution": "Get a live interpreter in seconds."
+        },
+        "diploma": {
+          "scenario": "I need my Chinese diploma translated to apply to a Rwandan university.",
+          "solution": "Upload it now, get it back in 24 hours."
+        },
+        "business": {
+          "scenario": "I'm starting a business and the registration form is in French.",
+          "solution": "Talk to someone who'll walk you through it."
+        }
+      }
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "From sign-up to translator in under 2 minutes",
+      "steps": [
+        {
+          "title": "Sign up in 30 seconds",
+          "desc": "Name, email or phone, password. We send a verification code."
+        },
+        {
+          "title": "Choose what you need",
+          "desc": "Live interpreter, document translation, or legal translation."
+        },
+        {
+          "title": "Pick your languages",
+          "desc": "From which language to which language."
+        },
+        {
+          "title": "Try free (first 5 minutes)",
+          "desc": "Test the service before paying."
+        },
+        {
+          "title": "Buy minutes or subscribe",
+          "desc": "Pay only for what you use, or get unlimited access."
+        },
+        {
+          "title": "Stay connected",
+          "desc": "Returning users get matched with the same translator if available."
+        }
+      ],
+      "expect": {
+        "heading": "What to expect",
+        "points": [
+          "All translators are real humans — never AI machine translation.",
+          "Calls can be voice or video — your choice.",
+          "Documents come back as PDF, ready to download.",
+          "Everything is confidential and encrypted."
+        ]
+      }
+    },
+    "languages": {
+      "title": "Languages We Support",
+      "subtitle": "Live interpreters and document translation in:",
+      "liveDocs": "Live + Documents",
+      "comingSoon": "Coming soon",
+      "notListed": "Need a language not listed? Contact us — we onboard new translator pairs every week.",
+      "requestCta": "Request a new language pair"
+    },
+    "document": {
+      "title": "Document Translation",
+      "subtitle": "Upload it. We translate it. You get it back.",
+      "flow": {
+        "upload": "Upload",
+        "translate": "Translate",
+        "download": "Download"
+      },
+      "itemsHeading": "What we translate",
+      "items": [
+        "Personal letters",
+        "School transcripts and diplomas",
+        "Business contracts",
+        "Legal documents (certified)",
+        "Medical reports",
+        "Birth/marriage certificates",
+        "Bank statements",
+        "Anything else — just ask"
+      ],
+      "turnaround": {
+        "heading": "Turnaround time",
+        "rows": [
+          {
+            "label": "Short documents (1–3 pages)",
+            "time": "24 hours"
+          },
+          {
+            "label": "Standard (4–10 pages)",
+            "time": "2–3 business days"
+          },
+          {
+            "label": "Long or technical (10+ pages)",
+            "time": "5–7 business days"
+          },
+          {
+            "label": "Urgent / certified",
+            "time": "Contact us for a quote"
+          }
+        ]
+      },
+      "formats": {
+        "heading": "File formats accepted",
+        "list": [
+          "PDF",
+          "Word",
+          "JPG",
+          "PNG",
+          "Scanned images"
+        ]
+      }
+    },
+    "live": {
+      "title": "Live Interpreter Calls",
+      "subtitle": "Talk to a real human translator in seconds",
+      "how": {
+        "heading": "How a call works",
+        "steps": [
+          "Choose your languages.",
+          "Press \"Find a Translator\".",
+          "We match you with someone who speaks both.",
+          "Voice or video — your choice.",
+          "Talk as long as you need."
+        ]
+      },
+      "uses": {
+        "heading": "Use cases",
+        "items": [
+          "At the airport, hospital, government office",
+          "Business meetings with foreign partners",
+          "Calling someone who doesn't speak your language",
+          "Helping fill out a form"
+        ]
+      },
+      "trial": {
+        "eyebrow": "Free trial",
+        "heading": "First 5 minutes free",
+        "points": [
+          "Real translator (not AI)",
+          "No credit card to start",
+          "No obligation after the trial"
+        ]
+      },
+      "pricing": {
+        "heading": "Pricing snapshot",
+        "points": [
+          "Pay-as-you-go from 500 RWF/min",
+          "Day passes available",
+          "Monthly subscriptions for regular users"
+        ],
+        "seeFull": "See full pricing"
+      }
+    },
+    "pricing": {
+      "title": "Simple, Pay-As-You-Use Pricing",
+      "subtitle": "Start with 5 minutes free. No credit card required to try.",
+      "tabs": {
+        "payg": "Pay-as-you-go",
+        "daily": "Daily Pass",
+        "monthly": "Monthly",
+        "yearly": "Yearly"
+      },
+      "mostPopular": "MOST POPULAR",
+      "tierPopular": "Most Popular",
+      "tiers": {
+        "starter": "Starter",
+        "pro": "Pro",
+        "halfday": "Half Day",
+        "fullday": "Full Day",
+        "light": "Light",
+        "business": "Business",
+        "casual": "Casual",
+        "heavy": "Heavy"
+      },
+      "minutes": "minutes",
+      "validity": {
+        "24h": "24h",
+        "month": "month",
+        "year": "year"
+      },
+      "buy": "Buy",
+      "subscribe": "Subscribe",
+      "docHeading": "Document Translation Pricing",
+      "docStandard": {
+        "title": "Standard translation"
+      },
+      "docCertified": {
+        "title": "Certified translation"
+      },
+      "page": "page",
+      "docNote": "Final price depends on length and complexity. Get an exact quote after upload.",
+      "faq": {
+        "heading": "Quick questions",
+        "expire": {
+          "q": "Do minutes expire?",
+          "a": "Pay-as-you-go: never. Subscriptions roll over up to 2 months max."
+        },
+        "cancel": {
+          "q": "Can I cancel anytime?",
+          "a": "Yes. Cancel before renewal; current period remains active."
+        },
+        "payments": {
+          "q": "What payment methods?",
+          "a": "MoMo (MTN/Airtel), cards, PayPal."
+        }
+      }
+    },
+    "finalCta": {
+      "heading": "Help is one tap away",
+      "subtitle": "Try 5 minutes free. No credit card needed.",
+      "button": "Start Now"
     }
   }
 }
