@@ -10,8 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DevRouteImport } from './routes/dev'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -25,14 +27,23 @@ import { Route as TranslateLiveRouteImport } from './routes/translate/live'
 import { Route as TranslateLanguagesRouteImport } from './routes/translate/languages'
 import { Route as TranslateHowItWorksRouteImport } from './routes/translate/how-it-works'
 import { Route as TranslateDocumentRouteImport } from './routes/translate/document'
+import { Route as SignupVerifyEmailRouteImport } from './routes/signup.verify-email'
 import { Route as ServicesVisaRouteImport } from './routes/services.visa'
 import { Route as ServicesTranslationRouteImport } from './routes/services.translation'
 import { Route as ServicesConsultancyRouteImport } from './routes/services.consultancy'
 import { Route as ServicesAccountingRouteImport } from './routes/services.accounting'
+import { Route as Login2faRouteImport } from './routes/login.2fa'
+import { Route as AuthErrorRouteImport } from './routes/auth.error'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -43,6 +54,11 @@ const PricingRoute = PricingRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -110,6 +126,11 @@ const TranslateDocumentRoute = TranslateDocumentRouteImport.update({
   path: '/translate/document',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignupVerifyEmailRoute = SignupVerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => SignupRoute,
+} as any)
 const ServicesVisaRoute = ServicesVisaRouteImport.update({
   id: '/services/visa',
   path: '/services/visa',
@@ -130,6 +151,21 @@ const ServicesAccountingRoute = ServicesAccountingRouteImport.update({
   path: '/services/accounting',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Login2faRoute = Login2faRouteImport.update({
+  id: '/2fa',
+  path: '/2fa',
+  getParentRoute: () => LoginRoute,
+} as any)
+const AuthErrorRoute = AuthErrorRouteImport.update({
+  id: '/auth/error',
+  path: '/auth/error',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -138,13 +174,19 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/dev': typeof DevRoute
   '/faq': typeof FaqRoute
-  '/login': typeof LoginRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRouteWithChildren
   '/pricing': typeof PricingRoute
-  '/signup': typeof SignupRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/signup': typeof SignupRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/error': typeof AuthErrorRoute
+  '/login/2fa': typeof Login2faRoute
   '/services/accounting': typeof ServicesAccountingRoute
   '/services/consultancy': typeof ServicesConsultancyRoute
   '/services/translation': typeof ServicesTranslationRoute
   '/services/visa': typeof ServicesVisaRoute
+  '/signup/verify-email': typeof SignupVerifyEmailRoute
   '/translate/document': typeof TranslateDocumentRoute
   '/translate/how-it-works': typeof TranslateHowItWorksRoute
   '/translate/languages': typeof TranslateLanguagesRoute
@@ -160,13 +202,19 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/dev': typeof DevRoute
   '/faq': typeof FaqRoute
-  '/login': typeof LoginRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRouteWithChildren
   '/pricing': typeof PricingRoute
-  '/signup': typeof SignupRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/signup': typeof SignupRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/error': typeof AuthErrorRoute
+  '/login/2fa': typeof Login2faRoute
   '/services/accounting': typeof ServicesAccountingRoute
   '/services/consultancy': typeof ServicesConsultancyRoute
   '/services/translation': typeof ServicesTranslationRoute
   '/services/visa': typeof ServicesVisaRoute
+  '/signup/verify-email': typeof SignupVerifyEmailRoute
   '/translate/document': typeof TranslateDocumentRoute
   '/translate/how-it-works': typeof TranslateHowItWorksRoute
   '/translate/languages': typeof TranslateLanguagesRoute
@@ -183,13 +231,19 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/dev': typeof DevRoute
   '/faq': typeof FaqRoute
-  '/login': typeof LoginRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRouteWithChildren
   '/pricing': typeof PricingRoute
-  '/signup': typeof SignupRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/signup': typeof SignupRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/error': typeof AuthErrorRoute
+  '/login/2fa': typeof Login2faRoute
   '/services/accounting': typeof ServicesAccountingRoute
   '/services/consultancy': typeof ServicesConsultancyRoute
   '/services/translation': typeof ServicesTranslationRoute
   '/services/visa': typeof ServicesVisaRoute
+  '/signup/verify-email': typeof SignupVerifyEmailRoute
   '/translate/document': typeof TranslateDocumentRoute
   '/translate/how-it-works': typeof TranslateHowItWorksRoute
   '/translate/languages': typeof TranslateLanguagesRoute
@@ -207,13 +261,19 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dev'
     | '/faq'
+    | '/forgot-password'
     | '/login'
     | '/pricing'
+    | '/reset-password'
     | '/signup'
+    | '/auth/callback'
+    | '/auth/error'
+    | '/login/2fa'
     | '/services/accounting'
     | '/services/consultancy'
     | '/services/translation'
     | '/services/visa'
+    | '/signup/verify-email'
     | '/translate/document'
     | '/translate/how-it-works'
     | '/translate/languages'
@@ -229,13 +289,19 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dev'
     | '/faq'
+    | '/forgot-password'
     | '/login'
     | '/pricing'
+    | '/reset-password'
     | '/signup'
+    | '/auth/callback'
+    | '/auth/error'
+    | '/login/2fa'
     | '/services/accounting'
     | '/services/consultancy'
     | '/services/translation'
     | '/services/visa'
+    | '/signup/verify-email'
     | '/translate/document'
     | '/translate/how-it-works'
     | '/translate/languages'
@@ -251,13 +317,19 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dev'
     | '/faq'
+    | '/forgot-password'
     | '/login'
     | '/pricing'
+    | '/reset-password'
     | '/signup'
+    | '/auth/callback'
+    | '/auth/error'
+    | '/login/2fa'
     | '/services/accounting'
     | '/services/consultancy'
     | '/services/translation'
     | '/services/visa'
+    | '/signup/verify-email'
     | '/translate/document'
     | '/translate/how-it-works'
     | '/translate/languages'
@@ -274,9 +346,13 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DevRoute: typeof DevRoute
   FaqRoute: typeof FaqRoute
-  LoginRoute: typeof LoginRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  LoginRoute: typeof LoginRouteWithChildren
   PricingRoute: typeof PricingRoute
-  SignupRoute: typeof SignupRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  SignupRoute: typeof SignupRouteWithChildren
+  AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthErrorRoute: typeof AuthErrorRoute
   ServicesAccountingRoute: typeof ServicesAccountingRoute
   ServicesConsultancyRoute: typeof ServicesConsultancyRoute
   ServicesTranslationRoute: typeof ServicesTranslationRoute
@@ -299,6 +375,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
@@ -311,6 +394,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -404,6 +494,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TranslateDocumentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/signup/verify-email': {
+      id: '/signup/verify-email'
+      path: '/verify-email'
+      fullPath: '/signup/verify-email'
+      preLoaderRoute: typeof SignupVerifyEmailRouteImport
+      parentRoute: typeof SignupRoute
+    }
     '/services/visa': {
       id: '/services/visa'
       path: '/services/visa'
@@ -432,8 +529,50 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesAccountingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login/2fa': {
+      id: '/login/2fa'
+      path: '/2fa'
+      fullPath: '/login/2fa'
+      preLoaderRoute: typeof Login2faRouteImport
+      parentRoute: typeof LoginRoute
+    }
+    '/auth/error': {
+      id: '/auth/error'
+      path: '/auth/error'
+      fullPath: '/auth/error'
+      preLoaderRoute: typeof AuthErrorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface LoginRouteChildren {
+  Login2faRoute: typeof Login2faRoute
+}
+
+const LoginRouteChildren: LoginRouteChildren = {
+  Login2faRoute: Login2faRoute,
+}
+
+const LoginRouteWithChildren = LoginRoute._addFileChildren(LoginRouteChildren)
+
+interface SignupRouteChildren {
+  SignupVerifyEmailRoute: typeof SignupVerifyEmailRoute
+}
+
+const SignupRouteChildren: SignupRouteChildren = {
+  SignupVerifyEmailRoute: SignupVerifyEmailRoute,
+}
+
+const SignupRouteWithChildren =
+  SignupRoute._addFileChildren(SignupRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -442,9 +581,13 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DevRoute: DevRoute,
   FaqRoute: FaqRoute,
-  LoginRoute: LoginRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  LoginRoute: LoginRouteWithChildren,
   PricingRoute: PricingRoute,
-  SignupRoute: SignupRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  SignupRoute: SignupRouteWithChildren,
+  AuthCallbackRoute: AuthCallbackRoute,
+  AuthErrorRoute: AuthErrorRoute,
   ServicesAccountingRoute: ServicesAccountingRoute,
   ServicesConsultancyRoute: ServicesConsultancyRoute,
   ServicesTranslationRoute: ServicesTranslationRoute,
