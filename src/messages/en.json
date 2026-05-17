@@ -10,7 +10,8 @@
     "apply": "Apply",
     "contactUs": "Talk to Us",
     "exploreServices": "Explore Services",
-    "openPortal": "Open Portal"
+    "openPortal": "Open Portal",
+    "and": "and"
   },
   "nav": {
     "home": "Home",
@@ -18,7 +19,9 @@
     "about": "About",
     "contact": "Contact",
     "pricing": "Pricing",
-    "faq": "FAQ"
+    "faq": "FAQ",
+    "dashboard": "Dashboard",
+    "profile": "Profile"
   },
   "footer": {
     "about": "About",
@@ -1049,6 +1052,92 @@
       "heading": "Help is one tap away",
       "subtitle": "Try 5 minutes free. No credit card needed.",
       "button": "Start Now"
+    }
+  },
+  "auth": {
+    "signup": {
+      "title": "Create your account",
+      "subtitle": "Join San Brothers and start your request.",
+      "intentBanner": "You're signing up to request:",
+      "fullName": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "phoneHint": "Include country code, e.g. +250 7XX XXX XXX",
+      "preferredLanguage": "Preferred language",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "termsPrefix": "I agree to the",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "submit": "Create Account",
+      "helpText": "By signing up, you'll receive a verification email.",
+      "haveAccount": "Already have an account?",
+      "successToast": "Account created. Check your email."
+    },
+    "verifyEmail": {
+      "title": "Check your email",
+      "body": "We sent a verification link to",
+      "body2": "Click the link to activate your account.",
+      "spamHint": "Didn't receive it? Check your spam folder, or:",
+      "resend": "Resend verification email",
+      "resentToast": "Verification email sent.",
+      "wrongEmail": "Wrong email? Sign up again"
+    },
+    "callback": {
+      "activating": "Activating your account..."
+    },
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Log in to your San Brothers account.",
+      "rememberMe": "Remember me",
+      "forgot": "Forgot password?",
+      "submit": "Log in",
+      "noAccount": "Don't have an account?"
+    },
+    "twofa": {
+      "title": "Two-Factor Authentication",
+      "subtitle": "Enter the 6-digit code from your authenticator app or SMS.",
+      "verify": "Verify",
+      "resend": "Resend code",
+      "verified": "Verified.",
+      "resentToast": "Code resent.",
+      "lost": "Lost access to your device?"
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "subtitle": "Enter your email — we'll send a link to reset your password.",
+      "submit": "Send reset link",
+      "sent": "If an account exists for {email}, we've sent a reset link. Check your inbox.",
+      "backToLogin": "Back to login"
+    },
+    "reset": {
+      "title": "Set a new password",
+      "subtitle": "Choose a strong password you haven't used before.",
+      "newPassword": "New password",
+      "confirm": "Confirm new password",
+      "submit": "Update password",
+      "successToast": "Password updated. Please log in."
+    },
+    "error": {
+      "title": "Something went wrong",
+      "default": "We couldn't complete that action.",
+      "tryLogin": "Try logging in",
+      "goHome": "Go home"
+    },
+    "errors": {
+      "invalidEmail": "Enter a valid email address.",
+      "invalidPhone": "Enter a valid phone number with country code.",
+      "nameTooShort": "Name is too short.",
+      "weakPassword": "Password must be at least 8 characters.",
+      "passwordsDontMatch": "Passwords do not match.",
+      "termsRequired": "You must agree to the terms.",
+      "passwordRequired": "Password is required.",
+      "invalidCredentials": "Email or password is incorrect.",
+      "emailExists": "An account with this email already exists.",
+      "emailNotConfirmed": "Please verify your email before logging in.",
+      "network": "Network error. Check your connection and try again.",
+      "rateLimit": "Too many attempts. Please try again later.",
+      "generic": "Something went wrong. Please try again."
     }
   }
 }

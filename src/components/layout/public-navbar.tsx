@@ -8,9 +8,12 @@ import {
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { useI18n } from "@/lib/providers/i18n-provider";
+import { useAuth } from "@/hooks/useAuth";
+import { UserMenu } from "@/components/auth/user-menu";
 
 export function PublicNavbar() {
   const { t } = useI18n();
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
 
   const links = [
@@ -41,8 +44,14 @@ export function PublicNavbar() {
         <div className="hidden items-center gap-1 md:flex">
           <LanguageSwitcher />
           <ThemeToggle />
-          <Button variant="ghost" size="sm" asChild><a href="/login">{t("common.login")}</a></Button>
-          <Button size="sm" asChild><a href="/signup">{t("common.signup")}</a></Button>
+          {user ? (
+            <UserMenu />
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild><a href="/login">{t("common.login")}</a></Button>
+              <Button size="sm" asChild><a href="/signup">{t("common.signup")}</a></Button>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-1 md:hidden">
@@ -61,8 +70,14 @@ export function PublicNavbar() {
                 ))}
                 <div className="mt-2 flex items-center gap-2 px-3"><LanguageSwitcher /></div>
                 <div className="mt-2 flex flex-col gap-2 px-3">
-                  <Button variant="outline" asChild><a href="/login">{t("common.login")}</a></Button>
-                  <Button asChild><a href="/signup">{t("common.signup")}</a></Button>
+                  {user ? (
+                    <Button asChild><a href="/dashboard">{t("nav.dashboard")}</a></Button>
+                  ) : (
+                    <>
+                      <Button variant="outline" asChild><a href="/login">{t("common.login")}</a></Button>
+                      <Button asChild><a href="/signup">{t("common.signup")}</a></Button>
+                    </>
+                  )}
                 </div>
               </div>
             </SheetContent>

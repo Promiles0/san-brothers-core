@@ -10,7 +10,8 @@
     "apply": "Saba",
     "contactUs": "Tuvugishe",
     "exploreServices": "Reba serivisi",
-    "openPortal": "Fungura urubuga"
+    "openPortal": "Fungura urubuga",
+    "and": "na"
   },
   "nav": {
     "home": "Ahabanza",
@@ -18,7 +19,9 @@
     "about": "Ibyerekeye",
     "contact": "Duhamagare",
     "pricing": "Ibiciro",
-    "faq": "Ibibazo bikunze kubazwa"
+    "faq": "Ibibazo bikunze kubazwa",
+    "dashboard": "Ikibaho",
+    "profile": "Umwirondoro"
   },
   "footer": {
     "about": "Ibyerekeye",
@@ -1049,6 +1052,92 @@
       "heading": "Ubufasha buri ku rutoki rumwe",
       "subtitle": "Gerageza iminota 5 ku buntu. Nta karita y'inguzanyo isabwa.",
       "button": "Tangira Nonaha"
+    }
+  },
+  "auth": {
+    "signup": {
+      "title": "Fungura konti",
+      "subtitle": "Iyandikishe kuri San Brothers utangire icyifuzo cyawe.",
+      "intentBanner": "Uriyandikisha kugira ngo usabe:",
+      "fullName": "Amazina yombi",
+      "email": "Imeyili",
+      "phone": "Telefoni",
+      "phoneHint": "Shyiramo kode y'igihugu, urugero +250 7XX XXX XXX",
+      "preferredLanguage": "Ururimi ukunda",
+      "password": "Ijambobanga",
+      "confirmPassword": "Emeza ijambobanga",
+      "termsPrefix": "Nemeye",
+      "terms": "Amabwiriza ya Serivisi",
+      "privacy": "Politiki y'ibanga",
+      "submit": "Fungura Konti",
+      "helpText": "Wamara kwiyandikisha, uzakira imeyili yo kwemeza.",
+      "haveAccount": "Usanzwe ufite konti?",
+      "successToast": "Konti yashyizweho. Reba imeyili yawe."
+    },
+    "verifyEmail": {
+      "title": "Reba imeyili yawe",
+      "body": "Twoherereje umurongo wo kwemeza kuri",
+      "body2": "Kanda umurongo kugira ngo ukoreshe konti.",
+      "spamHint": "Ntiwabonye? Reba mu spam, cyangwa:",
+      "resend": "Ongera wohereze imeyili yo kwemeza",
+      "resentToast": "Imeyili yoherejwe.",
+      "wrongEmail": "Imeyili itari yo? Ongera wiyandikishe"
+    },
+    "callback": {
+      "activating": "Turimo gukoresha konti yawe..."
+    },
+    "login": {
+      "title": "Murakaza neza",
+      "subtitle": "Injira muri konti yawe ya San Brothers.",
+      "rememberMe": "Unyibuke",
+      "forgot": "Wibagiwe ijambobanga?",
+      "submit": "Injira",
+      "noAccount": "Ntabwo ufite konti?"
+    },
+    "twofa": {
+      "title": "Kwemeza Kabiri",
+      "subtitle": "Andika kode y'imibare 6 iva muri app cyangwa SMS.",
+      "verify": "Emeza",
+      "resend": "Ongera wohereze kode",
+      "verified": "Byemejwe.",
+      "resentToast": "Kode yongeye koherezwa.",
+      "lost": "Wabuze igikoresho cyawe?"
+    },
+    "forgot": {
+      "title": "Subiraho ijambobanga",
+      "subtitle": "Andika imeyili — tuzakohereza umurongo wo gusubiraho ijambobanga.",
+      "submit": "Ohereza umurongo",
+      "sent": "Niba konti ibaho kuri {email}, twoherejeyo umurongo wo gusubiraho. Reba imeyili.",
+      "backToLogin": "Garuka kwinjira"
+    },
+    "reset": {
+      "title": "Shyiraho ijambobanga rishya",
+      "subtitle": "Hitamo ijambobanga rikomeye utarakoresheje.",
+      "newPassword": "Ijambobanga rishya",
+      "confirm": "Emeza ijambobanga rishya",
+      "submit": "Vugurura ijambobanga",
+      "successToast": "Ijambobanga ryavuguruwe. Subira winjire."
+    },
+    "error": {
+      "title": "Hari ikitagenze neza",
+      "default": "Ntibyashobotse kurangiza igikorwa.",
+      "tryLogin": "Gerageza kwinjira",
+      "goHome": "Subira ku rugo"
+    },
+    "errors": {
+      "invalidEmail": "Andika imeyili nyayo.",
+      "invalidPhone": "Andika telefoni nyayo n'ikode y'igihugu.",
+      "nameTooShort": "Izina rigufi cyane.",
+      "weakPassword": "Ijambobanga rigomba kuba rifite nibura inyuguti 8.",
+      "passwordsDontMatch": "Amagambobanga ntabwo ahuye.",
+      "termsRequired": "Ugomba kwemera amabwiriza.",
+      "passwordRequired": "Ijambobanga rirakenewe.",
+      "invalidCredentials": "Imeyili cyangwa ijambobanga ntibyo.",
+      "emailExists": "Konti ifite iyi meyili isanzweho.",
+      "emailNotConfirmed": "Banza wemeze imeyili mbere yo kwinjira.",
+      "network": "Ikibazo cy'urusobe. Reba interineti hanyuma ongere ugerageze.",
+      "rateLimit": "Wagerageje cyane. Gerageza nyuma.",
+      "generic": "Hari ikitagenze neza. Ongera ugerageze."
     }
   }
 }

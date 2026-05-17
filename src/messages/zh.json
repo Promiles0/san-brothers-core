@@ -10,7 +10,8 @@
     "apply": "申请",
     "contactUs": "联系我们",
     "exploreServices": "浏览服务",
-    "openPortal": "打开平台"
+    "openPortal": "打开平台",
+    "and": "及"
   },
   "nav": {
     "home": "首页",
@@ -18,7 +19,9 @@
     "about": "关于我们",
     "contact": "联系我们",
     "pricing": "定价",
-    "faq": "常见问题"
+    "faq": "常见问题",
+    "dashboard": "控制台",
+    "profile": "个人资料"
   },
   "footer": {
     "about": "关于",
@@ -1049,6 +1052,92 @@
       "heading": "帮助触手可及",
       "subtitle": "免费试用 5 分钟,无需信用卡。",
       "button": "立即开始"
+    }
+  },
+  "auth": {
+    "signup": {
+      "title": "创建账户",
+      "subtitle": "加入 San Brothers,开启您的服务请求。",
+      "intentBanner": "您正在注册以申请:",
+      "fullName": "姓名",
+      "email": "邮箱",
+      "phone": "电话",
+      "phoneHint": "请包含国家代码,例如 +250 7XX XXX XXX",
+      "preferredLanguage": "首选语言",
+      "password": "密码",
+      "confirmPassword": "确认密码",
+      "termsPrefix": "我同意",
+      "terms": "服务条款",
+      "privacy": "隐私政策",
+      "submit": "创建账户",
+      "helpText": "注册后,您将收到一封验证邮件。",
+      "haveAccount": "已经有账户?",
+      "successToast": "账户已创建,请查收邮件。"
+    },
+    "verifyEmail": {
+      "title": "请查收邮件",
+      "body": "我们已将验证链接发送至",
+      "body2": "请点击链接以激活您的账户。",
+      "spamHint": "未收到?请查看垃圾邮件,或:",
+      "resend": "重新发送验证邮件",
+      "resentToast": "验证邮件已发送。",
+      "wrongEmail": "邮箱不对?重新注册"
+    },
+    "callback": {
+      "activating": "正在激活账户..."
+    },
+    "login": {
+      "title": "欢迎回来",
+      "subtitle": "登录您的 San Brothers 账户。",
+      "rememberMe": "记住我",
+      "forgot": "忘记密码?",
+      "submit": "登录",
+      "noAccount": "还没有账户?"
+    },
+    "twofa": {
+      "title": "双因素验证",
+      "subtitle": "请输入验证器或短信中的 6 位代码。",
+      "verify": "验证",
+      "resend": "重新发送代码",
+      "verified": "验证成功。",
+      "resentToast": "代码已重新发送。",
+      "lost": "无法访问您的设备?"
+    },
+    "forgot": {
+      "title": "重置密码",
+      "subtitle": "输入您的邮箱,我们将发送重置链接。",
+      "submit": "发送重置链接",
+      "sent": "如果 {email} 存在账户,我们已发送重置链接。请查收。",
+      "backToLogin": "返回登录"
+    },
+    "reset": {
+      "title": "设置新密码",
+      "subtitle": "请选择一个您未使用过的强密码。",
+      "newPassword": "新密码",
+      "confirm": "确认新密码",
+      "submit": "更新密码",
+      "successToast": "密码已更新,请重新登录。"
+    },
+    "error": {
+      "title": "出现错误",
+      "default": "无法完成该操作。",
+      "tryLogin": "尝试登录",
+      "goHome": "返回首页"
+    },
+    "errors": {
+      "invalidEmail": "请输入有效邮箱地址。",
+      "invalidPhone": "请输入带国家代码的有效电话。",
+      "nameTooShort": "姓名过短。",
+      "weakPassword": "密码至少需要 8 个字符。",
+      "passwordsDontMatch": "两次密码不一致。",
+      "termsRequired": "您必须同意条款。",
+      "passwordRequired": "请输入密码。",
+      "invalidCredentials": "邮箱或密码错误。",
+      "emailExists": "该邮箱已注册账户。",
+      "emailNotConfirmed": "请先验证邮箱后再登录。",
+      "network": "网络错误,请检查连接后重试。",
+      "rateLimit": "尝试次数过多,请稍后再试。",
+      "generic": "出现问题,请重试。"
     }
   }
 }
