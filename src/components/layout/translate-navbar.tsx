@@ -57,15 +57,21 @@ export function TranslateNavbar() {
               <LanguageSwitcher />
             </div>
             <ThemeToggle />
-            <Button variant="ghost" size="sm" asChild>
-              <a href="/login">{t("common.login")}</a>
-            </Button>
-            <Button size="sm" className="gap-2" asChild>
-              <a href="/signup?intent=live-interpreter">
-                <Phone className="h-4 w-4" />
-                {t("translate.nav.getHelpNow")}
-              </a>
-            </Button>
+            {user ? (
+              <UserMenu />
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <a href="/login">{t("common.login")}</a>
+                </Button>
+                <Button size="sm" className="gap-2" asChild>
+                  <a href="/signup?intent=live-interpreter">
+                    <Phone className="h-4 w-4" />
+                    {t("translate.nav.getHelpNow")}
+                  </a>
+                </Button>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-1 md:hidden">
