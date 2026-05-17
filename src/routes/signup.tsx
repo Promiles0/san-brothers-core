@@ -147,9 +147,9 @@ function SignupPage() {
           />
           <label htmlFor="terms" className="text-xs text-muted-foreground leading-snug">
             {t("auth.signup.termsPrefix")}{" "}
-            <Link to="/terms" className="underline">{t("auth.signup.terms")}</Link>{" "}
+            <a href="/terms" className="underline">{t("auth.signup.terms")}</a>{" "}
             {t("common.and") || "&"}{" "}
-            <Link to="/privacy" className="underline">{t("auth.signup.privacy")}</Link>
+            <a href="/privacy" className="underline">{t("auth.signup.privacy")}</a>
           </label>
         </div>
         {errors.terms ? <p className="text-xs text-destructive">{t(errors.terms.message!)}</p> : null}
