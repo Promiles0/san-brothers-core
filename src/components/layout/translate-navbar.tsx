@@ -8,9 +8,12 @@ import {
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { useI18n } from "@/lib/providers/i18n-provider";
+import { useAuth } from "@/hooks/useAuth";
+import { UserMenu } from "@/components/auth/user-menu";
 
 export function TranslateNavbar() {
   const { t, locale } = useI18n();
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
 
   const links = [
