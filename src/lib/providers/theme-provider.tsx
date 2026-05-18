@@ -9,7 +9,31 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const STORAGE_KEY = "sb-theme";
+const COOKIE_KEY = "theme";
+const LEGACY_LS_KEY = "sb-theme";
+
+function readCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]+)"));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function writeCookie(name: string, value: string) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=31536000; SameSite=Lax`;
+}
+
+function readInitialTheme(): Theme {
+  const fromCookie = readCookie(COOKIE_KEY) as Theme | null;
+  if (fromCookie === "light" || fromCookie === "dark" || fromCookie === "system") {
+    return fromCookie;
+  }
+  if (typeof localStorage !== "undefined") {
+    const legacy = localStorage.getItem(LEGACY_LS_KEY) as Theme | null;
+    if (legacy === "light" || legacy === "dark" || legacy === "system") return legacy;
+  }
+  return "system";
+}
 
 function applyTheme(t: Theme): "light" | "dark" {
   if (typeof document === "undefined") return "light";
@@ -26,21 +50,25 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [resolvedTheme, setResolved] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const stored = (localStorage.getItem(STORAGE_KEY) as Theme | null) ?? "system";
-    setThemeState(stored);
-    setResolved(applyTheme(stored));
+    const initial = readInitialTheme();
+    setThemeState(initial);
+    setResolved(applyTheme(initial));
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = () => {
-      if ((localStorage.getItem(STORAGE_KEY) as Theme | null) === "system") {
-        setResolved(applyTheme("system"));
-      }
+      const current = (readCookie(COOKIE_KEY) as Theme | null) ?? "system";
+      if (current === "system") setResolved(applyTheme("system"));
     };
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
 
   const setTheme = (t: Theme) => {
-    localStorage.setItem(STORAGE_KEY, t);
+    writeCookie(COOKIE_KEY, t);
+    try {
+      localStorage.setItem(LEGACY_LS_KEY, t);
+    } catch {
+      // ignore
+    }
     setThemeState(t);
     setResolved(applyTheme(t));
   };
@@ -60,7 +88,7 @@ export function useTheme() {
 
 /**
  * Stub hook that will later sync theme preference to a backend user-preference store.
- * For now, it just proxies to the localStorage-based ThemeProvider.
+ * For now, it just proxies to the cookie-based ThemeProvider.
  */
 export function useUserTheme() {
   return useTheme();
