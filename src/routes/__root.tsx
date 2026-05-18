@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { getCookie } from "@tanstack/react-start/server";
+import { createIsomorphicFn } from "@tanstack/react-start";
 
 import appCss from "../styles.css?url";
 
@@ -16,24 +16,27 @@ import { I18nProvider } from "@/lib/providers/i18n-provider";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 
-function readClientCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]+)"));
-  return m ? decodeURIComponent(m[1]) : null;
-}
+type SsrPrefs = { theme: "light" | "dark" | "system"; locale: string };
 
-function loadSsrPrefs(): { theme: "light" | "dark" | "system"; locale: string } {
-  if (typeof document === "undefined") {
+const loadSsrPrefs = createIsomorphicFn()
+  .server((): SsrPrefs => {
+    // Lazy require to avoid bundling server-only module on the client.
+    const { getCookie } = require("@tanstack/react-start/server") as typeof import("@tanstack/react-start/server");
     return {
       theme: ((getCookie("theme") ?? "system") as "light" | "dark" | "system"),
       locale: getCookie("sb-locale") ?? "en",
     };
-  }
-  return {
-    theme: ((readClientCookie("theme") ?? "system") as "light" | "dark" | "system"),
-    locale: readClientCookie("sb-locale") ?? "en",
-  };
-}
+  })
+  .client((): SsrPrefs => {
+    const read = (name: string): string | null => {
+      const m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]+)"));
+      return m ? decodeURIComponent(m[1]) : null;
+    };
+    return {
+      theme: ((read("theme") ?? "system") as "light" | "dark" | "system"),
+      locale: read("sb-locale") ?? "en",
+    };
+  });
 
 function NotFoundComponent() {
   return (
