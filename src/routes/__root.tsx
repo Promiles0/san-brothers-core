@@ -113,19 +113,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
     ],
   }),
+  loader: () => loadSsrPrefs(),
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
 
-const themeInitScript = `(function(){try{var t=localStorage.getItem('sb-theme');var sd=window.matchMedia('(prefers-color-scheme: dark)').matches;var d=t==='dark'||(t==='system'&&sd)||(!t&&sd);var c=document.documentElement.classList;if(d)c.add('dark');else c.remove('dark');var l=localStorage.getItem('sb-locale')||'en';document.documentElement.lang=l;}catch(e){}})();`;
+// Only corrects 'system' preference after first paint; never overrides explicit
+// 'light' or 'dark' (those are already applied by SSR).
+const systemThemeFixScript = `(function(){try{var m=document.cookie.match(/(?:^|; )theme=([^;]+)/);var t=m?decodeURIComponent(m[1]):'system';if(t==='system'){var d=window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d);}}catch(e){}})();`;
 
 function RootShell({ children }: { children: React.ReactNode }) {
+  const { theme, locale } = Route.useLoaderData();
+  const htmlClass = theme === "dark" ? "dark" : "";
   return (
-    <html lang="en">
+    <html lang={locale} className={htmlClass} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: systemThemeFixScript }} />
         <HeadContent />
       </head>
       <body className="bg-background text-foreground">
