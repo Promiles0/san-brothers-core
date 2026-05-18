@@ -9,6 +9,13 @@ import {
 } from "@tanstack/react-router";
 import { readSsrPrefs } from "@/lib/ssr-prefs";
 
+import appCss from "../styles.css?url";
+
+import { ThemeProvider } from "@/lib/providers/theme-provider";
+import { I18nProvider } from "@/lib/providers/i18n-provider";
+import { AuthProvider } from "@/lib/auth-context";
+import { Toaster } from "@/components/ui/sonner";
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
