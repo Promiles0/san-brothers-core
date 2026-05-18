@@ -11,11 +11,6 @@ import { getCookie } from "@tanstack/react-start/server";
 
 import appCss from "../styles.css?url";
 
-const getSsrPrefs = createServerFn({ method: "GET" }).handler(() => {
-  const theme = (getCookie("theme") ?? "system") as "light" | "dark" | "system";
-  const locale = (getCookie("sb-locale") ?? "en") as string;
-  return { theme, locale };
-});
 import { ThemeProvider } from "@/lib/providers/theme-provider";
 import { I18nProvider } from "@/lib/providers/i18n-provider";
 import { AuthProvider } from "@/lib/auth-context";
