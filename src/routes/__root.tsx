@@ -7,12 +7,35 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { createIsomorphicFn } from "@tanstack/react-start";
 
 import appCss from "../styles.css?url";
+
 import { ThemeProvider } from "@/lib/providers/theme-provider";
 import { I18nProvider } from "@/lib/providers/i18n-provider";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
+
+type SsrPrefs = { theme: "light" | "dark" | "system"; locale: string };
+
+const loadSsrPrefs = createIsomorphicFn()
+  .server(async (): Promise<SsrPrefs> => {
+    const { getCookie } = await import("@tanstack/react-start/server");
+    return {
+      theme: ((getCookie("theme") ?? "system") as "light" | "dark" | "system"),
+      locale: getCookie("sb-locale") ?? "en",
+    };
+  })
+  .client(async (): Promise<SsrPrefs> => {
+    const read = (name: string): string | null => {
+      const m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]+)"));
+      return m ? decodeURIComponent(m[1]) : null;
+    };
+    return {
+      theme: ((read("theme") ?? "system") as "light" | "dark" | "system"),
+      locale: read("sb-locale") ?? "en",
+    };
+  });
 
 function NotFoundComponent() {
   return (
@@ -92,19 +115,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
     ],
   }),
+  loader: async () => await loadSsrPrefs(),
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
 
-const themeInitScript = `(function(){try{var t=localStorage.getItem('sb-theme');var sd=window.matchMedia('(prefers-color-scheme: dark)').matches;var d=t==='dark'||(t==='system'&&sd)||(!t&&sd);var c=document.documentElement.classList;if(d)c.add('dark');else c.remove('dark');var l=localStorage.getItem('sb-locale')||'en';document.documentElement.lang=l;}catch(e){}})();`;
+// Only corrects 'system' preference after first paint; never overrides explicit
+// 'light' or 'dark' (those are already applied by SSR).
+const systemThemeFixScript = `(function(){try{var m=document.cookie.match(/(?:^|; )theme=([^;]+)/);var t=m?decodeURIComponent(m[1]):'system';if(t==='system'){var d=window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d);}}catch(e){}})();`;
 
 function RootShell({ children }: { children: React.ReactNode }) {
+  const { theme, locale } = Route.useLoaderData();
+  const htmlClass = theme === "dark" ? "dark" : "";
   return (
-    <html lang="en">
+    <html lang={locale} className={htmlClass} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: systemThemeFixScript }} />
         <HeadContent />
       </head>
       <body className="bg-background text-foreground">
