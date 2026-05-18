@@ -22,6 +22,25 @@ import { I18nProvider } from "@/lib/providers/i18n-provider";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 
+function readClientCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]+)"));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function loadSsrPrefs(): { theme: "light" | "dark" | "system"; locale: string } {
+  if (typeof document === "undefined") {
+    return {
+      theme: ((getCookie("theme") ?? "system") as "light" | "dark" | "system"),
+      locale: getCookie("sb-locale") ?? "en",
+    };
+  }
+  return {
+    theme: ((readClientCookie("theme") ?? "system") as "light" | "dark" | "system"),
+    locale: readClientCookie("sb-locale") ?? "en",
+  };
+}
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
