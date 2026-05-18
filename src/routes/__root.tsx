@@ -19,15 +19,14 @@ import { Toaster } from "@/components/ui/sonner";
 type SsrPrefs = { theme: "light" | "dark" | "system"; locale: string };
 
 const loadSsrPrefs = createIsomorphicFn()
-  .server((): SsrPrefs => {
-    // Lazy require to avoid bundling server-only module on the client.
-    const { getCookie } = require("@tanstack/react-start/server") as typeof import("@tanstack/react-start/server");
+  .server(async (): Promise<SsrPrefs> => {
+    const { getCookie } = await import("@tanstack/react-start/server");
     return {
       theme: ((getCookie("theme") ?? "system") as "light" | "dark" | "system"),
       locale: getCookie("sb-locale") ?? "en",
     };
   })
-  .client((): SsrPrefs => {
+  .client(async (): Promise<SsrPrefs> => {
     const read = (name: string): string | null => {
       const m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]+)"));
       return m ? decodeURIComponent(m[1]) : null;
