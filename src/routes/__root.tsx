@@ -126,7 +126,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 const systemThemeFixScript = `(function(){try{var m=document.cookie.match(/(?:^|; )theme=([^;]+)/);var t=m?decodeURIComponent(m[1]):'system';if(t==='system'){var d=window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d);}}catch(e){}})();`;
 
 function RootShell({ children }: { children: React.ReactNode }) {
-  const { theme, locale } = Route.useLoaderData();
+  const prefs = (Route.useLoaderData?.() as SsrPrefs | undefined) ?? undefined;
+  const [prefsState, setPrefsState] = React.useState<SsrPrefs | undefined>(prefs);
+  React.useEffect(() => {
+    if (!prefsState) loadSsrPrefs().then(setPrefsState);
+  }, [prefsState]);
+  const theme = prefsState?.theme ?? "system";
+  const locale = prefsState?.locale ?? "en";
   const htmlClass = theme === "dark" ? "dark" : "";
   return (
     <html lang={locale} className={htmlClass} suppressHydrationWarning>
