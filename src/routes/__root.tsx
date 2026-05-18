@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { createIsomorphicFn } from "@tanstack/react-start";
+import { readSsrPrefs } from "@/lib/ssr-prefs";
 
 import appCss from "../styles.css?url";
 
@@ -15,27 +15,6 @@ import { ThemeProvider } from "@/lib/providers/theme-provider";
 import { I18nProvider } from "@/lib/providers/i18n-provider";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
-
-type SsrPrefs = { theme: "light" | "dark" | "system"; locale: string };
-
-const loadSsrPrefs = createIsomorphicFn()
-  .server(async (): Promise<SsrPrefs> => {
-    const { getCookie } = await import("@tanstack/react-start/server");
-    return {
-      theme: ((getCookie("theme") ?? "system") as "light" | "dark" | "system"),
-      locale: getCookie("sb-locale") ?? "en",
-    };
-  })
-  .client(async (): Promise<SsrPrefs> => {
-    const read = (name: string): string | null => {
-      const m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]+)"));
-      return m ? decodeURIComponent(m[1]) : null;
-    };
-    return {
-      theme: ((read("theme") ?? "system") as "light" | "dark" | "system"),
-      locale: read("sb-locale") ?? "en",
-    };
-  });
 
 function NotFoundComponent() {
   return (
@@ -115,7 +94,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
     ],
   }),
-  loader: async () => await loadSsrPrefs(),
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -127,7 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 const systemThemeFixScript = `(function(){try{var m=document.cookie.match(/(?:^|; )theme=([^;]+)/);var t=m?decodeURIComponent(m[1]):'system';if(t==='system'){var d=window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d);}}catch(e){}})();`;
 
 function RootShell({ children }: { children: React.ReactNode }) {
-  const { theme, locale } = Route.useLoaderData();
+  const { theme, locale } = readSsrPrefs();
   const htmlClass = theme === "dark" ? "dark" : "";
   return (
     <html lang={locale} className={htmlClass} suppressHydrationWarning>
