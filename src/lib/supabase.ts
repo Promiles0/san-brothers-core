@@ -1,15 +1,19 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? "";
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? "";
 
-if (!url || !anonKey) {
-  // Surface a clear message in the console for the developer.
-  console.warn(
-    "[supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. " +
-      "Add them in Lovable's Environment Variables panel.",
-  );
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error("[Supabase] MISSING ENV VARS - add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env file");
 }
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+});
 
 export interface ProfileRow {
   id: string;
@@ -27,16 +31,3 @@ export interface ProfileRow {
   last_login_at: string | null;
   status: string;
 }
-
-export const supabase: SupabaseClient = createClient(
-  url ?? "http://localhost",
-  anonKey ?? "public-anon-key",
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      storage: typeof window !== "undefined" ? window.localStorage : undefined,
-    },
-  },
-);

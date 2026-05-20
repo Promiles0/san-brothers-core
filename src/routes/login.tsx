@@ -58,13 +58,13 @@ function LoginPage() {
       const { data: profile } = await supabase.from("users").select("role,two_factor_enabled").eq("id", uid).maybeSingle();
       const staff = ["secretary", "manager", "translator", "admin"];
       if (profile && staff.includes(profile.role) && profile.two_factor_enabled) {
-        navigate({ to: "/login/2fa" });
+        navigate({ to: "/login/2fa", search: {} as never });
         return;
       }
     }
     if (intent) navigate({ to: "/dashboard", search: { intent } as never });
     else if (next) window.location.href = next;
-    else navigate({ to: "/dashboard" });
+    else navigate({ to: "/dashboard", search: {} as never });
   };
 
   return (
