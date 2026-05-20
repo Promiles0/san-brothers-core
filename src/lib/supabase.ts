@@ -7,13 +7,17 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error("[Supabase] MISSING ENV VARS - add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env file");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
+export const supabase = createClient(
+  supabaseUrl || "https://placeholder.supabase.co",
+  supabaseAnonKey || "placeholder-anon-key",
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
   },
-});
+);
 
 export interface ProfileRow {
   id: string;
