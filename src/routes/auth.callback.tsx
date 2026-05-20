@@ -43,7 +43,7 @@ function AuthCallbackPage() {
           });
           return;
         }
-        navigate({ to: "/dashboard" });
+        navigate({ to: "/dashboard", search: {} as never });
       } catch (e) {
         if (cancelled) return;
         const msg = e instanceof Error ? e.message : "unknown";
