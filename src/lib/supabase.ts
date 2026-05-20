@@ -1,23 +1,40 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? "";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? "";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("[Supabase] MISSING ENV VARS - add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env file");
-}
+let _client: SupabaseClient | null = null;
 
-export const supabase = createClient(
-  supabaseUrl || "https://placeholder.supabase.co",
-  supabaseAnonKey || "placeholder-anon-key",
-  {
+function getSupabaseClient(): SupabaseClient {
+  if (_client) return _client;
+
+  const url = supabaseUrl ?? "";
+  const key = supabaseAnonKey ?? "";
+
+  if (!url || !key) {
+    throw new Error(
+      "[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Add them to your .env file.",
+    );
+  }
+
+  _client = createClient(url, key, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
     },
+  });
+
+  return _client;
+}
+
+export const supabase = new Proxy({} as SupabaseClient, {
+  get(_target, prop) {
+    const client = getSupabaseClient();
+    const value = client[prop as keyof SupabaseClient];
+    return typeof value === "function" ? (value as (...args: unknown[]) => unknown).bind(client) : value;
   },
-);
+});
 
 export interface ProfileRow {
   id: string;
