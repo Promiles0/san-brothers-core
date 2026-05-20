@@ -22,6 +22,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TranslateIndexRouteImport } from './routes/translate/index'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as TranslatePricingRouteImport } from './routes/translate/pricing'
 import { Route as TranslateLiveRouteImport } from './routes/translate/live'
 import { Route as TranslateLanguagesRouteImport } from './routes/translate/languages'
@@ -35,6 +36,7 @@ import { Route as ServicesAccountingRouteImport } from './routes/services.accoun
 import { Route as Login2faRouteImport } from './routes/login.2fa'
 import { Route as AuthErrorRouteImport } from './routes/auth.error'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as DashboardServicesIndexRouteImport } from './routes/dashboard.services.index'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -101,6 +103,11 @@ const ServicesIndexRoute = ServicesIndexRouteImport.update({
   path: '/services/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const TranslatePricingRoute = TranslatePricingRouteImport.update({
   id: '/translate/pricing',
   path: '/translate/pricing',
@@ -166,12 +173,17 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardServicesIndexRoute = DashboardServicesIndexRouteImport.update({
+  id: '/services/',
+  path: '/services/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/dev': typeof DevRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -192,14 +204,15 @@ export interface FileRoutesByFullPath {
   '/translate/languages': typeof TranslateLanguagesRoute
   '/translate/live': typeof TranslateLiveRoute
   '/translate/pricing': typeof TranslatePricingRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/translate/': typeof TranslateIndexRoute
+  '/dashboard/services/': typeof DashboardServicesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
   '/dev': typeof DevRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -220,15 +233,17 @@ export interface FileRoutesByTo {
   '/translate/languages': typeof TranslateLanguagesRoute
   '/translate/live': typeof TranslateLiveRoute
   '/translate/pricing': typeof TranslatePricingRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/services': typeof ServicesIndexRoute
   '/translate': typeof TranslateIndexRoute
+  '/dashboard/services': typeof DashboardServicesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/dev': typeof DevRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -249,8 +264,10 @@ export interface FileRoutesById {
   '/translate/languages': typeof TranslateLanguagesRoute
   '/translate/live': typeof TranslateLiveRoute
   '/translate/pricing': typeof TranslatePricingRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/translate/': typeof TranslateIndexRoute
+  '/dashboard/services/': typeof DashboardServicesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -279,14 +296,15 @@ export interface FileRouteTypes {
     | '/translate/languages'
     | '/translate/live'
     | '/translate/pricing'
+    | '/dashboard/'
     | '/services/'
     | '/translate/'
+    | '/dashboard/services/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/contact'
-    | '/dashboard'
     | '/dev'
     | '/faq'
     | '/forgot-password'
@@ -307,8 +325,10 @@ export interface FileRouteTypes {
     | '/translate/languages'
     | '/translate/live'
     | '/translate/pricing'
+    | '/dashboard'
     | '/services'
     | '/translate'
+    | '/dashboard/services'
   id:
     | '__root__'
     | '/'
@@ -335,15 +355,17 @@ export interface FileRouteTypes {
     | '/translate/languages'
     | '/translate/live'
     | '/translate/pricing'
+    | '/dashboard/'
     | '/services/'
     | '/translate/'
+    | '/dashboard/services/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
-  DashboardRoute: typeof DashboardRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   DevRoute: typeof DevRoute
   FaqRoute: typeof FaqRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -459,6 +481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/translate/pricing': {
       id: '/translate/pricing'
       path: '/translate/pricing'
@@ -550,8 +579,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/services/': {
+      id: '/dashboard/services/'
+      path: '/services'
+      fullPath: '/dashboard/services/'
+      preLoaderRoute: typeof DashboardServicesIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
+
+interface DashboardRouteChildren {
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardServicesIndexRoute: typeof DashboardServicesIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardIndexRoute: DashboardIndexRoute,
+  DashboardServicesIndexRoute: DashboardServicesIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
 
 interface LoginRouteChildren {
   Login2faRoute: typeof Login2faRoute
@@ -578,7 +628,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
-  DashboardRoute: DashboardRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   DevRoute: DevRoute,
   FaqRoute: FaqRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
