@@ -34,9 +34,20 @@ import { Route as ServicesTranslationRouteImport } from './routes/services.trans
 import { Route as ServicesConsultancyRouteImport } from './routes/services.consultancy'
 import { Route as ServicesAccountingRouteImport } from './routes/services.accounting'
 import { Route as Login2faRouteImport } from './routes/login.2fa'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
+import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
+import { Route as DashboardPaymentsRouteImport } from './routes/dashboard.payments'
+import { Route as DashboardMessagesRouteImport } from './routes/dashboard.messages'
+import { Route as DashboardDocumentsRouteImport } from './routes/dashboard.documents'
 import { Route as AuthErrorRouteImport } from './routes/auth.error'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as DashboardServicesIndexRouteImport } from './routes/dashboard.services.index'
+import { Route as DashboardMyServicesIndexRouteImport } from './routes/dashboard.my-services.index'
+import { Route as DashboardClaimsIndexRouteImport } from './routes/dashboard.claims.index'
+import { Route as DashboardServicesSlugRouteImport } from './routes/dashboard.services.$slug'
+import { Route as DashboardMyServicesIdRouteImport } from './routes/dashboard.my-services.$id'
+import { Route as DashboardClaimsNewRouteImport } from './routes/dashboard.claims.new'
+import { Route as DashboardClaimsIdRouteImport } from './routes/dashboard.claims.$id'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -163,6 +174,31 @@ const Login2faRoute = Login2faRouteImport.update({
   path: '/2fa',
   getParentRoute: () => LoginRoute,
 } as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardProfileRoute = DashboardProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPaymentsRoute = DashboardPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardMessagesRoute = DashboardMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardDocumentsRoute = DashboardDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const AuthErrorRoute = AuthErrorRouteImport.update({
   id: '/auth/error',
   path: '/auth/error',
@@ -176,6 +212,37 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
 const DashboardServicesIndexRoute = DashboardServicesIndexRouteImport.update({
   id: '/services/',
   path: '/services/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardMyServicesIndexRoute =
+  DashboardMyServicesIndexRouteImport.update({
+    id: '/my-services/',
+    path: '/my-services/',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardClaimsIndexRoute = DashboardClaimsIndexRouteImport.update({
+  id: '/claims/',
+  path: '/claims/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardServicesSlugRoute = DashboardServicesSlugRouteImport.update({
+  id: '/services/$slug',
+  path: '/services/$slug',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardMyServicesIdRoute = DashboardMyServicesIdRouteImport.update({
+  id: '/my-services/$id',
+  path: '/my-services/$id',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardClaimsNewRoute = DashboardClaimsNewRouteImport.update({
+  id: '/claims/new',
+  path: '/claims/new',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardClaimsIdRoute = DashboardClaimsIdRouteImport.update({
+  id: '/claims/$id',
+  path: '/claims/$id',
   getParentRoute: () => DashboardRoute,
 } as any)
 
@@ -193,6 +260,11 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
+  '/dashboard/documents': typeof DashboardDocumentsRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/payments': typeof DashboardPaymentsRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/login/2fa': typeof Login2faRoute
   '/services/accounting': typeof ServicesAccountingRoute
   '/services/consultancy': typeof ServicesConsultancyRoute
@@ -207,6 +279,12 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/translate/': typeof TranslateIndexRoute
+  '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
+  '/dashboard/claims/new': typeof DashboardClaimsNewRoute
+  '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
+  '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
+  '/dashboard/claims/': typeof DashboardClaimsIndexRoute
+  '/dashboard/my-services/': typeof DashboardMyServicesIndexRoute
   '/dashboard/services/': typeof DashboardServicesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -222,6 +300,11 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
+  '/dashboard/documents': typeof DashboardDocumentsRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/payments': typeof DashboardPaymentsRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/login/2fa': typeof Login2faRoute
   '/services/accounting': typeof ServicesAccountingRoute
   '/services/consultancy': typeof ServicesConsultancyRoute
@@ -236,6 +319,12 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/services': typeof ServicesIndexRoute
   '/translate': typeof TranslateIndexRoute
+  '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
+  '/dashboard/claims/new': typeof DashboardClaimsNewRoute
+  '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
+  '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
+  '/dashboard/claims': typeof DashboardClaimsIndexRoute
+  '/dashboard/my-services': typeof DashboardMyServicesIndexRoute
   '/dashboard/services': typeof DashboardServicesIndexRoute
 }
 export interface FileRoutesById {
@@ -253,6 +342,11 @@ export interface FileRoutesById {
   '/signup': typeof SignupRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
+  '/dashboard/documents': typeof DashboardDocumentsRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/payments': typeof DashboardPaymentsRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/login/2fa': typeof Login2faRoute
   '/services/accounting': typeof ServicesAccountingRoute
   '/services/consultancy': typeof ServicesConsultancyRoute
@@ -267,6 +361,12 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/translate/': typeof TranslateIndexRoute
+  '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
+  '/dashboard/claims/new': typeof DashboardClaimsNewRoute
+  '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
+  '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
+  '/dashboard/claims/': typeof DashboardClaimsIndexRoute
+  '/dashboard/my-services/': typeof DashboardMyServicesIndexRoute
   '/dashboard/services/': typeof DashboardServicesIndexRoute
 }
 export interface FileRouteTypes {
@@ -285,6 +385,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/auth/callback'
     | '/auth/error'
+    | '/dashboard/documents'
+    | '/dashboard/messages'
+    | '/dashboard/payments'
+    | '/dashboard/profile'
+    | '/dashboard/settings'
     | '/login/2fa'
     | '/services/accounting'
     | '/services/consultancy'
@@ -299,6 +404,12 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/services/'
     | '/translate/'
+    | '/dashboard/claims/$id'
+    | '/dashboard/claims/new'
+    | '/dashboard/my-services/$id'
+    | '/dashboard/services/$slug'
+    | '/dashboard/claims/'
+    | '/dashboard/my-services/'
     | '/dashboard/services/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -314,6 +425,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/auth/callback'
     | '/auth/error'
+    | '/dashboard/documents'
+    | '/dashboard/messages'
+    | '/dashboard/payments'
+    | '/dashboard/profile'
+    | '/dashboard/settings'
     | '/login/2fa'
     | '/services/accounting'
     | '/services/consultancy'
@@ -328,6 +444,12 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/services'
     | '/translate'
+    | '/dashboard/claims/$id'
+    | '/dashboard/claims/new'
+    | '/dashboard/my-services/$id'
+    | '/dashboard/services/$slug'
+    | '/dashboard/claims'
+    | '/dashboard/my-services'
     | '/dashboard/services'
   id:
     | '__root__'
@@ -344,6 +466,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/auth/callback'
     | '/auth/error'
+    | '/dashboard/documents'
+    | '/dashboard/messages'
+    | '/dashboard/payments'
+    | '/dashboard/profile'
+    | '/dashboard/settings'
     | '/login/2fa'
     | '/services/accounting'
     | '/services/consultancy'
@@ -358,6 +485,12 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/services/'
     | '/translate/'
+    | '/dashboard/claims/$id'
+    | '/dashboard/claims/new'
+    | '/dashboard/my-services/$id'
+    | '/dashboard/services/$slug'
+    | '/dashboard/claims/'
+    | '/dashboard/my-services/'
     | '/dashboard/services/'
   fileRoutesById: FileRoutesById
 }
@@ -565,6 +698,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Login2faRouteImport
       parentRoute: typeof LoginRoute
     }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/profile': {
+      id: '/dashboard/profile'
+      path: '/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof DashboardProfileRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/payments': {
+      id: '/dashboard/payments'
+      path: '/payments'
+      fullPath: '/dashboard/payments'
+      preLoaderRoute: typeof DashboardPaymentsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/messages': {
+      id: '/dashboard/messages'
+      path: '/messages'
+      fullPath: '/dashboard/messages'
+      preLoaderRoute: typeof DashboardMessagesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/documents': {
+      id: '/dashboard/documents'
+      path: '/documents'
+      fullPath: '/dashboard/documents'
+      preLoaderRoute: typeof DashboardDocumentsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/auth/error': {
       id: '/auth/error'
       path: '/auth/error'
@@ -586,16 +754,80 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardServicesIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/my-services/': {
+      id: '/dashboard/my-services/'
+      path: '/my-services'
+      fullPath: '/dashboard/my-services/'
+      preLoaderRoute: typeof DashboardMyServicesIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/claims/': {
+      id: '/dashboard/claims/'
+      path: '/claims'
+      fullPath: '/dashboard/claims/'
+      preLoaderRoute: typeof DashboardClaimsIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/services/$slug': {
+      id: '/dashboard/services/$slug'
+      path: '/services/$slug'
+      fullPath: '/dashboard/services/$slug'
+      preLoaderRoute: typeof DashboardServicesSlugRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/my-services/$id': {
+      id: '/dashboard/my-services/$id'
+      path: '/my-services/$id'
+      fullPath: '/dashboard/my-services/$id'
+      preLoaderRoute: typeof DashboardMyServicesIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/claims/new': {
+      id: '/dashboard/claims/new'
+      path: '/claims/new'
+      fullPath: '/dashboard/claims/new'
+      preLoaderRoute: typeof DashboardClaimsNewRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/claims/$id': {
+      id: '/dashboard/claims/$id'
+      path: '/claims/$id'
+      fullPath: '/dashboard/claims/$id'
+      preLoaderRoute: typeof DashboardClaimsIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
 interface DashboardRouteChildren {
+  DashboardDocumentsRoute: typeof DashboardDocumentsRoute
+  DashboardMessagesRoute: typeof DashboardMessagesRoute
+  DashboardPaymentsRoute: typeof DashboardPaymentsRoute
+  DashboardProfileRoute: typeof DashboardProfileRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardClaimsIdRoute: typeof DashboardClaimsIdRoute
+  DashboardClaimsNewRoute: typeof DashboardClaimsNewRoute
+  DashboardMyServicesIdRoute: typeof DashboardMyServicesIdRoute
+  DashboardServicesSlugRoute: typeof DashboardServicesSlugRoute
+  DashboardClaimsIndexRoute: typeof DashboardClaimsIndexRoute
+  DashboardMyServicesIndexRoute: typeof DashboardMyServicesIndexRoute
   DashboardServicesIndexRoute: typeof DashboardServicesIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardDocumentsRoute: DashboardDocumentsRoute,
+  DashboardMessagesRoute: DashboardMessagesRoute,
+  DashboardPaymentsRoute: DashboardPaymentsRoute,
+  DashboardProfileRoute: DashboardProfileRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardClaimsIdRoute: DashboardClaimsIdRoute,
+  DashboardClaimsNewRoute: DashboardClaimsNewRoute,
+  DashboardMyServicesIdRoute: DashboardMyServicesIdRoute,
+  DashboardServicesSlugRoute: DashboardServicesSlugRoute,
+  DashboardClaimsIndexRoute: DashboardClaimsIndexRoute,
+  DashboardMyServicesIndexRoute: DashboardMyServicesIndexRoute,
   DashboardServicesIndexRoute: DashboardServicesIndexRoute,
 }
 
