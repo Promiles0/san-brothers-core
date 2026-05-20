@@ -1139,5 +1139,122 @@
       "rateLimit": "Too many attempts. Please try again later.",
       "generic": "Something went wrong. Please try again."
     }
+  },
+  "dashboard": {
+    "nav": {
+      "home": "Home", "browseServices": "Browse Services", "myServices": "My Services",
+      "documents": "Documents", "messages": "Messages", "payments": "Payments",
+      "claims": "Claims", "profile": "Profile", "settings": "Settings", "logout": "Log out"
+    },
+    "common": {
+      "back": "Back", "save": "Save Changes", "saving": "Saving…", "submit": "Submit",
+      "submitting": "Submitting…", "continue": "Continue", "viewDetails": "View details",
+      "select": "Select…", "optional": "optional", "chars": "characters", "days": "days",
+      "created": "Created", "lastUpdated": "Last updated", "step": "Step", "uploading": "Uploading…"
+    },
+    "status": {
+      "submitted": "Submitted", "under_review": "Under Review", "awaiting_client": "Awaiting You",
+      "verified": "Verified", "submitted_to_authority": "With Authority", "completed": "Completed",
+      "rejected": "Rejected", "cancelled": "Cancelled",
+      "uploaded": "Uploaded", "final_delivery": "Delivered",
+      "open": "Open", "resolved": "Resolved"
+    },
+    "home": {
+      "welcome": "Welcome back, {name}!", "activeServices": "Active", "documents": "Documents",
+      "unreadMessages": "Unread", "yourActiveServices": "Your Active Services",
+      "intentBanner": "You wanted to request: {name}. Continue below.",
+      "notifications": "Recent notifications", "noNotifications": "No notifications yet.",
+      "quickActions": "Quick Actions", "requestNew": "Request a new service",
+      "uploadDoc": "Upload a document", "talkSupport": "Talk to support",
+      "empty": {
+        "title": "You don't have any active services yet",
+        "desc": "Browse our services to get started.",
+        "cta": "Browse Services"
+      }
+    },
+    "services": {
+      "title": "Browse Services", "subtitle": "Pick a service to request.",
+      "searchPlaceholder": "Search services…",
+      "cat": { "all": "All", "visa": "Visa", "accounting": "Accounting", "consultancy": "Consultancy", "translation": "Translation" },
+      "from": "From", "usually": "Usually", "request": "Request",
+      "seeMoreTitle": "Need something not listed?", "seeMoreDesc": "Contact us to discuss custom services.",
+      "notFound": "Service not found.",
+      "section": { "aboutYou": "About You", "details": "Service Details", "requiredDocs": "Required Documents", "notes": "Additional Notes" },
+      "noDocsRequired": "No documents required for this service.",
+      "addAnother": "+ Add another document", "uploaded": "Uploaded files",
+      "notesPlaceholder": "Anything else we should know?",
+      "errNoFiles": "Please upload at least one document.",
+      "successToast": "Service requested successfully!", "submit": "Submit Request",
+      "visa": { "type": "Visa type", "dates": "Travel dates", "destination": "Destination country" },
+      "acct": { "period": "Period", "businessType": "Business type", "tin": "TIN (if company)" },
+      "consult": { "brief": "Briefly describe what you need" },
+      "translate": { "source": "Source language", "target": "Target language", "docType": "Document type" }
+    },
+    "myServices": {
+      "title": "My Services",
+      "tab": { "active": "Active", "completed": "Completed", "cancelled": "Cancelled" },
+      "empty": { "active": "No active services. Browse to get started.", "completed": "No completed services yet.", "cancelled": "No cancelled services." },
+      "browse": "Browse Services", "notFound": "Service request not found.",
+      "progress": "Progress", "documents": "Documents", "noDocs": "No documents uploaded yet.",
+      "uploadAnother": "Upload another", "uploadedToast": "Document uploaded.",
+      "awaitingBanner": "We need additional documents from you. Please upload below.",
+      "chat": "Chat with staff", "chatPlaceholder": "Hi! Your case manager will reach out shortly.",
+      "chatInputPlaceholder": "Type a message…", "send": "Send",
+      "chatComingSoon": "Live chat coming soon.", "openClaim": "Open a Claim"
+    },
+    "documents": {
+      "title": "Documents", "subtitle": "All your files, organized by service.",
+      "searchPlaceholder": "Search files…", "allFiles": "All files",
+      "empty": "You haven't uploaded any documents yet. Documents you upload during service requests will appear here organized by service.",
+      "noMatch": "No files match your search.", "untitled": "Untitled service"
+    },
+    "messages": {
+      "title": "Messages",
+      "empty": "Live chat with our team is coming soon. For urgent matters, please contact us or open a claim.",
+      "contactCta": "Contact us"
+    },
+    "payments": {
+      "title": "Payments",
+      "comingSoon": "Online payments coming soon. You'll be able to pay with MoMo, cards, and PayPal.",
+      "history": "Service price history", "noHistory": "No services requested yet."
+    },
+    "claims": {
+      "title": "Claims", "newCta": "Open a Claim", "newTitle": "Open a New Claim",
+      "tab": { "open": "Open", "resolved": "Resolved", "rejected": "Rejected" },
+      "empty": { "open": "No open claims. Glad things are going smoothly!", "resolved": "No resolved claims yet.", "rejected": "No rejected claims." },
+      "related": "Related to", "notFound": "Claim not found.",
+      "linkedService": "Linked service",
+      "reason": {
+        "label": "Reason",
+        "service_not_delivered": "Service Not Delivered",
+        "service_incorrect": "Service Incorrect",
+        "long_delay": "Long Delay",
+        "quality_issue": "Quality Issue",
+        "refund_request": "Refund Request",
+        "other": "Other"
+      },
+      "description": "Description", "descPlaceholder": "Describe what happened (minimum 20 characters)…",
+      "evidence": "Evidence files", "addEvidence": "Add evidence files",
+      "errReason": "Please select a reason.", "errDescription": "Description must be at least 20 characters.",
+      "submit": "Submit Claim", "successToast": "Claim opened. We'll review it soon.",
+      "resolution": "Resolution notes", "refund": "Refund"
+    },
+    "profile": {
+      "title": "Profile", "picture": "Profile picture", "changePicture": "Change picture",
+      "avatarUpdated": "Profile picture updated.",
+      "info": "Personal information", "fullName": "Full name", "phone": "Phone",
+      "email": "Email", "emailHint": "Contact support to change your email.",
+      "role": "Role", "tin": "TIN number", "createdAt": "Account created",
+      "preferredLang": "Preferred language", "savedToast": "Profile updated."
+    },
+    "settings": {
+      "title": "Settings", "appearance": "Appearance", "language": "Language", "security": "Security",
+      "twoFA": "Two-factor authentication", "twoFADesc": "Add an extra layer of security at sign-in.",
+      "twoFAStub": "2FA setup coming soon.",
+      "changePw": "Change password", "currentPw": "Current password", "newPw": "New password",
+      "pwShort": "Password must be at least 8 characters.", "pwUpdated": "Password updated.",
+      "signOutAll": "Sign out everywhere", "signedOutAll": "Signed out from all devices.",
+      "notifications": "Notifications", "notifStub": "Notification preferences coming soon."
+    }
   }
 }
