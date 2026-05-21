@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StaffRouteImport } from './routes/staff'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -49,6 +50,11 @@ import { Route as DashboardMyServicesIdRouteImport } from './routes/dashboard.my
 import { Route as DashboardClaimsNewRouteImport } from './routes/dashboard.claims.new'
 import { Route as DashboardClaimsIdRouteImport } from './routes/dashboard.claims.$id'
 
+const StaffRoute = StaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -258,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRouteWithChildren
+  '/staff': typeof StaffRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
@@ -298,6 +305,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRouteWithChildren
+  '/staff': typeof StaffRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
@@ -340,6 +348,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRouteWithChildren
+  '/staff': typeof StaffRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
@@ -383,6 +392,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reset-password'
     | '/signup'
+    | '/staff'
     | '/auth/callback'
     | '/auth/error'
     | '/dashboard/documents'
@@ -423,6 +433,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reset-password'
     | '/signup'
+    | '/staff'
     | '/auth/callback'
     | '/auth/error'
     | '/dashboard/documents'
@@ -464,6 +475,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reset-password'
     | '/signup'
+    | '/staff'
     | '/auth/callback'
     | '/auth/error'
     | '/dashboard/documents'
@@ -506,6 +518,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRouteWithChildren
+  StaffRoute: typeof StaffRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthErrorRoute: typeof AuthErrorRoute
   ServicesAccountingRoute: typeof ServicesAccountingRoute
@@ -523,6 +536,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/staff': {
+      id: '/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -868,6 +888,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRouteWithChildren,
+  StaffRoute: StaffRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthErrorRoute: AuthErrorRoute,
   ServicesAccountingRoute: ServicesAccountingRoute,
@@ -885,13 +906,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
