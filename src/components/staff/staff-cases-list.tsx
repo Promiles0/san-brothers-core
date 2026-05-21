@@ -38,7 +38,7 @@ export function StaffCasesList({ category, basePath, title }: { category: Servic
     setLoading(true);
     try {
       let q = supabase.from("service_requests")
-        .select("id,status,progress_step,progress_total,assigned_staff_id,priority,created_at,client:users!service_requests_client_id_fkey(id,full_name,email,phone,tin_number),service:services(id,name_en)")
+        .select("id,status,progress_step,progress_total,assigned_staff_id,priority,created_at,client:users(id,full_name,email,phone,tin_number),service:services(id,name_en)")
         .eq("service_category", category)
         .order("created_at", { ascending: false });
 

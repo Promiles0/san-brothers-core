@@ -53,7 +53,7 @@ function StaffHome() {
         })();
         const endOfWeek = new Date(startOfWeek); endOfWeek.setDate(endOfWeek.getDate() + 7);
 
-        const sel = "id,status,created_at,updated_at,assigned_staff_id,service_category,client:users!service_requests_client_id_fkey(full_name),service:services(name_en)";
+        const sel = "id,status,created_at,updated_at,assigned_staff_id,service_category,client:users(full_name),service:services(name_en)";
 
         // Today's queue: assigned to me OR (unassigned in my categories) — and updated/created today
         const orParts: string[] = [`assigned_staff_id.eq.${user.id}`];

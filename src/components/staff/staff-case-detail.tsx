@@ -56,7 +56,7 @@ export function StaffCaseDetail({ id, category, basePath }: { id: string; catego
     setLoading(true);
     try {
       const { data: row, error } = await supabase.from("service_requests")
-        .select("id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,client:users!service_requests_client_id_fkey(id,full_name,email,phone,tin_number,city,country),service:services(name_en)")
+        .select("id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,client:users(id,full_name,email,phone,tin_number,city,country),service:services(name_en)")
         .eq("id", id).single();
       if (error) throw error;
       setData(row as unknown as CaseDetail);
