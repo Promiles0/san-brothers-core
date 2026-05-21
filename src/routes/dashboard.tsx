@@ -20,11 +20,10 @@ function DashboardShell() {
   const { profile, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Staff/admin land here too (v1) — they see the client shell for now.
-  // (Real staff dashboards ship in prompt 5C.)
+  // Staff/admin: silently redirect to /staff
   useEffect(() => {
     if (!loading && profile && profile.role !== "client") {
-      // No-op redirect for now; just keep them on /dashboard
+      navigate({ to: "/staff", search: {} as never });
     }
   }, [profile, loading, navigate]);
 
@@ -37,3 +36,4 @@ function DashboardShell() {
     </DashboardLayout>
   );
 }
+

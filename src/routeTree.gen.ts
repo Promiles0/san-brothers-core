@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StaffRouteImport } from './routes/staff'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -21,6 +22,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TranslateIndexRouteImport } from './routes/translate/index'
+import { Route as StaffIndexRouteImport } from './routes/staff.index'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as TranslatePricingRouteImport } from './routes/translate/pricing'
@@ -28,6 +30,12 @@ import { Route as TranslateLiveRouteImport } from './routes/translate/live'
 import { Route as TranslateLanguagesRouteImport } from './routes/translate/languages'
 import { Route as TranslateHowItWorksRouteImport } from './routes/translate/how-it-works'
 import { Route as TranslateDocumentRouteImport } from './routes/translate/document'
+import { Route as StaffVisaRouteImport } from './routes/staff.visa'
+import { Route as StaffTranslationRouteImport } from './routes/staff.translation'
+import { Route as StaffSettingsRouteImport } from './routes/staff.settings'
+import { Route as StaffReportsRouteImport } from './routes/staff.reports'
+import { Route as StaffConsultancyRouteImport } from './routes/staff.consultancy'
+import { Route as StaffAccountingRouteImport } from './routes/staff.accounting'
 import { Route as SignupVerifyEmailRouteImport } from './routes/signup.verify-email'
 import { Route as ServicesVisaRouteImport } from './routes/services.visa'
 import { Route as ServicesTranslationRouteImport } from './routes/services.translation'
@@ -41,14 +49,28 @@ import { Route as DashboardMessagesRouteImport } from './routes/dashboard.messag
 import { Route as DashboardDocumentsRouteImport } from './routes/dashboard.documents'
 import { Route as AuthErrorRouteImport } from './routes/auth.error'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as StaffClientsIndexRouteImport } from './routes/staff.clients.index'
+import { Route as StaffClaimsIndexRouteImport } from './routes/staff.claims.index'
 import { Route as DashboardServicesIndexRouteImport } from './routes/dashboard.services.index'
 import { Route as DashboardMyServicesIndexRouteImport } from './routes/dashboard.my-services.index'
 import { Route as DashboardClaimsIndexRouteImport } from './routes/dashboard.claims.index'
+import { Route as StaffVisaIdRouteImport } from './routes/staff.visa.$id'
+import { Route as StaffTranslationIdRouteImport } from './routes/staff.translation.$id'
+import { Route as StaffConsultancyIdRouteImport } from './routes/staff.consultancy.$id'
+import { Route as StaffClientsNewRouteImport } from './routes/staff.clients.new'
+import { Route as StaffClientsIdRouteImport } from './routes/staff.clients.$id'
+import { Route as StaffClaimsIdRouteImport } from './routes/staff.claims.$id'
+import { Route as StaffAccountingIdRouteImport } from './routes/staff.accounting.$id'
 import { Route as DashboardServicesSlugRouteImport } from './routes/dashboard.services.$slug'
 import { Route as DashboardMyServicesIdRouteImport } from './routes/dashboard.my-services.$id'
 import { Route as DashboardClaimsNewRouteImport } from './routes/dashboard.claims.new'
 import { Route as DashboardClaimsIdRouteImport } from './routes/dashboard.claims.$id'
 
+const StaffRoute = StaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -109,6 +131,11 @@ const TranslateIndexRoute = TranslateIndexRouteImport.update({
   path: '/translate/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StaffIndexRoute = StaffIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StaffRoute,
+} as any)
 const ServicesIndexRoute = ServicesIndexRouteImport.update({
   id: '/services/',
   path: '/services/',
@@ -143,6 +170,36 @@ const TranslateDocumentRoute = TranslateDocumentRouteImport.update({
   id: '/translate/document',
   path: '/translate/document',
   getParentRoute: () => rootRouteImport,
+} as any)
+const StaffVisaRoute = StaffVisaRouteImport.update({
+  id: '/visa',
+  path: '/visa',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffTranslationRoute = StaffTranslationRouteImport.update({
+  id: '/translation',
+  path: '/translation',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffSettingsRoute = StaffSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffReportsRoute = StaffReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffConsultancyRoute = StaffConsultancyRouteImport.update({
+  id: '/consultancy',
+  path: '/consultancy',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffAccountingRoute = StaffAccountingRouteImport.update({
+  id: '/accounting',
+  path: '/accounting',
+  getParentRoute: () => StaffRoute,
 } as any)
 const SignupVerifyEmailRoute = SignupVerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -209,6 +266,16 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StaffClientsIndexRoute = StaffClientsIndexRouteImport.update({
+  id: '/clients/',
+  path: '/clients/',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffClaimsIndexRoute = StaffClaimsIndexRouteImport.update({
+  id: '/claims/',
+  path: '/claims/',
+  getParentRoute: () => StaffRoute,
+} as any)
 const DashboardServicesIndexRoute = DashboardServicesIndexRouteImport.update({
   id: '/services/',
   path: '/services/',
@@ -224,6 +291,41 @@ const DashboardClaimsIndexRoute = DashboardClaimsIndexRouteImport.update({
   id: '/claims/',
   path: '/claims/',
   getParentRoute: () => DashboardRoute,
+} as any)
+const StaffVisaIdRoute = StaffVisaIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => StaffVisaRoute,
+} as any)
+const StaffTranslationIdRoute = StaffTranslationIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => StaffTranslationRoute,
+} as any)
+const StaffConsultancyIdRoute = StaffConsultancyIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => StaffConsultancyRoute,
+} as any)
+const StaffClientsNewRoute = StaffClientsNewRouteImport.update({
+  id: '/clients/new',
+  path: '/clients/new',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffClientsIdRoute = StaffClientsIdRouteImport.update({
+  id: '/clients/$id',
+  path: '/clients/$id',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffClaimsIdRoute = StaffClaimsIdRouteImport.update({
+  id: '/claims/$id',
+  path: '/claims/$id',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffAccountingIdRoute = StaffAccountingIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => StaffAccountingRoute,
 } as any)
 const DashboardServicesSlugRoute = DashboardServicesSlugRouteImport.update({
   id: '/services/$slug',
@@ -258,6 +360,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRouteWithChildren
+  '/staff': typeof StaffRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
@@ -271,6 +374,12 @@ export interface FileRoutesByFullPath {
   '/services/translation': typeof ServicesTranslationRoute
   '/services/visa': typeof ServicesVisaRoute
   '/signup/verify-email': typeof SignupVerifyEmailRoute
+  '/staff/accounting': typeof StaffAccountingRouteWithChildren
+  '/staff/consultancy': typeof StaffConsultancyRouteWithChildren
+  '/staff/reports': typeof StaffReportsRoute
+  '/staff/settings': typeof StaffSettingsRoute
+  '/staff/translation': typeof StaffTranslationRouteWithChildren
+  '/staff/visa': typeof StaffVisaRouteWithChildren
   '/translate/document': typeof TranslateDocumentRoute
   '/translate/how-it-works': typeof TranslateHowItWorksRoute
   '/translate/languages': typeof TranslateLanguagesRoute
@@ -278,14 +387,24 @@ export interface FileRoutesByFullPath {
   '/translate/pricing': typeof TranslatePricingRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/services/': typeof ServicesIndexRoute
+  '/staff/': typeof StaffIndexRoute
   '/translate/': typeof TranslateIndexRoute
   '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
   '/dashboard/claims/new': typeof DashboardClaimsNewRoute
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
+  '/staff/accounting/$id': typeof StaffAccountingIdRoute
+  '/staff/claims/$id': typeof StaffClaimsIdRoute
+  '/staff/clients/$id': typeof StaffClientsIdRoute
+  '/staff/clients/new': typeof StaffClientsNewRoute
+  '/staff/consultancy/$id': typeof StaffConsultancyIdRoute
+  '/staff/translation/$id': typeof StaffTranslationIdRoute
+  '/staff/visa/$id': typeof StaffVisaIdRoute
   '/dashboard/claims/': typeof DashboardClaimsIndexRoute
   '/dashboard/my-services/': typeof DashboardMyServicesIndexRoute
   '/dashboard/services/': typeof DashboardServicesIndexRoute
+  '/staff/claims/': typeof StaffClaimsIndexRoute
+  '/staff/clients/': typeof StaffClientsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -311,6 +430,12 @@ export interface FileRoutesByTo {
   '/services/translation': typeof ServicesTranslationRoute
   '/services/visa': typeof ServicesVisaRoute
   '/signup/verify-email': typeof SignupVerifyEmailRoute
+  '/staff/accounting': typeof StaffAccountingRouteWithChildren
+  '/staff/consultancy': typeof StaffConsultancyRouteWithChildren
+  '/staff/reports': typeof StaffReportsRoute
+  '/staff/settings': typeof StaffSettingsRoute
+  '/staff/translation': typeof StaffTranslationRouteWithChildren
+  '/staff/visa': typeof StaffVisaRouteWithChildren
   '/translate/document': typeof TranslateDocumentRoute
   '/translate/how-it-works': typeof TranslateHowItWorksRoute
   '/translate/languages': typeof TranslateLanguagesRoute
@@ -318,14 +443,24 @@ export interface FileRoutesByTo {
   '/translate/pricing': typeof TranslatePricingRoute
   '/dashboard': typeof DashboardIndexRoute
   '/services': typeof ServicesIndexRoute
+  '/staff': typeof StaffIndexRoute
   '/translate': typeof TranslateIndexRoute
   '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
   '/dashboard/claims/new': typeof DashboardClaimsNewRoute
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
+  '/staff/accounting/$id': typeof StaffAccountingIdRoute
+  '/staff/claims/$id': typeof StaffClaimsIdRoute
+  '/staff/clients/$id': typeof StaffClientsIdRoute
+  '/staff/clients/new': typeof StaffClientsNewRoute
+  '/staff/consultancy/$id': typeof StaffConsultancyIdRoute
+  '/staff/translation/$id': typeof StaffTranslationIdRoute
+  '/staff/visa/$id': typeof StaffVisaIdRoute
   '/dashboard/claims': typeof DashboardClaimsIndexRoute
   '/dashboard/my-services': typeof DashboardMyServicesIndexRoute
   '/dashboard/services': typeof DashboardServicesIndexRoute
+  '/staff/claims': typeof StaffClaimsIndexRoute
+  '/staff/clients': typeof StaffClientsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -340,6 +475,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRouteWithChildren
+  '/staff': typeof StaffRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
@@ -353,6 +489,12 @@ export interface FileRoutesById {
   '/services/translation': typeof ServicesTranslationRoute
   '/services/visa': typeof ServicesVisaRoute
   '/signup/verify-email': typeof SignupVerifyEmailRoute
+  '/staff/accounting': typeof StaffAccountingRouteWithChildren
+  '/staff/consultancy': typeof StaffConsultancyRouteWithChildren
+  '/staff/reports': typeof StaffReportsRoute
+  '/staff/settings': typeof StaffSettingsRoute
+  '/staff/translation': typeof StaffTranslationRouteWithChildren
+  '/staff/visa': typeof StaffVisaRouteWithChildren
   '/translate/document': typeof TranslateDocumentRoute
   '/translate/how-it-works': typeof TranslateHowItWorksRoute
   '/translate/languages': typeof TranslateLanguagesRoute
@@ -360,14 +502,24 @@ export interface FileRoutesById {
   '/translate/pricing': typeof TranslatePricingRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/services/': typeof ServicesIndexRoute
+  '/staff/': typeof StaffIndexRoute
   '/translate/': typeof TranslateIndexRoute
   '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
   '/dashboard/claims/new': typeof DashboardClaimsNewRoute
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
+  '/staff/accounting/$id': typeof StaffAccountingIdRoute
+  '/staff/claims/$id': typeof StaffClaimsIdRoute
+  '/staff/clients/$id': typeof StaffClientsIdRoute
+  '/staff/clients/new': typeof StaffClientsNewRoute
+  '/staff/consultancy/$id': typeof StaffConsultancyIdRoute
+  '/staff/translation/$id': typeof StaffTranslationIdRoute
+  '/staff/visa/$id': typeof StaffVisaIdRoute
   '/dashboard/claims/': typeof DashboardClaimsIndexRoute
   '/dashboard/my-services/': typeof DashboardMyServicesIndexRoute
   '/dashboard/services/': typeof DashboardServicesIndexRoute
+  '/staff/claims/': typeof StaffClaimsIndexRoute
+  '/staff/clients/': typeof StaffClientsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -383,6 +535,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reset-password'
     | '/signup'
+    | '/staff'
     | '/auth/callback'
     | '/auth/error'
     | '/dashboard/documents'
@@ -396,6 +549,12 @@ export interface FileRouteTypes {
     | '/services/translation'
     | '/services/visa'
     | '/signup/verify-email'
+    | '/staff/accounting'
+    | '/staff/consultancy'
+    | '/staff/reports'
+    | '/staff/settings'
+    | '/staff/translation'
+    | '/staff/visa'
     | '/translate/document'
     | '/translate/how-it-works'
     | '/translate/languages'
@@ -403,14 +562,24 @@ export interface FileRouteTypes {
     | '/translate/pricing'
     | '/dashboard/'
     | '/services/'
+    | '/staff/'
     | '/translate/'
     | '/dashboard/claims/$id'
     | '/dashboard/claims/new'
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
+    | '/staff/accounting/$id'
+    | '/staff/claims/$id'
+    | '/staff/clients/$id'
+    | '/staff/clients/new'
+    | '/staff/consultancy/$id'
+    | '/staff/translation/$id'
+    | '/staff/visa/$id'
     | '/dashboard/claims/'
     | '/dashboard/my-services/'
     | '/dashboard/services/'
+    | '/staff/claims/'
+    | '/staff/clients/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -436,6 +605,12 @@ export interface FileRouteTypes {
     | '/services/translation'
     | '/services/visa'
     | '/signup/verify-email'
+    | '/staff/accounting'
+    | '/staff/consultancy'
+    | '/staff/reports'
+    | '/staff/settings'
+    | '/staff/translation'
+    | '/staff/visa'
     | '/translate/document'
     | '/translate/how-it-works'
     | '/translate/languages'
@@ -443,14 +618,24 @@ export interface FileRouteTypes {
     | '/translate/pricing'
     | '/dashboard'
     | '/services'
+    | '/staff'
     | '/translate'
     | '/dashboard/claims/$id'
     | '/dashboard/claims/new'
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
+    | '/staff/accounting/$id'
+    | '/staff/claims/$id'
+    | '/staff/clients/$id'
+    | '/staff/clients/new'
+    | '/staff/consultancy/$id'
+    | '/staff/translation/$id'
+    | '/staff/visa/$id'
     | '/dashboard/claims'
     | '/dashboard/my-services'
     | '/dashboard/services'
+    | '/staff/claims'
+    | '/staff/clients'
   id:
     | '__root__'
     | '/'
@@ -464,6 +649,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reset-password'
     | '/signup'
+    | '/staff'
     | '/auth/callback'
     | '/auth/error'
     | '/dashboard/documents'
@@ -477,6 +663,12 @@ export interface FileRouteTypes {
     | '/services/translation'
     | '/services/visa'
     | '/signup/verify-email'
+    | '/staff/accounting'
+    | '/staff/consultancy'
+    | '/staff/reports'
+    | '/staff/settings'
+    | '/staff/translation'
+    | '/staff/visa'
     | '/translate/document'
     | '/translate/how-it-works'
     | '/translate/languages'
@@ -484,14 +676,24 @@ export interface FileRouteTypes {
     | '/translate/pricing'
     | '/dashboard/'
     | '/services/'
+    | '/staff/'
     | '/translate/'
     | '/dashboard/claims/$id'
     | '/dashboard/claims/new'
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
+    | '/staff/accounting/$id'
+    | '/staff/claims/$id'
+    | '/staff/clients/$id'
+    | '/staff/clients/new'
+    | '/staff/consultancy/$id'
+    | '/staff/translation/$id'
+    | '/staff/visa/$id'
     | '/dashboard/claims/'
     | '/dashboard/my-services/'
     | '/dashboard/services/'
+    | '/staff/claims/'
+    | '/staff/clients/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -506,6 +708,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRouteWithChildren
+  StaffRoute: typeof StaffRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthErrorRoute: typeof AuthErrorRoute
   ServicesAccountingRoute: typeof ServicesAccountingRoute
@@ -523,6 +726,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/staff': {
+      id: '/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -607,6 +817,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TranslateIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/staff/': {
+      id: '/staff/'
+      path: '/'
+      fullPath: '/staff/'
+      preLoaderRoute: typeof StaffIndexRouteImport
+      parentRoute: typeof StaffRoute
+    }
     '/services/': {
       id: '/services/'
       path: '/services'
@@ -655,6 +872,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/translate/document'
       preLoaderRoute: typeof TranslateDocumentRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/staff/visa': {
+      id: '/staff/visa'
+      path: '/visa'
+      fullPath: '/staff/visa'
+      preLoaderRoute: typeof StaffVisaRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/translation': {
+      id: '/staff/translation'
+      path: '/translation'
+      fullPath: '/staff/translation'
+      preLoaderRoute: typeof StaffTranslationRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/settings': {
+      id: '/staff/settings'
+      path: '/settings'
+      fullPath: '/staff/settings'
+      preLoaderRoute: typeof StaffSettingsRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/reports': {
+      id: '/staff/reports'
+      path: '/reports'
+      fullPath: '/staff/reports'
+      preLoaderRoute: typeof StaffReportsRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/consultancy': {
+      id: '/staff/consultancy'
+      path: '/consultancy'
+      fullPath: '/staff/consultancy'
+      preLoaderRoute: typeof StaffConsultancyRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/accounting': {
+      id: '/staff/accounting'
+      path: '/accounting'
+      fullPath: '/staff/accounting'
+      preLoaderRoute: typeof StaffAccountingRouteImport
+      parentRoute: typeof StaffRoute
     }
     '/signup/verify-email': {
       id: '/signup/verify-email'
@@ -747,6 +1006,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/staff/clients/': {
+      id: '/staff/clients/'
+      path: '/clients'
+      fullPath: '/staff/clients/'
+      preLoaderRoute: typeof StaffClientsIndexRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/claims/': {
+      id: '/staff/claims/'
+      path: '/claims'
+      fullPath: '/staff/claims/'
+      preLoaderRoute: typeof StaffClaimsIndexRouteImport
+      parentRoute: typeof StaffRoute
+    }
     '/dashboard/services/': {
       id: '/dashboard/services/'
       path: '/services'
@@ -767,6 +1040,55 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/claims/'
       preLoaderRoute: typeof DashboardClaimsIndexRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/staff/visa/$id': {
+      id: '/staff/visa/$id'
+      path: '/$id'
+      fullPath: '/staff/visa/$id'
+      preLoaderRoute: typeof StaffVisaIdRouteImport
+      parentRoute: typeof StaffVisaRoute
+    }
+    '/staff/translation/$id': {
+      id: '/staff/translation/$id'
+      path: '/$id'
+      fullPath: '/staff/translation/$id'
+      preLoaderRoute: typeof StaffTranslationIdRouteImport
+      parentRoute: typeof StaffTranslationRoute
+    }
+    '/staff/consultancy/$id': {
+      id: '/staff/consultancy/$id'
+      path: '/$id'
+      fullPath: '/staff/consultancy/$id'
+      preLoaderRoute: typeof StaffConsultancyIdRouteImport
+      parentRoute: typeof StaffConsultancyRoute
+    }
+    '/staff/clients/new': {
+      id: '/staff/clients/new'
+      path: '/clients/new'
+      fullPath: '/staff/clients/new'
+      preLoaderRoute: typeof StaffClientsNewRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/clients/$id': {
+      id: '/staff/clients/$id'
+      path: '/clients/$id'
+      fullPath: '/staff/clients/$id'
+      preLoaderRoute: typeof StaffClientsIdRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/claims/$id': {
+      id: '/staff/claims/$id'
+      path: '/claims/$id'
+      fullPath: '/staff/claims/$id'
+      preLoaderRoute: typeof StaffClaimsIdRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/accounting/$id': {
+      id: '/staff/accounting/$id'
+      path: '/$id'
+      fullPath: '/staff/accounting/$id'
+      preLoaderRoute: typeof StaffAccountingIdRouteImport
+      parentRoute: typeof StaffAccountingRoute
     }
     '/dashboard/services/$slug': {
       id: '/dashboard/services/$slug'
@@ -856,6 +1178,84 @@ const SignupRouteChildren: SignupRouteChildren = {
 const SignupRouteWithChildren =
   SignupRoute._addFileChildren(SignupRouteChildren)
 
+interface StaffAccountingRouteChildren {
+  StaffAccountingIdRoute: typeof StaffAccountingIdRoute
+}
+
+const StaffAccountingRouteChildren: StaffAccountingRouteChildren = {
+  StaffAccountingIdRoute: StaffAccountingIdRoute,
+}
+
+const StaffAccountingRouteWithChildren = StaffAccountingRoute._addFileChildren(
+  StaffAccountingRouteChildren,
+)
+
+interface StaffConsultancyRouteChildren {
+  StaffConsultancyIdRoute: typeof StaffConsultancyIdRoute
+}
+
+const StaffConsultancyRouteChildren: StaffConsultancyRouteChildren = {
+  StaffConsultancyIdRoute: StaffConsultancyIdRoute,
+}
+
+const StaffConsultancyRouteWithChildren =
+  StaffConsultancyRoute._addFileChildren(StaffConsultancyRouteChildren)
+
+interface StaffTranslationRouteChildren {
+  StaffTranslationIdRoute: typeof StaffTranslationIdRoute
+}
+
+const StaffTranslationRouteChildren: StaffTranslationRouteChildren = {
+  StaffTranslationIdRoute: StaffTranslationIdRoute,
+}
+
+const StaffTranslationRouteWithChildren =
+  StaffTranslationRoute._addFileChildren(StaffTranslationRouteChildren)
+
+interface StaffVisaRouteChildren {
+  StaffVisaIdRoute: typeof StaffVisaIdRoute
+}
+
+const StaffVisaRouteChildren: StaffVisaRouteChildren = {
+  StaffVisaIdRoute: StaffVisaIdRoute,
+}
+
+const StaffVisaRouteWithChildren = StaffVisaRoute._addFileChildren(
+  StaffVisaRouteChildren,
+)
+
+interface StaffRouteChildren {
+  StaffAccountingRoute: typeof StaffAccountingRouteWithChildren
+  StaffConsultancyRoute: typeof StaffConsultancyRouteWithChildren
+  StaffReportsRoute: typeof StaffReportsRoute
+  StaffSettingsRoute: typeof StaffSettingsRoute
+  StaffTranslationRoute: typeof StaffTranslationRouteWithChildren
+  StaffVisaRoute: typeof StaffVisaRouteWithChildren
+  StaffIndexRoute: typeof StaffIndexRoute
+  StaffClaimsIdRoute: typeof StaffClaimsIdRoute
+  StaffClientsIdRoute: typeof StaffClientsIdRoute
+  StaffClientsNewRoute: typeof StaffClientsNewRoute
+  StaffClaimsIndexRoute: typeof StaffClaimsIndexRoute
+  StaffClientsIndexRoute: typeof StaffClientsIndexRoute
+}
+
+const StaffRouteChildren: StaffRouteChildren = {
+  StaffAccountingRoute: StaffAccountingRouteWithChildren,
+  StaffConsultancyRoute: StaffConsultancyRouteWithChildren,
+  StaffReportsRoute: StaffReportsRoute,
+  StaffSettingsRoute: StaffSettingsRoute,
+  StaffTranslationRoute: StaffTranslationRouteWithChildren,
+  StaffVisaRoute: StaffVisaRouteWithChildren,
+  StaffIndexRoute: StaffIndexRoute,
+  StaffClaimsIdRoute: StaffClaimsIdRoute,
+  StaffClientsIdRoute: StaffClientsIdRoute,
+  StaffClientsNewRoute: StaffClientsNewRoute,
+  StaffClaimsIndexRoute: StaffClaimsIndexRoute,
+  StaffClientsIndexRoute: StaffClientsIndexRoute,
+}
+
+const StaffRouteWithChildren = StaffRoute._addFileChildren(StaffRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -868,6 +1268,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRouteWithChildren,
+  StaffRoute: StaffRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthErrorRoute: AuthErrorRoute,
   ServicesAccountingRoute: ServicesAccountingRoute,
