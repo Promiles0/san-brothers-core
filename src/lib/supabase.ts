@@ -1,21 +1,15 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl =
-  (import.meta.env.VITE_SUPABASE_URL as string | undefined) ||
-  (import.meta.env.SUPABASE_URL as string | undefined) ||
-  "";
-const supabaseAnonKey =
-  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
-  (import.meta.env.SUPABASE_ANON_KEY as string | undefined) ||
-  "";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABASE_URL || "";
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_ANON_KEY || "";
 
 let _client: SupabaseClient | null = null;
 
 function getSupabaseClient(): SupabaseClient {
   if (_client) return _client;
 
-  const url = supabaseUrl ?? "";
-  const key = supabaseAnonKey ?? "";
+  const url = SUPABASE_URL ?? "";
+  const key = SUPABASE_ANON_KEY ?? "";
 
   if (!url || !key) {
     throw new Error(

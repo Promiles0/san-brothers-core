@@ -1139,5 +1139,122 @@
       "rateLimit": "尝试次数过多,请稍后再试。",
       "generic": "出现问题,请重试。"
     }
+  },
+  "dashboard": {
+    "nav": {
+      "home": "首页", "browseServices": "浏览服务", "myServices": "我的服务",
+      "documents": "文件", "messages": "消息", "payments": "付款",
+      "claims": "投诉", "profile": "个人资料", "settings": "设置", "logout": "退出登录"
+    },
+    "common": {
+      "back": "返回", "save": "保存更改", "saving": "保存中…", "submit": "提交",
+      "submitting": "提交中…", "continue": "继续", "viewDetails": "查看详情",
+      "select": "请选择…", "optional": "可选", "chars": "字符", "days": "天",
+      "created": "创建时间", "lastUpdated": "最近更新", "step": "步骤", "uploading": "上传中…"
+    },
+    "status": {
+      "submitted": "已提交", "under_review": "审核中", "awaiting_client": "等待您的回复",
+      "verified": "已核实", "submitted_to_authority": "已递交主管部门", "completed": "已完成",
+      "rejected": "已拒绝", "cancelled": "已取消",
+      "uploaded": "已上传", "final_delivery": "已交付",
+      "open": "处理中", "resolved": "已解决"
+    },
+    "home": {
+      "welcome": "欢迎回来,{name}!", "activeServices": "进行中", "documents": "文件",
+      "unreadMessages": "未读", "yourActiveServices": "您正在进行的服务",
+      "intentBanner": "您想申请:{name}。请在下方继续。",
+      "notifications": "最新通知", "noNotifications": "暂无通知。",
+      "quickActions": "快捷操作", "requestNew": "申请新服务",
+      "uploadDoc": "上传文件", "talkSupport": "联系客服",
+      "empty": {
+        "title": "您还没有进行中的服务",
+        "desc": "浏览我们的服务开始使用。",
+        "cta": "浏览服务"
+      }
+    },
+    "services": {
+      "title": "浏览服务", "subtitle": "选择您需要的服务进行申请。",
+      "searchPlaceholder": "搜索服务…",
+      "cat": { "all": "全部", "visa": "签证", "accounting": "财务", "consultancy": "咨询", "translation": "翻译" },
+      "from": "起价", "usually": "通常", "request": "申请",
+      "seeMoreTitle": "需要列表外的服务?", "seeMoreDesc": "联系我们讨论定制化服务。",
+      "notFound": "未找到该服务。",
+      "section": { "aboutYou": "您的信息", "details": "服务详情", "requiredDocs": "所需文件", "notes": "附加说明" },
+      "noDocsRequired": "此服务无需文件。",
+      "addAnother": "+ 添加另一份文件", "uploaded": "已上传文件",
+      "notesPlaceholder": "还有其他需要告知我们的吗?",
+      "errNoFiles": "请至少上传一份文件。",
+      "successToast": "服务申请已成功提交!", "submit": "提交申请",
+      "visa": { "type": "签证类型", "dates": "出行日期", "destination": "目的国" },
+      "acct": { "period": "周期", "businessType": "业务类型", "tin": "税号(企业填写)" },
+      "consult": { "brief": "简述您的需求" },
+      "translate": { "source": "源语言", "target": "目标语言", "docType": "文件类型" }
+    },
+    "myServices": {
+      "title": "我的服务",
+      "tab": { "active": "进行中", "completed": "已完成", "cancelled": "已取消" },
+      "empty": { "active": "暂无进行中的服务。", "completed": "暂无已完成服务。", "cancelled": "暂无已取消服务。" },
+      "browse": "浏览服务", "notFound": "未找到该服务申请。",
+      "progress": "进度", "documents": "文件", "noDocs": "尚未上传任何文件。",
+      "uploadAnother": "上传更多", "uploadedToast": "文件已上传。",
+      "awaitingBanner": "我们需要您补充材料,请在下方上传。",
+      "chat": "与工作人员沟通", "chatPlaceholder": "您好!案件经理将很快与您联系。",
+      "chatInputPlaceholder": "输入消息…", "send": "发送",
+      "chatComingSoon": "在线聊天即将推出。", "openClaim": "发起投诉"
+    },
+    "documents": {
+      "title": "文件", "subtitle": "您的所有文件,按服务整理。",
+      "searchPlaceholder": "搜索文件…", "allFiles": "全部文件",
+      "empty": "您尚未上传任何文件。在服务申请过程中上传的文件将按服务在此显示。",
+      "noMatch": "没有匹配的文件。", "untitled": "未命名服务"
+    },
+    "messages": {
+      "title": "消息",
+      "empty": "在线聊天即将推出。如有紧急情况,请联系我们或发起投诉。",
+      "contactCta": "联系我们"
+    },
+    "payments": {
+      "title": "付款",
+      "comingSoon": "在线支付即将推出,届时可使用 MoMo、银行卡和 PayPal。",
+      "history": "服务价格记录", "noHistory": "暂无服务记录。"
+    },
+    "claims": {
+      "title": "投诉", "newCta": "发起投诉", "newTitle": "发起新投诉",
+      "tab": { "open": "处理中", "resolved": "已解决", "rejected": "已拒绝" },
+      "empty": { "open": "暂无处理中的投诉。", "resolved": "暂无已解决的投诉。", "rejected": "暂无已拒绝的投诉。" },
+      "related": "相关服务", "notFound": "未找到该投诉。",
+      "linkedService": "关联的服务",
+      "reason": {
+        "label": "原因",
+        "service_not_delivered": "服务未交付",
+        "service_incorrect": "服务有误",
+        "long_delay": "长时间延误",
+        "quality_issue": "质量问题",
+        "refund_request": "退款申请",
+        "other": "其他"
+      },
+      "description": "详细说明", "descPlaceholder": "请描述发生的情况(至少 20 字符)…",
+      "evidence": "证据文件", "addEvidence": "添加证据文件",
+      "errReason": "请选择原因。", "errDescription": "说明至少需 20 个字符。",
+      "submit": "提交投诉", "successToast": "投诉已提交,我们会尽快处理。",
+      "resolution": "处理说明", "refund": "退款金额"
+    },
+    "profile": {
+      "title": "个人资料", "picture": "头像", "changePicture": "更换头像",
+      "avatarUpdated": "头像已更新。",
+      "info": "个人信息", "fullName": "姓名", "phone": "电话",
+      "email": "邮箱", "emailHint": "如需更改邮箱请联系客服。",
+      "role": "角色", "tin": "税号", "createdAt": "注册时间",
+      "preferredLang": "首选语言", "savedToast": "资料已更新。"
+    },
+    "settings": {
+      "title": "设置", "appearance": "外观", "language": "语言", "security": "安全",
+      "twoFA": "双因素认证", "twoFADesc": "为登录增加额外的安全保护。",
+      "twoFAStub": "双因素认证即将推出。",
+      "changePw": "修改密码", "currentPw": "当前密码", "newPw": "新密码",
+      "pwShort": "密码至少 8 个字符。", "pwUpdated": "密码已更新。",
+      "signOutAll": "退出所有设备", "signedOutAll": "已退出所有设备。",
+      "notifications": "通知", "notifStub": "通知偏好设置即将推出。"
+    }
   }
 }
