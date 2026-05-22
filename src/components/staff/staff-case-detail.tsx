@@ -728,6 +728,62 @@ export function StaffCaseDetail({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={submitAuthOpen} onOpenChange={setSubmitAuthOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Submit to authority</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              placeholder="Authority name (e.g. Immigration Office)"
+              value={authName}
+              onChange={(e) => setAuthName(e.target.value)}
+            />
+            <Input
+              placeholder="Reference number (optional)"
+              value={authRef}
+              onChange={(e) => setAuthRef(e.target.value)}
+            />
+            <Textarea
+              placeholder="Notes (optional)"
+              value={authNotes}
+              onChange={(e) => setAuthNotes(e.target.value)}
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setSubmitAuthOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={submitToAuthority} disabled={!authName.trim()}>
+              Submit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={rejectCaseOpen} onOpenChange={setRejectCaseOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject case</DialogTitle>
+          </DialogHeader>
+          <Textarea
+            placeholder="Reason for rejecting this case"
+            value={rejectCaseReason}
+            onChange={(e) => setRejectCaseReason(e.target.value)}
+            rows={4}
+          />
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRejectCaseOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={rejectCase} disabled={!rejectCaseReason.trim()}>
+              Reject
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
