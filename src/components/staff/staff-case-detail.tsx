@@ -1,6 +1,13 @@
+// NOTE: Manager workflow requires these columns on service_requests. If missing run:
+//   ALTER TABLE public.service_requests
+//     ADD COLUMN IF NOT EXISTS submitted_to_authority_at timestamptz,
+//     ADD COLUMN IF NOT EXISTS authority_name text,
+//     ADD COLUMN IF NOT EXISTS authority_ref text,
+//     ADD COLUMN IF NOT EXISTS authority_notes text,
+//     ADD COLUMN IF NOT EXISTS rejection_reason text;
 import { useEffect, useState, useRef } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Upload, Download } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ArrowLeft, Upload, Download, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useCapabilities } from "@/lib/staff/capability-context";
