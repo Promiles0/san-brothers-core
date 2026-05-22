@@ -113,6 +113,14 @@ export function StaffCaseDetail({
   const [notes, setNotes] = useState("");
   const [rejectDoc, setRejectDoc] = useState<Doc | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [rejectCaseOpen, setRejectCaseOpen] = useState(false);
+  const [rejectCaseReason, setRejectCaseReason] = useState("");
+  const [submitAuthOpen, setSubmitAuthOpen] = useState(false);
+  const [authName, setAuthName] = useState("");
+  const [authRef, setAuthRef] = useState("");
+  const [authNotes, setAuthNotes] = useState("");
+  const [staffList, setStaffList] = useState<StaffMember[]>([]);
+  const [assigneeName, setAssigneeName] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
