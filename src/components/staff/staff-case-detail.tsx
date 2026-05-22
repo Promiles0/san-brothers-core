@@ -363,6 +363,34 @@ export function StaffCaseDetail({
         <span className="text-muted-foreground">— {data.service?.name_en}</span>
         <StatusBadge status={data.status} />
       </div>
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <span className="text-muted-foreground">Assigned to:</span>
+        <span className="font-medium">
+          {data.assigned_staff_id ? assigneeName || "…" : "Unassigned"}
+        </span>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={assignToMe}
+          disabled={data.assigned_staff_id === user?.id}
+        >
+          {data.assigned_staff_id === user?.id ? "Assigned to you" : "Assign to me"}
+        </Button>
+        {isManager && (
+          <Select onValueChange={reassignTo}>
+            <SelectTrigger className="h-9 w-56">
+              <SelectValue placeholder="Reassign…" />
+            </SelectTrigger>
+            <SelectContent>
+              {staffList.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.full_name || s.email} · {s.role}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </div>
 
       <Tabs defaultValue="overview">
         <TabsList>
