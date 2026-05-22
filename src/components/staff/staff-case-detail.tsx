@@ -90,7 +90,7 @@ export function StaffCaseDetail({
 }) {
   const { user } = useAuth();
   const { hasCapability } = useCapabilities();
-  const navigate = useNavigate();
+  const isManager = profile?.role === "manager" || profile?.role === "admin";
   const [data, setData] = useState<CaseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [docs, setDocs] = useState<Doc[]>([]);
