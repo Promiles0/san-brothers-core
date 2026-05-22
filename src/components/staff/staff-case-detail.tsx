@@ -453,7 +453,104 @@ export function StaffCaseDetail({
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-2">
+              {data.status === "submitted" && (
+                <Button size="sm" onClick={() => changeStatus("under_review")}>
+                  Start Review
+                </Button>
+              )}
+              {data.status === "under_review" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => changeStatus("awaiting_client")}
+                >
+                  Request Documents
+                </Button>
+              )}
+              {data.status === "under_review" && canApprove && (
+                <Button size="sm" onClick={() => changeStatus("verified")}>
+                  Mark Verified
+                </Button>
+              )}
+              {data.status === "verified" && (
+                <Button size="sm" onClick={() => setSubmitAuthOpen(true)}>
+                  Submit to Authority
+                </Button>
+              )}
+              {data.status === "submitted_to_authority" && (
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    changeStatus(
+                      "completed",
+                      { completed_at: new Date().toISOString() },
+                      "Marked complete",
+                    )
+                  }
+                >
+                  Mark Complete
+                </Button>
+              )}
+              {data.status !== "completed" && data.status !== "cancelled" && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => setRejectCaseOpen(true)}
+                >
+                  Reject Case
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          {(data.status === "submitted_to_authority" || data.status === "completed") && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Final Delivery</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {data.authority_name && (
+                  <div className="text-sm text-muted-foreground">
+                    Submitted to <span className="font-medium text-foreground">{data.authority_name}</span>
+                    {data.authority_ref && <> · Ref: {data.authority_ref}</>}
+                  </div>
+                )}
+                {docs.filter((d) => d.is_final_delivery).length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No documents marked as final delivery yet.
+                  </p>
+                ) : (
+                  <ul className="space-y-1 text-sm">
+                    {docs
+                      .filter((d) => d.is_final_delivery)
+                      .map((d) => (
+                        <li key={d.id} className="flex items-center justify-between">
+                          <span className="truncate">{d.file_name}</span>
+                          <Button size="sm" variant="ghost" onClick={() => downloadDoc(d)}>
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </li>
+                      ))}
+                  </ul>
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => toast.success("Client notification sent")}
+                >
+                  <Mail className="h-4 w-4" /> Notify Client
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
+
 
         <TabsContent value="documents" className="space-y-3">
           <div className="flex items-center justify-between">
