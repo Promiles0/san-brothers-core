@@ -1,8 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Mic, MicOff, PhoneOff, PhoneCall, Loader2, Wallet } from "lucide-react";
 import { TranslateLayout } from "@/components/layout/translate-layout";
-import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,12 +39,27 @@ type Phase = "pre" | "connecting" | "connected" | "ended";
 type SessionType = "payg" | "bank";
 
 function SessionPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate({ to: "/login", search: { intent: "interpreter" } as never });
+    }
+  }, [loading, user, navigate]);
+
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
-    <ProtectedRoute>
-      <TranslateLayout>
-        <SessionInner />
-      </TranslateLayout>
-    </ProtectedRoute>
+    <TranslateLayout>
+      <SessionInner />
+    </TranslateLayout>
   );
 }
 

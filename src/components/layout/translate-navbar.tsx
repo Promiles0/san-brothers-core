@@ -109,12 +109,21 @@ export function TranslateNavbar() {
                     <LanguageSwitcher />
                   </div>
                   <div className="mt-2 flex flex-col gap-2 px-3">
-                    <Button variant="outline" asChild>
-                      <a href="/login">{t("common.login")}</a>
-                    </Button>
-                    <Button asChild>
-                      <a href="/signup?intent=live-interpreter">{t("translate.nav.getHelpNow")}</a>
-                    </Button>
+                    {user ? (
+                      <UserMenu />
+                    ) : (
+                      <>
+                        <Button variant="outline" asChild>
+                          <a href="/login">{t("common.login")}</a>
+                        </Button>
+                        <Button asChild>
+                          <a href="/signup?intent=live-interpreter">
+                            <Phone className="h-4 w-4" />
+                            {t("translate.nav.getHelpNow")}
+                          </a>
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </SheetContent>

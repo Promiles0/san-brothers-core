@@ -50,8 +50,13 @@ import { Route as DashboardMessagesRouteImport } from './routes/dashboard.messag
 import { Route as DashboardDocumentsRouteImport } from './routes/dashboard.documents'
 import { Route as AuthErrorRouteImport } from './routes/auth.error'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as TranslateLiveIndexRouteImport } from './routes/translate/live/index'
+import { Route as StaffVisaIndexRouteImport } from './routes/staff.visa.index'
+import { Route as StaffTranslationIndexRouteImport } from './routes/staff.translation.index'
+import { Route as StaffConsultancyIndexRouteImport } from './routes/staff.consultancy.index'
 import { Route as StaffClientsIndexRouteImport } from './routes/staff.clients.index'
 import { Route as StaffClaimsIndexRouteImport } from './routes/staff.claims.index'
+import { Route as StaffAccountingIndexRouteImport } from './routes/staff.accounting.index'
 import { Route as DashboardServicesIndexRouteImport } from './routes/dashboard.services.index'
 import { Route as DashboardMyServicesIndexRouteImport } from './routes/dashboard.my-services.index'
 import { Route as DashboardClaimsIndexRouteImport } from './routes/dashboard.claims.index'
@@ -273,6 +278,26 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TranslateLiveIndexRoute = TranslateLiveIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TranslateLiveRoute,
+} as any)
+const StaffVisaIndexRoute = StaffVisaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StaffVisaRoute,
+} as any)
+const StaffTranslationIndexRoute = StaffTranslationIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StaffTranslationRoute,
+} as any)
+const StaffConsultancyIndexRoute = StaffConsultancyIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StaffConsultancyRoute,
+} as any)
 const StaffClientsIndexRoute = StaffClientsIndexRouteImport.update({
   id: '/clients/',
   path: '/clients/',
@@ -282,6 +307,11 @@ const StaffClaimsIndexRoute = StaffClaimsIndexRouteImport.update({
   id: '/claims/',
   path: '/claims/',
   getParentRoute: () => StaffRoute,
+} as any)
+const StaffAccountingIndexRoute = StaffAccountingIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StaffAccountingRoute,
 } as any)
 const DashboardServicesIndexRoute = DashboardServicesIndexRouteImport.update({
   id: '/services/',
@@ -417,8 +447,13 @@ export interface FileRoutesByFullPath {
   '/dashboard/claims/': typeof DashboardClaimsIndexRoute
   '/dashboard/my-services/': typeof DashboardMyServicesIndexRoute
   '/dashboard/services/': typeof DashboardServicesIndexRoute
+  '/staff/accounting/': typeof StaffAccountingIndexRoute
   '/staff/claims/': typeof StaffClaimsIndexRoute
   '/staff/clients/': typeof StaffClientsIndexRoute
+  '/staff/consultancy/': typeof StaffConsultancyIndexRoute
+  '/staff/translation/': typeof StaffTranslationIndexRoute
+  '/staff/visa/': typeof StaffVisaIndexRoute
+  '/translate/live/': typeof TranslateLiveIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -444,17 +479,12 @@ export interface FileRoutesByTo {
   '/services/translation': typeof ServicesTranslationRoute
   '/services/visa': typeof ServicesVisaRoute
   '/signup/verify-email': typeof SignupVerifyEmailRoute
-  '/staff/accounting': typeof StaffAccountingRouteWithChildren
   '/staff/admin': typeof StaffAdminRoute
-  '/staff/consultancy': typeof StaffConsultancyRouteWithChildren
   '/staff/reports': typeof StaffReportsRoute
   '/staff/settings': typeof StaffSettingsRoute
-  '/staff/translation': typeof StaffTranslationRouteWithChildren
-  '/staff/visa': typeof StaffVisaRouteWithChildren
   '/translate/document': typeof TranslateDocumentRoute
   '/translate/how-it-works': typeof TranslateHowItWorksRoute
   '/translate/languages': typeof TranslateLanguagesRoute
-  '/translate/live': typeof TranslateLiveRouteWithChildren
   '/translate/pricing': typeof TranslatePricingRoute
   '/dashboard': typeof DashboardIndexRoute
   '/services': typeof ServicesIndexRoute
@@ -475,8 +505,13 @@ export interface FileRoutesByTo {
   '/dashboard/claims': typeof DashboardClaimsIndexRoute
   '/dashboard/my-services': typeof DashboardMyServicesIndexRoute
   '/dashboard/services': typeof DashboardServicesIndexRoute
+  '/staff/accounting': typeof StaffAccountingIndexRoute
   '/staff/claims': typeof StaffClaimsIndexRoute
   '/staff/clients': typeof StaffClientsIndexRoute
+  '/staff/consultancy': typeof StaffConsultancyIndexRoute
+  '/staff/translation': typeof StaffTranslationIndexRoute
+  '/staff/visa': typeof StaffVisaIndexRoute
+  '/translate/live': typeof TranslateLiveIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -536,8 +571,13 @@ export interface FileRoutesById {
   '/dashboard/claims/': typeof DashboardClaimsIndexRoute
   '/dashboard/my-services/': typeof DashboardMyServicesIndexRoute
   '/dashboard/services/': typeof DashboardServicesIndexRoute
+  '/staff/accounting/': typeof StaffAccountingIndexRoute
   '/staff/claims/': typeof StaffClaimsIndexRoute
   '/staff/clients/': typeof StaffClientsIndexRoute
+  '/staff/consultancy/': typeof StaffConsultancyIndexRoute
+  '/staff/translation/': typeof StaffTranslationIndexRoute
+  '/staff/visa/': typeof StaffVisaIndexRoute
+  '/translate/live/': typeof TranslateLiveIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -598,8 +638,13 @@ export interface FileRouteTypes {
     | '/dashboard/claims/'
     | '/dashboard/my-services/'
     | '/dashboard/services/'
+    | '/staff/accounting/'
     | '/staff/claims/'
     | '/staff/clients/'
+    | '/staff/consultancy/'
+    | '/staff/translation/'
+    | '/staff/visa/'
+    | '/translate/live/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -625,17 +670,12 @@ export interface FileRouteTypes {
     | '/services/translation'
     | '/services/visa'
     | '/signup/verify-email'
-    | '/staff/accounting'
     | '/staff/admin'
-    | '/staff/consultancy'
     | '/staff/reports'
     | '/staff/settings'
-    | '/staff/translation'
-    | '/staff/visa'
     | '/translate/document'
     | '/translate/how-it-works'
     | '/translate/languages'
-    | '/translate/live'
     | '/translate/pricing'
     | '/dashboard'
     | '/services'
@@ -656,8 +696,13 @@ export interface FileRouteTypes {
     | '/dashboard/claims'
     | '/dashboard/my-services'
     | '/dashboard/services'
+    | '/staff/accounting'
     | '/staff/claims'
     | '/staff/clients'
+    | '/staff/consultancy'
+    | '/staff/translation'
+    | '/staff/visa'
+    | '/translate/live'
   id:
     | '__root__'
     | '/'
@@ -716,8 +761,13 @@ export interface FileRouteTypes {
     | '/dashboard/claims/'
     | '/dashboard/my-services/'
     | '/dashboard/services/'
+    | '/staff/accounting/'
     | '/staff/claims/'
     | '/staff/clients/'
+    | '/staff/consultancy/'
+    | '/staff/translation/'
+    | '/staff/visa/'
+    | '/translate/live/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1037,6 +1087,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/translate/live/': {
+      id: '/translate/live/'
+      path: '/'
+      fullPath: '/translate/live/'
+      preLoaderRoute: typeof TranslateLiveIndexRouteImport
+      parentRoute: typeof TranslateLiveRoute
+    }
+    '/staff/visa/': {
+      id: '/staff/visa/'
+      path: '/'
+      fullPath: '/staff/visa/'
+      preLoaderRoute: typeof StaffVisaIndexRouteImport
+      parentRoute: typeof StaffVisaRoute
+    }
+    '/staff/translation/': {
+      id: '/staff/translation/'
+      path: '/'
+      fullPath: '/staff/translation/'
+      preLoaderRoute: typeof StaffTranslationIndexRouteImport
+      parentRoute: typeof StaffTranslationRoute
+    }
+    '/staff/consultancy/': {
+      id: '/staff/consultancy/'
+      path: '/'
+      fullPath: '/staff/consultancy/'
+      preLoaderRoute: typeof StaffConsultancyIndexRouteImport
+      parentRoute: typeof StaffConsultancyRoute
+    }
     '/staff/clients/': {
       id: '/staff/clients/'
       path: '/clients'
@@ -1050,6 +1128,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/staff/claims/'
       preLoaderRoute: typeof StaffClaimsIndexRouteImport
       parentRoute: typeof StaffRoute
+    }
+    '/staff/accounting/': {
+      id: '/staff/accounting/'
+      path: '/'
+      fullPath: '/staff/accounting/'
+      preLoaderRoute: typeof StaffAccountingIndexRouteImport
+      parentRoute: typeof StaffAccountingRoute
     }
     '/dashboard/services/': {
       id: '/dashboard/services/'
@@ -1218,10 +1303,12 @@ const SignupRouteWithChildren =
 
 interface StaffAccountingRouteChildren {
   StaffAccountingIdRoute: typeof StaffAccountingIdRoute
+  StaffAccountingIndexRoute: typeof StaffAccountingIndexRoute
 }
 
 const StaffAccountingRouteChildren: StaffAccountingRouteChildren = {
   StaffAccountingIdRoute: StaffAccountingIdRoute,
+  StaffAccountingIndexRoute: StaffAccountingIndexRoute,
 }
 
 const StaffAccountingRouteWithChildren = StaffAccountingRoute._addFileChildren(
@@ -1230,10 +1317,12 @@ const StaffAccountingRouteWithChildren = StaffAccountingRoute._addFileChildren(
 
 interface StaffConsultancyRouteChildren {
   StaffConsultancyIdRoute: typeof StaffConsultancyIdRoute
+  StaffConsultancyIndexRoute: typeof StaffConsultancyIndexRoute
 }
 
 const StaffConsultancyRouteChildren: StaffConsultancyRouteChildren = {
   StaffConsultancyIdRoute: StaffConsultancyIdRoute,
+  StaffConsultancyIndexRoute: StaffConsultancyIndexRoute,
 }
 
 const StaffConsultancyRouteWithChildren =
@@ -1241,10 +1330,12 @@ const StaffConsultancyRouteWithChildren =
 
 interface StaffTranslationRouteChildren {
   StaffTranslationIdRoute: typeof StaffTranslationIdRoute
+  StaffTranslationIndexRoute: typeof StaffTranslationIndexRoute
 }
 
 const StaffTranslationRouteChildren: StaffTranslationRouteChildren = {
   StaffTranslationIdRoute: StaffTranslationIdRoute,
+  StaffTranslationIndexRoute: StaffTranslationIndexRoute,
 }
 
 const StaffTranslationRouteWithChildren =
@@ -1252,10 +1343,12 @@ const StaffTranslationRouteWithChildren =
 
 interface StaffVisaRouteChildren {
   StaffVisaIdRoute: typeof StaffVisaIdRoute
+  StaffVisaIndexRoute: typeof StaffVisaIndexRoute
 }
 
 const StaffVisaRouteChildren: StaffVisaRouteChildren = {
   StaffVisaIdRoute: StaffVisaIdRoute,
+  StaffVisaIndexRoute: StaffVisaIndexRoute,
 }
 
 const StaffVisaRouteWithChildren = StaffVisaRoute._addFileChildren(
@@ -1298,10 +1391,12 @@ const StaffRouteWithChildren = StaffRoute._addFileChildren(StaffRouteChildren)
 
 interface TranslateLiveRouteChildren {
   TranslateLiveSessionRoute: typeof TranslateLiveSessionRoute
+  TranslateLiveIndexRoute: typeof TranslateLiveIndexRoute
 }
 
 const TranslateLiveRouteChildren: TranslateLiveRouteChildren = {
   TranslateLiveSessionRoute: TranslateLiveSessionRoute,
+  TranslateLiveIndexRoute: TranslateLiveIndexRoute,
 }
 
 const TranslateLiveRouteWithChildren = TranslateLiveRoute._addFileChildren(
@@ -1338,3 +1433,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
