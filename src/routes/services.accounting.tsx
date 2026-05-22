@@ -6,7 +6,10 @@ export const Route = createFileRoute("/services/accounting")({
   head: () => ({
     meta: [
       { title: "Accounting Services — San Brothers" },
-      { name: "description", content: "Bookkeeping, tax preparation, financial reporting and audit support." },
+      {
+        name: "description",
+        content: "Bookkeeping, tax preparation, financial reporting and audit support.",
+      },
     ],
   }),
   component: AccountingPage,
@@ -33,7 +36,6 @@ function AccountingPage() {
     title: t(`accountingSvc.docs.${k}.title`),
     items: tRaw<string[]>(`accountingSvc.docs.${k}.items`) ?? [],
   }));
-
   return (
     <ServicePage
       title={t("accountingSvc.title")}

@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { readSsrPrefs } from "@/lib/ssr-prefs";
 
+import "../styles.css";
 import appCss from "../styles.css?url";
 
 import { ThemeProvider } from "@/lib/providers/theme-provider";

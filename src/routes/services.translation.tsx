@@ -10,7 +10,11 @@ export const Route = createFileRoute("/services/translation")({
   head: () => ({
     meta: [
       { title: "Translation & Interpretation — San Brothers" },
-      { name: "description", content: "Document translation, live interpreters, and multilingual support — available 24/7." },
+      {
+        name: "description",
+        content:
+          "Document translation, live interpreters, and multilingual support — available 24/7.",
+      },
     ],
   }),
   component: TranslationBridge,
@@ -22,7 +26,6 @@ const FEATURE_KEYS = [
   { icon: Scale, key: "legal" },
   { icon: Globe, key: "multi" },
 ] as const;
-
 function TranslationBridge() {
   const { t } = useI18n();
   return (
@@ -33,12 +36,18 @@ function TranslationBridge() {
         <Card className="overflow-hidden">
           <CardContent className="grid gap-6 p-8 md:grid-cols-[1fr_auto] md:items-center">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-accent">{t("translationSvc.weSpeakLabel")}</div>
-              <h2 className="mt-2 text-2xl font-bold md:text-3xl">{t("translationSvc.panelTitle")}</h2>
+              <div className="text-xs font-semibold uppercase tracking-wide text-accent">
+                {t("translationSvc.weSpeakLabel")}
+              </div>
+              <h2 className="mt-2 text-2xl font-bold md:text-3xl">
+                {t("translationSvc.panelTitle")}
+              </h2>
               <p className="mt-3 text-muted-foreground">{t("translationSvc.panelText")}</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Button size="lg" asChild>
-                  <a href="/translate" className="gap-2">{t("translationSvc.openPortal")} <ArrowRight className="h-4 w-4" /></a>
+                  <a href="/translate" className="gap-2">
+                    {t("translationSvc.openPortal")} <ArrowRight className="h-4 w-4" />
+                  </a>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <a href="/signup?intent=document-translation">{t("translationSvc.docBtn")}</a>
@@ -61,13 +70,17 @@ function TranslationBridge() {
                   <f.icon className="h-5 w-5" />
                 </div>
                 <h3 className="font-semibold">{t(`translationSvc.features.${f.key}.title`)}</h3>
-                <p className="text-sm text-muted-foreground">{t(`translationSvc.features.${f.key}.desc`)}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t(`translationSvc.features.${f.key}.desc`)}
+                </p>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        <p className="mt-10 text-center text-sm text-muted-foreground">{t("translationSvc.languages")}</p>
+        <p className="mt-10 text-center text-sm text-muted-foreground">
+          {t("translationSvc.languages")}
+        </p>
       </section>
 
       <CtaBanner

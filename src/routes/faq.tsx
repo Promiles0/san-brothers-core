@@ -2,7 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
-  Accordion, AccordionItem, AccordionTrigger, AccordionContent,
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
 } from "@/components/ui/accordion";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { PageHero, CtaBanner } from "@/components/marketing/page-sections";
@@ -12,15 +15,20 @@ export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
       { title: "FAQ — San Brothers" },
-      { name: "description", content: "Answers to common questions about visa, accounting, translation, and payments." },
+      {
+        name: "description",
+        content: "Answers to common questions about visa, accounting, translation, and payments.",
+      },
     ],
   }),
   component: Faq,
 });
-
 const GROUP_KEYS = ["general", "visa", "accounting", "translation", "payments"] as const;
 
-interface Group { title: string; items: { q: string; a: string }[] }
+interface Group {
+  title: string;
+  items: { q: string; a: string }[];
+}
 
 function Faq() {
   const { t, tRaw } = useI18n();
@@ -55,7 +63,11 @@ function Faq() {
         </div>
       </section>
 
-      <CtaBanner title={t("home.ctaHeading")} subtitle={t("home.ctaSubtitle")} label={t("common.getStarted")} />
+      <CtaBanner
+        title={t("home.ctaHeading")}
+        subtitle={t("home.ctaSubtitle")}
+        label={t("common.getStarted")}
+      />
     </PublicLayout>
   );
 }

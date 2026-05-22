@@ -6,7 +6,10 @@ export const Route = createFileRoute("/services/consultancy")({
   head: () => ({
     meta: [
       { title: "Business Consultancy — San Brothers" },
-      { name: "description", content: "Company registration, advisory, and admin support for businesses." },
+      {
+        name: "description",
+        content: "Company registration, advisory, and admin support for businesses.",
+      },
     ],
   }),
   component: ConsultancyPage,

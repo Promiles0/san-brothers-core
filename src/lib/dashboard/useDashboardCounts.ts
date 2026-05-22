@@ -8,11 +8,20 @@ export interface DashboardCounts {
   unreadMessages: number;
 }
 
-const ACTIVE_STATUSES = ["submitted", "under_review", "awaiting_client", "verified", "submitted_to_authority"];
-
+const ACTIVE_STATUSES = [
+  "submitted",
+  "under_review",
+  "awaiting_client",
+  "verified",
+  "submitted_to_authority",
+];
 export function useDashboardCounts() {
   const { user } = useAuth();
-  const [counts, setCounts] = useState<DashboardCounts>({ activeServices: 0, openClaims: 0, unreadMessages: 0 });
+  const [counts, setCounts] = useState<DashboardCounts>({
+    activeServices: 0,
+    openClaims: 0,
+    unreadMessages: 0,
+  });
 
   useEffect(() => {
     if (!user) return;

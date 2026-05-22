@@ -10,7 +10,10 @@ export const Route = createFileRoute("/translate/live")({
   head: () => ({
     meta: [
       { title: "Live Interpreter Calls — We Speak Your Language" },
-      { name: "description", content: "Talk to a real human translator in seconds. First 5 minutes free." },
+      {
+        name: "description",
+        content: "Talk to a real human translator in seconds. First 5 minutes free.",
+      },
       { property: "og:title", content: "Live Interpreter Calls" },
       { property: "og:description", content: "Real human translators, on demand." },
     ],
@@ -31,11 +34,18 @@ function LivePage() {
       <PageHero title={t("translate.live.title")} subtitle={t("translate.live.subtitle")} />
 
       <section className="mx-auto max-w-4xl px-4 py-16 md:px-6">
-        <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("translate.live.how.heading")}</h2>
+        <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+          {t("translate.live.how.heading")}
+        </h2>
         <ol className="mt-6 space-y-3">
           {howSteps.map((s, i) => (
-            <li key={i} className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-accent text-sm font-bold text-accent-foreground">{i + 1}</span>
+            <li
+              key={i}
+              className="flex items-start gap-3 rounded-lg border border-border bg-card p-4"
+            >
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
+                {i + 1}
+              </span>
               <span className="text-sm">{s}</span>
             </li>
           ))}
@@ -44,7 +54,9 @@ function LivePage() {
 
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-4xl px-4 py-16 md:px-6">
-          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("translate.live.uses.heading")}</h2>
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {t("translate.live.uses.heading")}
+          </h2>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {useCases.map((c, i) => (
               <li key={i} className="flex items-start gap-3">
@@ -62,7 +74,9 @@ function LivePage() {
             <div className="text-xs font-semibold uppercase tracking-widest text-accent">
               {t("translate.live.trial.eyebrow")}
             </div>
-            <h3 className="mt-2 text-2xl font-bold md:text-3xl">{t("translate.live.trial.heading")}</h3>
+            <h3 className="mt-2 text-2xl font-bold md:text-3xl">
+              {t("translate.live.trial.heading")}
+            </h3>
             <ul className="mt-5 space-y-2">
               {trialPoints.map((p, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm">
@@ -77,11 +91,18 @@ function LivePage() {
 
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-4xl px-4 py-16 md:px-6">
-          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("translate.live.pricing.heading")}</h2>
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {t("translate.live.pricing.heading")}
+          </h2>
           <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
-            {pricingPoints.map((p, i) => <li key={i}>• {p}</li>)}
+            {pricingPoints.map((p, i) => (
+              <li key={i}>• {p}</li>
+            ))}
           </ul>
-          <a href="/translate/pricing" className="mt-5 inline-block text-sm font-medium text-primary hover:underline">
+          <a
+            href="/translate/pricing"
+            className="mt-5 inline-block text-sm font-medium text-primary hover:underline"
+          >
             {t("translate.live.pricing.seeFull")} →
           </a>
         </div>

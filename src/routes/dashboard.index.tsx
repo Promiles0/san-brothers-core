@@ -27,7 +27,6 @@ export const Route = createFileRoute("/dashboard/")({
   }),
   component: DashboardHome,
 });
-
 function DashboardHome() {
   const { user, profile } = useAuth();
   const { t, locale } = useI18n();
@@ -41,7 +40,9 @@ function DashboardHome() {
       try {
         const { data, error } = await supabase
           .from("service_requests")
-          .select("id,status,progress_step,progress_total,updated_at,services(name_en,name_zh,name_rw)")
+          .select(
+            "id,status,progress_step,progress_total,updated_at,services(name_en,name_zh,name_rw)",
+          )
           .eq("client_id", user.id)
           .not("status", "in", "(completed,rejected,cancelled)")
           .order("updated_at", { ascending: false });
@@ -59,9 +60,15 @@ function DashboardHome() {
     })();
   }, [user]);
 
-  const today = new Date().toLocaleDateString(locale === "zh" ? "zh-CN" : locale === "rw" ? "rw-RW" : "en-US", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
-  });
+  const today = new Date().toLocaleDateString(
+    locale === "zh" ? "zh-CN" : locale === "rw" ? "rw-RW" : "en-US",
+    {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    },
+  );
 
   const localizedName = (s: ActiveService["services"]) =>
     !s ? "" : (locale === "zh" && s.name_zh) || (locale === "rw" && s.name_rw) || s.name_en;
@@ -74,7 +81,10 @@ function DashboardHome() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold tracking-tight">
-                {t("dashboard.home.welcome").replace("{name}", profile?.full_name ?? user?.email ?? "")}
+                {t("dashboard.home.welcome").replace(
+                  "{name}",
+                  profile?.full_name ?? user?.email ?? "",
+                )}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">{today}</p>
             </div>
@@ -98,7 +108,8 @@ function DashboardHome() {
           <h2 className="text-lg font-semibold">{t("dashboard.home.yourActiveServices")}</h2>
           {active === null ? (
             <div className="grid gap-4 md:grid-cols-2">
-              <Skeleton className="h-40" /><Skeleton className="h-40" />
+              <Skeleton className="h-40" />
+              <Skeleton className="h-40" />
             </div>
           ) : active.length === 0 ? (
             <Card>
@@ -108,9 +119,13 @@ function DashboardHome() {
                 </div>
                 <div>
                   <h3 className="text-base font-semibold">{t("dashboard.home.empty.title")}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{t("dashboard.home.empty.desc")}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {t("dashboard.home.empty.desc")}
+                  </p>
                 </div>
-                <Button asChild><Link to="/dashboard/services">{t("dashboard.home.empty.cta")}</Link></Button>
+                <Button asChild>
+                  <Link to="/dashboard/services">{t("dashboard.home.empty.cta")}</Link>
+                </Button>
               </CardContent>
             </Card>
           ) : (
@@ -131,7 +146,8 @@ function DashboardHome() {
                       </p>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {t("dashboard.common.lastUpdated")}: {new Date(s.updated_at).toLocaleDateString()}
+                      {t("dashboard.common.lastUpdated")}:{" "}
+                      {new Date(s.updated_at).toLocaleDateString()}
                     </p>
                     <Button asChild size="sm" variant="outline" className="w-full">
                       <Link to="/dashboard/my-services/$id" params={{ id: s.id }}>
@@ -147,7 +163,9 @@ function DashboardHome() {
 
         {/* NOTIFICATIONS PANEL */}
         <Card>
-          <CardHeader><CardTitle className="text-base">{t("dashboard.home.notifications")}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-base">{t("dashboard.home.notifications")}</CardTitle>
+          </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">{t("dashboard.home.noNotifications")}</p>
           </CardContent>
@@ -158,9 +176,21 @@ function DashboardHome() {
       <div>
         <h2 className="mb-3 text-lg font-semibold">{t("dashboard.home.quickActions")}</h2>
         <div className="grid gap-3 sm:grid-cols-3">
-          <QuickAction to="/dashboard/services" icon={LayoutGrid} label={t("dashboard.home.requestNew")} />
-          <QuickAction to="/dashboard/documents" icon={FolderOpen} label={t("dashboard.home.uploadDoc")} />
-          <QuickAction to="/dashboard/messages" icon={MessageCircle} label={t("dashboard.home.talkSupport")} />
+          <QuickAction
+            to="/dashboard/services"
+            icon={LayoutGrid}
+            label={t("dashboard.home.requestNew")}
+          />
+          <QuickAction
+            to="/dashboard/documents"
+            icon={FolderOpen}
+            label={t("dashboard.home.uploadDoc")}
+          />
+          <QuickAction
+            to="/dashboard/messages"
+            icon={MessageCircle}
+            label={t("dashboard.home.talkSupport")}
+          />
         </div>
       </div>
     </div>
@@ -176,10 +206,23 @@ function Stat({ label, value }: { label: string; value: number | string }) {
   );
 }
 
-function QuickAction({ to, icon: Icon, label }: { to: string; icon: React.ComponentType<{ className?: string }>; label: string }) {
+function QuickAction({
+  to,
+  icon: Icon,
+  label,
+}: {
+  to: string;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+}) {
   return (
-    <Link to={to} className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent">
-      <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><Icon className="h-4 w-4" /></div>
+    <Link
+      to={to}
+      className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent"
+    >
+      <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary">
+        <Icon className="h-4 w-4" />
+      </div>
       <span className="text-sm font-medium">{label}</span>
       <Plus className="ml-auto h-4 w-4 text-muted-foreground" />
     </Link>

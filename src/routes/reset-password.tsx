@@ -19,19 +19,26 @@ const schema = z
     password: z.string().min(8, "auth.errors.weakPassword"),
     confirm: z.string(),
   })
-  .refine((d) => d.password === d.confirm, { message: "auth.errors.passwordsDontMatch", path: ["confirm"] });
+  .refine((d) => d.password === d.confirm, {
+    message: "auth.errors.passwordsDontMatch",
+    path: ["confirm"],
+  });
 type Form = z.infer<typeof schema>;
 
 export const Route = createFileRoute("/reset-password")({
   component: ResetPasswordPage,
 });
-
 function ResetPasswordPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const { updatePassword } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
-  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<Form>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<Form>({
     resolver: zodResolver(schema),
   });
   const password = watch("password") || "";
@@ -45,7 +52,7 @@ function ResetPasswordPage() {
       return;
     }
     toast.success(t("auth.reset.successToast"));
-    navigate({ to: "/login" });
+    navigate({ to: "/login", search: {} as never });
   };
 
   return (
@@ -61,12 +68,16 @@ function ResetPasswordPage() {
           <Label>{t("auth.reset.newPassword")}</Label>
           <Input type="password" autoComplete="new-password" {...register("password")} />
           <PasswordStrength password={password} />
-          {errors.password ? <p className="text-xs text-destructive">{t(errors.password.message!)}</p> : null}
+          {errors.password ? (
+            <p className="text-xs text-destructive">{t(errors.password.message!)}</p>
+          ) : null}
         </div>
         <div className="space-y-1.5">
           <Label>{t("auth.reset.confirm")}</Label>
           <Input type="password" autoComplete="new-password" {...register("confirm")} />
-          {errors.confirm ? <p className="text-xs text-destructive">{t(errors.confirm.message!)}</p> : null}
+          {errors.confirm ? (
+            <p className="text-xs text-destructive">{t(errors.confirm.message!)}</p>
+          ) : null}
         </div>
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t("auth.reset.submit")}

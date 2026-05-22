@@ -1,3 +1,4 @@
+// @refresh reset
 import {
   createContext,
   useCallback,
@@ -50,11 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", uid)
-        .maybeSingle();
+      const { data, error } = await supabase.from("users").select("*").eq("id", uid).maybeSingle();
       if (id !== profileFetchId.current) return;
       if (error) {
         // eslint-disable-next-line no-console
@@ -174,12 +171,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       verifyOtp,
       refreshProfile,
     }),
-    [user, session, profile, loading, signIn, signUp, signOut, resetPassword, updatePassword, resendVerification, verifyOtp, refreshProfile],
+    [
+      user,
+      session,
+      profile,
+      loading,
+      signIn,
+      signUp,
+      signOut,
+      resetPassword,
+      updatePassword,
+      resendVerification,
+      verifyOtp,
+      refreshProfile,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
 export function useAuthContext() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuthContext must be used within AuthProvider");

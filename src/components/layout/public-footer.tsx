@@ -17,7 +17,13 @@ export function PublicFooter() {
           <div key={col.title}>
             <h4 className="mb-3 text-sm font-semibold">{col.title}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              {col.links.map((l) => <li key={l}><a href="#" className="hover:text-foreground">{l}</a></li>)}
+              {col.links.map((l) => (
+                <li key={l}>
+                  <a href="#" className="hover:text-foreground">
+                    {l}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         ))}
@@ -26,9 +32,15 @@ export function PublicFooter() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-4 text-xs text-muted-foreground md:flex-row md:px-6">
           <p>© {new Date().getFullYear()} San Brothers Global Digital Ecosystem.</p>
           <div className="flex items-center gap-3">
-            <a href="#" aria-label="GitHub"><Github className="h-4 w-4" /></a>
-            <a href="#" aria-label="Twitter"><Twitter className="h-4 w-4" /></a>
-            <a href="#" aria-label="LinkedIn"><Linkedin className="h-4 w-4" /></a>
+            <a href="#" aria-label="GitHub">
+              <Github className="h-4 w-4" />
+            </a>
+            <a href="#" aria-label="Twitter">
+              <Twitter className="h-4 w-4" />
+            </a>
+            <a href="#" aria-label="LinkedIn">
+              <Linkedin className="h-4 w-4" />
+            </a>
             <LanguageSwitcher />
           </div>
         </div>

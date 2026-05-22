@@ -5,7 +5,7 @@ export const INTENT_LABELS: Record<string, string> = {
   "work-permit": "Work Permit",
   "visa-consultation": "Visa Consultation",
   "tax-filing": "Tax Filing",
-  "bookkeeping": "Bookkeeping",
+  bookkeeping: "Bookkeeping",
   "financial-reporting": "Financial Reporting",
   "audit-support": "Audit Support",
   "tax-advisory": "Tax Advisory",
@@ -28,7 +28,12 @@ export function intentLabel(slug?: string | null): string | null {
 export function friendlyAuthError(message: string): string {
   const m = message.toLowerCase();
   if (m.includes("invalid login")) return "auth.errors.invalidCredentials";
-  if (m.includes("already registered") || m.includes("already been registered") || m.includes("user already")) return "auth.errors.emailExists";
+  if (
+    m.includes("already registered") ||
+    m.includes("already been registered") ||
+    m.includes("user already")
+  )
+    return "auth.errors.emailExists";
   if (m.includes("password should be at least")) return "auth.errors.weakPassword";
   if (m.includes("email not confirmed")) return "auth.errors.emailNotConfirmed";
   if (m.includes("network") || m.includes("fetch")) return "auth.errors.network";

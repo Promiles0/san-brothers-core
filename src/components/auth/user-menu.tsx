@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
-  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuLabel, DropdownMenuSeparator,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/providers/i18n-provider";
@@ -29,7 +33,9 @@ export function UserMenu() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-primary text-xs text-primary-foreground">{initial}</AvatarFallback>
+            <AvatarFallback className="bg-primary text-xs text-primary-foreground">
+              {initial}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -38,7 +44,9 @@ export function UserMenu() {
           <div className="text-sm font-medium leading-tight">{name}</div>
           <div className="text-xs text-muted-foreground">{user.email}</div>
           {profile?.role ? (
-            <Badge variant="secondary" className="mt-1.5 capitalize">{profile.role}</Badge>
+            <Badge variant="secondary" className="mt-1.5 capitalize">
+              {profile.role}
+            </Badge>
           ) : null}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

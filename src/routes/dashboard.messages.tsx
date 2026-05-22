@@ -19,7 +19,9 @@ function MessagesPage() {
             <MessageCircle className="h-7 w-7 text-primary" />
           </div>
           <p className="max-w-md text-sm text-muted-foreground">{t("dashboard.messages.empty")}</p>
-          <Button asChild variant="outline"><Link to="/contact">{t("dashboard.messages.contactCta")}</Link></Button>
+          <Button asChild variant="outline">
+            <Link to="/contact">{t("dashboard.messages.contactCta")}</Link>
+          </Button>
         </CardContent>
       </Card>
     </div>

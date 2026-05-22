@@ -27,7 +27,6 @@ export const Route = createFileRoute("/login")({
   }),
   component: LoginPage,
 });
-
 function LoginPage() {
   const { t } = useI18n();
   const navigate = useNavigate();

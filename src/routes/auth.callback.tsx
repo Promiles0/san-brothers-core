@@ -22,7 +22,10 @@ function AuthCallbackPage() {
         const { data, error: sessErr } = await supabase.auth.getSession();
         if (cancelled) return;
         if (sessErr || !data.session) {
-          navigate({ to: "/auth/error", search: { message: sessErr?.message ?? "no_session" } as never });
+          navigate({
+            to: "/auth/error",
+            search: { message: sessErr?.message ?? "no_session" } as never,
+          });
           return;
         }
         const uid = data.session.user.id;
@@ -51,7 +54,9 @@ function AuthCallbackPage() {
         navigate({ to: "/auth/error", search: { message: msg } as never });
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
   return (

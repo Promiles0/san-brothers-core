@@ -7,7 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
@@ -19,12 +23,14 @@ export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
       { title: "Contact — San Brothers" },
-      { name: "description", content: "Get in touch with San Brothers. We respond within one business day." },
+      {
+        name: "description",
+        content: "Get in touch with San Brothers. We respond within one business day.",
+      },
     ],
   }),
   component: Contact,
 });
-
 function Contact() {
   const { t } = useI18n();
   const [subject, setSubject] = useState("");
@@ -46,7 +52,11 @@ function Contact() {
           <Card>
             <CardContent className="p-6 md:p-8">
               <p className="mb-4 rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-                {t("contact.haveAccount")} <a href="/login" className="font-medium text-primary hover:underline">{t("contact.logInLink")}</a> {t("contact.haveAccountTail")}
+                {t("contact.haveAccount")}{" "}
+                <a href="/login" className="font-medium text-primary hover:underline">
+                  {t("contact.logInLink")}
+                </a>{" "}
+                {t("contact.haveAccountTail")}
               </p>
               <h2 className="text-xl font-semibold">{t("contact.formHeading")}</h2>
               <form onSubmit={onSubmit} className="mt-6 grid gap-4">
@@ -57,7 +67,12 @@ function Contact() {
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="email">{t("contact.labels.email")}</Label>
-                    <Input id="email" type="email" required placeholder={t("contact.placeholders.email")} />
+                    <Input
+                      id="email"
+                      type="email"
+                      required
+                      placeholder={t("contact.placeholders.email")}
+                    />
                   </div>
                 </div>
                 <div className="grid gap-2">
@@ -67,21 +82,34 @@ function Contact() {
                 <div className="grid gap-2">
                   <Label>{t("contact.labels.subject")}</Label>
                   <Select value={subject} onValueChange={setSubject}>
-                    <SelectTrigger><SelectValue placeholder={t("contact.placeholders.subject")} /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t("contact.placeholders.subject")} />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="visa">{t("contact.subjects.visa")}</SelectItem>
                       <SelectItem value="accounting">{t("contact.subjects.accounting")}</SelectItem>
-                      <SelectItem value="consultancy">{t("contact.subjects.consultancy")}</SelectItem>
-                      <SelectItem value="translation">{t("contact.subjects.translation")}</SelectItem>
+                      <SelectItem value="consultancy">
+                        {t("contact.subjects.consultancy")}
+                      </SelectItem>
+                      <SelectItem value="translation">
+                        {t("contact.subjects.translation")}
+                      </SelectItem>
                       <SelectItem value="other">{t("contact.subjects.other")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="message">{t("contact.labels.message")}</Label>
-                  <Textarea id="message" rows={5} required placeholder={t("contact.placeholders.message")} />
+                  <Textarea
+                    id="message"
+                    rows={5}
+                    required
+                    placeholder={t("contact.placeholders.message")}
+                  />
                 </div>
-                <Button type="submit" size="lg" className="justify-self-start">{t("contact.send")}</Button>
+                <Button type="submit" size="lg" className="justify-self-start">
+                  {t("contact.send")}
+                </Button>
               </form>
             </CardContent>
           </Card>

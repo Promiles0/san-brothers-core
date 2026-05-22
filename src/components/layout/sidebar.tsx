@@ -71,7 +71,10 @@ export function Sidebar({ role, collapsed = false, onNavigate }: SidebarProps) {
         <Icon className="h-4 w-4 shrink-0" />
         {!collapsed && <span className="flex-1 text-left">{itemLabel(item)}</span>}
         {!collapsed && badgeValue ? (
-          <Badge variant={item.intent === "destructive" ? "destructive" : "secondary"} className="h-5 min-w-5 px-1.5">
+          <Badge
+            variant={item.intent === "destructive" ? "destructive" : "secondary"}
+            className="h-5 min-w-5 px-1.5"
+          >
             {badgeValue}
           </Badge>
         ) : null}
@@ -94,12 +97,19 @@ export function Sidebar({ role, collapsed = false, onNavigate }: SidebarProps) {
 
   return (
     <nav className="flex h-full flex-col gap-1 p-2">
-      <div className={cn("px-3 py-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/60", collapsed && "sr-only")}>
+      <div
+        className={cn(
+          "px-3 py-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/60",
+          collapsed && "sr-only",
+        )}
+      >
         {role}
       </div>
       <div className="flex flex-1 flex-col gap-1">{navItems.map(renderItem)}</div>
       {bottomItems.length > 0 && (
-        <div className="mt-auto border-t border-sidebar-border pt-2">{bottomItems.map(renderItem)}</div>
+        <div className="mt-auto border-t border-sidebar-border pt-2">
+          {bottomItems.map(renderItem)}
+        </div>
       )}
     </nav>
   );

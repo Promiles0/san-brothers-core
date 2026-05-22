@@ -17,12 +17,15 @@ type Form = z.infer<typeof schema>;
 export const Route = createFileRoute("/forgot-password")({
   component: ForgotPasswordPage,
 });
-
 function ForgotPasswordPage() {
   const { t } = useI18n();
   const { resetPassword } = useAuth();
   const [sent, setSent] = useState<string | null>(null);
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<Form>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<Form>({
     resolver: zodResolver(schema),
   });
 
@@ -36,7 +39,7 @@ function ForgotPasswordPage() {
       title={t("auth.forgot.title")}
       subtitle={t("auth.forgot.subtitle")}
       footer={
-        <Link to="/login" className="font-medium text-primary hover:underline">
+        <Link to="/login" search={{} as never} className="font-medium text-primary hover:underline">
           ← {t("auth.forgot.backToLogin")}
         </Link>
       }
@@ -50,7 +53,9 @@ function ForgotPasswordPage() {
           <div className="space-y-1.5">
             <Label>{t("auth.signup.email")}</Label>
             <Input type="email" autoComplete="email" {...register("email")} />
-            {errors.email ? <p className="text-xs text-destructive">{t(errors.email.message!)}</p> : null}
+            {errors.email ? (
+              <p className="text-xs text-destructive">{t(errors.email.message!)}</p>
+            ) : null}
           </div>
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t("auth.forgot.submit")}

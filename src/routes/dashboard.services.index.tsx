@@ -17,7 +17,6 @@ export const Route = createFileRoute("/dashboard/services/")({
 });
 
 const CATEGORIES = ["all", "visa", "accounting", "consultancy", "translation"] as const;
-
 function ServiceCatalog() {
   const { t, locale } = useI18n();
   const [services, setServices] = useState<Service[] | null>(null);
@@ -41,8 +40,13 @@ function ServiceCatalog() {
     })();
   }, []);
 
-  const localName = (s: Service) => (locale === "zh" && s.name_zh) || (locale === "rw" && s.name_rw) || s.name_en;
-  const localDesc = (s: Service) => (locale === "zh" && s.description_zh) || (locale === "rw" && s.description_rw) || s.description_en || "";
+  const localName = (s: Service) =>
+    (locale === "zh" && s.name_zh) || (locale === "rw" && s.name_rw) || s.name_en;
+  const localDesc = (s: Service) =>
+    (locale === "zh" && s.description_zh) ||
+    (locale === "rw" && s.description_rw) ||
+    s.description_en ||
+    "";
 
   const filtered = useMemo(() => {
     if (!services) return null;
@@ -51,7 +55,7 @@ function ServiceCatalog() {
       const matchesQ = !query || localName(s).toLowerCase().includes(query.toLowerCase());
       return matchesCat && matchesQ;
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [services, cat, query, locale]);
 
   return (
@@ -64,12 +68,19 @@ function ServiceCatalog() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("dashboard.services.searchPlaceholder")} className="pl-9" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("dashboard.services.searchPlaceholder")}
+            className="pl-9"
+          />
         </div>
         <Tabs value={cat} onValueChange={(v) => setCat(v as typeof cat)}>
           <TabsList>
             {CATEGORIES.map((c) => (
-              <TabsTrigger key={c} value={c}>{t(`dashboard.services.cat.${c}`)}</TabsTrigger>
+              <TabsTrigger key={c} value={c}>
+                {t(`dashboard.services.cat.${c}`)}
+              </TabsTrigger>
             ))}
           </TabsList>
         </Tabs>
@@ -77,7 +88,9 @@ function ServiceCatalog() {
 
       {filtered === null ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-56" />)}
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-56" />
+          ))}
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -86,30 +99,49 @@ function ServiceCatalog() {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="text-base">{localName(s)}</CardTitle>
-                  <Badge variant="secondary" className="capitalize">{t(`dashboard.services.cat.${s.category}`)}</Badge>
+                  <Badge variant="secondary" className="capitalize">
+                    {t(`dashboard.services.cat.${s.category}`)}
+                  </Badge>
                 </div>
               </CardHeader>
               <CardContent className="flex flex-1 flex-col gap-3">
                 <p className="line-clamp-2 text-sm text-muted-foreground">{localDesc(s)}</p>
                 <div className="space-y-1 text-xs text-muted-foreground">
                   {s.price_min_rwf != null && (
-                    <div>{t("dashboard.services.from")} <span className="font-semibold text-foreground">{s.price_min_rwf.toLocaleString()} RWF</span></div>
+                    <div>
+                      {t("dashboard.services.from")}{" "}
+                      <span className="font-semibold text-foreground">
+                        {s.price_min_rwf.toLocaleString()} RWF
+                      </span>
+                    </div>
                   )}
                   {s.estimated_days_min != null && s.estimated_days_max != null && (
-                    <div>{t("dashboard.services.usually")} {s.estimated_days_min}–{s.estimated_days_max} {t("dashboard.common.days")}</div>
+                    <div>
+                      {t("dashboard.services.usually")} {s.estimated_days_min}–
+                      {s.estimated_days_max} {t("dashboard.common.days")}
+                    </div>
                   )}
                 </div>
-                <Button asChild className="mt-auto"><Link to="/dashboard/services/$slug" params={{ slug: s.slug }}>{t("dashboard.services.request")}</Link></Button>
+                <Button asChild className="mt-auto">
+                  <Link to="/dashboard/services/$slug" params={{ slug: s.slug }}>
+                    {t("dashboard.services.request")}
+                  </Link>
+                </Button>
               </CardContent>
             </Card>
           ))}
 
           {/* See more / contact card */}
-          <Link to="/contact" className="group flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border bg-card/50 p-6 text-center transition-colors hover:border-primary hover:bg-accent/40">
+          <Link
+            to="/contact"
+            className="group flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border bg-card/50 p-6 text-center transition-colors hover:border-primary hover:bg-accent/40"
+          >
             <PlusCircle className="h-8 w-8 text-muted-foreground group-hover:text-primary" />
             <div>
               <div className="text-sm font-semibold">{t("dashboard.services.seeMoreTitle")}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{t("dashboard.services.seeMoreDesc")}</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                {t("dashboard.services.seeMoreDesc")}
+              </div>
             </div>
           </Link>
         </div>

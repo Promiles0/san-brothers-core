@@ -23,8 +23,14 @@ function AuthErrorPage() {
         </div>
         <p className="text-sm text-muted-foreground">{message || t("auth.error.default")}</p>
         <div className="flex w-full flex-col gap-2 sm:flex-row">
-          <Button asChild className="flex-1"><Link to="/login">{t("auth.error.tryLogin")}</Link></Button>
-          <Button asChild variant="outline" className="flex-1"><Link to="/">{t("auth.error.goHome")}</Link></Button>
+          <Button asChild className="flex-1">
+            <Link to="/login" search={{} as never}>
+              {t("auth.error.tryLogin")}
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="flex-1">
+            <Link to="/">{t("auth.error.goHome")}</Link>
+          </Button>
         </div>
       </div>
     </AuthLayout>

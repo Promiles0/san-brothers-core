@@ -4,7 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
-  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -19,7 +24,11 @@ interface DashboardLayoutProps {
   breadcrumbs?: string[];
 }
 
-export function DashboardLayout({ role, children, breadcrumbs = [role, "Home"] }: DashboardLayoutProps) {
+export function DashboardLayout({
+  role,
+  children,
+  breadcrumbs = [role, "Home"],
+}: DashboardLayoutProps) {
   const { t } = useI18n();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -28,7 +37,9 @@ export function DashboardLayout({ role, children, breadcrumbs = [role, "Home"] }
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-sidebar-border bg-sidebar md:flex md:flex-col">
         <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4">
-          <div className="grid h-8 w-8 place-items-center rounded-md bg-primary font-bold text-primary-foreground">SB</div>
+          <div className="grid h-8 w-8 place-items-center rounded-md bg-primary font-bold text-primary-foreground">
+            SB
+          </div>
           <span className="text-sm font-semibold text-sidebar-foreground">San Brothers</span>
         </div>
         <div className="flex-1 overflow-y-auto">
@@ -41,10 +52,14 @@ export function DashboardLayout({ role, children, breadcrumbs = [role, "Home"] }
         <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border bg-background/80 px-4 backdrop-blur md:px-6">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu"><Menu className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
+                <Menu className="h-5 w-5" />
+              </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-64 bg-sidebar p-0">
-              <SheetHeader className="border-b border-sidebar-border p-4"><SheetTitle>San Brothers</SheetTitle></SheetHeader>
+              <SheetHeader className="border-b border-sidebar-border p-4">
+                <SheetTitle>San Brothers</SheetTitle>
+              </SheetHeader>
               <Sidebar role={role} onNavigate={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
@@ -62,14 +77,23 @@ export function DashboardLayout({ role, children, breadcrumbs = [role, "Home"] }
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
               <Bell className="h-4 w-4" />
-              <Badge variant="destructive" className="absolute -right-1 -top-1 h-4 min-w-4 px-1 text-[10px]">2</Badge>
+              <Badge
+                variant="destructive"
+                className="absolute -right-1 -top-1 h-4 min-w-4 px-1 text-[10px]"
+              >
+                2
+              </Badge>
             </Button>
             <LanguageSwitcher />
             <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
-                  <Avatar className="h-8 w-8"><AvatarFallback className="bg-primary text-primary-foreground text-xs">{role[0]?.toUpperCase()}</AvatarFallback></Avatar>
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                      {role[0]?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

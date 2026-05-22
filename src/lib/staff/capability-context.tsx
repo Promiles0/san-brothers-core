@@ -1,3 +1,4 @@
+// @refresh reset
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
@@ -50,10 +51,20 @@ export function StaffCapabilityProvider({ children }: { children: ReactNode }) {
         // Admins implicitly have all capabilities
         if (profile?.role === "admin") {
           const all: Capability[] = [
-            "handle_visa", "handle_accounting", "handle_consultancy", "handle_translation",
-            "handle_live_calls", "register_clients_manually", "approve_visa", "approve_accounting",
-            "view_financial_reports", "manage_staff", "manage_pricing",
-            "manage_services_catalog", "view_audit_log", "handle_claims",
+            "handle_visa",
+            "handle_accounting",
+            "handle_consultancy",
+            "handle_translation",
+            "handle_live_calls",
+            "register_clients_manually",
+            "approve_visa",
+            "approve_accounting",
+            "view_financial_reports",
+            "manage_staff",
+            "manage_pricing",
+            "manage_services_catalog",
+            "view_audit_log",
+            "handle_claims",
           ];
           caps = Array.from(new Set([...caps, ...all]));
         }
@@ -62,16 +73,23 @@ export function StaffCapabilityProvider({ children }: { children: ReactNode }) {
         if (!cancelled) setIsLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [user, profile?.role]);
 
-  const value = useMemo<Ctx>(() => ({
-    capabilities,
-    hasCapability: (c) => capabilities.includes(c),
-    isLoading,
-  }), [capabilities, isLoading]);
+  const value = useMemo<Ctx>(
+    () => ({
+      capabilities,
+      hasCapability: (c) => capabilities.includes(c),
+      isLoading,
+    }),
+    [capabilities, isLoading],
+  );
 
-  return <StaffCapabilityContext.Provider value={value}>{children}</StaffCapabilityContext.Provider>;
+  return (
+    <StaffCapabilityContext.Provider value={value}>{children}</StaffCapabilityContext.Provider>
+  );
 }
 
 export function useCapabilities() {

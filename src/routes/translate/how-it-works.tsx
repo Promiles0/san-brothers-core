@@ -22,10 +22,12 @@ function HowItWorks() {
   const { t, tRaw } = useI18n();
   const steps = tRaw<{ title: string; desc: string }[]>("translate.howItWorks.steps") ?? [];
   const expect = tRaw<string[]>("translate.howItWorks.expect.points") ?? [];
-
   return (
     <TranslateLayout>
-      <PageHero title={t("translate.howItWorks.title")} subtitle={t("translate.howItWorks.subtitle")} />
+      <PageHero
+        title={t("translate.howItWorks.title")}
+        subtitle={t("translate.howItWorks.subtitle")}
+      />
       <section className="mx-auto max-w-3xl px-4 py-16 md:px-6">
         <ol className="relative space-y-6 border-l-2 border-border pl-8">
           {steps.map((s, i) => (
@@ -45,9 +47,13 @@ function HowItWorks() {
       </section>
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-3xl px-4 py-16 md:px-6">
-          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("translate.howItWorks.expect.heading")}</h2>
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {t("translate.howItWorks.expect.heading")}
+          </h2>
           <ul className="mt-6 list-disc space-y-2 pl-5 text-muted-foreground">
-            {expect.map((p, i) => <li key={i}>{p}</li>)}
+            {expect.map((p, i) => (
+              <li key={i}>{p}</li>
+            ))}
           </ul>
         </div>
       </section>

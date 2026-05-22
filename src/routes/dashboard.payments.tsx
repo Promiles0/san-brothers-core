@@ -15,9 +15,14 @@ interface Row {
   id: string;
   status: string;
   created_at: string;
-  services: { name_en: string; name_zh: string | null; name_rw: string | null; price_min_rwf: number | null; price_max_rwf: number | null } | null;
+  services: {
+    name_en: string;
+    name_zh: string | null;
+    name_rw: string | null;
+    price_min_rwf: number | null;
+    price_max_rwf: number | null;
+  } | null;
 }
-
 function PaymentsPage() {
   const { user } = useAuth();
   const { t, locale } = useI18n();
@@ -28,7 +33,9 @@ function PaymentsPage() {
     (async () => {
       const { data } = await supabase
         .from("service_requests")
-        .select("id,status,created_at,services(name_en,name_zh,name_rw,price_min_rwf,price_max_rwf)")
+        .select(
+          "id,status,created_at,services(name_en,name_zh,name_rw,price_min_rwf,price_max_rwf)",
+        )
         .eq("client_id", user.id)
         .order("created_at", { ascending: false });
       setRows((data as unknown as Row[]) ?? []);
@@ -47,14 +54,20 @@ function PaymentsPage() {
       <Card>
         <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
           <CreditCard className="h-10 w-10 text-primary" />
-          <p className="text-sm text-muted-foreground max-w-md">{t("dashboard.payments.comingSoon")}</p>
+          <p className="text-sm text-muted-foreground max-w-md">
+            {t("dashboard.payments.comingSoon")}
+          </p>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle className="text-base">{t("dashboard.payments.history")}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">{t("dashboard.payments.history")}</CardTitle>
+        </CardHeader>
         <CardContent>
-          {rows === null ? <Skeleton className="h-20" /> : rows.length === 0 ? (
+          {rows === null ? (
+            <Skeleton className="h-20" />
+          ) : rows.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("dashboard.payments.noHistory")}</p>
           ) : (
             <div className="divide-y">
@@ -62,10 +75,14 @@ function PaymentsPage() {
                 <div key={r.id} className="flex items-center justify-between gap-3 py-3 text-sm">
                   <div>
                     <div className="font-medium">{localName(r)}</div>
-                    <div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(r.created_at).toLocaleDateString()}
+                    </div>
                   </div>
                   <div className="text-right text-xs text-muted-foreground">
-                    {r.services?.price_min_rwf != null && <div>{r.services.price_min_rwf.toLocaleString()} RWF</div>}
+                    {r.services?.price_min_rwf != null && (
+                      <div>{r.services.price_min_rwf.toLocaleString()} RWF</div>
+                    )}
                   </div>
                 </div>
               ))}

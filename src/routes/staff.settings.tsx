@@ -6,7 +6,14 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { useTheme } from "@/lib/providers/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,20 +34,32 @@ function SettingsPage() {
 
   const setLanguage = async (l: Locale) => {
     setLocale(l);
-    if (user) await supabase.from("users").update({ preferred_language: l }).eq("id", user.id).then(() => refreshProfile());
+    if (user)
+      await supabase
+        .from("users")
+        .update({ preferred_language: l })
+        .eq("id", user.id)
+        .then(() => refreshProfile());
   };
   const setThemePref = async (th: Theme) => {
     themeCtx.setTheme(th);
     if (user) await supabase.from("users").update({ theme_preference: th }).eq("id", user.id);
   };
   const changePw = async () => {
-    if (newPw.length < 8) { toast.error(t("dashboard.settings.pwShort")); return; }
+    if (newPw.length < 8) {
+      toast.error(t("dashboard.settings.pwShort"));
+      return;
+    }
     setBusy(true);
     const { error } = await updatePassword(newPw);
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success(t("dashboard.settings.pwUpdated"));
-    setPwOpen(false); setNewPw("");
+    setPwOpen(false);
+    setNewPw("");
   };
   const signOutEverywhere = async () => {
     await supabase.auth.signOut({ scope: "global" });
@@ -56,9 +75,15 @@ function SettingsPage() {
     <div className="space-y-6 max-w-2xl">
       <h1 className="text-2xl font-bold tracking-tight">{t("dashboard.settings.title")}</h1>
       <Card>
-        <CardHeader><CardTitle className="text-base">{t("dashboard.settings.appearance")}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">{t("dashboard.settings.appearance")}</CardTitle>
+        </CardHeader>
         <CardContent>
-          <RadioGroup value={themeCtx.theme} onValueChange={(v) => setThemePref(v as Theme)} className="flex gap-4">
+          <RadioGroup
+            value={themeCtx.theme}
+            onValueChange={(v) => setThemePref(v as Theme)}
+            className="flex gap-4"
+          >
             {(["light", "dark", "system"] as Theme[]).map((th) => (
               <label key={th} className="flex items-center gap-2 text-sm cursor-pointer">
                 <RadioGroupItem value={th} /> {t(`theme.${th}`)}
@@ -68,19 +93,28 @@ function SettingsPage() {
         </CardContent>
       </Card>
       <Card>
-        <CardHeader><CardTitle className="text-base">{t("dashboard.settings.language")}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">{t("dashboard.settings.language")}</CardTitle>
+        </CardHeader>
         <CardContent>
-          <RadioGroup value={locale} onValueChange={(v) => setLanguage(v as Locale)} className="flex gap-4">
+          <RadioGroup
+            value={locale}
+            onValueChange={(v) => setLanguage(v as Locale)}
+            className="flex gap-4"
+          >
             {(["en", "zh", "rw"] as Locale[]).map((l) => (
               <label key={l} className="flex items-center gap-2 text-sm cursor-pointer">
-                <RadioGroupItem value={l} /> {l === "en" ? "English" : l === "zh" ? "中文" : "Kinyarwanda"}
+                <RadioGroupItem value={l} />{" "}
+                {l === "en" ? "English" : l === "zh" ? "中文" : "Kinyarwanda"}
               </label>
             ))}
           </RadioGroup>
         </CardContent>
       </Card>
       <Card>
-        <CardHeader><CardTitle className="text-base">{t("dashboard.settings.security")}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">{t("dashboard.settings.security")}</CardTitle>
+        </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -91,18 +125,35 @@ function SettingsPage() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Dialog open={pwOpen} onOpenChange={setPwOpen}>
-              <DialogTrigger asChild><Button variant="outline" size="sm">{t("dashboard.settings.changePw")}</Button></DialogTrigger>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  {t("dashboard.settings.changePw")}
+                </Button>
+              </DialogTrigger>
               <DialogContent>
-                <DialogHeader><DialogTitle>{t("dashboard.settings.changePw")}</DialogTitle></DialogHeader>
+                <DialogHeader>
+                  <DialogTitle>{t("dashboard.settings.changePw")}</DialogTitle>
+                </DialogHeader>
                 <div className="space-y-3">
-                  <div className="space-y-1"><Label>{t("dashboard.settings.newPw")}</Label><Input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} /></div>
+                  <div className="space-y-1">
+                    <Label>{t("dashboard.settings.newPw")}</Label>
+                    <Input
+                      type="password"
+                      value={newPw}
+                      onChange={(e) => setNewPw(e.target.value)}
+                    />
+                  </div>
                 </div>
                 <DialogFooter>
-                  <Button onClick={changePw} disabled={busy}>{busy ? t("dashboard.common.saving") : t("dashboard.common.save")}</Button>
+                  <Button onClick={changePw} disabled={busy}>
+                    {busy ? t("dashboard.common.saving") : t("dashboard.common.save")}
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-            <Button variant="outline" size="sm" onClick={signOutEverywhere}>{t("dashboard.settings.signOutAll")}</Button>
+            <Button variant="outline" size="sm" onClick={signOutEverywhere}>
+              {t("dashboard.settings.signOutAll")}
+            </Button>
           </div>
         </CardContent>
       </Card>

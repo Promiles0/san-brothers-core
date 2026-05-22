@@ -1,30 +1,22 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+﻿import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABASE_URL || "";
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_ANON_KEY || "";
+const SUPABASE_ANON_KEY =
+  import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_ANON_KEY || "";
 
 let _client: SupabaseClient | null = null;
 
 function getSupabaseClient(): SupabaseClient {
   if (_client) return _client;
-
-  const url = SUPABASE_URL ?? "";
-  const key = SUPABASE_ANON_KEY ?? "";
-
-  if (!url || !key) {
-    throw new Error(
-      "[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Add them to your .env file.",
-    );
-  }
-
+  const url = SUPABASE_URL || "https://placeholder.supabase.co";
+  const key = SUPABASE_ANON_KEY || "placeholder-key";
   _client = createClient(url, key, {
     auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
+      persistSession: typeof window !== "undefined",
+      autoRefreshToken: typeof window !== "undefined",
+      detectSessionInUrl: typeof window !== "undefined",
     },
   });
-
   return _client;
 }
 

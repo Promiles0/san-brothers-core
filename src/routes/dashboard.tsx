@@ -15,7 +15,6 @@ function DashboardLayoutRoute() {
     </ProtectedRoute>
   );
 }
-
 function DashboardShell() {
   const { profile, loading } = useAuth();
   const navigate = useNavigate();
@@ -27,8 +26,12 @@ function DashboardShell() {
     }
   }, [profile, loading, navigate]);
 
-  const role = (profile?.role === "client" ? "client" : profile?.role ?? "client") as
-    | "client" | "secretary" | "manager" | "translator" | "admin";
+  const role = (profile?.role === "client" ? "client" : (profile?.role ?? "client")) as
+    | "client"
+    | "secretary"
+    | "manager"
+    | "translator"
+    | "admin";
 
   return (
     <DashboardLayout role={role}>
@@ -36,4 +39,3 @@ function DashboardShell() {
     </DashboardLayout>
   );
 }
-

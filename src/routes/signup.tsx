@@ -9,25 +9,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthLayout, PasswordStrength } from "@/components/auth/auth-layout";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { intentLabel, friendlyAuthError } from "@/lib/auth/intent-labels";
 import { supabase } from "@/lib/supabase";
-
 const signupSchema = z
   .object({
     full_name: z.string().min(2, "auth.errors.nameTooShort"),
     email: z.string().email("auth.errors.invalidEmail"),
-    phone: z.string().min(6, "auth.errors.invalidPhone").regex(/^\+?[0-9\s\-()]+$/, "auth.errors.invalidPhone"),
+    phone: z
+      .string()
+      .min(6, "auth.errors.invalidPhone")
+      .regex(/^\+?[0-9\s\-()]+$/, "auth.errors.invalidPhone"),
     preferred_language: z.enum(["en", "zh", "rw"]),
     password: z.string().min(8, "auth.errors.weakPassword"),
     confirm: z.string(),
     terms: z.boolean().refine((v) => v, { message: "auth.errors.termsRequired" }),
   })
-  .refine((d) => d.password === d.confirm, { message: "auth.errors.passwordsDontMatch", path: ["confirm"] });
+  .refine((d) => d.password === d.confirm, {
+    message: "auth.errors.passwordsDontMatch",
+    path: ["confirm"],
+  });
 
 type SignupForm = z.infer<typeof signupSchema>;
 
@@ -46,7 +57,11 @@ function SignupPage() {
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
-    register, handleSubmit, watch, setValue, formState: { errors, isSubmitting },
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
   } = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
     defaultValues: { preferred_language: "en", terms: false },
@@ -88,7 +103,11 @@ function SignupPage() {
       footer={
         <span>
           {t("auth.signup.haveAccount")}{" "}
-          <Link to="/login" search={{ intent } as never} className="font-medium text-primary hover:underline">
+          <Link
+            to="/login"
+            search={{ intent } as never}
+            className="font-medium text-primary hover:underline"
+          >
             {t("common.login")}
           </Link>
         </span>
@@ -96,8 +115,7 @@ function SignupPage() {
     >
       {intentName ? (
         <div className="mb-4 rounded-md bg-primary/10 px-3 py-2 text-sm text-foreground">
-          {t("auth.signup.intentBanner")}{" "}
-          <span className="font-semibold">{intentName}</span>
+          {t("auth.signup.intentBanner")} <span className="font-semibold">{intentName}</span>
         </div>
       ) : null}
 
@@ -109,10 +127,16 @@ function SignupPage() {
       ) : null}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <Field label={t("auth.signup.fullName")} error={errors.full_name?.message ? t(errors.full_name.message) : undefined}>
+        <Field
+          label={t("auth.signup.fullName")}
+          error={errors.full_name?.message ? t(errors.full_name.message) : undefined}
+        >
           <Input autoComplete="name" {...register("full_name")} />
         </Field>
-        <Field label={t("auth.signup.email")} error={errors.email?.message ? t(errors.email.message) : undefined}>
+        <Field
+          label={t("auth.signup.email")}
+          error={errors.email?.message ? t(errors.email.message) : undefined}
+        >
           <Input type="email" autoComplete="email" {...register("email")} />
         </Field>
         <Field
@@ -123,8 +147,13 @@ function SignupPage() {
           <Input type="tel" placeholder="+250 7XX XXX XXX" {...register("phone")} />
         </Field>
         <Field label={t("auth.signup.preferredLanguage")}>
-          <Select value={lang} onValueChange={(v) => setValue("preferred_language", v as "en" | "zh" | "rw")}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+          <Select
+            value={lang}
+            onValueChange={(v) => setValue("preferred_language", v as "en" | "zh" | "rw")}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="en">English</SelectItem>
               <SelectItem value="zh">中文</SelectItem>
@@ -132,11 +161,17 @@ function SignupPage() {
             </SelectContent>
           </Select>
         </Field>
-        <Field label={t("auth.signup.password")} error={errors.password?.message ? t(errors.password.message) : undefined}>
+        <Field
+          label={t("auth.signup.password")}
+          error={errors.password?.message ? t(errors.password.message) : undefined}
+        >
           <Input type="password" autoComplete="new-password" {...register("password")} />
           <PasswordStrength password={password} />
         </Field>
-        <Field label={t("auth.signup.confirmPassword")} error={errors.confirm?.message ? t(errors.confirm.message) : undefined}>
+        <Field
+          label={t("auth.signup.confirmPassword")}
+          error={errors.confirm?.message ? t(errors.confirm.message) : undefined}
+        >
           <Input type="password" autoComplete="new-password" {...register("confirm")} />
         </Field>
 
@@ -147,12 +182,18 @@ function SignupPage() {
           />
           <label htmlFor="terms" className="text-xs text-muted-foreground leading-snug">
             {t("auth.signup.termsPrefix")}{" "}
-            <a href="/terms" className="underline">{t("auth.signup.terms")}</a>{" "}
+            <a href="/terms" className="underline">
+              {t("auth.signup.terms")}
+            </a>{" "}
             {t("common.and") || "&"}{" "}
-            <a href="/privacy" className="underline">{t("auth.signup.privacy")}</a>
+            <a href="/privacy" className="underline">
+              {t("auth.signup.privacy")}
+            </a>
           </label>
         </div>
-        {errors.terms ? <p className="text-xs text-destructive">{t(errors.terms.message!)}</p> : null}
+        {errors.terms ? (
+          <p className="text-xs text-destructive">{t(errors.terms.message!)}</p>
+        ) : null}
 
         <div id="turnstile-container" />
 
@@ -167,8 +208,16 @@ function SignupPage() {
 }
 
 function Field({
-  label, error, hint, children,
-}: { label: string; error?: string; hint?: string; children: React.ReactNode }) {
+  label,
+  error,
+  hint,
+  children,
+}: {
+  label: string;
+  error?: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="space-y-1.5">
       <Label>{label}</Label>

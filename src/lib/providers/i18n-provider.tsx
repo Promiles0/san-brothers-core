@@ -1,3 +1,4 @@
+// @refresh reset
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import en from "@/messages/en.json";
 import zh from "@/messages/zh.json";
@@ -51,9 +52,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const tRaw = <T,>(key: string): T => resolveKey(dictionaries[locale], key) as T;
 
   return (
-    <I18nContext.Provider value={{ locale, setLocale, t, tRaw }}>
-      {children}
-    </I18nContext.Provider>
+    <I18nContext.Provider value={{ locale, setLocale, t, tRaw }}>{children}</I18nContext.Provider>
   );
 }
 

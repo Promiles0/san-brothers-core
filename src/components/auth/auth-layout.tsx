@@ -15,7 +15,9 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
     <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-background via-background to-primary/10">
       <header className="flex items-center justify-between px-4 py-4 md:px-6">
         <Link to="/" className="flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-md bg-primary font-bold text-primary-foreground">SB</div>
+          <div className="grid h-9 w-9 place-items-center rounded-md bg-primary font-bold text-primary-foreground">
+            SB
+          </div>
           <span className="text-sm font-semibold">San Brothers</span>
         </Link>
         <div className="flex items-center gap-1">
@@ -32,7 +34,9 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
             </div>
             {children}
           </div>
-          {footer ? <div className="mt-4 text-center text-sm text-muted-foreground">{footer}</div> : null}
+          {footer ? (
+            <div className="mt-4 text-center text-sm text-muted-foreground">{footer}</div>
+          ) : null}
         </div>
       </main>
     </div>
@@ -42,13 +46,7 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
 export function PasswordStrength({ password }: { password: string }) {
   const score = scorePassword(password);
   const labels = ["", "Weak", "Fair", "Good", "Strong"];
-  const colors = [
-    "bg-muted",
-    "bg-destructive",
-    "bg-orange-500",
-    "bg-yellow-500",
-    "bg-green-500",
-  ];
+  const colors = ["bg-muted", "bg-destructive", "bg-orange-500", "bg-yellow-500", "bg-green-500"];
   return (
     <div className="space-y-1">
       <div className="flex gap-1">

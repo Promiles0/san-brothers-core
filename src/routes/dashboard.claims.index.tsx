@@ -21,7 +21,9 @@ interface Row {
   description: string;
   status: string;
   created_at: string;
-  service_requests: { services: { name_en: string; name_zh: string | null; name_rw: string | null } | null } | null;
+  service_requests: {
+    services: { name_en: string; name_zh: string | null; name_rw: string | null } | null;
+  } | null;
 }
 
 const TABS: Record<string, string[]> = {
@@ -29,7 +31,6 @@ const TABS: Record<string, string[]> = {
   resolved: ["resolved"],
   rejected: ["rejected"],
 };
-
 function ClaimsList() {
   const { user } = useAuth();
   const { t, locale } = useI18n();
@@ -41,7 +42,9 @@ function ClaimsList() {
       try {
         const { data, error } = await supabase
           .from("claims")
-          .select("id,reason_category,description,status,created_at,service_requests(services(name_en,name_zh,name_rw))")
+          .select(
+            "id,reason_category,description,status,created_at,service_requests(services(name_en,name_zh,name_rw))",
+          )
           .eq("client_id", user.id)
           .order("created_at", { ascending: false });
         if (error) throw error;
@@ -70,22 +73,34 @@ function ClaimsList() {
       <div className="grid gap-4 md:grid-cols-2">
         {items.map((r) => {
           const svcName = r.service_requests?.services
-            ? (locale === "zh" && r.service_requests.services.name_zh) || (locale === "rw" && r.service_requests.services.name_rw) || r.service_requests.services.name_en
+            ? (locale === "zh" && r.service_requests.services.name_zh) ||
+              (locale === "rw" && r.service_requests.services.name_rw) ||
+              r.service_requests.services.name_en
             : null;
           return (
             <Card key={r.id}>
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-sm">{t(`dashboard.claims.reason.${r.reason_category}`)}</CardTitle>
+                  <CardTitle className="text-sm">
+                    {t(`dashboard.claims.reason.${r.reason_category}`)}
+                  </CardTitle>
                   <StatusBadge status={r.status} />
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
                 <p className="line-clamp-2 text-sm text-muted-foreground">{r.description}</p>
-                {svcName && <p className="text-xs text-muted-foreground">{t("dashboard.claims.related")}: {svcName}</p>}
-                <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</p>
+                {svcName && (
+                  <p className="text-xs text-muted-foreground">
+                    {t("dashboard.claims.related")}: {svcName}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  {new Date(r.created_at).toLocaleDateString()}
+                </p>
                 <Button asChild size="sm" variant="outline" className="w-full">
-                  <Link to="/dashboard/claims/$id" params={{ id: r.id }}>{t("dashboard.common.viewDetails")}</Link>
+                  <Link to="/dashboard/claims/$id" params={{ id: r.id }}>
+                    {t("dashboard.common.viewDetails")}
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
@@ -99,7 +114,11 @@ function ClaimsList() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold tracking-tight">{t("dashboard.claims.title")}</h1>
-        <Button asChild><Link to="/dashboard/claims/new">+ {t("dashboard.claims.newCta")}</Link></Button>
+        <Button asChild>
+          <Link to="/dashboard/claims/new" search={{} as never}>
+            + {t("dashboard.claims.newCta")}
+          </Link>
+        </Button>
       </div>
       <Tabs defaultValue="open">
         <TabsList>
@@ -107,9 +126,15 @@ function ClaimsList() {
           <TabsTrigger value="resolved">{t("dashboard.claims.tab.resolved")}</TabsTrigger>
           <TabsTrigger value="rejected">{t("dashboard.claims.tab.rejected")}</TabsTrigger>
         </TabsList>
-        <TabsContent value="open" className="mt-4">{renderTab("open")}</TabsContent>
-        <TabsContent value="resolved" className="mt-4">{renderTab("resolved")}</TabsContent>
-        <TabsContent value="rejected" className="mt-4">{renderTab("rejected")}</TabsContent>
+        <TabsContent value="open" className="mt-4">
+          {renderTab("open")}
+        </TabsContent>
+        <TabsContent value="resolved" className="mt-4">
+          {renderTab("resolved")}
+        </TabsContent>
+        <TabsContent value="rejected" className="mt-4">
+          {renderTab("rejected")}
+        </TabsContent>
       </Tabs>
     </div>
   );

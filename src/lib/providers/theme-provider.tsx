@@ -39,7 +39,9 @@ function applyTheme(t: Theme): "light" | "dark" {
   if (typeof document === "undefined") return "light";
   const resolved: "light" | "dark" =
     t === "system"
-      ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
       : t;
   document.documentElement.classList.toggle("dark", resolved === "dark");
   return resolved;

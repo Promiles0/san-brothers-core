@@ -12,7 +12,10 @@ export const Route = createFileRoute("/translate/languages")({
   head: () => ({
     meta: [
       { title: "Languages We Support — We Speak Your Language" },
-      { name: "description", content: "Live interpreters and document translation across major world languages." },
+      {
+        name: "description",
+        content: "Live interpreters and document translation across major world languages.",
+      },
       { property: "og:title", content: "Languages We Support" },
       { property: "og:description", content: "EN, ZH, RW, FR, AR and more." },
     ],
@@ -25,7 +28,10 @@ function LanguagesPage() {
   const { t } = useI18n();
   return (
     <TranslateLayout>
-      <PageHero title={t("translate.languages.title")} subtitle={t("translate.languages.subtitle")} />
+      <PageHero
+        title={t("translate.languages.title")}
+        subtitle={t("translate.languages.subtitle")}
+      />
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {supportedLanguages.map((l) => (

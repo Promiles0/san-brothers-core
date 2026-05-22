@@ -301,12 +301,7 @@
       "tax": {
         "title": "Gutegura imisoro",
         "desc": "Gutegura no gutanga imisoro neza kandi ku gihe.",
-        "bullets": [
-          "VAT",
-          "PAYE",
-          "Umusoro ku nyungu",
-          "Withholding tax"
-        ]
+        "bullets": ["VAT", "PAYE", "Umusoro ku nyungu", "Withholding tax"]
       },
       "reporting": {
         "title": "Raporo z'imari",
@@ -635,11 +630,7 @@
           "name": "Viza y'ubukerarugendo",
           "price": "Uhereye 80,000 RWF",
           "intent": "tourist-visa",
-          "features": [
-            "Urutonde rw'inyandiko",
-            "Isuzuma rya dosiye",
-            "Inkunga yo gutanga"
-          ]
+          "features": ["Urutonde rw'inyandiko", "Isuzuma rya dosiye", "Inkunga yo gutanga"]
         },
         {
           "name": "Viza yo kwiga",
@@ -657,11 +648,7 @@
           "name": "Uburenganzira bwo gukora",
           "price": "Uhereye 200,000 RWF",
           "intent": "work-permit",
-          "features": [
-            "Gucunga byose",
-            "Guhuza n'umukoresha",
-            "Kwibutsa kwongera igihe"
-          ]
+          "features": ["Gucunga byose", "Guhuza n'umukoresha", "Kwibutsa kwongera igihe"]
         }
       ],
       "accounting": [
@@ -669,22 +656,14 @@
           "name": "Starter",
           "price": "Uhereye 50,000 RWF / ukwezi",
           "intent": "bookkeeping",
-          "features": [
-            "Ibikorwa kugeza 50",
-            "Inshamake y'ukwezi",
-            "Ubufasha kuri imeri"
-          ]
+          "features": ["Ibikorwa kugeza 50", "Inshamake y'ukwezi", "Ubufasha kuri imeri"]
         },
         {
           "name": "Standard",
           "price": "Uhereye 120,000 RWF / ukwezi",
           "intent": "tax-filing",
           "popular": true,
-          "features": [
-            "Ibikorwa kugeza 200",
-            "Gutanga VAT & PAYE",
-            "Raporo z'igihembwe"
-          ]
+          "features": ["Ibikorwa kugeza 200", "Gutanga VAT & PAYE", "Raporo z'igihembwe"]
         },
         {
           "name": "Premium",
@@ -713,11 +692,7 @@
           "price": "Uhereye 350,000 RWF",
           "intent": "business-planning",
           "popular": true,
-          "features": [
-            "Ibiganiro by'isuzuma",
-            "Financial model",
-            "Inyandiko ya pitch"
-          ]
+          "features": ["Ibiganiro by'isuzuma", "Financial model", "Inyandiko ya pitch"]
         },
         {
           "name": "Inama z'ishoramari",
@@ -735,30 +710,20 @@
           "name": "Inyandiko (kuri buri rupapuro)",
           "price": "Uhereye 8,000 RWF",
           "intent": "document-translation",
-          "features": [
-            "Igihe gisanzwe",
-            "Kopi zemejwe iyo bisabwe"
-          ]
+          "features": ["Igihe gisanzwe", "Kopi zemejwe iyo bisabwe"]
         },
         {
           "name": "Umusemuzi mu kanya",
           "price": "Uhereye 1,500 RWF / umunota",
           "intent": "live-interpreter",
           "popular": true,
-          "features": [
-            "Kuvugana mu minota mike",
-            "Ijwi cyangwa video",
-            "Wishyura kuri buri munota"
-          ]
+          "features": ["Kuvugana mu minota mike", "Ijwi cyangwa video", "Wishyura kuri buri munota"]
         },
         {
           "name": "Ubusemuzi bw'amategeko",
           "price": "Uhereye 12,000 RWF / urupapuro",
           "intent": "legal-translation",
-          "features": [
-            "Ubwiza bukoreshwa mu nkiko",
-            "Notarization irahari"
-          ]
+          "features": ["Ubwiza bukoreshwa mu nkiko", "Notarization irahari"]
         }
       ]
     }
@@ -944,13 +909,7 @@
       },
       "formats": {
         "heading": "Imiterere ya dosiye yemewe",
-        "list": [
-          "PDF",
-          "Word",
-          "JPG",
-          "PNG",
-          "Inyandiko zafotowe"
-        ]
+        "list": ["PDF", "Word", "JPG", "PNG", "Inyandiko zafotowe"]
       }
     },
     "live": {
@@ -1142,30 +1101,61 @@
   },
   "dashboard": {
     "nav": {
-      "home": "Ahabanza", "browseServices": "Reba Serivisi", "myServices": "Serivisi Zanjye",
-      "documents": "Inyandiko", "messages": "Ubutumwa", "payments": "Kwishyura",
-      "claims": "Ibibazo", "profile": "Umwirondoro", "settings": "Igenamiterere", "logout": "Sohoka"
+      "home": "Ahabanza",
+      "browseServices": "Reba Serivisi",
+      "myServices": "Serivisi Zanjye",
+      "documents": "Inyandiko",
+      "messages": "Ubutumwa",
+      "payments": "Kwishyura",
+      "claims": "Ibibazo",
+      "profile": "Umwirondoro",
+      "settings": "Igenamiterere",
+      "logout": "Sohoka"
     },
     "common": {
-      "back": "Subira", "save": "Bika impinduka", "saving": "Iribika…", "submit": "Ohereza",
-      "submitting": "Iyoherezwa…", "continue": "Komeza", "viewDetails": "Reba byinshi",
-      "select": "Hitamo…", "optional": "ntibyategetswe", "chars": "inyuguti", "days": "iminsi",
-      "created": "Yaremwe", "lastUpdated": "Yahinduwe", "step": "Intambwe", "uploading": "Iyoherezwa…"
+      "back": "Subira",
+      "save": "Bika impinduka",
+      "saving": "Iribika…",
+      "submit": "Ohereza",
+      "submitting": "Iyoherezwa…",
+      "continue": "Komeza",
+      "viewDetails": "Reba byinshi",
+      "select": "Hitamo…",
+      "optional": "ntibyategetswe",
+      "chars": "inyuguti",
+      "days": "iminsi",
+      "created": "Yaremwe",
+      "lastUpdated": "Yahinduwe",
+      "step": "Intambwe",
+      "uploading": "Iyoherezwa…"
     },
     "status": {
-      "submitted": "Yoherejwe", "under_review": "Irasuzumwa", "awaiting_client": "Iretereje wowe",
-      "verified": "Yemejwe", "submitted_to_authority": "Yoherejwe ku rwego rubishinzwe", "completed": "Yarangiye",
-      "rejected": "Yanzwe", "cancelled": "Yakuweho",
-      "uploaded": "Yoherejwe", "final_delivery": "Yatanzwe",
-      "open": "Iri gukurikiranwa", "resolved": "Yakemutse"
+      "submitted": "Yoherejwe",
+      "under_review": "Irasuzumwa",
+      "awaiting_client": "Iretereje wowe",
+      "verified": "Yemejwe",
+      "submitted_to_authority": "Yoherejwe ku rwego rubishinzwe",
+      "completed": "Yarangiye",
+      "rejected": "Yanzwe",
+      "cancelled": "Yakuweho",
+      "uploaded": "Yoherejwe",
+      "final_delivery": "Yatanzwe",
+      "open": "Iri gukurikiranwa",
+      "resolved": "Yakemutse"
     },
     "home": {
-      "welcome": "Murakaza neza, {name}!", "activeServices": "Bigenda", "documents": "Inyandiko",
-      "unreadMessages": "Ntizisomwe", "yourActiveServices": "Serivisi Zawe Zigenda",
+      "welcome": "Murakaza neza, {name}!",
+      "activeServices": "Bigenda",
+      "documents": "Inyandiko",
+      "unreadMessages": "Ntizisomwe",
+      "yourActiveServices": "Serivisi Zawe Zigenda",
       "intentBanner": "Wifuzaga gusaba: {name}. Komeza hano hepfo.",
-      "notifications": "Ubutumwa bushya", "noNotifications": "Nta butumwa burimo.",
-      "quickActions": "Ibikorwa Byihuse", "requestNew": "Saba serivisi nshya",
-      "uploadDoc": "Ohereza inyandiko", "talkSupport": "Vugana nabashinzwe",
+      "notifications": "Ubutumwa bushya",
+      "noNotifications": "Nta butumwa burimo.",
+      "quickActions": "Ibikorwa Byihuse",
+      "requestNew": "Saba serivisi nshya",
+      "uploadDoc": "Ohereza inyandiko",
+      "talkSupport": "Vugana nabashinzwe",
       "empty": {
         "title": "Ntabwo ufite serivisi zigenda",
         "desc": "Reba serivisi zacu kugira ngo utangire.",
@@ -1173,40 +1163,83 @@
       }
     },
     "services": {
-      "title": "Reba Serivisi", "subtitle": "Hitamo serivisi yo gusaba.",
+      "title": "Reba Serivisi",
+      "subtitle": "Hitamo serivisi yo gusaba.",
       "searchPlaceholder": "Shakisha serivisi…",
-      "cat": { "all": "Zose", "visa": "Viza", "accounting": "Imibare", "consultancy": "Ubuhanga", "translation": "Ubusemuzi" },
-      "from": "Uhereye kuri", "usually": "Akenshi", "request": "Saba",
-      "seeMoreTitle": "Ukeneye ikindi kitari kuri uru rutonde?", "seeMoreDesc": "Twandikire dushobora kuyitegura.",
+      "cat": {
+        "all": "Zose",
+        "visa": "Viza",
+        "accounting": "Imibare",
+        "consultancy": "Ubuhanga",
+        "translation": "Ubusemuzi"
+      },
+      "from": "Uhereye kuri",
+      "usually": "Akenshi",
+      "request": "Saba",
+      "seeMoreTitle": "Ukeneye ikindi kitari kuri uru rutonde?",
+      "seeMoreDesc": "Twandikire dushobora kuyitegura.",
       "notFound": "Serivisi ntiyabonetse.",
-      "section": { "aboutYou": "Kuri Wowe", "details": "Ibisobanuro bya Serivisi", "requiredDocs": "Inyandiko Zikenewe", "notes": "Andika Byinshi" },
+      "section": {
+        "aboutYou": "Kuri Wowe",
+        "details": "Ibisobanuro bya Serivisi",
+        "requiredDocs": "Inyandiko Zikenewe",
+        "notes": "Andika Byinshi"
+      },
       "noDocsRequired": "Iyi serivisi ntikeneye inyandiko.",
-      "addAnother": "+ Ongeraho indi nyandiko", "uploaded": "Inyandiko zoherejwe",
+      "addAnother": "+ Ongeraho indi nyandiko",
+      "uploaded": "Inyandiko zoherejwe",
       "notesPlaceholder": "Hari ikindi twakwiye kumenya?",
       "errNoFiles": "Nyamuneka ohereza nibura inyandiko imwe.",
-      "successToast": "Serivisi yasabwe neza!", "submit": "Ohereza Ubusabe",
-      "visa": { "type": "Ubwoko bwa viza", "dates": "Itariki yo gutembera", "destination": "Igihugu ugiyemo" },
-      "acct": { "period": "Igihe", "businessType": "Ubwoko bw'ubucuruzi", "tin": "TIN (niba ari sosiyete)" },
+      "successToast": "Serivisi yasabwe neza!",
+      "submit": "Ohereza Ubusabe",
+      "visa": {
+        "type": "Ubwoko bwa viza",
+        "dates": "Itariki yo gutembera",
+        "destination": "Igihugu ugiyemo"
+      },
+      "acct": {
+        "period": "Igihe",
+        "businessType": "Ubwoko bw'ubucuruzi",
+        "tin": "TIN (niba ari sosiyete)"
+      },
       "consult": { "brief": "Sobanura muri make icyo ukeneye" },
-      "translate": { "source": "Ururimi rwo guhereraho", "target": "Ururimi rugamijwe", "docType": "Ubwoko bw'inyandiko" }
+      "translate": {
+        "source": "Ururimi rwo guhereraho",
+        "target": "Ururimi rugamijwe",
+        "docType": "Ubwoko bw'inyandiko"
+      }
     },
     "myServices": {
       "title": "Serivisi Zanjye",
       "tab": { "active": "Zigenda", "completed": "Zarangiye", "cancelled": "Zakuweho" },
-      "empty": { "active": "Nta serivisi zigenda. Reba kugira ngo utangire.", "completed": "Nta serivisi zarangiye.", "cancelled": "Nta serivisi zakuweho." },
-      "browse": "Reba Serivisi", "notFound": "Ubusabe ntibwabonetse.",
-      "progress": "Aho bigeze", "documents": "Inyandiko", "noDocs": "Nta nyandiko zoherejwe.",
-      "uploadAnother": "Ongeraho", "uploadedToast": "Inyandiko yoherejwe.",
+      "empty": {
+        "active": "Nta serivisi zigenda. Reba kugira ngo utangire.",
+        "completed": "Nta serivisi zarangiye.",
+        "cancelled": "Nta serivisi zakuweho."
+      },
+      "browse": "Reba Serivisi",
+      "notFound": "Ubusabe ntibwabonetse.",
+      "progress": "Aho bigeze",
+      "documents": "Inyandiko",
+      "noDocs": "Nta nyandiko zoherejwe.",
+      "uploadAnother": "Ongeraho",
+      "uploadedToast": "Inyandiko yoherejwe.",
       "awaitingBanner": "Dukeneye inyandiko zinyongera kuri wowe. Nyamuneka ohereza hano.",
-      "chat": "Vugana n'abakozi", "chatPlaceholder": "Muraho! Umukozi wawe agira aza kugutebya.",
-      "chatInputPlaceholder": "Andika ubutumwa…", "send": "Ohereza",
-      "chatComingSoon": "Ikiganiro nyacyo kiraza vuba.", "openClaim": "Tanga Ikibazo"
+      "chat": "Vugana n'abakozi",
+      "chatPlaceholder": "Muraho! Umukozi wawe agira aza kugutebya.",
+      "chatInputPlaceholder": "Andika ubutumwa…",
+      "send": "Ohereza",
+      "chatComingSoon": "Ikiganiro nyacyo kiraza vuba.",
+      "openClaim": "Tanga Ikibazo"
     },
     "documents": {
-      "title": "Inyandiko", "subtitle": "Inyandiko zawe zose, zatondetswe ku rwego rwa serivisi.",
-      "searchPlaceholder": "Shakisha dosiye…", "allFiles": "Dosiye zose",
+      "title": "Inyandiko",
+      "subtitle": "Inyandiko zawe zose, zatondetswe ku rwego rwa serivisi.",
+      "searchPlaceholder": "Shakisha dosiye…",
+      "allFiles": "Dosiye zose",
       "empty": "Ntabwo wohereje dosiye. Inyandiko wohereza mu gihe usaba serivisi zizagaragara hano zatondetswe.",
-      "noMatch": "Nta dosiye zihuye n'ushakisha.", "untitled": "Serivisi itazwi"
+      "noMatch": "Nta dosiye zihuye n'ushakisha.",
+      "untitled": "Serivisi itazwi"
     },
     "messages": {
       "title": "Ubutumwa",
@@ -1216,13 +1249,21 @@
     "payments": {
       "title": "Kwishyura",
       "comingSoon": "Kwishyura online biraza vuba. Uzashobora kwishyura ukoresheje MoMo, ikarita, na PayPal.",
-      "history": "Amateka y'ibiciro bya serivisi", "noHistory": "Nta serivisi zasabwe."
+      "history": "Amateka y'ibiciro bya serivisi",
+      "noHistory": "Nta serivisi zasabwe."
     },
     "claims": {
-      "title": "Ibibazo", "newCta": "Tanga Ikibazo", "newTitle": "Tanga Ikibazo Gishya",
+      "title": "Ibibazo",
+      "newCta": "Tanga Ikibazo",
+      "newTitle": "Tanga Ikibazo Gishya",
       "tab": { "open": "Birakurikiranwa", "resolved": "Byakemutse", "rejected": "Byanzwe" },
-      "empty": { "open": "Nta bibazo birimo gukurikiranwa.", "resolved": "Nta bibazo byakemutse.", "rejected": "Nta bibazo byanzwe." },
-      "related": "Bijyanye na", "notFound": "Ikibazo ntikibonetse.",
+      "empty": {
+        "open": "Nta bibazo birimo gukurikiranwa.",
+        "resolved": "Nta bibazo byakemutse.",
+        "rejected": "Nta bibazo byanzwe."
+      },
+      "related": "Bijyanye na",
+      "notFound": "Ikibazo ntikibonetse.",
       "linkedService": "Serivisi ifitanye isano",
       "reason": {
         "label": "Impamvu",
@@ -1233,28 +1274,50 @@
         "refund_request": "Gusaba kwishyurwa",
         "other": "Ibindi"
       },
-      "description": "Ibisobanuro", "descPlaceholder": "Sobanura ibyabaye (nibura inyuguti 20)…",
-      "evidence": "Ibimenyetso", "addEvidence": "Ongeraho ibimenyetso",
-      "errReason": "Hitamo impamvu.", "errDescription": "Ibisobanuro bikeneye nibura inyuguti 20.",
-      "submit": "Ohereza Ikibazo", "successToast": "Ikibazo cyatanzwe. Tuzakireba vuba.",
-      "resolution": "Ibyo twakoze", "refund": "Amafaranga yasubijwe"
+      "description": "Ibisobanuro",
+      "descPlaceholder": "Sobanura ibyabaye (nibura inyuguti 20)…",
+      "evidence": "Ibimenyetso",
+      "addEvidence": "Ongeraho ibimenyetso",
+      "errReason": "Hitamo impamvu.",
+      "errDescription": "Ibisobanuro bikeneye nibura inyuguti 20.",
+      "submit": "Ohereza Ikibazo",
+      "successToast": "Ikibazo cyatanzwe. Tuzakireba vuba.",
+      "resolution": "Ibyo twakoze",
+      "refund": "Amafaranga yasubijwe"
     },
     "profile": {
-      "title": "Umwirondoro", "picture": "Ifoto", "changePicture": "Hindura ifoto",
+      "title": "Umwirondoro",
+      "picture": "Ifoto",
+      "changePicture": "Hindura ifoto",
       "avatarUpdated": "Ifoto yahinduwe.",
-      "info": "Amakuru bwite", "fullName": "Amazina yose", "phone": "Telefone",
-      "email": "Imeyili", "emailHint": "Vugana n'abakozi kugira ngo uhindure imeyili.",
-      "role": "Uruhare", "tin": "TIN", "createdAt": "Konti yakorewe",
-      "preferredLang": "Ururimi ukunda", "savedToast": "Umwirondoro wahinduwe."
+      "info": "Amakuru bwite",
+      "fullName": "Amazina yose",
+      "phone": "Telefone",
+      "email": "Imeyili",
+      "emailHint": "Vugana n'abakozi kugira ngo uhindure imeyili.",
+      "role": "Uruhare",
+      "tin": "TIN",
+      "createdAt": "Konti yakorewe",
+      "preferredLang": "Ururimi ukunda",
+      "savedToast": "Umwirondoro wahinduwe."
     },
     "settings": {
-      "title": "Igenamiterere", "appearance": "Imiterere", "language": "Ururimi", "security": "Umutekano",
-      "twoFA": "Kwemeza kabiri", "twoFADesc": "Ongera urwego rw'umutekano mu kwinjira.",
+      "title": "Igenamiterere",
+      "appearance": "Imiterere",
+      "language": "Ururimi",
+      "security": "Umutekano",
+      "twoFA": "Kwemeza kabiri",
+      "twoFADesc": "Ongera urwego rw'umutekano mu kwinjira.",
       "twoFAStub": "Kwemeza kabiri biraza vuba.",
-      "changePw": "Hindura ijambobanga", "currentPw": "Ijambobanga rigezweho", "newPw": "Ijambobanga rishya",
-      "pwShort": "Ijambobanga rigomba kuba nibura inyuguti 8.", "pwUpdated": "Ijambobanga ryahinduwe.",
-      "signOutAll": "Sohoka kuri byose", "signedOutAll": "Wasohotse kuri ibikoresho byose.",
-      "notifications": "Imenyesha", "notifStub": "Igenamiterere ry'imenyesha riraza vuba."
+      "changePw": "Hindura ijambobanga",
+      "currentPw": "Ijambobanga rigezweho",
+      "newPw": "Ijambobanga rishya",
+      "pwShort": "Ijambobanga rigomba kuba nibura inyuguti 8.",
+      "pwUpdated": "Ijambobanga ryahinduwe.",
+      "signOutAll": "Sohoka kuri byose",
+      "signedOutAll": "Wasohotse kuri ibikoresho byose.",
+      "notifications": "Imenyesha",
+      "notifStub": "Igenamiterere ry'imenyesha riraza vuba."
     }
   }
 }

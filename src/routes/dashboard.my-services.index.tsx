@@ -25,7 +25,6 @@ interface Row {
   updated_at: string;
   services: { name_en: string; name_zh: string | null; name_rw: string | null } | null;
 }
-
 const TAB_STATUSES: Record<string, string[]> = {
   active: ["submitted", "under_review", "awaiting_client", "verified", "submitted_to_authority"],
   completed: ["completed"],
@@ -43,7 +42,9 @@ function MyServicesList() {
       try {
         const { data, error } = await supabase
           .from("service_requests")
-          .select("id,status,progress_step,progress_total,created_at,updated_at,services(name_en,name_zh,name_rw)")
+          .select(
+            "id,status,progress_step,progress_total,created_at,updated_at,services(name_en,name_zh,name_rw)",
+          )
           .eq("client_id", user.id)
           .order("updated_at", { ascending: false });
         if (error) throw error;
@@ -66,8 +67,12 @@ function MyServicesList() {
         <Card>
           <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
             <Briefcase className="h-10 w-10 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">{t(`dashboard.myServices.empty.${key}`)}</p>
-            <Button asChild size="sm"><Link to="/dashboard/services">{t("dashboard.myServices.browse")}</Link></Button>
+            <p className="text-sm text-muted-foreground">
+              {t(`dashboard.myServices.empty.${key}`)}
+            </p>
+            <Button asChild size="sm">
+              <Link to="/dashboard/services">{t("dashboard.myServices.browse")}</Link>
+            </Button>
           </CardContent>
         </Card>
       );
@@ -88,7 +93,9 @@ function MyServicesList() {
                 {t("dashboard.common.created")}: {new Date(r.created_at).toLocaleDateString()}
               </div>
               <Button asChild size="sm" variant="outline" className="w-full">
-                <Link to="/dashboard/my-services/$id" params={{ id: r.id }}>{t("dashboard.common.viewDetails")}</Link>
+                <Link to="/dashboard/my-services/$id" params={{ id: r.id }}>
+                  {t("dashboard.common.viewDetails")}
+                </Link>
               </Button>
             </CardContent>
           </Card>
@@ -106,9 +113,15 @@ function MyServicesList() {
           <TabsTrigger value="completed">{t("dashboard.myServices.tab.completed")}</TabsTrigger>
           <TabsTrigger value="cancelled">{t("dashboard.myServices.tab.cancelled")}</TabsTrigger>
         </TabsList>
-        <TabsContent value="active" className="mt-4">{renderTab("active")}</TabsContent>
-        <TabsContent value="completed" className="mt-4">{renderTab("completed")}</TabsContent>
-        <TabsContent value="cancelled" className="mt-4">{renderTab("cancelled")}</TabsContent>
+        <TabsContent value="active" className="mt-4">
+          {renderTab("active")}
+        </TabsContent>
+        <TabsContent value="completed" className="mt-4">
+          {renderTab("completed")}
+        </TabsContent>
+        <TabsContent value="cancelled" className="mt-4">
+          {renderTab("cancelled")}
+        </TabsContent>
       </Tabs>
     </div>
   );

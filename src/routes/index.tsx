@@ -1,8 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  Plane, Calculator, Briefcase, Languages,
-  ShieldCheck, Clock, Globe,
-  UserPlus, List, Upload, CheckCircle, Star,
+  Plane,
+  Calculator,
+  Briefcase,
+  Languages,
+  ShieldCheck,
+  Clock,
+  Globe,
+  UserPlus,
+  List,
+  Upload,
+  CheckCircle,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,22 +23,45 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "San Brothers — Trusted Partner for Global Professional Services" },
-      { name: "description", content: "Accounting, visas, translation, and business support for clients in Rwanda and worldwide." },
+      {
+        name: "description",
+        content:
+          "Accounting, visas, translation, and business support for clients in Rwanda and worldwide.",
+      },
       { property: "og:title", content: "San Brothers — Global Professional Services" },
       { property: "og:description", content: "Accounting, visas, translation, business support." },
     ],
   }),
   component: Home,
 });
-
 function Home() {
   const { t, tRaw } = useI18n();
 
   const services = [
-    { icon: Plane, title: t("services.visa"), desc: t("home.serviceDesc.visa"), href: "/services/visa" },
-    { icon: Calculator, title: t("services.accounting"), desc: t("home.serviceDesc.accounting"), href: "/services/accounting" },
-    { icon: Briefcase, title: t("services.consultancy"), desc: t("home.serviceDesc.consultancy"), href: "/services/consultancy" },
-    { icon: Languages, title: t("services.translation"), desc: t("home.serviceDesc.translation"), href: "/services/translation" },
+    {
+      icon: Plane,
+      title: t("services.visa"),
+      desc: t("home.serviceDesc.visa"),
+      href: "/services/visa",
+    },
+    {
+      icon: Calculator,
+      title: t("services.accounting"),
+      desc: t("home.serviceDesc.accounting"),
+      href: "/services/accounting",
+    },
+    {
+      icon: Briefcase,
+      title: t("services.consultancy"),
+      desc: t("home.serviceDesc.consultancy"),
+      href: "/services/consultancy",
+    },
+    {
+      icon: Languages,
+      title: t("services.translation"),
+      desc: t("home.serviceDesc.translation"),
+      href: "/services/translation",
+    },
   ];
 
   const why = [
@@ -45,7 +77,8 @@ function Home() {
     { icon: CheckCircle, title: t("home.steps.track.title"), desc: t("home.steps.track.desc") },
   ];
 
-  const testimonials = tRaw<{ quote: string; name: string; loc: string }[]>("home.testimonials") ?? [];
+  const testimonials =
+    tRaw<{ quote: string; name: string; loc: string }[]>("home.testimonials") ?? [];
   const stepLabel = t("home.stepLabel");
 
   return (
@@ -73,14 +106,59 @@ function Home() {
             <div className="relative mx-auto aspect-square w-full max-w-md">
               <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary/30 to-accent/20 blur-3xl" />
               <svg viewBox="0 0 400 400" className="relative h-full w-full">
-                <circle cx="200" cy="200" r="140" className="fill-primary/10 stroke-primary/40" strokeWidth="2" />
-                <circle cx="200" cy="200" r="90" className="fill-none stroke-primary/30" strokeWidth="2" strokeDasharray="4 6" />
-                <rect x="120" y="160" width="100" height="120" rx="8" className="fill-card stroke-border" strokeWidth="2" />
-                <line x1="135" y1="185" x2="205" y2="185" className="stroke-muted-foreground" strokeWidth="3" />
-                <line x1="135" y1="205" x2="195" y2="205" className="stroke-muted-foreground" strokeWidth="3" />
-                <line x1="135" y1="225" x2="180" y2="225" className="stroke-muted-foreground" strokeWidth="3" />
+                <circle
+                  cx="200"
+                  cy="200"
+                  r="140"
+                  className="fill-primary/10 stroke-primary/40"
+                  strokeWidth="2"
+                />
+                <circle
+                  cx="200"
+                  cy="200"
+                  r="90"
+                  className="fill-none stroke-primary/30"
+                  strokeWidth="2"
+                  strokeDasharray="4 6"
+                />
+                <rect
+                  x="120"
+                  y="160"
+                  width="100"
+                  height="120"
+                  rx="8"
+                  className="fill-card stroke-border"
+                  strokeWidth="2"
+                />
+                <line
+                  x1="135"
+                  y1="185"
+                  x2="205"
+                  y2="185"
+                  className="stroke-muted-foreground"
+                  strokeWidth="3"
+                />
+                <line
+                  x1="135"
+                  y1="205"
+                  x2="195"
+                  y2="205"
+                  className="stroke-muted-foreground"
+                  strokeWidth="3"
+                />
+                <line
+                  x1="135"
+                  y1="225"
+                  x2="180"
+                  y2="225"
+                  className="stroke-muted-foreground"
+                  strokeWidth="3"
+                />
                 <circle cx="270" cy="140" r="34" className="fill-accent/80" />
-                <path d="M255 135 Q270 125 285 135 L285 145 L275 145 L270 152 L265 145 L255 145 Z" className="fill-accent-foreground" />
+                <path
+                  d="M255 135 Q270 125 285 135 L285 145 L275 145 L270 152 L265 145 L255 145 Z"
+                  className="fill-accent-foreground"
+                />
               </svg>
             </div>
           </div>
@@ -88,7 +166,9 @@ function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-6">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">{t("home.servicesHeading")}</h2>
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+          {t("home.servicesHeading")}
+        </h2>
         <div className="mt-10 grid gap-6 md:grid-cols-2">
           {services.map((s) => (
             <Card key={s.title} className="group transition-shadow hover:shadow-md">
@@ -129,7 +209,9 @@ function Home() {
         <ol className="mt-10 grid gap-6 md:grid-cols-4">
           {steps.map((s, i) => (
             <li key={s.title} className="relative rounded-xl border border-border bg-card p-6">
-              <div className="text-xs font-semibold text-muted-foreground">{stepLabel} {i + 1}</div>
+              <div className="text-xs font-semibold text-muted-foreground">
+                {stepLabel} {i + 1}
+              </div>
               <div className="mt-3 grid h-10 w-10 place-items-center rounded-lg bg-primary text-primary-foreground">
                 <s.icon className="h-5 w-5" />
               </div>
@@ -142,13 +224,17 @@ function Home() {
 
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center md:px-6">
-          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("home.partnerHeading")}</h2>
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {t("home.partnerHeading")}
+          </h2>
           <p className="mt-4 text-muted-foreground">{t("home.partnerText")}</p>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-6">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">{t("home.testimonialsHeading")}</h2>
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+          {t("home.testimonialsHeading")}
+        </h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {testimonials.map((tt) => (
             <Card key={tt.name}>
@@ -174,7 +260,11 @@ function Home() {
         </div>
       </section>
 
-      <CtaBanner title={t("home.ctaHeading")} subtitle={t("home.ctaSubtitle")} label={t("common.getStarted")} />
+      <CtaBanner
+        title={t("home.ctaHeading")}
+        subtitle={t("home.ctaSubtitle")}
+        label={t("common.getStarted")}
+      />
     </PublicLayout>
   );
 }

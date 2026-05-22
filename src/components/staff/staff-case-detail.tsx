@@ -8,18 +8,38 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/lib/dashboard/status-badge";
 import { toast } from "sonner";
 import type { ServiceCategory } from "@/lib/types/database";
 
-const STATUSES = ["submitted", "under_review", "awaiting_client", "verified", "submitted_to_authority", "completed", "rejected", "cancelled"];
-
+const STATUSES = [
+  "submitted",
+  "under_review",
+  "awaiting_client",
+  "verified",
+  "submitted_to_authority",
+  "completed",
+  "rejected",
+  "cancelled",
+];
 interface CaseDetail {
   id: string;
   client_id: string;
@@ -29,24 +49,50 @@ interface CaseDetail {
   assigned_staff_id: string | null;
   service_category: ServiceCategory;
   created_at: string;
-  client: { id: string; full_name: string | null; email: string; phone: string | null; tin_number: string | null; city: string | null; country: string | null } | null;
+  client: {
+    id: string;
+    full_name: string | null;
+    email: string;
+    phone: string | null;
+    tin_number: string | null;
+    city: string | null;
+    country: string | null;
+  } | null;
   service: { name_en: string } | null;
 }
 
 interface Doc {
-  id: string; file_name: string; file_path: string; file_size_bytes: number | null;
-  status: string; uploaded_at: string; is_final_delivery: boolean; rejection_reason: string | null;
+  id: string;
+  file_name: string;
+  file_path: string;
+  file_size_bytes: number | null;
+  status: string;
+  uploaded_at: string;
+  is_final_delivery: boolean;
+  rejection_reason: string | null;
 }
 
-export function StaffCaseDetail({ id, category, basePath }: { id: string; category: ServiceCategory; basePath: string }) {
+export function StaffCaseDetail({
+  id,
+  category,
+  basePath,
+}: {
+  id: string;
+  category: ServiceCategory;
+  basePath: string;
+}) {
   const { user } = useAuth();
   const { hasCapability } = useCapabilities();
   const navigate = useNavigate();
   const [data, setData] = useState<CaseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [docs, setDocs] = useState<Doc[]>([]);
-  const [allRequests, setAllRequests] = useState<{ id: string; status: string; created_at: string; service: { name_en: string } | null }[]>([]);
-  const [audits, setAudits] = useState<{ id: string; action: string; created_at: string; metadata: Record<string, unknown> | null }[]>([]);
+  const [allRequests, setAllRequests] = useState<
+    { id: string; status: string; created_at: string; service: { name_en: string } | null }[]
+  >([]);
+  const [audits, setAudits] = useState<
+    { id: string; action: string; created_at: string; metadata: Record<string, unknown> | null }[]
+  >([]);
   const [notes, setNotes] = useState("");
   const [rejectDoc, setRejectDoc] = useState<Doc | null>(null);
   const [rejectReason, setRejectReason] = useState("");
@@ -55,18 +101,35 @@ export function StaffCaseDetail({ id, category, basePath }: { id: string; catego
   const load = async () => {
     setLoading(true);
     try {
-      const { data: row, error } = await supabase.from("service_requests")
-        .select("id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,client:users(id,full_name,email,phone,tin_number,city,country),service:services(name_en)")
-        .eq("id", id).single();
+      const { data: row, error } = await supabase
+        .from("service_requests")
+        .select(
+          "id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,client:users(id,full_name,email,phone,tin_number,city,country),service:services(name_en)",
+        )
+        .eq("id", id)
+        .single();
       if (error) throw error;
       setData(row as unknown as CaseDetail);
       setNotes((row as { notes: string | null }).notes ?? "");
       const clientId = (row as { client_id: string }).client_id;
 
       const [d, all, audit] = await Promise.all([
-        supabase.from("documents").select("*").eq("service_request_id", id).order("uploaded_at", { ascending: false }),
-        supabase.from("service_requests").select("id,status,created_at,service:services(name_en)").eq("client_id", clientId).order("created_at", { ascending: false }),
-        supabase.from("audit_log").select("id,action,created_at,metadata").eq("target_id", id).order("created_at", { ascending: false }).limit(50),
+        supabase
+          .from("documents")
+          .select("*")
+          .eq("service_request_id", id)
+          .order("uploaded_at", { ascending: false }),
+        supabase
+          .from("service_requests")
+          .select("id,status,created_at,service:services(name_en)")
+          .eq("client_id", clientId)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("audit_log")
+          .select("id,action,created_at,metadata")
+          .eq("target_id", id)
+          .order("created_at", { ascending: false })
+          .limit(50),
       ]);
       setDocs((d.data ?? []) as unknown as Doc[]);
       setAllRequests((all.data ?? []) as unknown as typeof allRequests);
@@ -78,56 +141,111 @@ export function StaffCaseDetail({ id, category, basePath }: { id: string; catego
     }
   };
 
-  useEffect(() => { void load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [id]);
+  useEffect(() => {
+    void load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [id]);
 
   const updateField = async (patch: Record<string, unknown>) => {
     const { error } = await supabase.from("service_requests").update(patch).eq("id", id);
-    if (error) toast.error(error.message); else { toast.success("Saved"); void load(); }
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Saved");
+      void load();
+    }
   };
 
   const assignToMe = () => user && updateField({ assigned_staff_id: user.id });
   const saveNotes = () => updateField({ notes });
 
   const verifyDoc = async (d: Doc) => {
-    const { error } = await supabase.from("documents").update({ status: "verified", verified_by: user!.id, verified_at: new Date().toISOString() }).eq("id", d.id);
-    if (error) toast.error(error.message); else { toast.success("Verified"); void load(); }
+    const { error } = await supabase
+      .from("documents")
+      .update({ status: "verified", verified_by: user!.id, verified_at: new Date().toISOString() })
+      .eq("id", d.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Verified");
+      void load();
+    }
   };
   const submitReject = async () => {
     if (!rejectDoc) return;
-    const { error } = await supabase.from("documents").update({ status: "rejected", rejection_reason: rejectReason }).eq("id", rejectDoc.id);
-    if (error) toast.error(error.message); else { toast.success("Rejected"); setRejectDoc(null); setRejectReason(""); void load(); }
+    const { error } = await supabase
+      .from("documents")
+      .update({ status: "rejected", rejection_reason: rejectReason })
+      .eq("id", rejectDoc.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Rejected");
+      setRejectDoc(null);
+      setRejectReason("");
+      void load();
+    }
   };
   const toggleFinal = async (d: Doc) => {
-    const { error } = await supabase.from("documents").update({ is_final_delivery: !d.is_final_delivery }).eq("id", d.id);
-    if (error) toast.error(error.message); else void load();
+    const { error } = await supabase
+      .from("documents")
+      .update({ is_final_delivery: !d.is_final_delivery })
+      .eq("id", d.id);
+    if (error) toast.error(error.message);
+    else void load();
   };
   const downloadDoc = async (d: Doc) => {
-    const { data: signed, error } = await supabase.storage.from("client-documents").createSignedUrl(d.file_path, 60);
-    if (error || !signed) { toast.error(error?.message ?? "Failed"); return; }
+    const { data: signed, error } = await supabase.storage
+      .from("client-documents")
+      .createSignedUrl(d.file_path, 60);
+    if (error || !signed) {
+      toast.error(error?.message ?? "Failed");
+      return;
+    }
     window.open(signed.signedUrl, "_blank");
   };
   const uploadFile = async (file: File) => {
     if (!data || !user) return;
     const path = `clients/${data.client_id}/${id}/${Date.now()}-${file.name}`;
     const { error: upErr } = await supabase.storage.from("client-documents").upload(path, file);
-    if (upErr) { toast.error(upErr.message); return; }
+    if (upErr) {
+      toast.error(upErr.message);
+      return;
+    }
     const { error: insErr } = await supabase.from("documents").insert({
-      service_request_id: id, client_id: data.client_id, uploaded_by: user.id,
-      file_path: path, file_name: file.name, file_type: file.type, file_size_bytes: file.size, status: "uploaded",
+      service_request_id: id,
+      client_id: data.client_id,
+      uploaded_by: user.id,
+      file_path: path,
+      file_name: file.name,
+      file_type: file.type,
+      file_size_bytes: file.size,
+      status: "uploaded",
     });
-    if (insErr) toast.error(insErr.message); else { toast.success("Uploaded"); void load(); }
+    if (insErr) toast.error(insErr.message);
+    else {
+      toast.success("Uploaded");
+      void load();
+    }
   };
 
   if (loading || !data) {
-    return <div className="space-y-3"><Skeleton className="h-8 w-64" /><Skeleton className="h-64 w-full" /></div>;
+    return (
+      <div className="space-y-3">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
   }
 
-  const canApprove = (category === "visa" && hasCapability("approve_visa")) || (category === "accounting" && hasCapability("approve_accounting"));
+  const canApprove =
+    (category === "visa" && hasCapability("approve_visa")) ||
+    (category === "accounting" && hasCapability("approve_accounting"));
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" asChild><Link to={basePath}><ArrowLeft className="h-4 w-4" /> Back</Link></Button>
+        <Button variant="ghost" size="sm" asChild>
+          <Link to={basePath}>
+            <ArrowLeft className="h-4 w-4" /> Back
+          </Link>
+        </Button>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-bold">{data.client?.full_name ?? "—"}</h1>
@@ -144,19 +262,32 @@ export function StaffCaseDetail({ id, category, basePath }: { id: string; catego
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <Card><CardHeader><CardTitle className="text-base">Status</CardTitle></CardHeader>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Status</CardTitle>
+            </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-wrap items-center gap-3">
                 <label className="text-sm font-medium">Change status:</label>
                 <Select value={data.status} onValueChange={(v) => updateField({ status: v })}>
-                  <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
-                  <SelectContent>{STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace(/_/g, " ")}</SelectItem>)}</SelectContent>
+                  <SelectTrigger className="w-56">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUSES.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s.replace(/_/g, " ")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
               <div className="flex items-center gap-3">
                 <label className="text-sm font-medium">Priority:</label>
                 <Select value={data.priority} onValueChange={(v) => updateField({ priority: v })}>
-                  <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="normal">Normal</SelectItem>
                     <SelectItem value="urgent">Urgent</SelectItem>
@@ -164,11 +295,21 @@ export function StaffCaseDetail({ id, category, basePath }: { id: string; catego
                 </Select>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <Button size="sm" onClick={assignToMe} disabled={data.assigned_staff_id === user?.id}>
+                <Button
+                  size="sm"
+                  onClick={assignToMe}
+                  disabled={data.assigned_staff_id === user?.id}
+                >
                   {data.assigned_staff_id === user?.id ? "Assigned to you" : "Assign to me"}
                 </Button>
                 {canApprove && (
-                  <Button size="sm" variant="default" onClick={() => updateField({ status: "verified" })}>Mark as Approved</Button>
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={() => updateField({ status: "verified" })}
+                  >
+                    Mark as Approved
+                  </Button>
                 )}
               </div>
             </CardContent>
@@ -179,75 +320,152 @@ export function StaffCaseDetail({ id, category, basePath }: { id: string; catego
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">{docs.length} document(s)</p>
             <div>
-              <input ref={fileRef} type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadFile(f); e.target.value = ""; }} />
-              <Button size="sm" onClick={() => fileRef.current?.click()}><Upload className="h-4 w-4" /> Upload on behalf of client</Button>
+              <input
+                ref={fileRef}
+                type="file"
+                aria-label="Upload document"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void uploadFile(f);
+                  e.target.value = "";
+                }}
+              />
+              <Button size="sm" onClick={() => fileRef.current?.click()}>
+                <Upload className="h-4 w-4" /> Upload on behalf of client
+              </Button>
             </div>
           </div>
           {docs.length === 0 ? (
-            <Card><CardContent className="py-8 text-center text-muted-foreground">No documents uploaded yet.</CardContent></Card>
-          ) : docs.map((d) => (
-            <Card key={d.id}>
-              <CardContent className="flex flex-wrap items-center justify-between gap-3 py-3">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{d.file_name}</p>
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                    <StatusBadge status={d.status} />
-                    {d.is_final_delivery && <Badge variant="default">Final delivery</Badge>}
-                    <span>{((d.file_size_bytes ?? 0) / 1024).toFixed(0)} KB</span>
-                    <span>{new Date(d.uploaded_at).toLocaleString()}</span>
-                  </div>
-                  {d.rejection_reason && <p className="mt-1 text-xs text-destructive">Reason: {d.rejection_reason}</p>}
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <label className="flex items-center gap-1 text-xs"><Checkbox checked={d.is_final_delivery} onCheckedChange={() => toggleFinal(d)} /> Final</label>
-                  <Button size="sm" variant="ghost" onClick={() => downloadDoc(d)}><Download className="h-4 w-4" /></Button>
-                  <Button size="sm" variant="outline" onClick={() => verifyDoc(d)} disabled={d.status === "verified"}>Verify</Button>
-                  <Button size="sm" variant="outline" onClick={() => { setRejectDoc(d); setRejectReason(""); }}>Reject</Button>
-                </div>
+            <Card>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                No documents uploaded yet.
               </CardContent>
             </Card>
-          ))}
+          ) : (
+            docs.map((d) => (
+              <Card key={d.id}>
+                <CardContent className="flex flex-wrap items-center justify-between gap-3 py-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{d.file_name}</p>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <StatusBadge status={d.status} />
+                      {d.is_final_delivery && <Badge variant="default">Final delivery</Badge>}
+                      <span>{((d.file_size_bytes ?? 0) / 1024).toFixed(0)} KB</span>
+                      <span>{new Date(d.uploaded_at).toLocaleString()}</span>
+                    </div>
+                    {d.rejection_reason && (
+                      <p className="mt-1 text-xs text-destructive">Reason: {d.rejection_reason}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="flex items-center gap-1 text-xs">
+                      <Checkbox
+                        checked={d.is_final_delivery}
+                        onCheckedChange={() => toggleFinal(d)}
+                      />{" "}
+                      Final
+                    </label>
+                    <Button size="sm" variant="ghost" onClick={() => downloadDoc(d)}>
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => verifyDoc(d)}
+                      disabled={d.status === "verified"}
+                    >
+                      Verify
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setRejectDoc(d);
+                        setRejectReason("");
+                      }}
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </TabsContent>
 
         <TabsContent value="client" className="space-y-3">
-          <Card><CardContent className="grid gap-2 pt-6 text-sm">
-            <Row k="Name" v={data.client?.full_name ?? "—"} />
-            <Row k="Email" v={data.client?.email ?? "—"} />
-            <Row k="Phone" v={data.client?.phone ?? "—"} />
-            <Row k="TIN" v={data.client?.tin_number ?? "—"} />
-            <Row k="City" v={data.client?.city ?? "—"} />
-            <Row k="Country" v={data.client?.country ?? "—"} />
-            <Button asChild size="sm" variant="link" className="justify-start px-0">
-              <Link to="/staff/clients/$id" params={{ id: data.client_id }}>View full client profile →</Link>
-            </Button>
-          </CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-base">All service requests by this client</CardTitle></CardHeader>
+          <Card>
+            <CardContent className="grid gap-2 pt-6 text-sm">
+              <Row k="Name" v={data.client?.full_name ?? "—"} />
+              <Row k="Email" v={data.client?.email ?? "—"} />
+              <Row k="Phone" v={data.client?.phone ?? "—"} />
+              <Row k="TIN" v={data.client?.tin_number ?? "—"} />
+              <Row k="City" v={data.client?.city ?? "—"} />
+              <Row k="Country" v={data.client?.country ?? "—"} />
+              <Button asChild size="sm" variant="link" className="justify-start px-0">
+                <Link to="/staff/clients/$id" params={{ id: data.client_id }}>
+                  View full client profile →
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">All service requests by this client</CardTitle>
+            </CardHeader>
             <CardContent className="space-y-2">
-              {allRequests.length === 0 ? <p className="text-sm text-muted-foreground">No other requests.</p> : allRequests.map((r) => (
-                <div key={r.id} className="flex items-center justify-between text-sm">
-                  <span>{r.service?.name_en}</span>
-                  <div className="flex items-center gap-2"><StatusBadge status={r.status} /><span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</span></div>
-                </div>
-              ))}
+              {allRequests.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No other requests.</p>
+              ) : (
+                allRequests.map((r) => (
+                  <div key={r.id} className="flex items-center justify-between text-sm">
+                    <span>{r.service?.name_en}</span>
+                    <div className="flex items-center gap-2">
+                      <StatusBadge status={r.status} />
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(r.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="notes" className="space-y-3">
-          <Card><CardHeader><CardTitle className="text-base">Internal notes</CardTitle></CardHeader>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Internal notes</CardTitle>
+            </CardHeader>
             <CardContent className="space-y-3">
-              <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={6} placeholder="Staff-only notes. Not visible to client." />
-              <Button size="sm" onClick={saveNotes}>Save notes</Button>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={6}
+                placeholder="Staff-only notes. Not visible to client."
+              />
+              <Button size="sm" onClick={saveNotes}>
+                Save notes
+              </Button>
             </CardContent>
           </Card>
-          <Card><CardHeader><CardTitle className="text-base">Activity log</CardTitle></CardHeader>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Activity log</CardTitle>
+            </CardHeader>
             <CardContent>
-              {audits.length === 0 ? <p className="text-sm text-muted-foreground">No activity recorded yet</p> : (
+              {audits.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No activity recorded yet</p>
+              ) : (
                 <ul className="space-y-2 text-sm">
                   {audits.map((a) => (
                     <li key={a.id} className="flex items-center justify-between">
                       <span>{a.action}</span>
-                      <span className="text-xs text-muted-foreground">{new Date(a.created_at).toLocaleString()}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(a.created_at).toLocaleString()}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -259,9 +477,19 @@ export function StaffCaseDetail({ id, category, basePath }: { id: string; catego
 
       <Dialog open={!!rejectDoc} onOpenChange={(o) => !o && setRejectDoc(null)}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Reject document</DialogTitle></DialogHeader>
-          <Input placeholder="Reason for rejection" value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} />
-          <DialogFooter><Button onClick={submitReject} disabled={!rejectReason}>Reject</Button></DialogFooter>
+          <DialogHeader>
+            <DialogTitle>Reject document</DialogTitle>
+          </DialogHeader>
+          <Input
+            placeholder="Reason for rejection"
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+          />
+          <DialogFooter>
+            <Button onClick={submitReject} disabled={!rejectReason}>
+              Reject
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
@@ -269,5 +497,10 @@ export function StaffCaseDetail({ id, category, basePath }: { id: string; catego
 }
 
 function Row({ k, v }: { k: string; v: string }) {
-  return <div className="grid grid-cols-3 gap-2"><span className="text-muted-foreground">{k}</span><span className="col-span-2 font-medium">{v}</span></div>;
+  return (
+    <div className="grid grid-cols-3 gap-2">
+      <span className="text-muted-foreground">{k}</span>
+      <span className="col-span-2 font-medium">{v}</span>
+    </div>
+  );
 }

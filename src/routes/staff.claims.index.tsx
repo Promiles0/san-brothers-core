@@ -11,7 +11,11 @@ import { StatusBadge } from "@/lib/dashboard/status-badge";
 export const Route = createFileRoute("/staff/claims/")({ component: Page });
 
 interface Claim {
-  id: string; status: string; reason_category: string; description: string; created_at: string;
+  id: string;
+  status: string;
+  reason_category: string;
+  description: string;
+  created_at: string;
   client: { full_name: string | null; email: string } | null;
   service_request: { id: string; service: { name_en: string } | null } | null;
 }
@@ -28,7 +32,9 @@ const LABELS: Record<string, string> = {
 function Page() {
   const { hasCapability, isLoading } = useCapabilities();
   const navigate = useNavigate();
-  useEffect(() => { if (!isLoading && !hasCapability("handle_claims")) navigate({ to: "/staff" }); }, [isLoading, hasCapability, navigate]);
+  useEffect(() => {
+    if (!isLoading && !hasCapability("handle_claims")) navigate({ to: "/staff" });
+  }, [isLoading, hasCapability, navigate]);
 
   const [tab, setTab] = useState<"open" | "under_review" | "resolved">("open");
   const [rows, setRows] = useState<Claim[]>([]);
@@ -38,12 +44,21 @@ function Page() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const { data } = await supabase.from("claims")
-        .select("id,status,reason_category,description,created_at,client:users!claims_client_id_fkey(full_name,email),service_request:service_requests(id,service:services(name_en))")
-        .eq("status", tab).order("created_at", { ascending: false });
-      if (!cancelled) { setRows((data ?? []) as unknown as Claim[]); setLoading(false); }
+      const { data } = await supabase
+        .from("claims")
+        .select(
+          "id,status,reason_category,description,created_at,client:users!claims_client_id_fkey(full_name,email),service_request:service_requests(id,service:services(name_en))",
+        )
+        .eq("status", tab)
+        .order("created_at", { ascending: false });
+      if (!cancelled) {
+        setRows((data ?? []) as unknown as Claim[]);
+        setLoading(false);
+      }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [tab]);
 
   return (
@@ -56,20 +71,44 @@ function Page() {
           <TabsTrigger value="resolved">Resolved</TabsTrigger>
         </TabsList>
       </Tabs>
-      {loading ? <Skeleton className="h-32 w-full" /> : rows.length === 0 ? (
-        <Card><CardContent className="py-12 text-center text-muted-foreground">No claims here.</CardContent></Card>
+      {loading ? (
+        <Skeleton className="h-32 w-full" />
+      ) : rows.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center text-muted-foreground">
+            No claims here.
+          </CardContent>
+        </Card>
       ) : (
         <div className="grid gap-3">
           {rows.map((c) => (
             <Card key={c.id}>
               <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium">{c.client?.full_name ?? "—"} {c.service_request?.service && <span className="text-muted-foreground">— {c.service_request.service.name_en}</span>}</p>
-                  <p className="text-sm text-muted-foreground">{LABELS[c.reason_category] ?? c.reason_category}</p>
+                  <p className="font-medium">
+                    {c.client?.full_name ?? "—"}{" "}
+                    {c.service_request?.service && (
+                      <span className="text-muted-foreground">
+                        — {c.service_request.service.name_en}
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {LABELS[c.reason_category] ?? c.reason_category}
+                  </p>
                   <p className="mt-1 line-clamp-2 text-sm">{c.description}</p>
-                  <div className="mt-1 flex items-center gap-2"><StatusBadge status={c.status} /><span className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</span></div>
+                  <div className="mt-1 flex items-center gap-2">
+                    <StatusBadge status={c.status} />
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(c.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
-                <Button asChild size="sm"><Link to="/staff/claims/$id" params={{ id: c.id }}>Review →</Link></Button>
+                <Button asChild size="sm">
+                  <Link to="/staff/claims/$id" params={{ id: c.id }}>
+                    Review →
+                  </Link>
+                </Button>
               </CardContent>
             </Card>
           ))}

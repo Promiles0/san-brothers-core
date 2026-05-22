@@ -1,7 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  Phone, FileText, Languages, Zap, MessageCircle, Headphones,
-  Scale, Globe, Users, Clock, Wallet,
+  Phone,
+  FileText,
+  Languages,
+  Zap,
+  MessageCircle,
+  Headphones,
+  Scale,
+  Globe,
+  Users,
+  Clock,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,7 +22,11 @@ export const Route = createFileRoute("/translate/")({
   head: () => ({
     meta: [
       { title: "We Speak Your Language — San Brothers Translation" },
-      { name: "description", content: "Live human translators and certified document translation, 24/7. First 5 minutes free." },
+      {
+        name: "description",
+        content:
+          "Live human translators and certified document translation, 24/7. First 5 minutes free.",
+      },
       { property: "og:title", content: "We Speak Your Language" },
       { property: "og:description", content: "Live translators available right now." },
     ],
@@ -21,33 +34,85 @@ export const Route = createFileRoute("/translate/")({
   }),
   component: TranslateHome,
 });
-
 function TranslateHome() {
   const { t } = useI18n();
 
   const steps = [
-    { icon: Languages, title: t("translate.home.steps.choose.title"), desc: t("translate.home.steps.choose.desc") },
-    { icon: Zap, title: t("translate.home.steps.match.title"), desc: t("translate.home.steps.match.desc") },
-    { icon: MessageCircle, title: t("translate.home.steps.talk.title"), desc: t("translate.home.steps.talk.desc") },
+    {
+      icon: Languages,
+      title: t("translate.home.steps.choose.title"),
+      desc: t("translate.home.steps.choose.desc"),
+    },
+    {
+      icon: Zap,
+      title: t("translate.home.steps.match.title"),
+      desc: t("translate.home.steps.match.desc"),
+    },
+    {
+      icon: MessageCircle,
+      title: t("translate.home.steps.talk.title"),
+      desc: t("translate.home.steps.talk.desc"),
+    },
   ];
 
   const offerings = [
-    { icon: Headphones, title: t("translate.home.offerings.live.title"), desc: t("translate.home.offerings.live.desc"), href: "/translate/live" },
-    { icon: FileText, title: t("translate.home.offerings.doc.title"), desc: t("translate.home.offerings.doc.desc"), href: "/translate/document" },
-    { icon: Scale, title: t("translate.home.offerings.legal.title"), desc: t("translate.home.offerings.legal.desc"), href: "/translate/document" },
-    { icon: Globe, title: t("translate.home.offerings.multi.title"), desc: t("translate.home.offerings.multi.desc"), href: "/translate/how-it-works" },
+    {
+      icon: Headphones,
+      title: t("translate.home.offerings.live.title"),
+      desc: t("translate.home.offerings.live.desc"),
+      href: "/translate/live",
+    },
+    {
+      icon: FileText,
+      title: t("translate.home.offerings.doc.title"),
+      desc: t("translate.home.offerings.doc.desc"),
+      href: "/translate/document",
+    },
+    {
+      icon: Scale,
+      title: t("translate.home.offerings.legal.title"),
+      desc: t("translate.home.offerings.legal.desc"),
+      href: "/translate/document",
+    },
+    {
+      icon: Globe,
+      title: t("translate.home.offerings.multi.title"),
+      desc: t("translate.home.offerings.multi.desc"),
+      href: "/translate/how-it-works",
+    },
   ];
 
   const why = [
-    { icon: Users, title: t("translate.home.why.human.title"), desc: t("translate.home.why.human.desc") },
-    { icon: Clock, title: t("translate.home.why.always.title"), desc: t("translate.home.why.always.desc") },
-    { icon: Wallet, title: t("translate.home.why.pay.title"), desc: t("translate.home.why.pay.desc") },
+    {
+      icon: Users,
+      title: t("translate.home.why.human.title"),
+      desc: t("translate.home.why.human.desc"),
+    },
+    {
+      icon: Clock,
+      title: t("translate.home.why.always.title"),
+      desc: t("translate.home.why.always.desc"),
+    },
+    {
+      icon: Wallet,
+      title: t("translate.home.why.pay.title"),
+      desc: t("translate.home.why.pay.desc"),
+    },
   ];
 
   const scenarios = [
-    { scenario: t("translate.home.scenarios.airport.scenario"), solution: t("translate.home.scenarios.airport.solution") },
-    { scenario: t("translate.home.scenarios.diploma.scenario"), solution: t("translate.home.scenarios.diploma.solution") },
-    { scenario: t("translate.home.scenarios.business.scenario"), solution: t("translate.home.scenarios.business.solution") },
+    {
+      scenario: t("translate.home.scenarios.airport.scenario"),
+      solution: t("translate.home.scenarios.airport.solution"),
+    },
+    {
+      scenario: t("translate.home.scenarios.diploma.scenario"),
+      solution: t("translate.home.scenarios.diploma.solution"),
+    },
+    {
+      scenario: t("translate.home.scenarios.business.scenario"),
+      solution: t("translate.home.scenarios.business.solution"),
+    },
   ];
 
   return (
@@ -79,18 +144,25 @@ function TranslateHome() {
           </div>
           <p className="mt-5 text-sm text-muted-foreground">{t("translate.home.hero.note")}</p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
-            <span>🇬🇧 EN</span><span className="text-border">·</span>
-            <span>🇨🇳 中文</span><span className="text-border">·</span>
-            <span>🇷🇼 RW</span><span className="text-border">·</span>
-            <span>🇫🇷 FR</span><span className="text-border">·</span>
-            <span>🇸🇦 AR</span><span className="text-border">·</span>
+            <span>🇬🇧 EN</span>
+            <span className="text-border">·</span>
+            <span>🇨🇳 中文</span>
+            <span className="text-border">·</span>
+            <span>🇷🇼 RW</span>
+            <span className="text-border">·</span>
+            <span>🇫🇷 FR</span>
+            <span className="text-border">·</span>
+            <span>🇸🇦 AR</span>
+            <span className="text-border">·</span>
             <span className="text-muted-foreground">{t("translate.home.hero.morePlus")}</span>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-6">
-        <h2 className="text-center text-3xl font-bold tracking-tight md:text-4xl">{t("translate.home.howHeading")}</h2>
+        <h2 className="text-center text-3xl font-bold tracking-tight md:text-4xl">
+          {t("translate.home.howHeading")}
+        </h2>
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {steps.map((s, i) => (
             <Card key={s.title} className="text-center">
@@ -111,7 +183,9 @@ function TranslateHome() {
 
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-6">
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">{t("translate.home.offeringsHeading")}</h2>
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+            {t("translate.home.offeringsHeading")}
+          </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             {offerings.map((o) => (
               <Card key={o.title}>
@@ -122,7 +196,10 @@ function TranslateHome() {
                   <div>
                     <h3 className="text-lg font-semibold">{o.title}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">{o.desc}</p>
-                    <a href={o.href} className="mt-3 inline-block text-sm font-medium text-primary hover:underline">
+                    <a
+                      href={o.href}
+                      className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
+                    >
                       {t("common.learnMore")} →
                     </a>
                   </div>
@@ -149,7 +226,9 @@ function TranslateHome() {
 
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-6">
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">{t("translate.home.scenariosHeading")}</h2>
+          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+            {t("translate.home.scenariosHeading")}
+          </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {scenarios.map((s, i) => (
               <Card key={i}>

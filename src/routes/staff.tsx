@@ -20,7 +20,7 @@ function StaffLayoutRoute() {
       return;
     }
     if (profile && profile.role === "client") {
-      navigate({ to: "/dashboard" });
+      navigate({ to: "/dashboard", search: {} as never });
     }
   }, [loading, user, profile, navigate]);
 

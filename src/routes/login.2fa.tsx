@@ -23,9 +23,8 @@ function TwoFactorPage() {
     await new Promise((r) => setTimeout(r, 400));
     setSubmitting(false);
     toast.success(t("auth.twofa.verified"));
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/dashboard", search: {} as never });
   };
-
   const onResend = () => {
     // TODO: implement code resend when real 2FA is wired
     toast.info(t("auth.twofa.resentToast"));
@@ -47,7 +46,9 @@ function TwoFactorPage() {
       <div className="flex flex-col items-center gap-4">
         <InputOTP maxLength={6} value={code} onChange={setCode}>
           <InputOTPGroup>
-            {[0, 1, 2, 3, 4, 5].map((i) => <InputOTPSlot key={i} index={i} />)}
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <InputOTPSlot key={i} index={i} />
+            ))}
           </InputOTPGroup>
         </InputOTP>
         <Button onClick={onVerify} disabled={code.length !== 6 || submitting} className="w-full">

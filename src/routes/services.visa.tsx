@@ -6,12 +6,14 @@ export const Route = createFileRoute("/services/visa")({
   head: () => ({
     meta: [
       { title: "Visa & Permit Facilitation — San Brothers" },
-      { name: "description", content: "Tourist, business, student visas and work permits handled end to end." },
+      {
+        name: "description",
+        content: "Tourist, business, student visas and work permits handled end to end.",
+      },
     ],
   }),
   component: VisaPage,
 });
-
 function VisaPage() {
   const { t, tRaw } = useI18n();
   const subKeys = [

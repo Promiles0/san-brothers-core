@@ -12,7 +12,7 @@ export const readSsrPrefs = createIsomorphicFn()
       return m ? decodeURIComponent(m[1]) : null;
     };
     return {
-      theme: ((read("theme") ?? "system") as SsrPrefs["theme"]),
+      theme: (read("theme") ?? "system") as SsrPrefs["theme"],
       locale: read("sb-locale") ?? "en",
     };
   });

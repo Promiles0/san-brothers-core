@@ -12,17 +12,20 @@ export const Route = createFileRoute("/translate/document")({
       { title: "Document Translation — We Speak Your Language" },
       { name: "description", content: "Upload it. We translate it. You get it back." },
       { property: "og:title", content: "Document Translation" },
-      { property: "og:description", content: "Professional human translation of personal, business and legal documents." },
+      {
+        property: "og:description",
+        content: "Professional human translation of personal, business and legal documents.",
+      },
     ],
     links: [{ rel: "canonical", href: "/translate/document" }],
   }),
   component: DocumentPage,
 });
-
 function DocumentPage() {
   const { t, tRaw } = useI18n();
   const items = tRaw<string[]>("translate.document.items") ?? [];
-  const turnaround = tRaw<{ label: string; time: string }[]>("translate.document.turnaround.rows") ?? [];
+  const turnaround =
+    tRaw<{ label: string; time: string }[]>("translate.document.turnaround.rows") ?? [];
   const formats = tRaw<string[]>("translate.document.formats.list") ?? [];
 
   const flow = [
@@ -50,7 +53,9 @@ function DocumentPage() {
 
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-5xl px-4 py-16 md:px-6">
-          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("translate.document.itemsHeading")}</h2>
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {t("translate.document.itemsHeading")}
+          </h2>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {items.map((it, i) => (
               <li key={i} className="flex items-start gap-3">
@@ -63,7 +68,9 @@ function DocumentPage() {
       </section>
 
       <section className="mx-auto max-w-5xl px-4 py-16 md:px-6">
-        <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("translate.document.turnaround.heading")}</h2>
+        <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+          {t("translate.document.turnaround.heading")}
+        </h2>
         <div className="mt-6 overflow-hidden rounded-xl border border-border">
           <table className="w-full text-sm">
             <tbody className="divide-y divide-border">
@@ -80,10 +87,14 @@ function DocumentPage() {
 
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-5xl px-4 py-16 md:px-6">
-          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{t("translate.document.formats.heading")}</h2>
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {t("translate.document.formats.heading")}
+          </h2>
           <div className="mt-6 flex flex-wrap gap-3">
             {formats.map((f) => (
-              <Card key={f}><CardContent className="px-5 py-3 text-sm font-medium">{f}</CardContent></Card>
+              <Card key={f}>
+                <CardContent className="px-5 py-3 text-sm font-medium">{f}</CardContent>
+              </Card>
             ))}
           </div>
         </div>

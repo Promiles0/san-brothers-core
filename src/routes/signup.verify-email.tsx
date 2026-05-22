@@ -17,7 +17,10 @@ export const Route = createFileRoute("/signup/verify-email")({
 
 function VerifyEmailPage() {
   const { t } = useI18n();
-  const { email, intent } = useSearch({ from: "/signup/verify-email" }) as { email: string; intent?: string };
+  const { email, intent } = useSearch({ from: "/signup/verify-email" }) as {
+    email: string;
+    intent?: string;
+  };
   const { resendVerification } = useAuth();
   const [cooldown, setCooldown] = useState(0);
 
@@ -42,11 +45,19 @@ function VerifyEmailPage() {
           <MailCheck className="h-7 w-7 text-primary" />
         </div>
         <p className="text-sm text-muted-foreground">
-          {t("auth.verifyEmail.body")} <span className="font-medium text-foreground">{email}</span>. {t("auth.verifyEmail.body2")}
+          {t("auth.verifyEmail.body")} <span className="font-medium text-foreground">{email}</span>.{" "}
+          {t("auth.verifyEmail.body2")}
         </p>
         <p className="mt-4 text-xs text-muted-foreground">{t("auth.verifyEmail.spamHint")}</p>
-        <Button onClick={onResend} disabled={cooldown > 0 || !email} className="mt-3 w-full" variant="outline">
-          {cooldown > 0 ? `${t("auth.verifyEmail.resend")} (${cooldown}s)` : t("auth.verifyEmail.resend")}
+        <Button
+          onClick={onResend}
+          disabled={cooldown > 0 || !email}
+          className="mt-3 w-full"
+          variant="outline"
+        >
+          {cooldown > 0
+            ? `${t("auth.verifyEmail.resend")} (${cooldown}s)`
+            : t("auth.verifyEmail.resend")}
         </Button>
         <Link
           to="/signup"
