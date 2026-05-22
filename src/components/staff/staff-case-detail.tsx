@@ -56,6 +56,9 @@ interface CaseDetail {
   assigned_staff_id: string | null;
   service_category: ServiceCategory;
   created_at: string;
+  authority_name?: string | null;
+  authority_ref?: string | null;
+  authority_notes?: string | null;
   client: {
     id: string;
     full_name: string | null;
@@ -66,6 +69,13 @@ interface CaseDetail {
     country: string | null;
   } | null;
   service: { name_en: string } | null;
+}
+
+interface StaffMember {
+  id: string;
+  full_name: string | null;
+  email: string;
+  role: string;
 }
 
 interface Doc {
