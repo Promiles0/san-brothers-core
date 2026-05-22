@@ -1,10 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { TranslateLayout } from "@/components/layout/translate-layout";
 import { TranslateCta } from "@/components/marketing/translate-cta";
 import { PageHero } from "@/components/marketing/page-sections";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Check, PhoneCall } from "lucide-react";
 import { useI18n } from "@/lib/providers/i18n-provider";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/translate/live")({
   head: () => ({
