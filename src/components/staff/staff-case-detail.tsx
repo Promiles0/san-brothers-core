@@ -204,7 +204,69 @@ export function StaffCaseDetail({
   };
 
   const assignToMe = () => user && updateField({ assigned_staff_id: user.id });
+  const reassignTo = (staffId: string) => updateField({ assigned_staff_id: staffId });
   const saveNotes = () => updateField({ notes });
+
+  const changeStatus = async (
+    newStatus: string,
+    extra: Record<string, unknown> = {},
+    successMsg = "Status updated",
+  ) => {
+    if (!data || !user) return;
+    const oldStatus = data.status;
+    const { error } = await supabase
+      .from("service_requests")
+      .update({ status: newStatus, ...extra })
+      .eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    await supabase.from("audit_log").insert({
+      action: "status_changed",
+      target_id: id,
+      target_type: "service_request",
+      metadata: { from: oldStatus, to: newStatus, ...extra },
+      performed_by: user.id,
+    });
+    toast.success(successMsg);
+    void load();
+  };
+
+  const submitToAuthority = async () => {
+    if (!authName.trim()) {
+      toast.error("Authority name is required");
+      return;
+    }
+    await changeStatus(
+      "submitted_to_authority",
+      {
+        submitted_to_authority_at: new Date().toISOString(),
+        authority_name: authName.trim(),
+        authority_ref: authRef.trim() || null,
+        authority_notes: authNotes.trim() || null,
+      },
+      "Submitted to authority",
+    );
+    setSubmitAuthOpen(false);
+    setAuthName("");
+    setAuthRef("");
+    setAuthNotes("");
+  };
+
+  const rejectCase = async () => {
+    if (!rejectCaseReason.trim()) {
+      toast.error("Reason required");
+      return;
+    }
+    await changeStatus(
+      "rejected",
+      { rejection_reason: rejectCaseReason.trim() },
+      "Case rejected",
+    );
+    setRejectCaseOpen(false);
+    setRejectCaseReason("");
+  };
 
   const verifyDoc = async (d: Doc) => {
     const { error } = await supabase
