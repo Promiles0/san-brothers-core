@@ -159,12 +159,36 @@ export function StaffCaseDetail({
       setDocs((d.data ?? []) as unknown as Doc[]);
       setAllRequests((all.data ?? []) as unknown as typeof allRequests);
       setAudits((audit.data ?? []) as typeof audits);
+
+      const assignedId = (row as { assigned_staff_id: string | null }).assigned_staff_id;
+      if (assignedId) {
+        const { data: a } = await supabase
+          .from("users")
+          .select("full_name,email")
+          .eq("id", assignedId)
+          .maybeSingle();
+        setAssigneeName((a?.full_name as string) || (a?.email as string) || "Unknown");
+      } else {
+        setAssigneeName("");
+      }
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!isManager) return;
+    void (async () => {
+      const { data: list } = await supabase
+        .from("users")
+        .select("id,full_name,email,role")
+        .neq("role", "client")
+        .order("full_name");
+      setStaffList((list ?? []) as StaffMember[]);
+    })();
+  }, [isManager]);
 
   useEffect(() => {
     void load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */
