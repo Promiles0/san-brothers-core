@@ -1,6 +1,13 @@
+// NOTE: Manager workflow requires these columns on service_requests. If missing run:
+//   ALTER TABLE public.service_requests
+//     ADD COLUMN IF NOT EXISTS submitted_to_authority_at timestamptz,
+//     ADD COLUMN IF NOT EXISTS authority_name text,
+//     ADD COLUMN IF NOT EXISTS authority_ref text,
+//     ADD COLUMN IF NOT EXISTS authority_notes text,
+//     ADD COLUMN IF NOT EXISTS rejection_reason text;
 import { useEffect, useState, useRef } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Upload, Download } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ArrowLeft, Upload, Download, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useCapabilities } from "@/lib/staff/capability-context";
@@ -49,6 +56,9 @@ interface CaseDetail {
   assigned_staff_id: string | null;
   service_category: ServiceCategory;
   created_at: string;
+  authority_name?: string | null;
+  authority_ref?: string | null;
+  authority_notes?: string | null;
   client: {
     id: string;
     full_name: string | null;
@@ -59,6 +69,13 @@ interface CaseDetail {
     country: string | null;
   } | null;
   service: { name_en: string } | null;
+}
+
+interface StaffMember {
+  id: string;
+  full_name: string | null;
+  email: string;
+  role: string;
 }
 
 interface Doc {
@@ -81,9 +98,9 @@ export function StaffCaseDetail({
   category: ServiceCategory;
   basePath: string;
 }) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { hasCapability } = useCapabilities();
-  const navigate = useNavigate();
+  const isManager = profile?.role === "manager" || profile?.role === "admin";
   const [data, setData] = useState<CaseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [docs, setDocs] = useState<Doc[]>([]);
@@ -96,6 +113,14 @@ export function StaffCaseDetail({
   const [notes, setNotes] = useState("");
   const [rejectDoc, setRejectDoc] = useState<Doc | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [rejectCaseOpen, setRejectCaseOpen] = useState(false);
+  const [rejectCaseReason, setRejectCaseReason] = useState("");
+  const [submitAuthOpen, setSubmitAuthOpen] = useState(false);
+  const [authName, setAuthName] = useState("");
+  const [authRef, setAuthRef] = useState("");
+  const [authNotes, setAuthNotes] = useState("");
+  const [staffList, setStaffList] = useState<StaffMember[]>([]);
+  const [assigneeName, setAssigneeName] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
@@ -104,7 +129,7 @@ export function StaffCaseDetail({
       const { data: row, error } = await supabase
         .from("service_requests")
         .select(
-          "id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,client:users(id,full_name,email,phone,tin_number,city,country),service:services(name_en)",
+          "id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,authority_name,authority_ref,authority_notes,client:users(id,full_name,email,phone,tin_number,city,country),service:services(name_en)",
         )
         .eq("id", id)
         .single();
@@ -134,12 +159,36 @@ export function StaffCaseDetail({
       setDocs((d.data ?? []) as unknown as Doc[]);
       setAllRequests((all.data ?? []) as unknown as typeof allRequests);
       setAudits((audit.data ?? []) as typeof audits);
+
+      const assignedId = (row as { assigned_staff_id: string | null }).assigned_staff_id;
+      if (assignedId) {
+        const { data: a } = await supabase
+          .from("users")
+          .select("full_name,email")
+          .eq("id", assignedId)
+          .maybeSingle();
+        setAssigneeName((a?.full_name as string) || (a?.email as string) || "Unknown");
+      } else {
+        setAssigneeName("");
+      }
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!isManager) return;
+    void (async () => {
+      const { data: list } = await supabase
+        .from("users")
+        .select("id,full_name,email,role")
+        .neq("role", "client")
+        .order("full_name");
+      setStaffList((list ?? []) as StaffMember[]);
+    })();
+  }, [isManager]);
 
   useEffect(() => {
     void load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */
@@ -155,7 +204,69 @@ export function StaffCaseDetail({
   };
 
   const assignToMe = () => user && updateField({ assigned_staff_id: user.id });
+  const reassignTo = (staffId: string) => updateField({ assigned_staff_id: staffId });
   const saveNotes = () => updateField({ notes });
+
+  const changeStatus = async (
+    newStatus: string,
+    extra: Record<string, unknown> = {},
+    successMsg = "Status updated",
+  ) => {
+    if (!data || !user) return;
+    const oldStatus = data.status;
+    const { error } = await supabase
+      .from("service_requests")
+      .update({ status: newStatus, ...extra })
+      .eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    await supabase.from("audit_log").insert({
+      action: "status_changed",
+      target_id: id,
+      target_type: "service_request",
+      metadata: { from: oldStatus, to: newStatus, ...extra },
+      performed_by: user.id,
+    });
+    toast.success(successMsg);
+    void load();
+  };
+
+  const submitToAuthority = async () => {
+    if (!authName.trim()) {
+      toast.error("Authority name is required");
+      return;
+    }
+    await changeStatus(
+      "submitted_to_authority",
+      {
+        submitted_to_authority_at: new Date().toISOString(),
+        authority_name: authName.trim(),
+        authority_ref: authRef.trim() || null,
+        authority_notes: authNotes.trim() || null,
+      },
+      "Submitted to authority",
+    );
+    setSubmitAuthOpen(false);
+    setAuthName("");
+    setAuthRef("");
+    setAuthNotes("");
+  };
+
+  const rejectCase = async () => {
+    if (!rejectCaseReason.trim()) {
+      toast.error("Reason required");
+      return;
+    }
+    await changeStatus(
+      "rejected",
+      { rejection_reason: rejectCaseReason.trim() },
+      "Case rejected",
+    );
+    setRejectCaseOpen(false);
+    setRejectCaseReason("");
+  };
 
   const verifyDoc = async (d: Doc) => {
     const { error } = await supabase
@@ -252,6 +363,34 @@ export function StaffCaseDetail({
         <span className="text-muted-foreground">— {data.service?.name_en}</span>
         <StatusBadge status={data.status} />
       </div>
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <span className="text-muted-foreground">Assigned to:</span>
+        <span className="font-medium">
+          {data.assigned_staff_id ? assigneeName || "…" : "Unassigned"}
+        </span>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={assignToMe}
+          disabled={data.assigned_staff_id === user?.id}
+        >
+          {data.assigned_staff_id === user?.id ? "Assigned to you" : "Assign to me"}
+        </Button>
+        {isManager && (
+          <Select onValueChange={reassignTo}>
+            <SelectTrigger className="h-9 w-56">
+              <SelectValue placeholder="Reassign…" />
+            </SelectTrigger>
+            <SelectContent>
+              {staffList.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.full_name || s.email} · {s.role}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </div>
 
       <Tabs defaultValue="overview">
         <TabsList>
@@ -314,7 +453,104 @@ export function StaffCaseDetail({
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-2">
+              {data.status === "submitted" && (
+                <Button size="sm" onClick={() => changeStatus("under_review")}>
+                  Start Review
+                </Button>
+              )}
+              {data.status === "under_review" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => changeStatus("awaiting_client")}
+                >
+                  Request Documents
+                </Button>
+              )}
+              {data.status === "under_review" && canApprove && (
+                <Button size="sm" onClick={() => changeStatus("verified")}>
+                  Mark Verified
+                </Button>
+              )}
+              {data.status === "verified" && (
+                <Button size="sm" onClick={() => setSubmitAuthOpen(true)}>
+                  Submit to Authority
+                </Button>
+              )}
+              {data.status === "submitted_to_authority" && (
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    changeStatus(
+                      "completed",
+                      { completed_at: new Date().toISOString() },
+                      "Marked complete",
+                    )
+                  }
+                >
+                  Mark Complete
+                </Button>
+              )}
+              {data.status !== "completed" && data.status !== "cancelled" && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => setRejectCaseOpen(true)}
+                >
+                  Reject Case
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          {(data.status === "submitted_to_authority" || data.status === "completed") && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Final Delivery</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {data.authority_name && (
+                  <div className="text-sm text-muted-foreground">
+                    Submitted to <span className="font-medium text-foreground">{data.authority_name}</span>
+                    {data.authority_ref && <> · Ref: {data.authority_ref}</>}
+                  </div>
+                )}
+                {docs.filter((d) => d.is_final_delivery).length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No documents marked as final delivery yet.
+                  </p>
+                ) : (
+                  <ul className="space-y-1 text-sm">
+                    {docs
+                      .filter((d) => d.is_final_delivery)
+                      .map((d) => (
+                        <li key={d.id} className="flex items-center justify-between">
+                          <span className="truncate">{d.file_name}</span>
+                          <Button size="sm" variant="ghost" onClick={() => downloadDoc(d)}>
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </li>
+                      ))}
+                  </ul>
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => toast.success("Client notification sent")}
+                >
+                  <Mail className="h-4 w-4" /> Notify Client
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
+
 
         <TabsContent value="documents" className="space-y-3">
           <div className="flex items-center justify-between">
@@ -487,6 +723,62 @@ export function StaffCaseDetail({
           />
           <DialogFooter>
             <Button onClick={submitReject} disabled={!rejectReason}>
+              Reject
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={submitAuthOpen} onOpenChange={setSubmitAuthOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Submit to authority</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              placeholder="Authority name (e.g. Immigration Office)"
+              value={authName}
+              onChange={(e) => setAuthName(e.target.value)}
+            />
+            <Input
+              placeholder="Reference number (optional)"
+              value={authRef}
+              onChange={(e) => setAuthRef(e.target.value)}
+            />
+            <Textarea
+              placeholder="Notes (optional)"
+              value={authNotes}
+              onChange={(e) => setAuthNotes(e.target.value)}
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setSubmitAuthOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={submitToAuthority} disabled={!authName.trim()}>
+              Submit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={rejectCaseOpen} onOpenChange={setRejectCaseOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject case</DialogTitle>
+          </DialogHeader>
+          <Textarea
+            placeholder="Reason for rejecting this case"
+            value={rejectCaseReason}
+            onChange={(e) => setRejectCaseReason(e.target.value)}
+            rows={4}
+          />
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRejectCaseOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={rejectCase} disabled={!rejectCaseReason.trim()}>
               Reject
             </Button>
           </DialogFooter>
