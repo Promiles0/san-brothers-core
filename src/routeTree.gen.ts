@@ -35,6 +35,7 @@ import { Route as StaffTranslationRouteImport } from './routes/staff.translation
 import { Route as StaffSettingsRouteImport } from './routes/staff.settings'
 import { Route as StaffReportsRouteImport } from './routes/staff.reports'
 import { Route as StaffConsultancyRouteImport } from './routes/staff.consultancy'
+import { Route as StaffAdminRouteImport } from './routes/staff.admin'
 import { Route as StaffAccountingRouteImport } from './routes/staff.accounting'
 import { Route as SignupVerifyEmailRouteImport } from './routes/signup.verify-email'
 import { Route as ServicesVisaRouteImport } from './routes/services.visa'
@@ -194,6 +195,11 @@ const StaffReportsRoute = StaffReportsRouteImport.update({
 const StaffConsultancyRoute = StaffConsultancyRouteImport.update({
   id: '/consultancy',
   path: '/consultancy',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffAdminRoute = StaffAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => StaffRoute,
 } as any)
 const StaffAccountingRoute = StaffAccountingRouteImport.update({
@@ -375,6 +381,7 @@ export interface FileRoutesByFullPath {
   '/services/visa': typeof ServicesVisaRoute
   '/signup/verify-email': typeof SignupVerifyEmailRoute
   '/staff/accounting': typeof StaffAccountingRouteWithChildren
+  '/staff/admin': typeof StaffAdminRoute
   '/staff/consultancy': typeof StaffConsultancyRouteWithChildren
   '/staff/reports': typeof StaffReportsRoute
   '/staff/settings': typeof StaffSettingsRoute
@@ -431,6 +438,7 @@ export interface FileRoutesByTo {
   '/services/visa': typeof ServicesVisaRoute
   '/signup/verify-email': typeof SignupVerifyEmailRoute
   '/staff/accounting': typeof StaffAccountingRouteWithChildren
+  '/staff/admin': typeof StaffAdminRoute
   '/staff/consultancy': typeof StaffConsultancyRouteWithChildren
   '/staff/reports': typeof StaffReportsRoute
   '/staff/settings': typeof StaffSettingsRoute
@@ -490,6 +498,7 @@ export interface FileRoutesById {
   '/services/visa': typeof ServicesVisaRoute
   '/signup/verify-email': typeof SignupVerifyEmailRoute
   '/staff/accounting': typeof StaffAccountingRouteWithChildren
+  '/staff/admin': typeof StaffAdminRoute
   '/staff/consultancy': typeof StaffConsultancyRouteWithChildren
   '/staff/reports': typeof StaffReportsRoute
   '/staff/settings': typeof StaffSettingsRoute
@@ -550,6 +559,7 @@ export interface FileRouteTypes {
     | '/services/visa'
     | '/signup/verify-email'
     | '/staff/accounting'
+    | '/staff/admin'
     | '/staff/consultancy'
     | '/staff/reports'
     | '/staff/settings'
@@ -606,6 +616,7 @@ export interface FileRouteTypes {
     | '/services/visa'
     | '/signup/verify-email'
     | '/staff/accounting'
+    | '/staff/admin'
     | '/staff/consultancy'
     | '/staff/reports'
     | '/staff/settings'
@@ -664,6 +675,7 @@ export interface FileRouteTypes {
     | '/services/visa'
     | '/signup/verify-email'
     | '/staff/accounting'
+    | '/staff/admin'
     | '/staff/consultancy'
     | '/staff/reports'
     | '/staff/settings'
@@ -906,6 +918,13 @@ declare module '@tanstack/react-router' {
       path: '/consultancy'
       fullPath: '/staff/consultancy'
       preLoaderRoute: typeof StaffConsultancyRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/admin': {
+      id: '/staff/admin'
+      path: '/admin'
+      fullPath: '/staff/admin'
+      preLoaderRoute: typeof StaffAdminRouteImport
       parentRoute: typeof StaffRoute
     }
     '/staff/accounting': {
@@ -1226,6 +1245,7 @@ const StaffVisaRouteWithChildren = StaffVisaRoute._addFileChildren(
 
 interface StaffRouteChildren {
   StaffAccountingRoute: typeof StaffAccountingRouteWithChildren
+  StaffAdminRoute: typeof StaffAdminRoute
   StaffConsultancyRoute: typeof StaffConsultancyRouteWithChildren
   StaffReportsRoute: typeof StaffReportsRoute
   StaffSettingsRoute: typeof StaffSettingsRoute
@@ -1241,6 +1261,7 @@ interface StaffRouteChildren {
 
 const StaffRouteChildren: StaffRouteChildren = {
   StaffAccountingRoute: StaffAccountingRouteWithChildren,
+  StaffAdminRoute: StaffAdminRoute,
   StaffConsultancyRoute: StaffConsultancyRouteWithChildren,
   StaffReportsRoute: StaffReportsRoute,
   StaffSettingsRoute: StaffSettingsRoute,
