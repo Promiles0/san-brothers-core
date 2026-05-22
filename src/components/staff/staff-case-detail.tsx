@@ -88,7 +88,7 @@ export function StaffCaseDetail({
   category: ServiceCategory;
   basePath: string;
 }) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { hasCapability } = useCapabilities();
   const isManager = profile?.role === "manager" || profile?.role === "admin";
   const [data, setData] = useState<CaseDetail | null>(null);
