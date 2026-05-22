@@ -26,14 +26,27 @@ export const Route = createFileRoute("/translate/live")({
 
 function LivePage() {
   const { t, tRaw } = useI18n();
+  const { user } = useAuth();
   const howSteps = tRaw<string[]>("translate.live.how.steps") ?? [];
   const useCases = tRaw<string[]>("translate.live.uses.items") ?? [];
   const trialPoints = tRaw<string[]>("translate.live.trial.points") ?? [];
   const pricingPoints = tRaw<string[]>("translate.live.pricing.points") ?? [];
 
+  const startHref = user ? "/translate/live/session" : "/login?intent=interpreter";
+
   return (
     <TranslateLayout>
       <PageHero title={t("translate.live.title")} subtitle={t("translate.live.subtitle")} />
+
+      <div className="mx-auto -mt-6 flex max-w-4xl justify-center px-4 md:px-6">
+        <Button size="lg" className="h-14 px-10 text-base" asChild>
+          <Link to={startHref}>
+            <PhoneCall className="h-5 w-5" />
+            Start Session
+          </Link>
+        </Button>
+      </div>
+
 
       <section className="mx-auto max-w-4xl px-4 py-16 md:px-6">
         <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
