@@ -40,11 +40,12 @@ function LivePage() {
 
       <div className="mx-auto -mt-6 flex max-w-4xl justify-center px-4 md:px-6">
         <Button size="lg" className="h-14 px-10 text-base" asChild>
-          <Link to={startHref}>
+          <a href={startHref}>
             <PhoneCall className="h-5 w-5" />
             Start Session
-          </Link>
+          </a>
         </Button>
+
       </div>
 
 
