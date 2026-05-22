@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { TranslateLayout } from "@/components/layout/translate-layout";
 import { TranslateCta } from "@/components/marketing/translate-cta";
 import { PageHero } from "@/components/marketing/page-sections";
