@@ -129,7 +129,7 @@ export function StaffCaseDetail({
       const { data: row, error } = await supabase
         .from("service_requests")
         .select(
-          "id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,client:users(id,full_name,email,phone,tin_number,city,country),service:services(name_en)",
+          "id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,authority_name,authority_ref,authority_notes,client:users(id,full_name,email,phone,tin_number,city,country),service:services(name_en)",
         )
         .eq("id", id)
         .single();
