@@ -11,6 +11,7 @@ import {
   BarChart2,
   Settings,
   LogOut,
+  MessageCircle,
   type LucideIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +25,7 @@ interface Item {
   icon: LucideIcon;
   to?: string;
   cap?: Capability;
-  badgeKey?: "unassignedVisa" | "unassignedAccounting" | "openClaims";
+  badgeKey?: "unassignedVisa" | "unassignedAccounting" | "openClaims" | "unreadMessages";
   action?: "logout";
   intent?: "destructive";
 }
