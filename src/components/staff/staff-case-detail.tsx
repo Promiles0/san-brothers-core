@@ -497,6 +497,14 @@ export function StaffCaseDetail({
             </CardContent>
           </Card>
 
+          <PaymentCard
+            serviceRequestId={data.id}
+            clientId={data.client_id}
+            actorId={user?.id ?? null}
+          />
+
+
+
           {(data.status === "submitted_to_authority" || data.status === "completed") && (
             <Card>
               <CardHeader>
