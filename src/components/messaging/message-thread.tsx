@@ -181,9 +181,8 @@ export function MessageThread({
                 </div>
               );
             })
-          )}
-        </div>
-      </ScrollArea>
+        )}
+      </div>
       <form
         onSubmit={(e) => {
           e.preventDefault();
