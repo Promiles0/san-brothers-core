@@ -33,6 +33,9 @@ function DashboardHome() {
   const { intent } = useSearch({ from: "/dashboard/" });
   const [active, setActive] = useState<ActiveService[] | null>(null);
   const [counts, setCounts] = useState({ docs: 0, messages: 0 });
+  const [expiring, setExpiring] = useState<
+    { id: string; visa_expiry_date: string; services: { name_en: string } | null }[]
+  >([]);
 
   useEffect(() => {
     if (!user) return;
@@ -57,6 +60,21 @@ function DashboardHome() {
         .select("id", { count: "exact", head: true })
         .eq("client_id", user.id);
       setCounts({ docs: count ?? 0, messages: 0 });
+
+      try {
+        const horizon = new Date();
+        horizon.setDate(horizon.getDate() + 90);
+        const { data: exp } = await supabase
+          .from("service_requests")
+          .select("id,visa_expiry_date,services(name_en)")
+          .eq("client_id", user.id)
+          .not("visa_expiry_date", "is", null)
+          .lte("visa_expiry_date", horizon.toISOString().slice(0, 10))
+          .order("visa_expiry_date", { ascending: true });
+        setExpiring((exp ?? []) as unknown as typeof expiring);
+      } catch {
+        setExpiring([]);
+      }
     })();
   }, [user]);
 
