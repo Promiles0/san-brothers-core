@@ -37,6 +37,7 @@ import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/lib/dashboard/status-badge";
 import { toast } from "sonner";
 import type { ServiceCategory } from "@/lib/types/database";
+import { MessageThread } from "@/components/messaging/message-thread";
 
 const STATUSES = [
   "submitted",
