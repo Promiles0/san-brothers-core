@@ -57,6 +57,7 @@ const items: Item[] = [
     badgeKey: "openClaims",
   },
   { label: "Reports", icon: BarChart2, to: "/staff/reports", cap: "view_financial_reports" },
+  { label: "Messages", icon: MessageCircle, to: "/staff/messages", badgeKey: "unreadMessages" },
   { label: "Admin", icon: ShieldAlert, to: "/staff/admin", cap: "manage_staff" },
   { label: "Settings", icon: Settings, to: "/staff/settings" },
   { label: "Log out", icon: LogOut, action: "logout", intent: "destructive" },
