@@ -31,7 +31,7 @@ interface ClaimDetail {
   resolution_notes: string | null;
   refund_amount_rwf: number | null;
   service_request_id: string | null;
-  client: { full_name: string | null; email: string; phone: string | null } | null;
+  client: { id: string; full_name: string | null; email: string; phone: string | null } | null;
   service_request: {
     id: string;
     service_category: string;
@@ -59,7 +59,7 @@ function Page() {
     const { data, error } = await supabase
       .from("claims")
       .select(
-        "id,status,reason_category,description,evidence_file_paths,resolution_notes,refund_amount_rwf,service_request_id,client:users!claims_client_id_fkey(full_name,email,phone),service_request:service_requests(id,service_category,service:services(name_en))",
+        "id,status,reason_category,description,evidence_file_paths,resolution_notes,refund_amount_rwf,service_request_id,client:users!claims_client_id_fkey(id,full_name,email,phone),service_request:service_requests(id,service_category,service:services(name_en))",
       )
       .eq("id", id)
       .single();
@@ -94,11 +94,26 @@ function Page() {
       patch.resolved_at = new Date().toISOString();
     }
     const { error } = await supabase.from("claims").update(patch).eq("id", id);
-    if (error) toast.error(error.message);
-    else {
-      toast.success("Saved");
-      void load();
+    if (error) {
+      toast.error(error.message);
+      return;
     }
+    const refundAmt = refund ? parseInt(refund, 10) : 0;
+    if (status === "resolved" && refundAmt > 0 && c) {
+      const { error: payErr } = await supabase.from("payments").insert({
+        service_request_id: c.service_request_id,
+        client_id: c.client?.id ?? null,
+        amount_rwf: refundAmt,
+        currency: "RWF",
+        method: "office",
+        status: "refunded",
+        reference: `SB-REFUND-${Date.now()}`,
+        provider_ref: user?.id ?? null,
+      });
+      if (payErr) toast.error(`Refund recorded with error: ${payErr.message}`);
+    }
+    toast.success("Saved");
+    void load();
   };
 
   const download = async (path: string) => {
