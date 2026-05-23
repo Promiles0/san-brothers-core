@@ -14,8 +14,9 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { StaffSidebar } from "@/components/layout/staff-sidebar";
+import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 
 export function StaffLayout({
   children,
