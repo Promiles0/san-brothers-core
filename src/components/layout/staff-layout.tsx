@@ -14,8 +14,9 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { StaffSidebar } from "@/components/layout/staff-sidebar";
+import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 
 export function StaffLayout({
   children,
@@ -27,6 +28,11 @@ export function StaffLayout({
   const [mobileOpen, setMobileOpen] = useState(false);
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isAdminArea = pathname.startsWith("/staff/admin");
+  const Sidebar = isAdminArea ? AdminSidebar : StaffSidebar;
+  const sidebarLabel = isAdminArea ? "San Brothers — Admin" : "San Brothers — Staff";
+  const sidebarBadge = isAdminArea ? "AD" : "SB";
   const initial = (profile?.full_name?.[0] ?? profile?.email?.[0] ?? "S").toUpperCase();
 
   return (
@@ -34,14 +40,12 @@ export function StaffLayout({
       <aside className="hidden w-64 shrink-0 border-r border-sidebar-border bg-sidebar md:flex md:flex-col">
         <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4">
           <div className="grid h-8 w-8 place-items-center rounded-md bg-primary font-bold text-primary-foreground">
-            SB
+            {sidebarBadge}
           </div>
-          <span className="text-sm font-semibold text-sidebar-foreground">
-            San Brothers — Staff
-          </span>
+          <span className="text-sm font-semibold text-sidebar-foreground">{sidebarLabel}</span>
         </div>
         <div className="flex-1 overflow-y-auto">
-          <StaffSidebar />
+          <Sidebar />
         </div>
       </aside>
 
@@ -55,9 +59,9 @@ export function StaffLayout({
             </SheetTrigger>
             <SheetContent side="left" className="w-64 bg-sidebar p-0">
               <SheetHeader className="border-b border-sidebar-border p-4">
-                <SheetTitle>Staff</SheetTitle>
+                <SheetTitle>{isAdminArea ? "Admin" : "Staff"}</SheetTitle>
               </SheetHeader>
-              <StaffSidebar onNavigate={() => setMobileOpen(false)} />
+              <Sidebar onNavigate={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
           <nav className="flex min-w-0 flex-1 items-center gap-1 text-sm text-muted-foreground">
