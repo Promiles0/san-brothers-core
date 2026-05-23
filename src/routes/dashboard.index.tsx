@@ -120,6 +120,47 @@ function DashboardHome() {
         </CardContent>
       </Card>
 
+      {/* VISA EXPIRY REMINDERS */}
+      {expiring.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Reminders</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {expiring.map((e) => {
+              const days = Math.ceil(
+                (new Date(e.visa_expiry_date).getTime() - Date.now()) / 86400000,
+              );
+              const tone =
+                days < 30
+                  ? "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300"
+                  : days < 60
+                    ? "border-orange-500/40 bg-orange-500/10 text-orange-700 dark:text-orange-300"
+                    : "border-yellow-500/40 bg-yellow-500/10 text-yellow-700 dark:text-yellow-300";
+              return (
+                <div
+                  key={e.id}
+                  className={`flex flex-wrap items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm ${tone}`}
+                >
+                  <div>
+                    <span className="font-semibold">
+                      {days <= 0 ? "Expired" : `${days} day${days === 1 ? "" : "s"} until expiry`}
+                    </span>
+                    <span className="ml-2 text-foreground/80">
+                      · {e.services?.name_en ?? "Visa"}
+                    </span>
+                  </div>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link to="/dashboard/services">Renew now</Link>
+                  </Button>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
+
+
       <div className="grid gap-6 lg:grid-cols-3">
         {/* ACTIVE SERVICES */}
         <div className="space-y-4 lg:col-span-2">
