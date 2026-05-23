@@ -206,6 +206,22 @@ function RequestServicePage() {
     }
   };
 
+  if (createdRequestId) {
+    return (
+      <PaymentStep
+        service={service}
+        payMethod={payMethod}
+        payRef={payRef}
+        processing={payProcessing}
+        onChoose={initiatePayment}
+        onConfirm={confirmPayment}
+        onSkip={() =>
+          navigate({ to: "/dashboard/my-services/$id", params: { id: createdRequestId } })
+        }
+      />
+    );
+  }
+
   return (
     <div className="space-y-6 max-w-3xl">
       <Button asChild variant="ghost" size="sm">
