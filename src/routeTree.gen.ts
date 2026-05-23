@@ -69,6 +69,7 @@ import { Route as StaffConsultancyIdRouteImport } from './routes/staff.consultan
 import { Route as StaffClientsNewRouteImport } from './routes/staff.clients.new'
 import { Route as StaffClientsIdRouteImport } from './routes/staff.clients.$id'
 import { Route as StaffClaimsIdRouteImport } from './routes/staff.claims.$id'
+import { Route as StaffAdminPaymentsRouteImport } from './routes/staff.admin.payments'
 import { Route as StaffAdminAnalyticsRouteImport } from './routes/staff.admin.analytics'
 import { Route as StaffAccountingIdRouteImport } from './routes/staff.accounting.$id'
 import { Route as DashboardServicesSlugRouteImport } from './routes/dashboard.services.$slug'
@@ -377,6 +378,11 @@ const StaffClaimsIdRoute = StaffClaimsIdRouteImport.update({
   path: '/claims/$id',
   getParentRoute: () => StaffRoute,
 } as any)
+const StaffAdminPaymentsRoute = StaffAdminPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => StaffAdminRoute,
+} as any)
 const StaffAdminAnalyticsRoute = StaffAdminAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -457,6 +463,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
   '/staff/admin/analytics': typeof StaffAdminAnalyticsRoute
+  '/staff/admin/payments': typeof StaffAdminPaymentsRoute
   '/staff/claims/$id': typeof StaffClaimsIdRoute
   '/staff/clients/$id': typeof StaffClientsIdRoute
   '/staff/clients/new': typeof StaffClientsNewRoute
@@ -517,6 +524,7 @@ export interface FileRoutesByTo {
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
   '/staff/admin/analytics': typeof StaffAdminAnalyticsRoute
+  '/staff/admin/payments': typeof StaffAdminPaymentsRoute
   '/staff/claims/$id': typeof StaffClaimsIdRoute
   '/staff/clients/$id': typeof StaffClientsIdRoute
   '/staff/clients/new': typeof StaffClientsNewRoute
@@ -586,6 +594,7 @@ export interface FileRoutesById {
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
   '/staff/admin/analytics': typeof StaffAdminAnalyticsRoute
+  '/staff/admin/payments': typeof StaffAdminPaymentsRoute
   '/staff/claims/$id': typeof StaffClaimsIdRoute
   '/staff/clients/$id': typeof StaffClientsIdRoute
   '/staff/clients/new': typeof StaffClientsNewRoute
@@ -656,6 +665,7 @@ export interface FileRouteTypes {
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
     | '/staff/admin/analytics'
+    | '/staff/admin/payments'
     | '/staff/claims/$id'
     | '/staff/clients/$id'
     | '/staff/clients/new'
@@ -716,6 +726,7 @@ export interface FileRouteTypes {
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
     | '/staff/admin/analytics'
+    | '/staff/admin/payments'
     | '/staff/claims/$id'
     | '/staff/clients/$id'
     | '/staff/clients/new'
@@ -784,6 +795,7 @@ export interface FileRouteTypes {
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
     | '/staff/admin/analytics'
+    | '/staff/admin/payments'
     | '/staff/claims/$id'
     | '/staff/clients/$id'
     | '/staff/clients/new'
@@ -1254,6 +1266,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffClaimsIdRouteImport
       parentRoute: typeof StaffRoute
     }
+    '/staff/admin/payments': {
+      id: '/staff/admin/payments'
+      path: '/payments'
+      fullPath: '/staff/admin/payments'
+      preLoaderRoute: typeof StaffAdminPaymentsRouteImport
+      parentRoute: typeof StaffAdminRoute
+    }
     '/staff/admin/analytics': {
       id: '/staff/admin/analytics'
       path: '/analytics'
@@ -1372,11 +1391,13 @@ const StaffAccountingRouteWithChildren = StaffAccountingRoute._addFileChildren(
 
 interface StaffAdminRouteChildren {
   StaffAdminAnalyticsRoute: typeof StaffAdminAnalyticsRoute
+  StaffAdminPaymentsRoute: typeof StaffAdminPaymentsRoute
   StaffAdminIndexRoute: typeof StaffAdminIndexRoute
 }
 
 const StaffAdminRouteChildren: StaffAdminRouteChildren = {
   StaffAdminAnalyticsRoute: StaffAdminAnalyticsRoute,
+  StaffAdminPaymentsRoute: StaffAdminPaymentsRoute,
   StaffAdminIndexRoute: StaffAdminIndexRoute,
 }
 

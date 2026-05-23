@@ -465,52 +465,69 @@ export function StaffCaseDetail({
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              {data.status === "submitted" && (
-                <Button size="sm" onClick={() => changeStatus("under_review")}>
-                  Start Review
-                </Button>
-              )}
-              {data.status === "under_review" && (
-                <Button size="sm" variant="outline" onClick={() => changeStatus("awaiting_client")}>
-                  Request Documents
-                </Button>
-              )}
-              {data.status === "under_review" && canApprove && (
-                <Button size="sm" onClick={() => changeStatus("verified")}>
-                  Mark Verified
-                </Button>
-              )}
-              {data.status === "verified" && (
-                <Button size="sm" onClick={() => setSubmitAuthOpen(true)}>
-                  Submit to Authority
-                </Button>
-              )}
-              {data.status === "submitted_to_authority" && (
-                <Button
-                  size="sm"
-                  onClick={() =>
-                    changeStatus(
-                      "completed",
-                      { completed_at: new Date().toISOString() },
-                      "Marked complete",
-                    )
-                  }
-                >
-                  Mark Complete
-                </Button>
-              )}
-              {data.status !== "completed" && data.status !== "cancelled" && (
-                <Button size="sm" variant="destructive" onClick={() => setRejectCaseOpen(true)}>
-                  Reject Case
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+          {profile?.role === "admin" ? (
+            <Card className="border-primary/40 bg-primary/5">
+              <CardHeader>
+                <CardTitle className="text-base">Admin View</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  You are viewing this case as admin. Case actions are handled by assigned staff.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                {data.status === "submitted" && (
+                  <Button size="sm" onClick={() => changeStatus("under_review")}>
+                    Start Review
+                  </Button>
+                )}
+                {data.status === "under_review" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => changeStatus("awaiting_client")}
+                  >
+                    Request Documents
+                  </Button>
+                )}
+                {data.status === "under_review" && canApprove && (
+                  <Button size="sm" onClick={() => changeStatus("verified")}>
+                    Mark Verified
+                  </Button>
+                )}
+                {data.status === "verified" && (
+                  <Button size="sm" onClick={() => setSubmitAuthOpen(true)}>
+                    Submit to Authority
+                  </Button>
+                )}
+                {data.status === "submitted_to_authority" && (
+                  <Button
+                    size="sm"
+                    onClick={() =>
+                      changeStatus(
+                        "completed",
+                        { completed_at: new Date().toISOString() },
+                        "Marked complete",
+                      )
+                    }
+                  >
+                    Mark Complete
+                  </Button>
+                )}
+                {data.status !== "completed" && data.status !== "cancelled" && (
+                  <Button size="sm" variant="destructive" onClick={() => setRejectCaseOpen(true)}>
+                    Reject Case
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           <PaymentCard
             serviceRequestId={data.id}
