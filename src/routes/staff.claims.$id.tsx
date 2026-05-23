@@ -31,7 +31,7 @@ interface ClaimDetail {
   resolution_notes: string | null;
   refund_amount_rwf: number | null;
   service_request_id: string | null;
-  client: { full_name: string | null; email: string; phone: string | null } | null;
+  client: { id: string; full_name: string | null; email: string; phone: string | null } | null;
   service_request: {
     id: string;
     service_category: string;
