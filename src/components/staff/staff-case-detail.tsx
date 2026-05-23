@@ -792,3 +792,135 @@ function Row({ k, v }: { k: string; v: string }) {
     </div>
   );
 }
+
+interface PaymentRow {
+  id: string;
+  amount_rwf: number;
+  currency: string;
+  method: string;
+  status: string;
+  reference: string | null;
+  created_at: string;
+}
+
+function PaymentCard({
+  serviceRequestId,
+  clientId,
+  actorId,
+}: {
+  serviceRequestId: string;
+  clientId: string;
+  actorId: string | null;
+}) {
+  const [payments, setPayments] = useState<PaymentRow[] | null>(null);
+  const [amount, setAmount] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const load = async () => {
+    const { data, error } = await supabase
+      .from("payments")
+      .select("id,amount_rwf,currency,method,status,reference,created_at")
+      .eq("service_request_id", serviceRequestId)
+      .order("created_at", { ascending: false });
+    if (error) {
+      setPayments([]);
+      return;
+    }
+    setPayments((data as PaymentRow[]) ?? []);
+  };
+  useEffect(() => {
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serviceRequestId]);
+
+  const markOfficePaid = async () => {
+    const amt = parseInt(amount || "0", 10);
+    if (!amt || amt <= 0) {
+      toast.error("Enter amount");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.from("payments").insert({
+      service_request_id: serviceRequestId,
+      client_id: clientId,
+      amount_rwf: amt,
+      currency: "RWF",
+      method: "office",
+      status: "completed",
+      reference: `SB-OFFICE-${Date.now()}`,
+      provider_ref: actorId,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Marked as paid (office)");
+    setAmount("");
+    void load();
+  };
+
+  const latest = payments?.[0];
+  const overall = !payments
+    ? "loading"
+    : payments.some((p) => p.status === "completed")
+      ? "paid"
+      : payments.some((p) => p.status === "pending")
+        ? "pending"
+        : "unpaid";
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Payment</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 text-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">Status:</span>
+          <Badge
+            variant={
+              overall === "paid" ? "default" : overall === "pending" ? "secondary" : "outline"
+            }
+            className="capitalize"
+          >
+            {overall === "paid" ? "Paid" : overall === "pending" ? "Pending" : "Not paid"}
+          </Badge>
+        </div>
+        {latest && (
+          <div className="text-muted-foreground">
+            Latest: {latest.amount_rwf.toLocaleString()} {latest.currency} ·{" "}
+            <span className="uppercase">{latest.method}</span>
+            {latest.reference && <> · {latest.reference}</>}
+          </div>
+        )}
+        {payments && payments.length > 1 && (
+          <div className="space-y-1 border-t pt-2">
+            {payments.slice(1).map((p) => (
+              <div key={p.id} className="flex justify-between text-xs text-muted-foreground">
+                <span>
+                  {new Date(p.created_at).toLocaleDateString()} ·{" "}
+                  <span className="uppercase">{p.method}</span> · {p.status}
+                </span>
+                <span>{p.amount_rwf.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="flex flex-wrap items-end gap-2 pt-2 border-t">
+          <div className="flex-1 min-w-[150px]">
+            <label className="text-xs text-muted-foreground">Amount (RWF)</label>
+            <Input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0"
+            />
+          </div>
+          <Button size="sm" onClick={markOfficePaid} disabled={busy}>
+            Mark as paid (office)
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
