@@ -64,10 +64,12 @@ const items: Item[] = [
 ];
 
 function useStaffCounts() {
+  const { user } = useAuth();
   const [counts, setCounts] = useState({
     unassignedVisa: 0,
     unassignedAccounting: 0,
     openClaims: 0,
+    unreadMessages: 0,
   });
   useEffect(() => {
     let cancelled = false;
@@ -91,11 +93,21 @@ function useStaffCounts() {
             .select("id", { count: "exact", head: true })
             .in("status", ["open", "under_review"]),
         ]);
+        let unread = 0;
+        if (user) {
+          const { count } = await supabase
+            .from("messages")
+            .select("id", { count: "exact", head: true })
+            .eq("is_read", false)
+            .neq("sender_id", user.id);
+          unread = count ?? 0;
+        }
         if (cancelled) return;
         setCounts({
           unassignedVisa: visa.count ?? 0,
           unassignedAccounting: acc.count ?? 0,
           openClaims: claims.count ?? 0,
+          unreadMessages: unread,
         });
       } catch {
         /* ignore */
@@ -104,7 +116,7 @@ function useStaffCounts() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user]);
   return counts;
 }
 
