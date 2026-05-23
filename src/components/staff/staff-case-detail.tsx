@@ -394,6 +394,7 @@ export function StaffCaseDetail({
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="messages">Messages</TabsTrigger>
           <TabsTrigger value="client">Client Info</TabsTrigger>
           <TabsTrigger value="notes">Notes &amp; Audit</TabsTrigger>
         </TabsList>
