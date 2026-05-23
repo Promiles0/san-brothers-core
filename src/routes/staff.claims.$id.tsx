@@ -59,7 +59,7 @@ function Page() {
     const { data, error } = await supabase
       .from("claims")
       .select(
-        "id,status,reason_category,description,evidence_file_paths,resolution_notes,refund_amount_rwf,service_request_id,client:users!claims_client_id_fkey(full_name,email,phone),service_request:service_requests(id,service_category,service:services(name_en))",
+        "id,status,reason_category,description,evidence_file_paths,resolution_notes,refund_amount_rwf,service_request_id,client:users!claims_client_id_fkey(id,full_name,email,phone),service_request:service_requests(id,service_category,service:services(name_en))",
       )
       .eq("id", id)
       .single();
