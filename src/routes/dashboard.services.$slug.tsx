@@ -147,11 +147,62 @@ function RequestServicePage() {
       }
 
       toast.success(t("dashboard.services.successToast"));
-      navigate({ to: "/dashboard/my-services/$id", params: { id: requestId } });
+      setCreatedRequestId(requestId);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const initiatePayment = async (method: PayMethod) => {
+    if (!user || !service || !createdRequestId) return;
+    setPayProcessing(true);
+    try {
+      const amount = service.price_min_rwf ?? 0;
+      const reference = `SB-${Date.now()}`;
+      const { error } = await supabase.from("payments").insert({
+        service_request_id: createdRequestId,
+        client_id: user.id,
+        amount_rwf: amount,
+        currency: "RWF",
+        method,
+        status: method === "office" ? "pending" : "pending",
+        reference,
+      });
+      if (error) throw error;
+      setPayRef(reference);
+      setPayMethod(method);
+      if (method === "office") {
+        toast.success(t("dashboard.services.successToast"));
+        setTimeout(
+          () =>
+            navigate({ to: "/dashboard/my-services/$id", params: { id: createdRequestId } }),
+          800,
+        );
+      }
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setPayProcessing(false);
+    }
+  };
+
+  const confirmPayment = async () => {
+    if (!createdRequestId || !payRef) return;
+    setPayProcessing(true);
+    try {
+      const { error } = await supabase
+        .from("payments")
+        .update({ status: "completed", updated_at: new Date().toISOString() })
+        .eq("reference", payRef);
+      if (error) throw error;
+      toast.success("Payment confirmed");
+      navigate({ to: "/dashboard/my-services/$id", params: { id: createdRequestId } });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setPayProcessing(false);
     }
   };
 
