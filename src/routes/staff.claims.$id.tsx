@@ -102,7 +102,7 @@ function Page() {
     if (status === "resolved" && refundAmt > 0 && c) {
       const { error: payErr } = await supabase.from("payments").insert({
         service_request_id: c.service_request_id,
-        client_id: (c.client as { id?: string } | null)?.id ?? null,
+        client_id: c.client?.id ?? null,
         amount_rwf: refundAmt,
         currency: "RWF",
         method: "office",
