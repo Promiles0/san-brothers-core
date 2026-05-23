@@ -65,10 +65,6 @@ export function useDashboardCounts() {
         /* ignore */
       }
     })();
-      } catch {
-        /* ignore */
-      }
-    })();
     return () => {
       cancelled = true;
     };
