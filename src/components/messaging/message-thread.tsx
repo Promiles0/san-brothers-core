@@ -137,9 +137,11 @@ export function MessageThread({
 
   return (
     <div className="flex h-full min-h-[400px] flex-col">
-      <ScrollArea className="flex-1 px-1" viewportRef={undefined as never}>
-        <div ref={scrollerRef} className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto p-2">
-          {loading ? (
+      <div
+        ref={scrollerRef}
+        className="flex max-h-[60vh] min-h-[300px] flex-1 flex-col gap-2 overflow-y-auto p-2"
+      >
+        {loading ? (
             <>
               <Skeleton className="h-10 w-2/3" />
               <Skeleton className="h-10 w-1/2 self-end" />
