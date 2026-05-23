@@ -639,6 +639,15 @@ export function StaffCaseDetail({
           )}
         </TabsContent>
 
+        <TabsContent value="messages" className="space-y-3">
+          <CaseMessagesTab
+            serviceRequestId={data.id}
+            clientId={data.client_id}
+            staffId={user?.id ?? null}
+          />
+        </TabsContent>
+
+
         <TabsContent value="client" className="space-y-3">
           <Card>
             <CardContent className="grid gap-2 pt-6 text-sm">
