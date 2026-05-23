@@ -94,11 +94,26 @@ function Page() {
       patch.resolved_at = new Date().toISOString();
     }
     const { error } = await supabase.from("claims").update(patch).eq("id", id);
-    if (error) toast.error(error.message);
-    else {
-      toast.success("Saved");
-      void load();
+    if (error) {
+      toast.error(error.message);
+      return;
     }
+    const refundAmt = refund ? parseInt(refund, 10) : 0;
+    if (status === "resolved" && refundAmt > 0 && c) {
+      const { error: payErr } = await supabase.from("payments").insert({
+        service_request_id: c.service_request_id,
+        client_id: (c.client as { id?: string } | null)?.id ?? null,
+        amount_rwf: refundAmt,
+        currency: "RWF",
+        method: "office",
+        status: "refunded",
+        reference: `SB-REFUND-${Date.now()}`,
+        provider_ref: user?.id ?? null,
+      });
+      if (payErr) toast.error(`Refund recorded with error: ${payErr.message}`);
+    }
+    toast.success("Saved");
+    void load();
   };
 
   const download = async (path: string) => {
