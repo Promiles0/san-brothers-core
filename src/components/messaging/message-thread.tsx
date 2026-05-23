@@ -118,16 +118,31 @@ export function MessageThread({
     const body = text.trim();
     if (!body || !user) return;
     setSending(true);
-    const { error } = await supabase.from("messages").insert({
-      conversation_id: conversationId,
-      sender_id: user.id,
-      content: body,
-    });
+    const { data, error } = await supabase
+      .from("messages")
+      .insert({ conversation_id: conversationId, sender_id: user.id, content: body })
+      .select()
+      .single();
     if (error) {
       toast.error(error.message);
     } else {
       setText("");
-      await supabase
+      setMessages((prev) =>
+        prev.some((m) => m.id === data.id)
+          ? prev
+          : [
+              ...prev,
+              {
+                id: data.id,
+                conversation_id: conversationId,
+                sender_id: user.id,
+                content: body,
+                is_read: false,
+                created_at: data.created_at ?? new Date().toISOString(),
+              },
+            ],
+      );
+      void supabase
         .from("conversations")
         .update({ last_message_at: new Date().toISOString() })
         .eq("id", conversationId);

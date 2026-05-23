@@ -54,14 +54,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase.from("users").select("*").eq("id", uid).maybeSingle();
       if (id !== profileFetchId.current) return;
       if (error) {
-        // eslint-disable-next-line no-console
         console.warn("[auth] profile fetch error", error.message);
         setProfile(null);
       } else {
         setProfile((data as ProfileRow | null) ?? null);
       }
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.warn("[auth] profile fetch failed", e);
     }
   }, []);

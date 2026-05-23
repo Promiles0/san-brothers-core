@@ -36,7 +36,7 @@ function ConsultancyPage() {
     <ServicePage
       title={t("consultancySvc.title")}
       subtitle={t("consultancySvc.subtitle")}
-      primaryCtaIntent="consultancy-intro"
+      primaryCtaIntent="company-registration"
       primaryCtaLabel={t("consultancySvc.cta")}
       subServices={subServices}
     />

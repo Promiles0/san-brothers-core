@@ -38,7 +38,7 @@ function VisaPage() {
     <ServicePage
       title={t("visa.title")}
       subtitle={t("visa.subtitle")}
-      primaryCtaIntent="visa-consultation"
+      primaryCtaIntent="tourist-visa"
       primaryCtaLabel={t("visa.cta")}
       subServices={subServices}
       docs={docs}

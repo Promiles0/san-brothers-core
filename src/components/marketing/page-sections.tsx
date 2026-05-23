@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 export function PageHero({
   title,
@@ -30,12 +32,38 @@ export function CtaBanner({
   subtitle = "Create your free account in under 2 minutes.",
   href = "/signup",
   label = "Get Started",
+  slug,
 }: {
   title?: string;
   subtitle?: string;
   href?: string;
   label?: string;
+  slug?: string;
 }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (slug) {
+      if (user) {
+        void navigate({ to: `/dashboard/services/${slug}` as never });
+      } else {
+        void navigate({
+          to: "/login",
+          search: { intent: slug, next: `/dashboard/services/${slug}` } as never,
+        });
+      }
+    } else if (href.startsWith("/signup")) {
+      if (user) {
+        void navigate({ to: "/dashboard/services" });
+      } else {
+        void navigate({ to: "/login", search: { intent: "service" } as never });
+      }
+    } else {
+      void navigate({ to: href as never });
+    }
+  };
+
   return (
     <section className="bg-primary text-primary-foreground">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 py-14 text-center md:flex-row md:px-6 md:text-left">
@@ -43,8 +71,8 @@ export function CtaBanner({
           <h2 className="text-2xl font-bold tracking-tight md:text-3xl">{title}</h2>
           <p className="mt-2 text-primary-foreground/80">{subtitle}</p>
         </div>
-        <Button size="lg" variant="secondary" asChild>
-          <a href={href}>{label}</a>
+        <Button size="lg" variant="secondary" onClick={handleClick}>
+          {label}
         </Button>
       </div>
     </section>

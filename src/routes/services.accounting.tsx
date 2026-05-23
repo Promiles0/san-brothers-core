@@ -40,7 +40,7 @@ function AccountingPage() {
     <ServicePage
       title={t("accountingSvc.title")}
       subtitle={t("accountingSvc.subtitle")}
-      primaryCtaIntent="accounting-consultation"
+      primaryCtaIntent="bookkeeping"
       primaryCtaLabel={t("accountingSvc.cta")}
       subServices={subServices}
       docs={docs}

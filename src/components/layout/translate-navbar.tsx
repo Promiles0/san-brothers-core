@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, Phone, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -12,6 +12,7 @@ import { UserMenu } from "@/components/auth/user-menu";
 export function TranslateNavbar() {
   const { t, locale } = useI18n();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const links = [
@@ -71,11 +72,15 @@ export function TranslateNavbar() {
                 <Button variant="ghost" size="sm" asChild>
                   <a href="/login">{t("common.login")}</a>
                 </Button>
-                <Button size="sm" className="gap-2" asChild>
-                  <a href="/signup?intent=live-interpreter">
-                    <Phone className="h-4 w-4" />
-                    {t("translate.nav.getHelpNow")}
-                  </a>
+                <Button
+                  size="sm"
+                  className="gap-2"
+                  onClick={() =>
+                    void navigate({ to: "/login", search: { intent: "translate" } as never })
+                  }
+                >
+                  <Phone className="h-4 w-4" />
+                  {t("translate.nav.getHelpNow")}
                 </Button>
               </>
             )}
@@ -116,11 +121,14 @@ export function TranslateNavbar() {
                         <Button variant="outline" asChild>
                           <a href="/login">{t("common.login")}</a>
                         </Button>
-                        <Button asChild>
-                          <a href="/signup?intent=live-interpreter">
-                            <Phone className="h-4 w-4" />
-                            {t("translate.nav.getHelpNow")}
-                          </a>
+                        <Button
+                          onClick={() => {
+                            setOpen(false);
+                            void navigate({ to: "/login", search: { intent: "translate" } as never });
+                          }}
+                        >
+                          <Phone className="h-4 w-4" />
+                          {t("translate.nav.getHelpNow")}
                         </Button>
                       </>
                     )}

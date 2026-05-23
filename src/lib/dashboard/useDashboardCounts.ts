@@ -39,10 +39,7 @@ export function useDashboardCounts() {
             .select("id", { count: "exact", head: true })
             .eq("client_id", user.id)
             .in("status", ["open", "under_review"]),
-          supabase
-            .from("conversations")
-            .select("id")
-            .eq("client_id", user.id),
+          supabase.from("conversations").select("id").eq("client_id", user.id),
         ]);
         let unread = 0;
         const convIds = (convs.data ?? []).map((c: { id: string }) => c.id);

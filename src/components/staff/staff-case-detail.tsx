@@ -647,7 +647,6 @@ export function StaffCaseDetail({
           />
         </TabsContent>
 
-
         <TabsContent value="client" className="space-y-3">
           <Card>
             <CardContent className="grid gap-2 pt-6 text-sm">

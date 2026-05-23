@@ -1,10 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Mic, FileText, Scale, Globe, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { PageHero, CtaBanner } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/services/translation")({
   head: () => ({
@@ -28,6 +29,8 @@ const FEATURE_KEYS = [
 ] as const;
 function TranslationBridge() {
   const { t } = useI18n();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   return (
     <PublicLayout>
       <PageHero title={t("translationSvc.title")} subtitle={t("translationSvc.subtitle")} />
@@ -49,8 +52,24 @@ function TranslationBridge() {
                     {t("translationSvc.openPortal")} <ArrowRight className="h-4 w-4" />
                   </a>
                 </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <a href="/signup?intent=document-translation">{t("translationSvc.docBtn")}</a>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => {
+                    if (user) {
+                      void navigate({ to: "/dashboard/services/document-translation" as never });
+                    } else {
+                      void navigate({
+                        to: "/login",
+                        search: {
+                          intent: "document-translation",
+                          next: "/dashboard/services/document-translation",
+                        } as never,
+                      });
+                    }
+                  }}
+                >
+                  {t("translationSvc.docBtn")}
                 </Button>
               </div>
             </div>

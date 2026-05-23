@@ -1,6 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Upload, X, Smartphone, CreditCard, Building2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Upload,
+  X,
+  Smartphone,
+  CreditCard,
+  Building2,
+  CheckCircle2,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,17 +28,54 @@ import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { getRequiredDocs } from "@/lib/dashboard/service-requirements";
-import type { Service, ServiceCategory } from "@/lib/types/database";
+import type { Service } from "@/lib/types/database";
 
 export const Route = createFileRoute("/dashboard/services/$slug")({
   component: RequestServicePage,
 });
+
 interface PendingUpload {
   file: File;
   requirement?: string;
 }
 
 type PayMethod = "momo" | "stripe" | "office";
+type ServiceType = "interpreter" | "document-translation" | "visa" | "accounting" | "consultancy";
+
+function getServiceType(slug: string): ServiceType {
+  if (slug.includes("live-interpreter") || slug.includes("interpreter") || slug === "live") {
+    return "interpreter";
+  }
+  if (slug.includes("document-translation") || slug.includes("translation")) {
+    return "document-translation";
+  }
+  if (slug.includes("visa") || slug.includes("work-permit")) {
+    return "visa";
+  }
+  if (
+    slug.includes("bookkeeping") ||
+    slug.includes("tax") ||
+    slug.includes("financial") ||
+    slug.includes("audit")
+  ) {
+    return "accounting";
+  }
+  return "consultancy";
+}
+
+const PROGRESS_STEPS: Record<ServiceType, string[]> = {
+  interpreter: ["Requested", "Interpreter Assigned", "Session Scheduled", "Completed"],
+  "document-translation": [
+    "Submitted",
+    "Under Review",
+    "In Translation",
+    "Quality Check",
+    "Delivered",
+  ],
+  visa: ["Submitted", "Document Review", "Verified", "Submitted to Authority", "Completed"],
+  accounting: ["Submitted", "Assigned", "Analysis", "Report Ready", "Completed"],
+  consultancy: ["Submitted", "Consultant Assigned", "Meeting Scheduled", "Completed"],
+};
 
 function RequestServicePage() {
   const { slug } = Route.useParams();
@@ -39,6 +84,7 @@ function RequestServicePage() {
   const navigate = useNavigate();
   const [service, setService] = useState<Service | null | undefined>(undefined);
   const [createdRequestId, setCreatedRequestId] = useState<string | null>(null);
+  const [interpreterConfirmed, setInterpreterConfirmed] = useState(false);
   const [payMethod, setPayMethod] = useState<PayMethod | null>(null);
   const [payRef, setPayRef] = useState<string>("");
   const [payProcessing, setPayProcessing] = useState(false);
@@ -46,6 +92,10 @@ function RequestServicePage() {
   const [files, setFiles] = useState<PendingUpload[]>([]);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const serviceType = getServiceType(slug);
+  const progressSteps = PROGRESS_STEPS[serviceType];
+  const needsFiles = serviceType === "visa" || serviceType === "document-translation";
 
   useEffect(() => {
     (async () => {
@@ -102,13 +152,12 @@ function RequestServicePage() {
 
   const submit = async () => {
     if (!user) return;
-    if (files.length === 0) {
+    if (needsFiles && files.length === 0) {
       toast.error(t("dashboard.services.errNoFiles"));
       return;
     }
     setSubmitting(true);
     try {
-      // 1. Create service request
       const { data: sr, error: srErr } = await supabase
         .from("service_requests")
         .insert({
@@ -117,7 +166,7 @@ function RequestServicePage() {
           service_category: service.category,
           status: "submitted",
           progress_step: 1,
-          progress_total: 5,
+          progress_total: progressSteps.length,
           applicant_type: "individual",
           priority: "normal",
           notes: notes || null,
@@ -127,7 +176,6 @@ function RequestServicePage() {
       if (srErr) throw srErr;
       const requestId = sr.id as string;
 
-      // 2. Upload files
       for (const { file } of files) {
         const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const path = `clients/${user.id}/${requestId}/${Date.now()}_${safeName}`;
@@ -146,8 +194,12 @@ function RequestServicePage() {
         if (docErr) throw docErr;
       }
 
-      toast.success(t("dashboard.services.successToast"));
       setCreatedRequestId(requestId);
+      if (serviceType === "interpreter") {
+        setInterpreterConfirmed(true);
+      } else {
+        toast.success(t("dashboard.services.successToast"));
+      }
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -167,7 +219,7 @@ function RequestServicePage() {
         amount_rwf: amount,
         currency: "RWF",
         method,
-        status: method === "office" ? "pending" : "pending",
+        status: "pending",
         reference,
       });
       if (error) throw error;
@@ -205,6 +257,17 @@ function RequestServicePage() {
     }
   };
 
+  if (interpreterConfirmed && createdRequestId) {
+    return (
+      <InterpreterConfirmation
+        requestId={createdRequestId}
+        onView={() =>
+          navigate({ to: "/dashboard/my-services/$id", params: { id: createdRequestId } })
+        }
+      />
+    );
+  }
+
   if (createdRequestId) {
     return (
       <PaymentStep
@@ -220,6 +283,9 @@ function RequestServicePage() {
       />
     );
   }
+
+  const showDocUpload = serviceType !== "interpreter" && serviceType !== "consultancy";
+  const canSubmit = needsFiles ? files.length > 0 : true;
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -249,7 +315,8 @@ function RequestServicePage() {
         <p className="mt-3 text-sm">{localDesc}</p>
       </div>
 
-      {/* About You */}
+      <ProgressPreview steps={progressSteps} />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t("dashboard.services.section.aboutYou")}</CardTitle>
@@ -261,91 +328,132 @@ function RequestServicePage() {
         </CardContent>
       </Card>
 
-      {/* Category-specific details */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t("dashboard.services.section.details")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <CategoryDetails
-            category={service.category}
-            value={details}
-            onChange={setDetails}
-            t={t}
-          />
+          <ServiceDetails serviceType={serviceType} value={details} onChange={setDetails} t={t} />
         </CardContent>
       </Card>
 
-      {/* Required documents */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">
-            {t("dashboard.services.section.requiredDocs")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {requiredDocs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {t("dashboard.services.noDocsRequired")}
-            </p>
-          ) : (
-            requiredDocs.map((req) => <UploadRow key={req} label={req} onPick={onFilePick(req)} />)
-          )}
+      {showDocUpload && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {serviceType === "accounting"
+                ? `${t("dashboard.services.section.requiredDocs")} (optional)`
+                : t("dashboard.services.section.requiredDocs")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {serviceType === "accounting" ? (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Upload financial documents if available. You can share them later.
+                </p>
+                <UploadRow
+                  label={t("dashboard.services.addAnother")}
+                  onPick={onFilePick(undefined)}
+                  extra
+                />
+              </>
+            ) : (
+              <>
+                {requiredDocs.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    {t("dashboard.services.noDocsRequired")}
+                  </p>
+                ) : (
+                  requiredDocs.map((req) => (
+                    <UploadRow key={req} label={req} onPick={onFilePick(req)} />
+                  ))
+                )}
+                <UploadRow
+                  label={t("dashboard.services.addAnother")}
+                  onPick={onFilePick(undefined)}
+                  extra
+                />
+              </>
+            )}
 
-          <UploadRow
-            label={t("dashboard.services.addAnother")}
-            onPick={onFilePick(undefined)}
-            extra
-          />
-
-          {files.length > 0 && (
-            <div className="space-y-2 rounded-md border border-border p-3">
-              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t("dashboard.services.uploaded")}
-              </div>
-              {files.map((f, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm">
-                  <span className="flex-1 truncate">{f.file.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {(f.file.size / 1024).toFixed(1)} KB
-                  </span>
-                  <button
-                    onClick={() => removeFile(i)}
-                    className="rounded p-1 hover:bg-accent"
-                    aria-label="remove"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
+            {files.length > 0 && (
+              <div className="space-y-2 rounded-md border border-border p-3">
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t("dashboard.services.uploaded")}
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                {files.map((f, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <span className="flex-1 truncate">{f.file.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {(f.file.size / 1024).toFixed(1)} KB
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(i)}
+                      className="rounded p-1 hover:bg-accent"
+                      aria-label="remove"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Notes */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("dashboard.services.section.notes")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Textarea
-            rows={4}
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder={t("dashboard.services.notesPlaceholder")}
-          />
-        </CardContent>
-      </Card>
+      {serviceType !== "interpreter" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("dashboard.services.section.notes")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Textarea
+              rows={4}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder={t("dashboard.services.notesPlaceholder")}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       <Button
         onClick={submit}
-        disabled={submitting || files.length === 0}
+        disabled={submitting || !canSubmit}
         size="lg"
         className="w-full sm:w-auto"
       >
         {submitting ? t("dashboard.common.submitting") : t("dashboard.services.submit")}
       </Button>
+    </div>
+  );
+}
+
+function ProgressPreview({ steps }: { steps: string[] }) {
+  return (
+    <div className="flex items-center overflow-x-auto pb-1">
+      {steps.map((step, i) => (
+        <div key={step} className="flex items-center">
+          <div className="flex min-w-[72px] flex-col items-center gap-1 px-1">
+            <div
+              className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+                i === 0
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border bg-muted text-muted-foreground"
+              }`}
+            >
+              {i + 1}
+            </div>
+            <span className="text-center text-[10px] leading-tight text-muted-foreground">
+              {step}
+            </span>
+          </div>
+          {i < steps.length - 1 && <div className="h-px w-5 shrink-0 bg-border" />}
+        </div>
+      ))}
     </div>
   );
 }
@@ -380,20 +488,86 @@ function UploadRow({
   );
 }
 
-function CategoryDetails({
-  category,
+const LANGUAGES = [
+  "English",
+  "Chinese (Mandarin)",
+  "Kinyarwanda",
+  "French",
+  "Arabic",
+  "Swahili",
+  "Portuguese",
+];
+
+function ServiceDetails({
+  serviceType,
   value,
   onChange,
   t,
 }: {
-  category: ServiceCategory;
+  serviceType: ServiceType;
   value: Record<string, string>;
   onChange: (v: Record<string, string>) => void;
   t: (k: string) => string;
 }) {
   const set = (k: string, v: string) => onChange({ ...value, [k]: v });
 
-  if (category === "visa") {
+  if (serviceType === "interpreter") {
+    return (
+      <>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>{t("dashboard.services.translate.source")}</Label>
+            <Select value={value.fromLang ?? ""} onValueChange={(v) => set("fromLang", v)}>
+              <SelectTrigger>
+                <SelectValue placeholder={t("dashboard.common.select")} />
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map((l) => (
+                  <SelectItem key={l} value={l}>
+                    {l}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>{t("dashboard.services.translate.target")}</Label>
+            <Select value={value.toLang ?? ""} onValueChange={(v) => set("toLang", v)}>
+              <SelectTrigger>
+                <SelectValue placeholder={t("dashboard.common.select")} />
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map((l) => (
+                  <SelectItem key={l} value={l}>
+                    {l}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label>Preferred time slot</Label>
+          <Input
+            value={value.timeSlot ?? ""}
+            onChange={(e) => set("timeSlot", e.target.value)}
+            placeholder="e.g. Monday 10am–12pm, or ASAP"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>What do you need help with?</Label>
+          <Textarea
+            rows={3}
+            value={value.description ?? ""}
+            onChange={(e) => set("description", e.target.value)}
+            placeholder="Briefly describe the context — medical appointment, business meeting, legal matter…"
+          />
+        </div>
+      </>
+    );
+  }
+
+  if (serviceType === "visa") {
     return (
       <>
         <div className="space-y-2">
@@ -430,7 +604,8 @@ function CategoryDetails({
       </>
     );
   }
-  if (category === "accounting") {
+
+  if (serviceType === "accounting") {
     return (
       <>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -467,7 +642,8 @@ function CategoryDetails({
       </>
     );
   }
-  if (category === "consultancy") {
+
+  if (serviceType === "consultancy") {
     return (
       <>
         <div className="space-y-2">
@@ -476,6 +652,19 @@ function CategoryDetails({
             value={value.businessType ?? ""}
             onChange={(e) => set("businessType", e.target.value)}
           />
+        </div>
+        <div className="space-y-2">
+          <Label>Preferred meeting type</Label>
+          <Select value={value.meetingType ?? ""} onValueChange={(v) => set("meetingType", v)}>
+            <SelectTrigger>
+              <SelectValue placeholder={t("dashboard.common.select")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="in-person">In-person</SelectItem>
+              <SelectItem value="video">Video call</SelectItem>
+              <SelectItem value="phone">Phone call</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label>{t("dashboard.services.consult.brief")}</Label>
@@ -488,33 +677,75 @@ function CategoryDetails({
       </>
     );
   }
-  if (category === "translation") {
-    return (
-      <>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label>{t("dashboard.services.translate.source")}</Label>
-            <Input
-              value={value.sourceLang ?? ""}
-              onChange={(e) => set("sourceLang", e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>{t("dashboard.services.translate.target")}</Label>
-            <Input
-              value={value.targetLang ?? ""}
-              onChange={(e) => set("targetLang", e.target.value)}
-            />
-          </div>
+
+  // document-translation (and fallback)
+  return (
+    <>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label>{t("dashboard.services.translate.source")}</Label>
+          <Input
+            value={value.sourceLang ?? ""}
+            onChange={(e) => set("sourceLang", e.target.value)}
+          />
         </div>
         <div className="space-y-2">
-          <Label>{t("dashboard.services.translate.docType")}</Label>
-          <Input value={value.docType ?? ""} onChange={(e) => set("docType", e.target.value)} />
+          <Label>{t("dashboard.services.translate.target")}</Label>
+          <Input
+            value={value.targetLang ?? ""}
+            onChange={(e) => set("targetLang", e.target.value)}
+          />
         </div>
-      </>
-    );
-  }
-  return null;
+      </div>
+      <div className="space-y-2">
+        <Label>{t("dashboard.services.translate.docType")}</Label>
+        <Input value={value.docType ?? ""} onChange={(e) => set("docType", e.target.value)} />
+      </div>
+    </>
+  );
+}
+
+function InterpreterConfirmation({ requestId, onView }: { requestId: string; onView: () => void }) {
+  const steps = PROGRESS_STEPS.interpreter;
+  return (
+    <div className="mx-auto max-w-xl space-y-6 py-12 text-center">
+      <div className="flex justify-center">
+        <div className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-primary">
+          <CheckCircle2 className="h-8 w-8" />
+        </div>
+      </div>
+      <div>
+        <h2 className="text-xl font-bold">Session being arranged</h2>
+        <p className="mt-2 text-muted-foreground">
+          Your interpreter session is being arranged. You'll receive a call link shortly.
+        </p>
+      </div>
+      <div className="rounded-md border border-border bg-muted/40 p-4 text-left">
+        <p className="text-xs text-muted-foreground">Reference</p>
+        <p className="font-mono text-sm">{requestId}</p>
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {steps.map((step, i) => (
+          <div key={step} className="flex items-center gap-1.5">
+            <div
+              className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
+                i === 0
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border bg-muted text-muted-foreground"
+              }`}
+            >
+              {i + 1}
+            </div>
+            <span className="text-xs text-muted-foreground">{step}</span>
+            {i < steps.length - 1 && <span className="text-border">›</span>}
+          </div>
+        ))}
+      </div>
+      <Button onClick={onView} className="w-full sm:w-auto">
+        View My Request
+      </Button>
+    </div>
+  );
 }
 
 function PaymentStep({
@@ -543,13 +774,13 @@ function PaymentStep({
 
   if (payMethod && payMethod !== "office") {
     return (
-      <div className="max-w-xl mx-auto space-y-6 py-8">
+      <div className="mx-auto max-w-xl space-y-6 py-8">
         <Card>
           <CardHeader>
             <CardTitle>Payment initiated</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="rounded-md border border-border p-4 bg-muted/40">
+            <div className="rounded-md border border-border bg-muted/40 p-4">
               <p className="text-xs text-muted-foreground">Reference</p>
               <p className="font-mono text-sm">{payRef}</p>
             </div>
@@ -580,7 +811,7 @@ function PaymentStep({
   }
 
   return (
-    <div className="max-w-xl mx-auto space-y-6 py-8">
+    <div className="mx-auto max-w-xl space-y-6 py-8">
       <Card>
         <CardHeader>
           <CardTitle>Request submitted — choose payment</CardTitle>
@@ -594,14 +825,14 @@ function PaymentStep({
             <Button
               onClick={() => onChoose("momo")}
               disabled={processing}
-              className="w-full justify-start bg-orange-500 hover:bg-orange-600 text-white"
+              className="w-full justify-start bg-orange-500 text-white hover:bg-orange-600"
             >
               <Smartphone className="mr-2 h-4 w-4" /> Pay with MoMo (Flutterwave)
             </Button>
             <Button
               onClick={() => onChoose("stripe")}
               disabled={processing}
-              className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full justify-start bg-blue-600 text-white hover:bg-blue-700"
             >
               <CreditCard className="mr-2 h-4 w-4" /> Pay with Card (Stripe)
             </Button>

@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { UserPlus, Upload, ClipboardCheck, Send, CheckCircle } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,7 @@ import {
 import { PublicLayout } from "@/components/layout/public-layout";
 import { PageHero, CtaBanner } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
+import { useAuth } from "@/hooks/useAuth";
 export interface SubService {
   slug: string;
   title: string;
@@ -51,11 +53,25 @@ export function ServicePage({
   docs,
 }: ServicePageProps) {
   const { t } = useI18n();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleApply = (slug: string) => {
+    if (user) {
+      void navigate({ to: `/dashboard/services/${slug}` as never });
+    } else {
+      void navigate({
+        to: "/login",
+        search: { intent: slug, next: `/dashboard/services/${slug}` } as never,
+      });
+    }
+  };
+
   return (
     <PublicLayout>
       <PageHero title={title} subtitle={subtitle}>
-        <Button size="lg" asChild>
-          <a href={`/signup?intent=${primaryCtaIntent}`}>{primaryCtaLabel ?? t("common.apply")}</a>
+        <Button size="lg" onClick={() => handleApply(primaryCtaIntent)}>
+          {primaryCtaLabel ?? t("common.apply")}
         </Button>
       </PageHero>
 
@@ -74,16 +90,13 @@ export function ServicePage({
                   ) : null}
                 </div>
                 <p className="text-sm text-muted-foreground">{s.desc}</p>
-                <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
-                  {s.bullets.map((b) => (
-                    <li key={b} className="flex gap-2">
-                      <span className="text-primary">•</span>
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-                <Button variant="outline" size="sm" className="mt-auto self-start" asChild>
-                  <a href={`/signup?intent=${s.slug}`}>{t("servicePage.applyBtn")}</a>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-auto self-start"
+                  onClick={() => handleApply(s.slug)}
+                >
+                  {t("servicePage.applyBtn")}
                 </Button>
               </CardContent>
             </Card>
@@ -143,6 +156,7 @@ export function ServicePage({
         title={t("home.ctaHeading")}
         subtitle={t("home.ctaSubtitle")}
         label={t("common.getStarted")}
+        slug={primaryCtaIntent}
       />
     </PublicLayout>
   );

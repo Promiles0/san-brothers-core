@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { PageHero, CtaBanner } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -32,6 +33,20 @@ const TAB_KEYS = ["visa", "accounting", "consultancy", "translation"] as const;
 
 function Pricing() {
   const { t, tRaw } = useI18n();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleGetStarted = (intent: string) => {
+    if (user) {
+      void navigate({ to: `/dashboard/services/${intent}` as never });
+    } else {
+      void navigate({
+        to: "/login",
+        search: { intent, next: `/dashboard/services/${intent}` } as never,
+      });
+    }
+  };
+
   return (
     <PublicLayout>
       <PageHero title={t("pricing.heroTitle")} subtitle={t("pricing.heroSubtitle")}>
@@ -78,8 +93,8 @@ function Pricing() {
                             </li>
                           ))}
                         </ul>
-                        <Button className="mt-2" asChild>
-                          <a href={`/signup?intent=${p.intent}`}>{t("pricing.getStarted")}</a>
+                        <Button className="mt-2" onClick={() => handleGetStarted(p.intent)}>
+                          {t("pricing.getStarted")}
                         </Button>
                       </CardContent>
                     </Card>

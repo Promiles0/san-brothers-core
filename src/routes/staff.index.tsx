@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
@@ -40,6 +40,13 @@ function basePathFor(cat: string) {
 function StaffHome() {
   const { user, profile } = useAuth();
   const { capabilities } = useCapabilities();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (profile?.role === "admin") {
+      void navigate({ to: "/staff/admin" });
+    }
+  }, [profile?.role, navigate]);
   const [today, setToday] = useState<Row[]>([]);
   const [pending, setPending] = useState<Row[]>([]);
   const [weekRows, setWeekRows] = useState<Row[]>([]);
