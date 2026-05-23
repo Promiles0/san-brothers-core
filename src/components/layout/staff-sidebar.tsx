@@ -11,6 +11,7 @@ import {
   BarChart2,
   Settings,
   LogOut,
+  MessageCircle,
   type LucideIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +25,7 @@ interface Item {
   icon: LucideIcon;
   to?: string;
   cap?: Capability;
-  badgeKey?: "unassignedVisa" | "unassignedAccounting" | "openClaims";
+  badgeKey?: "unassignedVisa" | "unassignedAccounting" | "openClaims" | "unreadMessages";
   action?: "logout";
   intent?: "destructive";
 }
@@ -56,16 +57,19 @@ const items: Item[] = [
     badgeKey: "openClaims",
   },
   { label: "Reports", icon: BarChart2, to: "/staff/reports", cap: "view_financial_reports" },
+  { label: "Messages", icon: MessageCircle, to: "/staff/messages", badgeKey: "unreadMessages" },
   { label: "Admin", icon: ShieldAlert, to: "/staff/admin", cap: "manage_staff" },
   { label: "Settings", icon: Settings, to: "/staff/settings" },
   { label: "Log out", icon: LogOut, action: "logout", intent: "destructive" },
 ];
 
 function useStaffCounts() {
+  const { user } = useAuth();
   const [counts, setCounts] = useState({
     unassignedVisa: 0,
     unassignedAccounting: 0,
     openClaims: 0,
+    unreadMessages: 0,
   });
   useEffect(() => {
     let cancelled = false;
@@ -89,11 +93,21 @@ function useStaffCounts() {
             .select("id", { count: "exact", head: true })
             .in("status", ["open", "under_review"]),
         ]);
+        let unread = 0;
+        if (user) {
+          const { count } = await supabase
+            .from("messages")
+            .select("id", { count: "exact", head: true })
+            .eq("is_read", false)
+            .neq("sender_id", user.id);
+          unread = count ?? 0;
+        }
         if (cancelled) return;
         setCounts({
           unassignedVisa: visa.count ?? 0,
           unassignedAccounting: acc.count ?? 0,
           openClaims: claims.count ?? 0,
+          unreadMessages: unread,
         });
       } catch {
         /* ignore */
@@ -102,7 +116,7 @@ function useStaffCounts() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user]);
   return counts;
 }
 

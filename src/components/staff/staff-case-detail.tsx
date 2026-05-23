@@ -37,6 +37,7 @@ import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/lib/dashboard/status-badge";
 import { toast } from "sonner";
 import type { ServiceCategory } from "@/lib/types/database";
+import { MessageThread } from "@/components/messaging/message-thread";
 
 const STATUSES = [
   "submitted",
@@ -394,6 +395,7 @@ export function StaffCaseDetail({
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="messages">Messages</TabsTrigger>
           <TabsTrigger value="client">Client Info</TabsTrigger>
           <TabsTrigger value="notes">Notes &amp; Audit</TabsTrigger>
         </TabsList>
@@ -636,6 +638,15 @@ export function StaffCaseDetail({
             ))
           )}
         </TabsContent>
+
+        <TabsContent value="messages" className="space-y-3">
+          <CaseMessagesTab
+            serviceRequestId={data.id}
+            clientId={data.client_id}
+            staffId={user?.id ?? null}
+          />
+        </TabsContent>
+
 
         <TabsContent value="client" className="space-y-3">
           <Card>
@@ -931,6 +942,74 @@ function PaymentCard({
             Mark as paid (office)
           </Button>
         </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function CaseMessagesTab({
+  serviceRequestId,
+  clientId,
+  staffId,
+}: {
+  serviceRequestId: string;
+  clientId: string;
+  staffId: string | null;
+}) {
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!staffId) return;
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const { data: existing } = await supabase
+        .from("conversations")
+        .select("id")
+        .eq("service_request_id", serviceRequestId)
+        .maybeSingle();
+      if (cancelled) return;
+      if (existing?.id) {
+        setConversationId(existing.id as string);
+        setLoading(false);
+        return;
+      }
+      const { data: created, error } = await supabase
+        .from("conversations")
+        .insert({
+          client_id: clientId,
+          staff_id: staffId,
+          service_request_id: serviceRequestId,
+        })
+        .select("id")
+        .single();
+      if (cancelled) return;
+      if (error) {
+        toast.error(error.message);
+      } else {
+        setConversationId(created.id as string);
+      }
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [serviceRequestId, clientId, staffId]);
+
+  if (loading) return <Skeleton className="h-64 w-full" />;
+  if (!conversationId)
+    return (
+      <Card>
+        <CardContent className="py-8 text-center text-sm text-muted-foreground">
+          Unable to load conversation.
+        </CardContent>
+      </Card>
+    );
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <MessageThread conversationId={conversationId} />
       </CardContent>
     </Card>
   );
