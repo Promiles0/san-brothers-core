@@ -4,7 +4,8 @@
 //     ADD COLUMN IF NOT EXISTS authority_name text,
 //     ADD COLUMN IF NOT EXISTS authority_ref text,
 //     ADD COLUMN IF NOT EXISTS authority_notes text,
-//     ADD COLUMN IF NOT EXISTS rejection_reason text;
+//     ADD COLUMN IF NOT EXISTS rejection_reason text,
+//     ADD COLUMN IF NOT EXISTS visa_expiry_date date;
 import { useEffect, useState, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Upload, Download, Mail } from "lucide-react";
@@ -59,6 +60,7 @@ interface CaseDetail {
   authority_name?: string | null;
   authority_ref?: string | null;
   authority_notes?: string | null;
+  visa_expiry_date?: string | null;
   client: {
     id: string;
     full_name: string | null;
@@ -129,7 +131,7 @@ export function StaffCaseDetail({
       const { data: row, error } = await supabase
         .from("service_requests")
         .select(
-          "id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,authority_name,authority_ref,authority_notes,client:users(id,full_name,email,phone,tin_number,city,country),service:services(name_en)",
+          "id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,authority_name,authority_ref,authority_notes,visa_expiry_date,client:users(id,full_name,email,phone,tin_number,city,country),service:services(name_en)",
         )
         .eq("id", id)
         .single();
@@ -429,6 +431,19 @@ export function StaffCaseDetail({
                   </SelectContent>
                 </Select>
               </div>
+              {data.service_category === "visa" && (
+                <div className="flex items-center gap-3">
+                  <label className="text-sm font-medium">Visa expiry date:</label>
+                  <Input
+                    type="date"
+                    className="w-48"
+                    value={data.visa_expiry_date ?? ""}
+                    onChange={(e) =>
+                      updateField({ visa_expiry_date: e.target.value || null })
+                    }
+                  />
+                </div>
+              )}
               <div className="flex flex-wrap items-center gap-2">
                 <Button
                   size="sm"
