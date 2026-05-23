@@ -69,6 +69,7 @@ import { Route as StaffConsultancyIdRouteImport } from './routes/staff.consultan
 import { Route as StaffClientsNewRouteImport } from './routes/staff.clients.new'
 import { Route as StaffClientsIdRouteImport } from './routes/staff.clients.$id'
 import { Route as StaffClaimsIdRouteImport } from './routes/staff.claims.$id'
+import { Route as StaffAdminAnalyticsRouteImport } from './routes/staff.admin.analytics'
 import { Route as StaffAccountingIdRouteImport } from './routes/staff.accounting.$id'
 import { Route as DashboardServicesSlugRouteImport } from './routes/dashboard.services.$slug'
 import { Route as DashboardMyServicesIdRouteImport } from './routes/dashboard.my-services.$id'
@@ -376,6 +377,11 @@ const StaffClaimsIdRoute = StaffClaimsIdRouteImport.update({
   path: '/claims/$id',
   getParentRoute: () => StaffRoute,
 } as any)
+const StaffAdminAnalyticsRoute = StaffAdminAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => StaffAdminRoute,
+} as any)
 const StaffAccountingIdRoute = StaffAccountingIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -450,6 +456,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
+  '/staff/admin/analytics': typeof StaffAdminAnalyticsRoute
   '/staff/claims/$id': typeof StaffClaimsIdRoute
   '/staff/clients/$id': typeof StaffClientsIdRoute
   '/staff/clients/new': typeof StaffClientsNewRoute
@@ -509,6 +516,7 @@ export interface FileRoutesByTo {
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
+  '/staff/admin/analytics': typeof StaffAdminAnalyticsRoute
   '/staff/claims/$id': typeof StaffClaimsIdRoute
   '/staff/clients/$id': typeof StaffClientsIdRoute
   '/staff/clients/new': typeof StaffClientsNewRoute
@@ -577,6 +585,7 @@ export interface FileRoutesById {
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
+  '/staff/admin/analytics': typeof StaffAdminAnalyticsRoute
   '/staff/claims/$id': typeof StaffClaimsIdRoute
   '/staff/clients/$id': typeof StaffClientsIdRoute
   '/staff/clients/new': typeof StaffClientsNewRoute
@@ -646,6 +655,7 @@ export interface FileRouteTypes {
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
+    | '/staff/admin/analytics'
     | '/staff/claims/$id'
     | '/staff/clients/$id'
     | '/staff/clients/new'
@@ -705,6 +715,7 @@ export interface FileRouteTypes {
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
+    | '/staff/admin/analytics'
     | '/staff/claims/$id'
     | '/staff/clients/$id'
     | '/staff/clients/new'
@@ -772,6 +783,7 @@ export interface FileRouteTypes {
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
+    | '/staff/admin/analytics'
     | '/staff/claims/$id'
     | '/staff/clients/$id'
     | '/staff/clients/new'
@@ -1242,6 +1254,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffClaimsIdRouteImport
       parentRoute: typeof StaffRoute
     }
+    '/staff/admin/analytics': {
+      id: '/staff/admin/analytics'
+      path: '/analytics'
+      fullPath: '/staff/admin/analytics'
+      preLoaderRoute: typeof StaffAdminAnalyticsRouteImport
+      parentRoute: typeof StaffAdminRoute
+    }
     '/staff/accounting/$id': {
       id: '/staff/accounting/$id'
       path: '/$id'
@@ -1352,10 +1371,12 @@ const StaffAccountingRouteWithChildren = StaffAccountingRoute._addFileChildren(
 )
 
 interface StaffAdminRouteChildren {
+  StaffAdminAnalyticsRoute: typeof StaffAdminAnalyticsRoute
   StaffAdminIndexRoute: typeof StaffAdminIndexRoute
 }
 
 const StaffAdminRouteChildren: StaffAdminRouteChildren = {
+  StaffAdminAnalyticsRoute: StaffAdminAnalyticsRoute,
   StaffAdminIndexRoute: StaffAdminIndexRoute,
 }
 
