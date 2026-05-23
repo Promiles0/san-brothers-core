@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/useAuth";
+import { AiChatWidget } from "@/components/dashboard/ai-chat-widget";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardLayoutRoute,
@@ -36,6 +37,7 @@ function DashboardShell() {
   return (
     <DashboardLayout role={role}>
       <Outlet />
+      {role === "client" && <AiChatWidget />}
     </DashboardLayout>
   );
 }
