@@ -30,12 +30,18 @@ interface PendingUpload {
   requirement?: string;
 }
 
+type PayMethod = "momo" | "stripe" | "office";
+
 function RequestServicePage() {
   const { slug } = Route.useParams();
   const { user, profile } = useAuth();
   const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [service, setService] = useState<Service | null | undefined>(undefined);
+  const [createdRequestId, setCreatedRequestId] = useState<string | null>(null);
+  const [payMethod, setPayMethod] = useState<PayMethod | null>(null);
+  const [payRef, setPayRef] = useState<string>("");
+  const [payProcessing, setPayProcessing] = useState(false);
   const [details, setDetails] = useState<Record<string, string>>({});
   const [files, setFiles] = useState<PendingUpload[]>([]);
   const [notes, setNotes] = useState("");
