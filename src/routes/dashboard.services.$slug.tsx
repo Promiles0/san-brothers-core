@@ -176,8 +176,7 @@ function RequestServicePage() {
       if (method === "office") {
         toast.success(t("dashboard.services.successToast"));
         setTimeout(
-          () =>
-            navigate({ to: "/dashboard/my-services/$id", params: { id: createdRequestId } }),
+          () => navigate({ to: "/dashboard/my-services/$id", params: { id: createdRequestId } }),
           800,
         );
       }
@@ -560,7 +559,10 @@ function PaymentStep({
                 : "Complete the payment on your card terminal."}
             </p>
             <p className="text-sm text-muted-foreground">
-              Method: <span className="font-medium">{payMethod === "momo" ? "MoMo (Flutterwave)" : "Card (Stripe)"}</span>
+              Method:{" "}
+              <span className="font-medium">
+                {payMethod === "momo" ? "MoMo (Flutterwave)" : "Card (Stripe)"}
+              </span>
             </p>
             <p className="text-sm text-muted-foreground">Amount: {priceText}</p>
             <div className="flex gap-2">

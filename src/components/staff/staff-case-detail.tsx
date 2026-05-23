@@ -438,9 +438,7 @@ export function StaffCaseDetail({
                     type="date"
                     className="w-48"
                     value={data.visa_expiry_date ?? ""}
-                    onChange={(e) =>
-                      updateField({ visa_expiry_date: e.target.value || null })
-                    }
+                    onChange={(e) => updateField({ visa_expiry_date: e.target.value || null })}
                   />
                 </div>
               )}
@@ -517,8 +515,6 @@ export function StaffCaseDetail({
             clientId={data.client_id}
             actorId={user?.id ?? null}
           />
-
-
 
           {(data.status === "submitted_to_authority" || data.status === "completed") && (
             <Card>
