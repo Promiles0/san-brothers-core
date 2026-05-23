@@ -259,11 +259,7 @@ export function StaffCaseDetail({
       toast.error("Reason required");
       return;
     }
-    await changeStatus(
-      "rejected",
-      { rejection_reason: rejectCaseReason.trim() },
-      "Case rejected",
-    );
+    await changeStatus("rejected", { rejection_reason: rejectCaseReason.trim() }, "Case rejected");
     setRejectCaseOpen(false);
     setRejectCaseReason("");
   };
@@ -465,11 +461,7 @@ export function StaffCaseDetail({
                 </Button>
               )}
               {data.status === "under_review" && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => changeStatus("awaiting_client")}
-                >
+                <Button size="sm" variant="outline" onClick={() => changeStatus("awaiting_client")}>
                   Request Documents
                 </Button>
               )}
@@ -498,11 +490,7 @@ export function StaffCaseDetail({
                 </Button>
               )}
               {data.status !== "completed" && data.status !== "cancelled" && (
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => setRejectCaseOpen(true)}
-                >
+                <Button size="sm" variant="destructive" onClick={() => setRejectCaseOpen(true)}>
                   Reject Case
                 </Button>
               )}
@@ -517,7 +505,8 @@ export function StaffCaseDetail({
               <CardContent className="space-y-3">
                 {data.authority_name && (
                   <div className="text-sm text-muted-foreground">
-                    Submitted to <span className="font-medium text-foreground">{data.authority_name}</span>
+                    Submitted to{" "}
+                    <span className="font-medium text-foreground">{data.authority_name}</span>
                     {data.authority_ref && <> · Ref: {data.authority_ref}</>}
                   </div>
                 )}
@@ -550,7 +539,6 @@ export function StaffCaseDetail({
             </Card>
           )}
         </TabsContent>
-
 
         <TabsContent value="documents" className="space-y-3">
           <div className="flex items-center justify-between">
