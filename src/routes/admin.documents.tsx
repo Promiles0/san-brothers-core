@@ -87,7 +87,7 @@ function AdminDocuments() {
         .select("id,file_name,file_path,file_type,file_size_bytes,uploaded_at,service_request_id,client_id")
         .order("uploaded_at", { ascending: false }),
       supabase.from("service_requests").select("id,service_category,created_at,client_id"),
-      supabase.from("users").select("id,full_name,email").eq("role", "client"),
+      supabase.from("users").select("id,full_name,email"),
     ]);
     setDocs((d as DocRow[]) ?? []);
     setCases((c as CaseRow[]) ?? []);

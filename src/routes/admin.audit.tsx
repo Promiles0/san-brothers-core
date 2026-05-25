@@ -68,6 +68,7 @@ function AdminAudit() {
   const [rows, setRows] = useState<AuditRow[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [queryError, setQueryError] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
   const [staffId, setStaffId] = useState<string>("all");
   const [type, setType] = useState<string>("all");
@@ -77,7 +78,7 @@ function AdminAudit() {
 
   useEffect(() => {
     (async () => {
-      const [{ data: auditData }, { data: userData }] = await Promise.all([
+      const [{ data: auditData, error: auditErr }, { data: userData }] = await Promise.all([
         supabase
           .from("audit_log")
           .select("id,action,target_id,target_type,user_id,ip_address,metadata,created_at")
@@ -85,6 +86,10 @@ function AdminAudit() {
           .limit(1000),
         supabase.from("users").select("id,email,full_name").neq("role", "client"),
       ]);
+      if (auditErr) {
+        console.error("[admin/audit]", auditErr.message, auditErr.code);
+        setQueryError(`${auditErr.message} (${auditErr.code ?? "unknown"})`);
+      }
       setRows((auditData as AuditRow[]) ?? []);
       setUsers((userData as UserRow[]) ?? []);
       setLoading(false);
@@ -185,6 +190,15 @@ function AdminAudit() {
               {Array.from({ length: 8 }).map((_, i) => (
                 <Skeleton key={i} className="h-10 w-full" />
               ))}
+            </div>
+          ) : queryError ? (
+            <div className="rounded border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+              <p className="font-medium">Failed to load audit log</p>
+              <p className="mt-1 font-mono text-xs">{queryError}</p>
+              <p className="mt-2 text-muted-foreground">
+                If this is a permissions error, run the following SQL in Supabase:
+              </p>
+              <pre className="mt-1 rounded bg-muted p-2 text-xs">{`CREATE POLICY "Admins read audit log" ON public.audit_log\nFOR SELECT TO authenticated\nUSING (EXISTS (\n  SELECT 1 FROM public.users\n  WHERE id = auth.uid() AND role = 'admin'\n));`}</pre>
             </div>
           ) : filtered.length === 0 ? (
             <p className="text-sm text-muted-foreground">No audit entries match the filters.</p>

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { logAudit } from "@/lib/audit";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -93,13 +94,27 @@ function AdminServices() {
     if (error) {
       toast.error(error.message);
       setServices((prev) => prev.map((s) => (s.id === svc.id ? { ...s, is_active: !next } : s)));
-    } else toast.success(`${svc.name_en} ${next ? "activated" : "deactivated"}`);
+    } else {
+      toast.success(`${svc.name_en} ${next ? "activated" : "deactivated"}`);
+      void logAudit({
+        action: next ? "service_activated" : "service_deactivated",
+        target_type: "service",
+        target_id: svc.id,
+        metadata: { service: svc.name_en },
+      });
+    }
   };
 
   const updatePrice = async (svc: ServiceRow, field: "price_min_rwf" | "price_max_rwf", val: number) => {
     setServices((prev) => prev.map((s) => (s.id === svc.id ? { ...s, [field]: val } : s)));
     const { error } = await supabase.from("services").update({ [field]: val }).eq("id", svc.id);
     if (error) toast.error(error.message);
+    else void logAudit({
+      action: "service_price_updated",
+      target_type: "service",
+      target_id: svc.id,
+      metadata: { service: svc.name_en, field, value: val },
+    });
   };
 
   const handleSave = async () => {
@@ -126,6 +141,12 @@ function AdminServices() {
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success(editing.id ? "Service updated" : "Service created");
+    void logAudit({
+      action: editing.id ? "service_updated" : "service_created",
+      target_type: "service",
+      target_id: editing.id,
+      metadata: { name: payload.name_en, category: payload.category },
+    });
     setEditing(null);
     fetchServices();
   };

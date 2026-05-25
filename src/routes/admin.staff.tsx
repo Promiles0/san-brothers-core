@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { logAudit } from "@/lib/audit";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { type Capability } from "@/lib/staff/capability-context";
@@ -175,6 +176,12 @@ function AdminStaff() {
     setSavingRole(false);
     if (error) return toast.error(error.message);
     toast.success("Role updated");
+    void logAudit({
+      action: "role_changed",
+      target_type: "user",
+      target_id: editingUser.id,
+      metadata: { name: editingUser.full_name ?? editingUser.email, from: editingUser.role, to: editRole },
+    });
     setEditingUser(null);
     fetchStaff();
   };
@@ -224,7 +231,15 @@ function AdminStaff() {
     if (error) {
       toast.error(error.message);
       setStaff((prev) => prev.map((s) => (s.id === u.id ? { ...s, status: u.status } : s)));
-    } else toast.success(`Account ${next}`);
+    } else {
+      toast.success(`Account ${next}`);
+      void logAudit({
+        action: next === "active" ? "staff_activated" : "staff_deactivated",
+        target_type: "user",
+        target_id: u.id,
+        metadata: { name: u.full_name ?? u.email },
+      });
+    }
   };
 
   const handleInvite = async () => {

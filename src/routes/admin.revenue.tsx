@@ -55,7 +55,10 @@ interface CaseInfo {
   service_category: string;
 }
 
-const PIE_COLORS = ["hsl(var(--primary))", "hsl(var(--chart-2, 200 80% 55%))", "hsl(var(--chart-3, 30 90% 55%))", "hsl(var(--chart-4, 280 70% 60%))"];
+const PIE_COLORS = ["#6366f1", "#22c55e", "#f59e0b", "#ef4444", "#06b6d4"];
+
+const fmtUSD = (v: number) =>
+  "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function AdminRevenue() {
   const [rows, setRows] = useState<PayRow[]>([]);
@@ -145,7 +148,7 @@ function AdminRevenue() {
       filtered.map((p) => ({
         date: p.created_at,
         client: p.client?.full_name ?? p.client?.email ?? "",
-        amount_rwf: p.amount_rwf ?? 0,
+        amount_usd: p.amount_rwf ?? 0,
         method: p.method ?? "",
         status: p.status,
         reference: p.reference ?? "",
@@ -163,10 +166,10 @@ function AdminRevenue() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "Total revenue", value: `${kpis.total.toLocaleString()} RWF` },
-          { label: "This month", value: `${kpis.month.toLocaleString()} RWF` },
-          { label: "This week", value: `${kpis.week.toLocaleString()} RWF` },
-          { label: "Avg per case", value: `${Math.round(kpis.avgPerCase).toLocaleString()} RWF` },
+          { label: "Total revenue", value: fmtUSD(kpis.total) },
+          { label: "This month", value: fmtUSD(kpis.month) },
+          { label: "This week", value: fmtUSD(kpis.week) },
+          { label: "Avg per case", value: fmtUSD(Math.round(kpis.avgPerCase)) },
         ].map((k) => (
           <Card key={k.label}>
             <CardContent className="p-5">
@@ -184,11 +187,11 @@ function AdminRevenue() {
             {mounted && (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={monthlyTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : `${v}`} />
-                  <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => `${v.toLocaleString()} RWF`} />
-                  <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.3} />
+                  <XAxis dataKey="month" stroke="currentColor" strokeOpacity={0.3} fontSize={11} />
+                  <YAxis stroke="currentColor" strokeOpacity={0.3} fontSize={11} tickFormatter={(v: number) => v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => fmtUSD(v)} />
+                  <Line type="monotone" dataKey="revenue" stroke="#6366f1" fill="#6366f1" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             )}
@@ -201,11 +204,11 @@ function AdminRevenue() {
             {mounted && (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={byCategory}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="category" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : `${v}`} />
-                  <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => `${v.toLocaleString()} RWF`} />
-                  <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.3} />
+                  <XAxis dataKey="category" stroke="currentColor" strokeOpacity={0.3} fontSize={11} />
+                  <YAxis stroke="currentColor" strokeOpacity={0.3} fontSize={11} tickFormatter={(v: number) => v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => fmtUSD(v)} />
+                  <Bar dataKey="revenue" fill="#6366f1" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -224,7 +227,7 @@ function AdminRevenue() {
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(v: number) => `${v.toLocaleString()} RWF`} />
+                <Tooltip formatter={(v: number) => fmtUSD(v)} />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -283,7 +286,7 @@ function AdminRevenue() {
                   <TableRow key={p.id}>
                     <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{new Date(p.created_at).toLocaleDateString()}</TableCell>
                     <TableCell className="font-medium">{p.client?.full_name ?? p.client?.email ?? "—"}</TableCell>
-                    <TableCell className="tabular-nums">{(p.amount_rwf ?? 0).toLocaleString()} RWF</TableCell>
+                    <TableCell className="tabular-nums">{fmtUSD(p.amount_rwf ?? 0)}</TableCell>
                     <TableCell className="capitalize text-muted-foreground">{p.method ?? "—"}</TableCell>
                     <TableCell>
                       <Badge variant={p.status === "completed" ? "default" : p.status === "refunded" ? "destructive" : "secondary"} className="capitalize">{p.status}</Badge>

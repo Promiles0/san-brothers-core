@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { logAudit } from "@/lib/audit";
 
 interface SvcOpt {
   id: string;
@@ -207,6 +208,12 @@ function Page() {
         id: result.id,
         full_name: result.full_name,
         pin: result.pin,
+      });
+      void logAudit({
+        action: "client_registered",
+        target_type: "user",
+        target_id: result.id,
+        metadata: { full_name: result.full_name },
       });
     } catch (e) {
       toast.error((e as Error).message);

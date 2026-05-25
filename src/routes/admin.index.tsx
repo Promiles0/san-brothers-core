@@ -18,6 +18,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const Route = createFileRoute("/admin/")({ component: AdminOverview });
 
+const fmtUSD = (v: number) =>
+  "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 // Statuses that mean a case is still active (not terminal)
 const ACTIVE_STATUSES = [
   "submitted",
@@ -158,7 +161,7 @@ function AdminOverview() {
         <KpiCard
           icon={DollarSign}
           label="Revenue this month"
-          value={`${kpis.revenueMonth.toLocaleString()} RWF`}
+          value={fmtUSD(kpis.revenueMonth)}
           accent="from-emerald-500/20 to-emerald-500/0"
         />
         <KpiCard
@@ -190,15 +193,17 @@ function AdminOverview() {
             {mounted && (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={casesByCat}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.3} />
                   <XAxis
                     dataKey="category"
-                    stroke="hsl(var(--muted-foreground))"
+                    stroke="currentColor"
+                    strokeOpacity={0.3}
                     fontSize={12}
                     tickFormatter={(v: string) => v.charAt(0).toUpperCase() + v.slice(1)}
                   />
                   <YAxis
-                    stroke="hsl(var(--muted-foreground))"
+                    stroke="currentColor"
+                    strokeOpacity={0.3}
                     fontSize={12}
                     allowDecimals={false}
                   />
@@ -210,7 +215,7 @@ function AdminOverview() {
                       fontSize: 12,
                     }}
                   />
-                  <Bar dataKey="count" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -225,13 +230,14 @@ function AdminOverview() {
             {mounted && (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={revenueTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.3} />
+                  <XAxis dataKey="date" stroke="currentColor" strokeOpacity={0.3} fontSize={11} />
                   <YAxis
-                    stroke="hsl(var(--muted-foreground))"
+                    stroke="currentColor"
+                    strokeOpacity={0.3}
                     fontSize={11}
                     tickFormatter={(v: number) =>
-                      v >= 1000 ? `${(v / 1000).toFixed(0)}k` : `${v}`
+                      v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`
                     }
                   />
                   <Tooltip
@@ -241,12 +247,13 @@ function AdminOverview() {
                       borderRadius: 8,
                       fontSize: 12,
                     }}
-                    formatter={(v: number) => [`${v.toLocaleString()} RWF`, "Revenue"]}
+                    formatter={(v: number) => [fmtUSD(v), "Revenue"]}
                   />
                   <Line
                     type="monotone"
                     dataKey="revenue"
-                    stroke="hsl(var(--primary))"
+                    stroke="#6366f1"
+                    fill="#6366f1"
                     strokeWidth={2}
                     dot={false}
                   />

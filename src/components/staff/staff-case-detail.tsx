@@ -38,6 +38,7 @@ import { StatusBadge } from "@/lib/dashboard/status-badge";
 import { toast } from "sonner";
 import type { ServiceCategory } from "@/lib/types/database";
 import { MessageThread } from "@/components/messaging/message-thread";
+import { logAudit } from "@/lib/audit";
 
 const STATUSES = [
   "submitted",
@@ -197,18 +198,23 @@ export function StaffCaseDetail({
     void load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [id]);
 
-  const updateField = async (patch: Record<string, unknown>) => {
+  const updateField = async (patch: Record<string, unknown>): Promise<boolean> => {
     const { error } = await supabase.from("service_requests").update(patch).eq("id", id);
-    if (error) toast.error(error.message);
-    else {
-      toast.success("Saved");
-      void load();
+    if (error) {
+      toast.error(error.message);
+      return false;
     }
+    toast.success("Saved");
+    void load();
+    return true;
   };
 
   const assignToMe = () => user && updateField({ assigned_staff_id: user.id });
   const reassignTo = (staffId: string) => updateField({ assigned_staff_id: staffId });
-  const saveNotes = () => updateField({ notes });
+  const saveNotes = async () => {
+    const ok = await updateField({ notes });
+    if (ok) void logAudit({ action: "note_added", target_type: "service_request", target_id: id });
+  };
 
   const changeStatus = async (
     newStatus: string,
@@ -225,12 +231,11 @@ export function StaffCaseDetail({
       toast.error(error.message);
       return;
     }
-    await supabase.from("audit_log").insert({
+    void logAudit({
       action: "status_changed",
-      target_id: id,
       target_type: "service_request",
-      metadata: { from: oldStatus, to: newStatus, ...extra },
-      performed_by: user.id,
+      target_id: id,
+      metadata: { from: oldStatus, to: newStatus },
     });
     toast.success(successMsg);
     void load();
@@ -408,7 +413,12 @@ export function StaffCaseDetail({
             <CardContent className="space-y-4">
               <div className="flex flex-wrap items-center gap-3">
                 <label className="text-sm font-medium">Change status:</label>
-                <Select value={data.status} onValueChange={(v) => updateField({ status: v })}>
+                <Select
+                  value={data.status}
+                  onValueChange={(v) => {
+                    void changeStatus(v);
+                  }}
+                >
                   <SelectTrigger className="w-56">
                     <SelectValue />
                   </SelectTrigger>
