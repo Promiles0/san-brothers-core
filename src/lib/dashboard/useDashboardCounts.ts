@@ -49,6 +49,7 @@ export function useDashboardCounts() {
             .select("id", { count: "exact", head: true })
             .in("conversation_id", convIds)
             .eq("is_read", false)
+            .or("system_message.is.null,system_message.eq.false")
             .neq("sender_id", user.id);
           unread = count ?? 0;
         }
