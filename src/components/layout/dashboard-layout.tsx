@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from "react";
-import { Bell, Menu, ChevronRight } from "lucide-react";
+import { Menu, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -75,15 +75,7 @@ export function DashboardLayout({
           </nav>
 
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
-              <Bell className="h-4 w-4" />
-              <Badge
-                variant="destructive"
-                className="absolute -right-1 -top-1 h-4 min-w-4 px-1 text-[10px]"
-              >
-                2
-              </Badge>
-            </Button>
+            <NotificationBell />
             <LanguageSwitcher />
             <ThemeToggle />
             <DropdownMenu>

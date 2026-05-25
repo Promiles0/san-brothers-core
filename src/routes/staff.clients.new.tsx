@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { logAudit } from "@/lib/audit";
+import { createNotificationForAdmins } from "@/lib/notifications";
 
 interface SvcOpt {
   id: string;
@@ -214,6 +215,11 @@ function Page() {
         target_type: "user",
         target_id: result.id,
         metadata: { full_name: result.full_name },
+      });
+      void createNotificationForAdmins({
+        type: "new_client",
+        title: `New client registered: ${result.full_name}`,
+        link: "/admin/clients",
       });
     } catch (e) {
       toast.error((e as Error).message);

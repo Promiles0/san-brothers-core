@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { createNotification } from "@/lib/notifications";
 
 export interface Message {
   id: string;
@@ -128,6 +129,37 @@ export function MessageThread({
         .from("conversations")
         .update({ last_message_at: new Date().toISOString() })
         .eq("id", conversationId);
+      // Notify the other party
+      void (async () => {
+        const { data: conv } = await supabase
+          .from("conversations")
+          .select("client_id, claimed_by")
+          .eq("id", conversationId)
+          .maybeSingle();
+        if (!conv) return;
+        const senderName = user.user_metadata?.full_name ?? user.email ?? "Someone";
+        const isClientSender = user.id === (conv as { client_id: string }).client_id;
+        if (isClientSender) {
+          const staffId = (conv as { claimed_by: string | null }).claimed_by;
+          if (staffId) {
+            await createNotification({
+              user_id: staffId,
+              type: "new_message",
+              title: `New message from ${senderName}`,
+              body: body.slice(0, 120),
+              link: "/staff/messages",
+            });
+          }
+        } else {
+          await createNotification({
+            user_id: (conv as { client_id: string }).client_id,
+            type: "message_received",
+            title: `New message from ${senderName}`,
+            body: body.slice(0, 120),
+            link: "/dashboard/messages",
+          });
+        }
+      })();
     }
     setSending(false);
   };

@@ -14,6 +14,7 @@ import { MessageThread } from "@/components/messaging/message-thread";
 import { ForwardModal } from "@/components/messaging/forward-modal";
 import { AvailabilityToggle } from "@/components/messaging/availability-toggle";
 import { DEPARTMENTS, departmentsForRole, getDepartment } from "@/lib/messaging/departments";
+import { createNotification } from "@/lib/notifications";
 
 export const Route = createFileRoute("/staff/messages")({ component: StaffMessagesPage });
 
@@ -203,6 +204,13 @@ function StaffMessagesPage() {
       selected.id,
       `Conversation forwarded from ${fromName} to ${toName}${note ? ` — Note: ${note}` : ""}`,
     );
+    void createNotification({
+      user_id: staff.id,
+      type: "conversation_forwarded",
+      title: `${fromName} forwarded a conversation to you`,
+      body: note || undefined,
+      link: "/staff/messages",
+    });
     toast.success(`Forwarded to ${toName}`);
     await load();
   };

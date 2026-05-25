@@ -39,6 +39,7 @@ import { toast } from "sonner";
 import type { ServiceCategory } from "@/lib/types/database";
 import { MessageThread } from "@/components/messaging/message-thread";
 import { logAudit } from "@/lib/audit";
+import { createNotification } from "@/lib/notifications";
 
 const STATUSES = [
   "submitted",
@@ -205,6 +206,29 @@ export function StaffCaseDetail({
       return false;
     }
     toast.success("Saved");
+    // Notify newly assigned staff
+    if (
+      "assigned_staff_id" in patch &&
+      patch.assigned_staff_id &&
+      patch.assigned_staff_id !== data?.assigned_staff_id
+    ) {
+      const svcName = data?.service?.name_en ?? "case";
+      void createNotification({
+        user_id: patch.assigned_staff_id as string,
+        type: "case_assigned",
+        title: `New case assigned: ${svcName}`,
+        body: data?.client?.full_name ?? undefined,
+        link: "/staff",
+      });
+      if (data?.client_id) {
+        void createNotification({
+          user_id: data.client_id,
+          type: "case_assigned",
+          title: "Your case has been assigned",
+          link: "/dashboard/my-services",
+        });
+      }
+    }
     void load();
     return true;
   };
@@ -236,6 +260,13 @@ export function StaffCaseDetail({
       target_type: "service_request",
       target_id: id,
       metadata: { from: oldStatus, to: newStatus },
+    });
+    void createNotification({
+      user_id: data.client_id,
+      type: "status_changed",
+      title: `Case status updated to ${newStatus.replace(/_/g, " ")}`,
+      body: data.service?.name_en ?? undefined,
+      link: "/dashboard/my-services",
     });
     toast.success(successMsg);
     void load();
