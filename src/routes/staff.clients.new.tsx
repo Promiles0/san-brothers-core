@@ -216,6 +216,11 @@ function Page() {
         target_id: result.id,
         metadata: { full_name: result.full_name },
       });
+      void createNotificationForAdmins({
+        type: "new_client",
+        title: `New client registered: ${result.full_name}`,
+        link: "/admin/clients",
+      });
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
