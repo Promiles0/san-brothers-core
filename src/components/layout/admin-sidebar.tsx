@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
-  BarChart3,
-  FolderKanban,
   Users,
-  CreditCard,
   UserCog,
-  ShieldCheck,
+  FolderKanban,
+  BarChart3,
+  MessageSquare,
+  FolderOpen,
   ScrollText,
   Wrench,
   Settings,
@@ -22,9 +22,8 @@ import { supabase } from "@/lib/supabase";
 interface Item {
   label: string;
   icon: LucideIcon;
-  to?: string;
-  hash?: string;
-  badgeKey?: "allCases";
+  to: string;
+  badgeKey?: "activeCases";
   action?: "logout";
   intent?: "destructive";
 }
@@ -38,31 +37,31 @@ const groups: Group[] = [
   {
     title: "Overview",
     items: [
-      { label: "Dashboard", icon: LayoutDashboard, to: "/staff/admin" },
-      { label: "Analytics", icon: BarChart3, to: "/staff/admin/analytics" },
+      { label: "Overview", icon: LayoutDashboard, to: "/admin" },
+      { label: "Revenue", icon: BarChart3, to: "/admin/revenue" },
     ],
   },
   {
     title: "Operations",
     items: [
-      { label: "All Cases", icon: FolderKanban, to: "/staff/visa", badgeKey: "allCases" },
-      { label: "Clients", icon: Users, to: "/staff/clients" },
-      { label: "Payments", icon: CreditCard, to: "/staff/admin/payments" },
+      { label: "Clients", icon: Users, to: "/admin/clients" },
+      { label: "Cases", icon: FolderKanban, to: "/admin/cases", badgeKey: "activeCases" },
+      { label: "Messages", icon: MessageSquare, to: "/admin/messages" },
+      { label: "Documents", icon: FolderOpen, to: "/admin/documents" },
     ],
   },
   {
     title: "Organization",
     items: [
-      { label: "Staff Management", icon: UserCog, to: "/staff/admin", hash: "staff" },
-      { label: "Capabilities", icon: ShieldCheck, to: "/staff/admin", hash: "capabilities" },
-      { label: "Audit Log", icon: ScrollText, to: "/staff/admin", hash: "audit" },
+      { label: "Staff", icon: UserCog, to: "/admin/staff" },
+      { label: "Audit Log", icon: ScrollText, to: "/admin/audit" },
     ],
   },
   {
     title: "Configuration",
     items: [
-      { label: "Services & Pricing", icon: Wrench, to: "/staff/admin", hash: "pricing" },
-      { label: "Settings", icon: Settings, to: "/staff/settings" },
+      { label: "Services", icon: Wrench, to: "/admin/services" },
+      { label: "Settings", icon: Settings, to: "/admin/settings" },
     ],
   },
 ];
@@ -70,12 +69,13 @@ const groups: Group[] = [
 const bottom: Item = {
   label: "Log out",
   icon: LogOut,
+  to: "",
   action: "logout",
   intent: "destructive",
 };
 
 function useAdminCounts() {
-  const [counts, setCounts] = useState({ allCases: 0 });
+  const [counts, setCounts] = useState({ activeCases: 0 });
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -83,7 +83,7 @@ function useAdminCounts() {
         .from("service_requests")
         .select("id", { count: "exact", head: true })
         .not("status", "in", "(completed,cancelled,rejected)");
-      if (!cancelled) setCounts({ allCases: count ?? 0 });
+      if (!cancelled) setCounts({ activeCases: count ?? 0 });
     })();
     return () => {
       cancelled = true;
@@ -105,9 +105,7 @@ export function AdminSidebar({
   const currentPath = useRouterState({ select: (s) => s.location.pathname });
 
   const isActive = (item: Item) => {
-    if (!item.to) return false;
-    if (item.hash) return false;
-    if (item.to === "/staff/admin") return currentPath === "/staff/admin";
+    if (item.to === "/admin") return currentPath === "/admin";
     return currentPath === item.to || currentPath.startsWith(item.to + "/");
   };
 
@@ -140,6 +138,7 @@ export function AdminSidebar({
       return (
         <button
           key={item.label}
+          type="button"
           onClick={async () => {
             await signOut();
             onNavigate?.();
@@ -152,28 +151,8 @@ export function AdminSidebar({
       );
     }
 
-    if (item.hash) {
-      return (
-        <a
-          key={item.label}
-          href={`${item.to}#${item.hash}`}
-          onClick={(e) => {
-            if (currentPath === item.to) {
-              e.preventDefault();
-              const el = document.getElementById(item.hash!);
-              el?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }
-            onNavigate?.();
-          }}
-          className={cls}
-        >
-          {inner}
-        </a>
-      );
-    }
-
     return (
-      <Link key={item.label} to={item.to!} onClick={() => onNavigate?.()} className={cls}>
+      <Link key={item.label} to={item.to as never} onClick={() => onNavigate?.()} className={cls}>
         {inner}
       </Link>
     );
@@ -187,14 +166,14 @@ export function AdminSidebar({
           collapsed && "sr-only",
         )}
       >
-        Command Center
+        Admin Panel
       </div>
 
       <div className="flex flex-1 flex-col gap-3">
         {groups.map((g) => (
           <div key={g.title} className="flex flex-col gap-0.5">
             {!collapsed && (
-              <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+              <div className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
                 {g.title}
               </div>
             )}

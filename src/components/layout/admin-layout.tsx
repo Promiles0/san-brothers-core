@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Menu, ChevronRight } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -13,40 +13,32 @@ import {
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
-import { StaffSidebar } from "@/components/layout/staff-sidebar";
+import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "@tanstack/react-router";
 
-export function StaffLayout({
-  children,
-  breadcrumbs = ["Staff", "Home"],
-}: {
-  children: ReactNode;
-  breadcrumbs?: string[];
-}) {
+export function AdminLayout({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
-  const sidebarLabel = "San Brothers — Staff";
-  const sidebarBadge = "SB";
-  const initial = (profile?.full_name?.[0] ?? profile?.email?.[0] ?? "S").toUpperCase();
+  const initial = (profile?.full_name?.[0] ?? profile?.email?.[0] ?? "A").toUpperCase();
 
   return (
     <div className="flex min-h-screen w-full bg-background">
       <aside className="hidden w-64 shrink-0 border-r border-sidebar-border bg-sidebar md:flex md:flex-col">
         <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4">
-          <div className="grid h-8 w-8 place-items-center rounded-md bg-primary font-bold text-primary-foreground">
-            {sidebarBadge}
+          <div className="grid h-8 w-8 place-items-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
+            AD
           </div>
-          <span className="text-sm font-semibold text-sidebar-foreground">{sidebarLabel}</span>
+          <span className="text-sm font-semibold text-sidebar-foreground">San Brothers — Admin</span>
         </div>
         <div className="flex-1 overflow-y-auto">
-          <StaffSidebar />
+          <AdminSidebar />
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border bg-background/80 px-4 backdrop-blur md:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur md:px-6">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
@@ -55,19 +47,20 @@ export function StaffLayout({
             </SheetTrigger>
             <SheetContent side="left" className="w-64 bg-sidebar p-0">
               <SheetHeader className="border-b border-sidebar-border p-4">
-                <SheetTitle>Staff</SheetTitle>
+                <SheetTitle>Admin Panel</SheetTitle>
               </SheetHeader>
-              <StaffSidebar onNavigate={() => setMobileOpen(false)} />
+              <AdminSidebar onNavigate={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
-          <nav className="flex min-w-0 flex-1 items-center gap-1 text-sm text-muted-foreground">
-            {breadcrumbs.map((b, i) => (
-              <span key={i} className="flex items-center gap-1">
-                {i > 0 && <ChevronRight className="h-3 w-3" />}
-                <span className={i === breadcrumbs.length - 1 ? "text-foreground" : ""}>{b}</span>
-              </span>
-            ))}
-          </nav>
+
+          <div className="flex min-w-0 flex-1 items-center">
+            <span className="text-sm font-semibold text-muted-foreground">Admin Panel</span>
+          </div>
+
+          <span className="hidden text-sm text-muted-foreground md:block">
+            {profile?.full_name ?? profile?.email}
+          </span>
+
           <div className="flex items-center gap-1">
             <LanguageSwitcher />
             <ThemeToggle />
@@ -75,18 +68,16 @@ export function StaffLayout({
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                    <AvatarFallback className="bg-primary text-xs text-primary-foreground">
                       {initial}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel className="capitalize">
-                  {profile?.full_name ?? profile?.role}
-                </DropdownMenuLabel>
+                <DropdownMenuLabel>{profile?.full_name ?? "Admin"}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate({ to: "/staff/settings" })}>
+                <DropdownMenuItem onClick={() => navigate({ to: "/admin/settings" })}>
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -102,6 +93,7 @@ export function StaffLayout({
             </DropdownMenu>
           </div>
         </header>
+
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
     </div>

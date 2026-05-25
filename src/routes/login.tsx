@@ -69,11 +69,25 @@ function LoginPage() {
       console.log("[Login] Success! User:", authData.user.email);
       toast.success("Welcome back!");
 
-      // Redirect — skip profile lookup for now, go straight to dashboard
       if (next) {
         window.location.href = next;
-      } else {
+        return;
+      }
+
+      // Fetch role to redirect correctly
+      const { data: profileData } = await supabase
+        .from("users")
+        .select("role")
+        .eq("id", authData.user.id)
+        .maybeSingle();
+      const role = (profileData as { role?: string } | null)?.role;
+
+      if (role === "admin") {
+        navigate({ to: "/admin", search: {} as never });
+      } else if (role === "client") {
         navigate({ to: "/dashboard", search: {} as never });
+      } else {
+        navigate({ to: "/staff", search: {} as never });
       }
     } catch (err) {
       console.error("[Login] Unexpected error:", err);

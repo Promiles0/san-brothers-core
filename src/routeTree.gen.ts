@@ -19,12 +19,14 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DevRouteImport } from './routes/dev'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TranslateIndexRouteImport } from './routes/translate/index'
 import { Route as StaffIndexRouteImport } from './routes/staff.index'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as TranslatePricingRouteImport } from './routes/translate/pricing'
 import { Route as TranslateLiveRouteImport } from './routes/translate/live'
 import { Route as TranslateLanguagesRouteImport } from './routes/translate/languages'
@@ -51,6 +53,15 @@ import { Route as DashboardMessagesRouteImport } from './routes/dashboard.messag
 import { Route as DashboardDocumentsRouteImport } from './routes/dashboard.documents'
 import { Route as AuthErrorRouteImport } from './routes/auth.error'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AdminStaffRouteImport } from './routes/admin.staff'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminServicesRouteImport } from './routes/admin.services'
+import { Route as AdminRevenueRouteImport } from './routes/admin.revenue'
+import { Route as AdminMessagesRouteImport } from './routes/admin.messages'
+import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
+import { Route as AdminClientsRouteImport } from './routes/admin.clients'
+import { Route as AdminCasesRouteImport } from './routes/admin.cases'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as TranslateLiveIndexRouteImport } from './routes/translate/live/index'
 import { Route as StaffVisaIndexRouteImport } from './routes/staff.visa.index'
 import { Route as StaffTranslationIndexRouteImport } from './routes/staff.translation.index'
@@ -76,6 +87,7 @@ import { Route as DashboardServicesSlugRouteImport } from './routes/dashboard.se
 import { Route as DashboardMyServicesIdRouteImport } from './routes/dashboard.my-services.$id'
 import { Route as DashboardClaimsNewRouteImport } from './routes/dashboard.claims.new'
 import { Route as DashboardClaimsIdRouteImport } from './routes/dashboard.claims.$id'
+import { Route as AdminClientsIdRouteImport } from './routes/admin.clients.$id'
 
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
@@ -127,6 +139,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -156,6 +173,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DashboardRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const TranslatePricingRoute = TranslatePricingRouteImport.update({
   id: '/translate/pricing',
@@ -287,6 +309,51 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminStaffRoute = AdminStaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminServicesRoute = AdminServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRevenueRoute = AdminRevenueRouteImport.update({
+  id: '/revenue',
+  path: '/revenue',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMessagesRoute = AdminMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDocumentsRoute = AdminDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminClientsRoute = AdminClientsRouteImport.update({
+  id: '/clients',
+  path: '/clients',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCasesRoute = AdminCasesRouteImport.update({
+  id: '/cases',
+  path: '/cases',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
 const TranslateLiveIndexRoute = TranslateLiveIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -413,10 +480,16 @@ const DashboardClaimsIdRoute = DashboardClaimsIdRouteImport.update({
   path: '/claims/$id',
   getParentRoute: () => DashboardRoute,
 } as any)
+const AdminClientsIdRoute = AdminClientsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AdminClientsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/dev': typeof DevRoute
@@ -427,6 +500,15 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRouteWithChildren
   '/staff': typeof StaffRouteWithChildren
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/cases': typeof AdminCasesRoute
+  '/admin/clients': typeof AdminClientsRouteWithChildren
+  '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/messages': typeof AdminMessagesRoute
+  '/admin/revenue': typeof AdminRevenueRoute
+  '/admin/services': typeof AdminServicesRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/staff': typeof AdminStaffRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
@@ -453,10 +535,12 @@ export interface FileRoutesByFullPath {
   '/translate/languages': typeof TranslateLanguagesRoute
   '/translate/live': typeof TranslateLiveRouteWithChildren
   '/translate/pricing': typeof TranslatePricingRoute
+  '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/staff/': typeof StaffIndexRoute
   '/translate/': typeof TranslateIndexRoute
+  '/admin/clients/$id': typeof AdminClientsIdRoute
   '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
   '/dashboard/claims/new': typeof DashboardClaimsNewRoute
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
@@ -494,6 +578,15 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRouteWithChildren
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/cases': typeof AdminCasesRoute
+  '/admin/clients': typeof AdminClientsRouteWithChildren
+  '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/messages': typeof AdminMessagesRoute
+  '/admin/revenue': typeof AdminRevenueRoute
+  '/admin/services': typeof AdminServicesRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/staff': typeof AdminStaffRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
@@ -514,10 +607,12 @@ export interface FileRoutesByTo {
   '/translate/how-it-works': typeof TranslateHowItWorksRoute
   '/translate/languages': typeof TranslateLanguagesRoute
   '/translate/pricing': typeof TranslatePricingRoute
+  '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/services': typeof ServicesIndexRoute
   '/staff': typeof StaffIndexRoute
   '/translate': typeof TranslateIndexRoute
+  '/admin/clients/$id': typeof AdminClientsIdRoute
   '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
   '/dashboard/claims/new': typeof DashboardClaimsNewRoute
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
@@ -548,6 +643,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/dev': typeof DevRoute
@@ -558,6 +654,15 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRouteWithChildren
   '/staff': typeof StaffRouteWithChildren
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/cases': typeof AdminCasesRoute
+  '/admin/clients': typeof AdminClientsRouteWithChildren
+  '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/messages': typeof AdminMessagesRoute
+  '/admin/revenue': typeof AdminRevenueRoute
+  '/admin/services': typeof AdminServicesRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/staff': typeof AdminStaffRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
@@ -584,10 +689,12 @@ export interface FileRoutesById {
   '/translate/languages': typeof TranslateLanguagesRoute
   '/translate/live': typeof TranslateLiveRouteWithChildren
   '/translate/pricing': typeof TranslatePricingRoute
+  '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/staff/': typeof StaffIndexRoute
   '/translate/': typeof TranslateIndexRoute
+  '/admin/clients/$id': typeof AdminClientsIdRoute
   '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
   '/dashboard/claims/new': typeof DashboardClaimsNewRoute
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
@@ -619,6 +726,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/admin'
     | '/contact'
     | '/dashboard'
     | '/dev'
@@ -629,6 +737,15 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/staff'
+    | '/admin/audit'
+    | '/admin/cases'
+    | '/admin/clients'
+    | '/admin/documents'
+    | '/admin/messages'
+    | '/admin/revenue'
+    | '/admin/services'
+    | '/admin/settings'
+    | '/admin/staff'
     | '/auth/callback'
     | '/auth/error'
     | '/dashboard/documents'
@@ -655,10 +772,12 @@ export interface FileRouteTypes {
     | '/translate/languages'
     | '/translate/live'
     | '/translate/pricing'
+    | '/admin/'
     | '/dashboard/'
     | '/services/'
     | '/staff/'
     | '/translate/'
+    | '/admin/clients/$id'
     | '/dashboard/claims/$id'
     | '/dashboard/claims/new'
     | '/dashboard/my-services/$id'
@@ -696,6 +815,15 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/reset-password'
     | '/signup'
+    | '/admin/audit'
+    | '/admin/cases'
+    | '/admin/clients'
+    | '/admin/documents'
+    | '/admin/messages'
+    | '/admin/revenue'
+    | '/admin/services'
+    | '/admin/settings'
+    | '/admin/staff'
     | '/auth/callback'
     | '/auth/error'
     | '/dashboard/documents'
@@ -716,10 +844,12 @@ export interface FileRouteTypes {
     | '/translate/how-it-works'
     | '/translate/languages'
     | '/translate/pricing'
+    | '/admin'
     | '/dashboard'
     | '/services'
     | '/staff'
     | '/translate'
+    | '/admin/clients/$id'
     | '/dashboard/claims/$id'
     | '/dashboard/claims/new'
     | '/dashboard/my-services/$id'
@@ -749,6 +879,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/admin'
     | '/contact'
     | '/dashboard'
     | '/dev'
@@ -759,6 +890,15 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/staff'
+    | '/admin/audit'
+    | '/admin/cases'
+    | '/admin/clients'
+    | '/admin/documents'
+    | '/admin/messages'
+    | '/admin/revenue'
+    | '/admin/services'
+    | '/admin/settings'
+    | '/admin/staff'
     | '/auth/callback'
     | '/auth/error'
     | '/dashboard/documents'
@@ -785,10 +925,12 @@ export interface FileRouteTypes {
     | '/translate/languages'
     | '/translate/live'
     | '/translate/pricing'
+    | '/admin/'
     | '/dashboard/'
     | '/services/'
     | '/staff/'
     | '/translate/'
+    | '/admin/clients/$id'
     | '/dashboard/claims/$id'
     | '/dashboard/claims/new'
     | '/dashboard/my-services/$id'
@@ -819,6 +961,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AdminRoute: typeof AdminRouteWithChildren
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   DevRoute: typeof DevRoute
@@ -916,6 +1059,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -957,6 +1107,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/'
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/translate/pricing': {
       id: '/translate/pricing'
@@ -1140,6 +1297,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/staff': {
+      id: '/admin/staff'
+      path: '/staff'
+      fullPath: '/admin/staff'
+      preLoaderRoute: typeof AdminStaffRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/services': {
+      id: '/admin/services'
+      path: '/services'
+      fullPath: '/admin/services'
+      preLoaderRoute: typeof AdminServicesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/revenue': {
+      id: '/admin/revenue'
+      path: '/revenue'
+      fullPath: '/admin/revenue'
+      preLoaderRoute: typeof AdminRevenueRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/messages': {
+      id: '/admin/messages'
+      path: '/messages'
+      fullPath: '/admin/messages'
+      preLoaderRoute: typeof AdminMessagesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/documents': {
+      id: '/admin/documents'
+      path: '/documents'
+      fullPath: '/admin/documents'
+      preLoaderRoute: typeof AdminDocumentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/clients': {
+      id: '/admin/clients'
+      path: '/clients'
+      fullPath: '/admin/clients'
+      preLoaderRoute: typeof AdminClientsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/cases': {
+      id: '/admin/cases'
+      path: '/cases'
+      fullPath: '/admin/cases'
+      preLoaderRoute: typeof AdminCasesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/translate/live/': {
       id: '/translate/live/'
       path: '/'
@@ -1315,8 +1535,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardClaimsIdRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/admin/clients/$id': {
+      id: '/admin/clients/$id'
+      path: '/$id'
+      fullPath: '/admin/clients/$id'
+      preLoaderRoute: typeof AdminClientsIdRouteImport
+      parentRoute: typeof AdminClientsRoute
+    }
   }
 }
+
+interface AdminClientsRouteChildren {
+  AdminClientsIdRoute: typeof AdminClientsIdRoute
+}
+
+const AdminClientsRouteChildren: AdminClientsRouteChildren = {
+  AdminClientsIdRoute: AdminClientsIdRoute,
+}
+
+const AdminClientsRouteWithChildren = AdminClientsRoute._addFileChildren(
+  AdminClientsRouteChildren,
+)
+
+interface AdminRouteChildren {
+  AdminAuditRoute: typeof AdminAuditRoute
+  AdminCasesRoute: typeof AdminCasesRoute
+  AdminClientsRoute: typeof AdminClientsRouteWithChildren
+  AdminDocumentsRoute: typeof AdminDocumentsRoute
+  AdminMessagesRoute: typeof AdminMessagesRoute
+  AdminRevenueRoute: typeof AdminRevenueRoute
+  AdminServicesRoute: typeof AdminServicesRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminStaffRoute: typeof AdminStaffRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAuditRoute: AdminAuditRoute,
+  AdminCasesRoute: AdminCasesRoute,
+  AdminClientsRoute: AdminClientsRouteWithChildren,
+  AdminDocumentsRoute: AdminDocumentsRoute,
+  AdminMessagesRoute: AdminMessagesRoute,
+  AdminRevenueRoute: AdminRevenueRoute,
+  AdminServicesRoute: AdminServicesRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminStaffRoute: AdminStaffRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface DashboardRouteChildren {
   DashboardDocumentsRoute: typeof DashboardDocumentsRoute
@@ -1498,6 +1765,7 @@ const TranslateLiveRouteWithChildren = TranslateLiveRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AdminRoute: AdminRouteWithChildren,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRouteWithChildren,
   DevRoute: DevRoute,
@@ -1525,3 +1793,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

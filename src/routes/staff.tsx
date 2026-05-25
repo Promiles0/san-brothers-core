@@ -19,12 +19,16 @@ function StaffLayoutRoute() {
       navigate({ to: "/login", search: { next: "/staff" } as never });
       return;
     }
+    if (profile && profile.role === "admin") {
+      navigate({ to: "/admin", search: {} as never });
+      return;
+    }
     if (profile && profile.role === "client") {
       navigate({ to: "/dashboard", search: {} as never });
     }
   }, [loading, user, profile, navigate]);
 
-  if (loading || !user || !profile || profile.role === "client") {
+  if (loading || !user || !profile || profile.role === "client" || profile.role === "admin") {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
