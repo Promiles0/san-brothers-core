@@ -75,15 +75,7 @@ export function DashboardLayout({
           </nav>
 
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
-              <Bell className="h-4 w-4" />
-              <Badge
-                variant="destructive"
-                className="absolute -right-1 -top-1 h-4 min-w-4 px-1 text-[10px]"
-              >
-                2
-              </Badge>
-            </Button>
+            <NotificationBell />
             <LanguageSwitcher />
             <ThemeToggle />
             <DropdownMenu>
