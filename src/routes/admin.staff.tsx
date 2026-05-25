@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, UserPlus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
@@ -101,6 +104,10 @@ function AdminStaff() {
   const [selectedCaps, setSelectedCaps] = useState<Set<Capability>>(new Set());
   const [capsSaving, setCapsSaving] = useState(false);
   const [lastActive, setLastActive] = useState<Record<string, string | null>>({});
+  const [caseCounts, setCaseCounts] = useState<Record<string, { active: number; completed: number }>>({});
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteForm, setInviteForm] = useState({ full_name: "", email: "", role: "secretary" as StaffRole });
+  const [inviting, setInviting] = useState(false);
 
   const fetchStaff = useCallback(async () => {
     setLoading(true);
@@ -111,6 +118,19 @@ function AdminStaff() {
       .order("created_at", { ascending: false });
     const rows = (data as UserRow[]) ?? [];
     setStaff(rows);
+
+    const { data: caseData } = await supabase
+      .from("service_requests")
+      .select("assigned_staff_id,status");
+    const counts: Record<string, { active: number; completed: number }> = {};
+    for (const r of (caseData ?? []) as { assigned_staff_id: string | null; status: string }[]) {
+      if (!r.assigned_staff_id) continue;
+      const c = counts[r.assigned_staff_id] ?? { active: 0, completed: 0 };
+      if (r.status === "completed") c.completed++;
+      else if (!["cancelled", "rejected"].includes(r.status)) c.active++;
+      counts[r.assigned_staff_id] = c;
+    }
+    setCaseCounts(counts);
 
     const activityMap: Record<string, string | null> = {};
     await Promise.all(
@@ -197,11 +217,44 @@ function AdminStaff() {
 
   const selectedStaff = staff.find((s) => s.id === selectedStaffId);
 
+  const toggleStatus = async (u: UserRow) => {
+    const next = u.status === "active" ? "inactive" : "active";
+    setStaff((prev) => prev.map((s) => (s.id === u.id ? { ...s, status: next } : s)));
+    const { error } = await supabase.from("users").update({ status: next }).eq("id", u.id);
+    if (error) {
+      toast.error(error.message);
+      setStaff((prev) => prev.map((s) => (s.id === u.id ? { ...s, status: u.status } : s)));
+    } else toast.success(`Account ${next}`);
+  };
+
+  const handleInvite = async () => {
+    if (!inviteForm.email.trim() || !inviteForm.full_name.trim()) return toast.error("Name and email required");
+    setInviting(true);
+    const { error } = await supabase.from("users").insert({
+      email: inviteForm.email,
+      full_name: inviteForm.full_name,
+      role: inviteForm.role,
+      status: "invited",
+      signup_source: "admin_invite",
+    });
+    setInviting(false);
+    if (error) return toast.error(error.message);
+    toast.success("Staff invited");
+    setInviteOpen(false);
+    setInviteForm({ full_name: "", email: "", role: "secretary" });
+    fetchStaff();
+  };
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">Staff</h1>
-        <p className="text-sm text-muted-foreground">Manage staff accounts, roles, and capabilities.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Staff</h1>
+          <p className="text-sm text-muted-foreground">Manage staff accounts, roles, and capabilities.</p>
+        </div>
+        <Button onClick={() => setInviteOpen(true)}>
+          <UserPlus className="mr-1.5 h-4 w-4" /> Invite staff
+        </Button>
       </div>
 
       <Card>
@@ -222,7 +275,9 @@ function AdminStaff() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead className="text-center">Active</TableHead>
+                  <TableHead className="text-center">Completed</TableHead>
+                  <TableHead>Active?</TableHead>
                   <TableHead>Last active</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -235,17 +290,12 @@ function AdminStaff() {
                       <p className="text-xs text-muted-foreground">{u.email}</p>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="capitalize">
-                        {u.role}
-                      </Badge>
+                      <Badge variant="secondary" className="capitalize">{u.role}</Badge>
                     </TableCell>
+                    <TableCell className="text-center tabular-nums">{caseCounts[u.id]?.active ?? 0}</TableCell>
+                    <TableCell className="text-center tabular-nums">{caseCounts[u.id]?.completed ?? 0}</TableCell>
                     <TableCell>
-                      <Badge
-                        variant={u.status === "active" ? "default" : "secondary"}
-                        className="capitalize"
-                      >
-                        {u.status}
-                      </Badge>
+                      <Switch checked={u.status === "active"} onCheckedChange={() => toggleStatus(u)} />
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {lastActive[u.id] ? timeAgo(lastActive[u.id]!) : "—"}
@@ -395,6 +445,40 @@ function AdminStaff() {
             <Button onClick={handleSaveRole} disabled={savingRole}>
               {savingRole && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Invite staff member</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Full name</Label>
+              <Input value={inviteForm.full_name} onChange={(e) => setInviteForm({ ...inviteForm, full_name: e.target.value })} />
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input type="email" value={inviteForm.email} onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })} />
+            </div>
+            <div>
+              <Label>Role</Label>
+              <Select value={inviteForm.role} onValueChange={(v) => setInviteForm({ ...inviteForm, role: v as StaffRole })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {STAFF_ROLES.map((r) => (
+                    <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInviteOpen(false)}>Cancel</Button>
+            <Button onClick={handleInvite} disabled={inviting}>
+              {inviting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Send invite
             </Button>
           </DialogFooter>
         </DialogContent>

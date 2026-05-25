@@ -1,9 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { Download } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -12,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { exportCsv } from "@/lib/admin/download-zip";
 
 export const Route = createFileRoute("/admin/audit")({ component: AdminAudit });
 
@@ -19,7 +30,10 @@ interface AuditRow {
   id: string;
   action: string;
   target_id: string | null;
+  target_type: string | null;
   user_id: string | null;
+  ip_address: string | null;
+  metadata: Record<string, unknown> | null;
   created_at: string;
 }
 
@@ -29,20 +43,46 @@ interface UserRow {
   full_name: string | null;
 }
 
+const PAGE = 50;
+
+function actionType(action: string) {
+  const a = action.toLowerCase();
+  if (a.includes("create") || a.includes("insert")) return "create";
+  if (a.includes("update") || a.includes("edit")) return "update";
+  if (a.includes("delete") || a.includes("remove")) return "delete";
+  if (a.includes("login") || a.includes("logout")) return "login";
+  if (a.includes("download") || a.includes("export")) return "download";
+  return "other";
+}
+
+const ACTION_COLORS: Record<string, string> = {
+  create: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30",
+  update: "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30",
+  delete: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
+  login: "bg-muted text-muted-foreground",
+  download: "bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30",
+  other: "bg-muted text-muted-foreground",
+};
+
 function AdminAudit() {
   const [rows, setRows] = useState<AuditRow[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("");
+  const [staffId, setStaffId] = useState<string>("all");
+  const [type, setType] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     (async () => {
       const [{ data: auditData }, { data: userData }] = await Promise.all([
         supabase
           .from("audit_log")
-          .select("id,action,target_id,user_id,created_at")
+          .select("id,action,target_id,target_type,user_id,ip_address,metadata,created_at")
           .order("created_at", { ascending: false })
-          .limit(200),
+          .limit(1000),
         supabase.from("users").select("id,email,full_name").neq("role", "client"),
       ]);
       setRows((auditData as AuditRow[]) ?? []);
@@ -53,41 +93,90 @@ function AdminAudit() {
 
   const nameById = useMemo(() => {
     const m: Record<string, string> = {};
-    users.forEach((u) => {
-      m[u.id] = u.full_name ?? u.email;
-    });
+    users.forEach((u) => (m[u.id] = u.full_name ?? u.email));
     return m;
   }, [users]);
 
   const filtered = useMemo(() => {
-    if (!filter.trim()) return rows;
     const q = filter.toLowerCase();
-    return rows.filter(
-      (a) =>
-        a.action.toLowerCase().includes(q) ||
-        (a.user_id && nameById[a.user_id]?.toLowerCase().includes(q)),
+    return rows.filter((a) => {
+      if (staffId !== "all" && a.user_id !== staffId) return false;
+      if (type !== "all" && actionType(a.action) !== type) return false;
+      if (dateFrom && a.created_at < dateFrom) return false;
+      if (dateTo && a.created_at > dateTo + "T23:59:59") return false;
+      if (q && !a.action.toLowerCase().includes(q) && !(a.user_id && nameById[a.user_id]?.toLowerCase().includes(q)) && !JSON.stringify(a.metadata ?? {}).toLowerCase().includes(q)) {
+        return false;
+      }
+      return true;
+    });
+  }, [rows, filter, staffId, type, dateFrom, dateTo, nameById]);
+
+  const pageRows = filtered.slice(page * PAGE, (page + 1) * PAGE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE));
+
+  const handleExport = () => {
+    exportCsv(
+      filtered.map((a) => ({
+        timestamp: a.created_at,
+        action: a.action,
+        type: actionType(a.action),
+        staff: a.user_id ? (nameById[a.user_id] ?? a.user_id) : "System",
+        target_type: a.target_type ?? "",
+        target_id: a.target_id ?? "",
+        ip: a.ip_address ?? "",
+        details: JSON.stringify(a.metadata ?? {}),
+      })),
+      `audit_log_${new Date().toISOString().slice(0, 10)}.csv`,
     );
-  }, [rows, filter, nameById]);
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Audit Log</h1>
           <p className="text-sm text-muted-foreground">Complete record of all system actions.</p>
         </div>
+        <Button size="sm" variant="outline" onClick={handleExport} disabled={filtered.length === 0}>
+          <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
         <Input
-          placeholder="Filter by action or staff…"
+          placeholder="Search action or staff…"
           value={filter}
-          onChange={(e) => setFilter(e.target.value)}
+          onChange={(e) => {
+            setFilter(e.target.value);
+            setPage(0);
+          }}
           className="max-w-xs"
         />
+        <Select value={staffId} onValueChange={(v) => { setStaffId(v); setPage(0); }}>
+          <SelectTrigger className="w-48"><SelectValue placeholder="All staff" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All staff</SelectItem>
+            {users.map((u) => (
+              <SelectItem key={u.id} value={u.id}>{u.full_name ?? u.email}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={type} onValueChange={(v) => { setType(v); setPage(0); }}>
+          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {["all", "create", "update", "delete", "login", "download", "other"].map((t) => (
+              <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setPage(0); }} className="w-40" />
+        <Input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setPage(0); }} className="w-40" />
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {loading ? "Loading…" : `${filtered.length} entries`}
+            {loading ? "Loading…" : `${filtered.length} entries · page ${page + 1} of ${totalPages}`}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -98,34 +187,56 @@ function AdminAudit() {
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No audit entries.</p>
+            <p className="text-sm text-muted-foreground">No audit entries match the filters.</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Target ID</TableHead>
-                  <TableHead>Staff</TableHead>
-                  <TableHead>Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((a) => (
-                  <TableRow key={a.id}>
-                    <TableCell className="font-medium">{a.action}</TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
-                      {a.target_id ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {a.user_id ? (nameById[a.user_id] ?? a.user_id.slice(0, 8)) : "System"}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {new Date(a.created_at).toLocaleString()}
-                    </TableCell>
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Staff</TableHead>
+                    <TableHead>Action</TableHead>
+                    <TableHead>Target</TableHead>
+                    <TableHead>IP</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {pageRows.map((a) => {
+                    const t = actionType(a.action);
+                    return (
+                      <TableRow key={a.id}>
+                        <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                          {new Date(a.created_at).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {a.user_id ? (nameById[a.user_id] ?? a.user_id.slice(0, 8)) : "System"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={`${ACTION_COLORS[t]} text-xs`}>
+                            {a.action}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {a.target_type ? `${a.target_type}:` : ""}
+                          {a.target_id ? a.target_id.slice(0, 8) : "—"}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {a.ip_address ?? "—"}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+              <div className="mt-4 flex justify-end gap-2">
+                <Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
+                  Previous
+                </Button>
+                <Button size="sm" variant="outline" disabled={page + 1 >= totalPages} onClick={() => setPage((p) => p + 1)}>
+                  Next
+                </Button>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
