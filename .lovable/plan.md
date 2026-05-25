@@ -1,79 +1,98 @@
-# Client Dashboard Build Plan
+# Admin Panel Full Build-Out
 
-This is a large feature build — ~15 new files, 1 sidebar update, and i18n additions for 3 languages. Here's how I'll structure it.
+Eight admin pages already exist as scaffolds at `/admin/*`. I'll enhance each with the requested functionality. The admin layout, sidebar, and Supabase wiring are already in place.
 
-## Files to create
+## Dependencies & Schema
 
-**Route files (under `src/routes/dashboard/`):**
+1. Install `jszip` + `file-saver` (used for client-side ZIP downloads).
+2. Create one new table via migration:
+  - `company_settings (key text PK, value jsonb, updated_at timestamptz)` — for Settings page.
+3. Add a storage helper that takes a list of `documents` rows, fetches each from the `documents` bucket via signed URLs, bundles into a ZIP, and triggers download.
 
-1. `dashboard.index.tsx` — Home (welcome, quick stats, active services, quick actions)
-2. `dashboard.services.index.tsx` — Service catalog (search + category tabs, language-aware names)
-3. `dashboard.services.$slug.tsx` — Request a service (dynamic form per category + document checklist + upload)
-4. `dashboard.my-services.index.tsx` — Active/Completed/Cancelled tabs
-5. `dashboard.my-services.$id.tsx` — Progress timeline + documents + chat stub
-6. `dashboard.documents.tsx` — Folder view grouped by service request
-7. `dashboard.messages.tsx` — Stub "coming soon"
-8. `dashboard.payments.tsx` — Stub + read-only price history
-9. `dashboard.claims.index.tsx` — Open/Resolved/Rejected tabs
-10. `dashboard.claims.new.tsx` — New claim form with evidence upload
-11. `dashboard.claims.$id.tsx` — Claim detail
-12. `dashboard.profile.tsx` — Editable profile + avatar upload
-13. `dashboard.settings.tsx` — Theme, language, security stubs
+## 1. Documents (`admin.documents.tsx`)
 
-**Shared helpers (under `src/lib/dashboard/`):**
+Rebuild as a 2-pane folder browser:
 
-- `queries.ts` — Reusable Supabase query functions (sidebar counts, my services, documents-by-folder, etc.)
-- `status-badge.tsx` — Status badge component with consistent colors
-- `service-requirements.ts` — Hardcoded slug → required documents mapping
-- `useDashboardCounts.ts` — Hook returning `{ activeServices, unreadMessages, openClaims }` for sidebar badges
+- Left: collapsible client tree (clients → cases).
+- Right: breadcrumb + document table with checkboxes, per-row preview/download, and bulk "Download Selected as ZIP" and "Download All for Client" buttons.
+- Global search filters across client name + document name.
 
-## Files to update
+## 2. Clients (`admin.clients.tsx` + `admin.clients.$id.tsx`)
 
-- `src/components/layout/sidebar-menus.ts` — Replace static client menu with full menu (Home, Browse Services, My Services, Documents, Messages, Payments, Claims, Profile, Settings, Log out)
-- `src/components/layout/sidebar.tsx` — Accept `to` prop on items + render as `<Link>`; pull badge counts from `useDashboardCounts`; bold "Log out" red at bottom
-- `src/components/layout/sidebar-menus.ts` types — extend `MenuItem` with `to` and dynamic `badge`
-- `src/messages/en.json`, `zh.json`, `rw.json` — add `dashboard.*` keys
-- `src/lib/types/index.ts` — possibly extend `UserRole` if needed (already exists)
+- List: keep table; add country + status filters and a Total Cases column (count from `service_requests`).
+- Detail page: profile header + Tabs (Overview / Cases / Documents / Activity).
+  - Overview: KPI stats (total/pending/completed cases, total paid) + recent activity timeline.
+  - Cases: list of their service_requests, click → existing case detail (read-only).
+  - Documents: grouped by case with download + "Download All" ZIP.
+  - Activity: filtered audit_log entries.
 
-## Behavior contracts
+## 3. Cases (`admin.cases.tsx`)
 
-- **Guarding**: every route's component wraps in existing `<ProtectedRoute>`. The actual `/dashboard` route already uses it. New routes do the same.
-- **Role redirect**: in a top-level `dashboard.tsx` layout, if `profile.role !== 'client'`, redirect to `/dashboard` (no-op for now; staff dashboards land here in 5C).
-- **Sidebar**: `DashboardLayout` already accepts a role. I'll pass `client` for these routes.
-- **All Supabase queries** use the existing `supabase` browser client; RLS does the access control.
-- **Storage**: client docs go to `client-documents/clients/{user_id}/{request_id}/{filename}`; claim evidence to `client-documents/claims/{user_id}/{claim_id}/{filename}`; avatars to `avatars/{user_id}/...`. SQL block at the end for the `avatars` bucket.
-- **Loading states**: use `Skeleton`.
-- **Empty states**: lucide icon + heading + CTA button.
-- **i18n**: every visible string in en/zh/rw under `dashboard.*` with status sub-keys.
+Extend existing table with:
 
-## Out of scope (per prompt)
+- Status, category, assigned-staff, and date-range filters.
+- Colored status badges per spec.
+- Sortable columns.
+- Click row → read-only Dialog showing client info, staff, timeline, documents, notes, plus link to staff full-page view.
 
-- Staff/admin dashboards
-- Realtime chat (UI stub only)
-- Payment processing (stub only)
-- 2FA setup (toggle UI only)
-- Notification preferences storage
+## 4. Staff (`admin.staff.tsx`)
 
-## SQL output at end
+Extend existing staff page with:
 
-A single SQL block to create the `avatars` storage bucket + RLS policies (the `client-documents` bucket already exists from prompt 5A).
+- Active/completed case counts and last-active per row.
+- Role filter + status filter.
+- Activate/deactivate toggle and role dropdown (already partially there).
+- "Add Staff" modal that inserts to `users` with `status='invited'`.
+- Staff detail Dialog: profile, metrics, current cases, capabilities list.
 
----
+## 5. Revenue (`admin.revenue.tsx`)
 
-Ready to build. Approve and I'll write all files in parallel batches.  
+- 4 KPI cards (total, month, week, avg per case).
+- Recharts: line (12-month revenue), bar (revenue by service category), pie (by payment method).
+- Payments table with method/status/date filters + "Export CSV".
+
+## 6. Services (`admin.services.tsx`)
+
+Extend existing toggle list with:
+
+- Add Service modal (name EN/FR/RW, category, base price, description).
+- Edit Service modal (same form, pre-filled).
+- Inline price edit.
+
+## 7. Audit Log (`admin.audit.tsx`)
+
+Extend existing table with:
+
+- Action-type color coding (create/update/delete/login/download).
+- Staff, action-type, date-range filters + free-text search.
+- 50-per-page pagination.
+- Export filtered results to CSV.
+
+## 8. Settings (`admin.settings.tsx`)
+
+Replace placeholder with form sections backed by `company_settings`:
+
+- Company Info (name, address, phone, email, website, logo upload to storage).
+- Working Hours (per-day toggle + time range).
+- Notifications (toggles).
+- Payments (MoMo number, card/cash toggles).
+- Save → upsert into `company_settings`.
+
+## Cross-cutting
+
+- All pages: loading skeletons, empty states, error+retry, sortable headers, responsive, sonner toasts, dark-mode tokens.
+- Admin is read-only for client data; only Services / Staff roles+status / Settings are editable.
+
+## Technical Notes
+
+- Reuse existing Supabase client, UI primitives, and status-badge helper.
+- ZIP util: `src/lib/admin/download-zip.ts` using `jszip` + `saveAs`.
+- New route file: none beyond what exists (admin.clients.$id already present — will extend with tabs).
+- Migration: create `company_settings` table with RLS allowing only admins to select/upsert.
+- CSV export: simple in-memory string → Blob → download (no extra dep).
+
+## Scope Confirmation
+
+This is a large build (~8 files heavily edited + 1 migration + 1 util + 1 dep). I'll batch edits in parallel where possible. Want me to proceed with all 8, or prioritize a subset first (e.g., Documents + Clients + Settings, then the rest)?  
   
-Plan approved with one small addition:
-
-On the /dashboard/services page, at the end of the services grid (after the last real service card), add a special "+ See more services" card. This card should have:
-
-- A "+" icon (lucide Plus or PlusCircle)
-
-- Text: "Need something not listed?"
-
-- Subtext: "Contact us to discuss custom services"
-
-- Style: dashed border to differentiate it from real service cards
-
-- On click: navigate to /contact
-
-Otherwise the plan is perfect. Proceed.
+answer : Proceed with all 8 at once
