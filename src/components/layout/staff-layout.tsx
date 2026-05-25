@@ -69,6 +69,7 @@ export function StaffLayout({
             ))}
           </nav>
           <div className="flex items-center gap-1">
+            <NotificationBell />
             <LanguageSwitcher />
             <ThemeToggle />
             <DropdownMenu>
