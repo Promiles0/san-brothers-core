@@ -206,6 +206,29 @@ export function StaffCaseDetail({
       return false;
     }
     toast.success("Saved");
+    // Notify newly assigned staff
+    if (
+      "assigned_staff_id" in patch &&
+      patch.assigned_staff_id &&
+      patch.assigned_staff_id !== data?.assigned_staff_id
+    ) {
+      const svcName = data?.service?.name_en ?? "case";
+      void createNotification({
+        user_id: patch.assigned_staff_id as string,
+        type: "case_assigned",
+        title: `New case assigned: ${svcName}`,
+        body: data?.client?.full_name ?? undefined,
+        link: "/staff",
+      });
+      if (data?.client_id) {
+        void createNotification({
+          user_id: data.client_id,
+          type: "case_assigned",
+          title: "Your case has been assigned",
+          link: "/dashboard/my-services",
+        });
+      }
+    }
     void load();
     return true;
   };
