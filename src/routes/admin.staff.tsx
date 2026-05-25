@@ -275,7 +275,9 @@ function AdminStaff() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead className="text-center">Active</TableHead>
+                  <TableHead className="text-center">Completed</TableHead>
+                  <TableHead>Active?</TableHead>
                   <TableHead>Last active</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -288,17 +290,12 @@ function AdminStaff() {
                       <p className="text-xs text-muted-foreground">{u.email}</p>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="capitalize">
-                        {u.role}
-                      </Badge>
+                      <Badge variant="secondary" className="capitalize">{u.role}</Badge>
                     </TableCell>
+                    <TableCell className="text-center tabular-nums">{caseCounts[u.id]?.active ?? 0}</TableCell>
+                    <TableCell className="text-center tabular-nums">{caseCounts[u.id]?.completed ?? 0}</TableCell>
                     <TableCell>
-                      <Badge
-                        variant={u.status === "active" ? "default" : "secondary"}
-                        className="capitalize"
-                      >
-                        {u.status}
-                      </Badge>
+                      <Switch checked={u.status === "active"} onCheckedChange={() => toggleStatus(u)} />
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {lastActive[u.id] ? timeAgo(lastActive[u.id]!) : "—"}
