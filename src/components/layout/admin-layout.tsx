@@ -14,6 +14,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { AdminSidebar } from "@/components/layout/admin-sidebar";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "@tanstack/react-router";
 
