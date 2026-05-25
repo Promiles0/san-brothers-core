@@ -204,6 +204,13 @@ function StaffMessagesPage() {
       selected.id,
       `Conversation forwarded from ${fromName} to ${toName}${note ? ` — Note: ${note}` : ""}`,
     );
+    void createNotification({
+      user_id: staff.id,
+      type: "conversation_forwarded",
+      title: `${fromName} forwarded a conversation to you`,
+      body: note || undefined,
+      link: "/staff/messages",
+    });
     toast.success(`Forwarded to ${toName}`);
     await load();
   };
