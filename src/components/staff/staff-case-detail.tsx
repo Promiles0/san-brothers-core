@@ -261,6 +261,13 @@ export function StaffCaseDetail({
       target_id: id,
       metadata: { from: oldStatus, to: newStatus },
     });
+    void createNotification({
+      user_id: data.client_id,
+      type: "status_changed",
+      title: `Case status updated to ${newStatus.replace(/_/g, " ")}`,
+      body: data.service?.name_en ?? undefined,
+      link: "/dashboard/my-services",
+    });
     toast.success(successMsg);
     void load();
   };
