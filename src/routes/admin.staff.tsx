@@ -217,11 +217,44 @@ function AdminStaff() {
 
   const selectedStaff = staff.find((s) => s.id === selectedStaffId);
 
+  const toggleStatus = async (u: UserRow) => {
+    const next = u.status === "active" ? "inactive" : "active";
+    setStaff((prev) => prev.map((s) => (s.id === u.id ? { ...s, status: next } : s)));
+    const { error } = await supabase.from("users").update({ status: next }).eq("id", u.id);
+    if (error) {
+      toast.error(error.message);
+      setStaff((prev) => prev.map((s) => (s.id === u.id ? { ...s, status: u.status } : s)));
+    } else toast.success(`Account ${next}`);
+  };
+
+  const handleInvite = async () => {
+    if (!inviteForm.email.trim() || !inviteForm.full_name.trim()) return toast.error("Name and email required");
+    setInviting(true);
+    const { error } = await supabase.from("users").insert({
+      email: inviteForm.email,
+      full_name: inviteForm.full_name,
+      role: inviteForm.role,
+      status: "invited",
+      signup_source: "admin_invite",
+    });
+    setInviting(false);
+    if (error) return toast.error(error.message);
+    toast.success("Staff invited");
+    setInviteOpen(false);
+    setInviteForm({ full_name: "", email: "", role: "secretary" });
+    fetchStaff();
+  };
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">Staff</h1>
-        <p className="text-sm text-muted-foreground">Manage staff accounts, roles, and capabilities.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Staff</h1>
+          <p className="text-sm text-muted-foreground">Manage staff accounts, roles, and capabilities.</p>
+        </div>
+        <Button onClick={() => setInviteOpen(true)}>
+          <UserPlus className="mr-1.5 h-4 w-4" /> Invite staff
+        </Button>
       </div>
 
       <Card>
