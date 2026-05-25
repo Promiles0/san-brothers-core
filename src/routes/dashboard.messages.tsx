@@ -21,7 +21,7 @@ interface Row {
   claimed_by: string | null;
   claimed_at: string | null;
   last_message_at: string;
-  claimer: { full_name: string | null; email: string } | null;
+  claimer_name: string | null;
   last_message?: string;
   unread?: number;
 }
@@ -39,9 +39,7 @@ function MessagesPage() {
     setLoading(true);
     const { data, error } = await supabase
       .from("conversations")
-      .select(
-        "id,client_id,department,claimed_by,claimed_at,last_message_at,claimer:users!conversations_claimed_by_fkey(full_name,email)",
-      )
+      .select("id,client_id,department,claimed_by,claimed_at,last_message_at")
       .eq("client_id", user.id)
       .order("last_message_at", { ascending: false });
     if (error) {
@@ -70,6 +68,16 @@ function MessagesPage() {
         c.unread = count ?? 0;
       }),
     );
+    const claimerIds = list.filter((c) => c.claimed_by).map((c) => c.claimed_by as string);
+    if (claimerIds.length > 0) {
+      const { data: claimers } = await supabase
+        .from("users")
+        .select("id,full_name")
+        .in("id", claimerIds);
+      list.forEach((c) => {
+        c.claimer_name = claimers?.find((u) => u.id === c.claimed_by)?.full_name ?? null;
+      });
+    }
     setRows(list);
     if (!selectedId && list.length > 0) setSelectedId(list[0].id);
     setLoading(false);
@@ -117,7 +125,7 @@ function MessagesPage() {
 
   const selected = useMemo(() => rows.find((r) => r.id === selectedId), [rows, selectedId]);
   const selectedDep = selected ? getDepartment(selected.department) : null;
-  const claimerName = selected?.claimer?.full_name || selected?.claimer?.email;
+  const claimerName = selected?.claimer_name ?? null;
 
   return (
     <div className="space-y-4">
@@ -183,7 +191,7 @@ function MessagesPage() {
                 <ul className="space-y-1">
                   {rows.map((c) => {
                     const dep = getDepartment(c.department);
-                    const handler = c.claimer?.full_name || c.claimer?.email;
+                    const handler = c.claimer_name;
                     return (
                       <li key={c.id}>
                         <button
@@ -231,9 +239,11 @@ function MessagesPage() {
                         {claimerName ?? selectedDep.label}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {selected.claimed_by
+                        {claimerName
                           ? `Handled by ${claimerName}`
-                          : `Connecting you with ${selectedDep.label}…`}
+                          : selected.claimed_by
+                            ? "Connecting…"
+                            : `Connecting you with ${selectedDep.label}…`}
                       </p>
                     </div>
                   </div>
