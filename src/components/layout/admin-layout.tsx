@@ -63,6 +63,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           </span>
 
           <div className="flex items-center gap-1">
+            <NotificationBell />
             <LanguageSwitcher />
             <ThemeToggle />
             <DropdownMenu>
