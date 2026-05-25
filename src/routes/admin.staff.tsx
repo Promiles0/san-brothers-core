@@ -104,6 +104,10 @@ function AdminStaff() {
   const [selectedCaps, setSelectedCaps] = useState<Set<Capability>>(new Set());
   const [capsSaving, setCapsSaving] = useState(false);
   const [lastActive, setLastActive] = useState<Record<string, string | null>>({});
+  const [caseCounts, setCaseCounts] = useState<Record<string, { active: number; completed: number }>>({});
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteForm, setInviteForm] = useState({ full_name: "", email: "", role: "secretary" as StaffRole });
+  const [inviting, setInviting] = useState(false);
 
   const fetchStaff = useCallback(async () => {
     setLoading(true);
@@ -114,6 +118,19 @@ function AdminStaff() {
       .order("created_at", { ascending: false });
     const rows = (data as UserRow[]) ?? [];
     setStaff(rows);
+
+    const { data: caseData } = await supabase
+      .from("service_requests")
+      .select("assigned_staff_id,status");
+    const counts: Record<string, { active: number; completed: number }> = {};
+    for (const r of (caseData ?? []) as { assigned_staff_id: string | null; status: string }[]) {
+      if (!r.assigned_staff_id) continue;
+      const c = counts[r.assigned_staff_id] ?? { active: 0, completed: 0 };
+      if (r.status === "completed") c.completed++;
+      else if (!["cancelled", "rejected"].includes(r.status)) c.active++;
+      counts[r.assigned_staff_id] = c;
+    }
+    setCaseCounts(counts);
 
     const activityMap: Record<string, string | null> = {};
     await Promise.all(
