@@ -449,6 +449,40 @@ function AdminStaff() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Invite staff member</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Full name</Label>
+              <Input value={inviteForm.full_name} onChange={(e) => setInviteForm({ ...inviteForm, full_name: e.target.value })} />
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input type="email" value={inviteForm.email} onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })} />
+            </div>
+            <div>
+              <Label>Role</Label>
+              <Select value={inviteForm.role} onValueChange={(v) => setInviteForm({ ...inviteForm, role: v as StaffRole })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {STAFF_ROLES.map((r) => (
+                    <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInviteOpen(false)}>Cancel</Button>
+            <Button onClick={handleInvite} disabled={inviting}>
+              {inviting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Send invite
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
