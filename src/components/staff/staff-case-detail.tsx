@@ -39,6 +39,7 @@ import { toast } from "sonner";
 import type { ServiceCategory } from "@/lib/types/database";
 import { MessageThread } from "@/components/messaging/message-thread";
 import { logAudit } from "@/lib/audit";
+import { createNotification } from "@/lib/notifications";
 
 const STATUSES = [
   "submitted",
