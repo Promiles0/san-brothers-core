@@ -50,6 +50,7 @@ import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settin
 import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
 import { Route as DashboardPaymentsRouteImport } from './routes/dashboard.payments'
 import { Route as DashboardMessagesRouteImport } from './routes/dashboard.messages'
+import { Route as DashboardInterpreterRouteImport } from './routes/dashboard.interpreter'
 import { Route as DashboardDocumentsRouteImport } from './routes/dashboard.documents'
 import { Route as AuthErrorRouteImport } from './routes/auth.error'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
@@ -85,10 +86,12 @@ import { Route as StaffAdminAnalyticsRouteImport } from './routes/staff.admin.an
 import { Route as StaffAccountingIdRouteImport } from './routes/staff.accounting.$id'
 import { Route as DashboardServicesSlugRouteImport } from './routes/dashboard.services.$slug'
 import { Route as DashboardMyServicesIdRouteImport } from './routes/dashboard.my-services.$id'
+import { Route as DashboardInterpreterCallIdRouteImport } from './routes/dashboard.interpreter.$callId'
 import { Route as DashboardConfirmationRequestIdRouteImport } from './routes/dashboard.confirmation.$requestId'
 import { Route as DashboardClaimsNewRouteImport } from './routes/dashboard.claims.new'
 import { Route as DashboardClaimsIdRouteImport } from './routes/dashboard.claims.$id'
 import { Route as AdminClientsIdRouteImport } from './routes/admin.clients.$id'
+import { Route as DashboardInterpreterCallIdSummaryRouteImport } from './routes/dashboard.interpreter.$callId.summary'
 
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
@@ -295,6 +298,11 @@ const DashboardMessagesRoute = DashboardMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardInterpreterRoute = DashboardInterpreterRouteImport.update({
+  id: '/interpreter',
+  path: '/interpreter',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardDocumentsRoute = DashboardDocumentsRouteImport.update({
   id: '/documents',
   path: '/documents',
@@ -471,6 +479,12 @@ const DashboardMyServicesIdRoute = DashboardMyServicesIdRouteImport.update({
   path: '/my-services/$id',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardInterpreterCallIdRoute =
+  DashboardInterpreterCallIdRouteImport.update({
+    id: '/$callId',
+    path: '/$callId',
+    getParentRoute: () => DashboardInterpreterRoute,
+  } as any)
 const DashboardConfirmationRequestIdRoute =
   DashboardConfirmationRequestIdRouteImport.update({
     id: '/confirmation/$requestId',
@@ -492,6 +506,12 @@ const AdminClientsIdRoute = AdminClientsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AdminClientsRoute,
 } as any)
+const DashboardInterpreterCallIdSummaryRoute =
+  DashboardInterpreterCallIdSummaryRouteImport.update({
+    id: '/summary',
+    path: '/summary',
+    getParentRoute: () => DashboardInterpreterCallIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -519,6 +539,7 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
+  '/dashboard/interpreter': typeof DashboardInterpreterRouteWithChildren
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/payments': typeof DashboardPaymentsRoute
   '/dashboard/profile': typeof DashboardProfileRoute
@@ -551,6 +572,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
   '/dashboard/claims/new': typeof DashboardClaimsNewRoute
   '/dashboard/confirmation/$requestId': typeof DashboardConfirmationRequestIdRoute
+  '/dashboard/interpreter/$callId': typeof DashboardInterpreterCallIdRouteWithChildren
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
@@ -574,6 +596,7 @@ export interface FileRoutesByFullPath {
   '/staff/translation/': typeof StaffTranslationIndexRoute
   '/staff/visa/': typeof StaffVisaIndexRoute
   '/translate/live/': typeof TranslateLiveIndexRoute
+  '/dashboard/interpreter/$callId/summary': typeof DashboardInterpreterCallIdSummaryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -598,6 +621,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
+  '/dashboard/interpreter': typeof DashboardInterpreterRouteWithChildren
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/payments': typeof DashboardPaymentsRoute
   '/dashboard/profile': typeof DashboardProfileRoute
@@ -624,6 +648,7 @@ export interface FileRoutesByTo {
   '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
   '/dashboard/claims/new': typeof DashboardClaimsNewRoute
   '/dashboard/confirmation/$requestId': typeof DashboardConfirmationRequestIdRoute
+  '/dashboard/interpreter/$callId': typeof DashboardInterpreterCallIdRouteWithChildren
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
@@ -647,6 +672,7 @@ export interface FileRoutesByTo {
   '/staff/translation': typeof StaffTranslationIndexRoute
   '/staff/visa': typeof StaffVisaIndexRoute
   '/translate/live': typeof TranslateLiveIndexRoute
+  '/dashboard/interpreter/$callId/summary': typeof DashboardInterpreterCallIdSummaryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -675,6 +701,7 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
+  '/dashboard/interpreter': typeof DashboardInterpreterRouteWithChildren
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/payments': typeof DashboardPaymentsRoute
   '/dashboard/profile': typeof DashboardProfileRoute
@@ -707,6 +734,7 @@ export interface FileRoutesById {
   '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
   '/dashboard/claims/new': typeof DashboardClaimsNewRoute
   '/dashboard/confirmation/$requestId': typeof DashboardConfirmationRequestIdRoute
+  '/dashboard/interpreter/$callId': typeof DashboardInterpreterCallIdRouteWithChildren
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
@@ -730,6 +758,7 @@ export interface FileRoutesById {
   '/staff/translation/': typeof StaffTranslationIndexRoute
   '/staff/visa/': typeof StaffVisaIndexRoute
   '/translate/live/': typeof TranslateLiveIndexRoute
+  '/dashboard/interpreter/$callId/summary': typeof DashboardInterpreterCallIdSummaryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -759,6 +788,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/error'
     | '/dashboard/documents'
+    | '/dashboard/interpreter'
     | '/dashboard/messages'
     | '/dashboard/payments'
     | '/dashboard/profile'
@@ -791,6 +821,7 @@ export interface FileRouteTypes {
     | '/dashboard/claims/$id'
     | '/dashboard/claims/new'
     | '/dashboard/confirmation/$requestId'
+    | '/dashboard/interpreter/$callId'
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
@@ -814,6 +845,7 @@ export interface FileRouteTypes {
     | '/staff/translation/'
     | '/staff/visa/'
     | '/translate/live/'
+    | '/dashboard/interpreter/$callId/summary'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -838,6 +870,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/error'
     | '/dashboard/documents'
+    | '/dashboard/interpreter'
     | '/dashboard/messages'
     | '/dashboard/payments'
     | '/dashboard/profile'
@@ -864,6 +897,7 @@ export interface FileRouteTypes {
     | '/dashboard/claims/$id'
     | '/dashboard/claims/new'
     | '/dashboard/confirmation/$requestId'
+    | '/dashboard/interpreter/$callId'
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
@@ -887,6 +921,7 @@ export interface FileRouteTypes {
     | '/staff/translation'
     | '/staff/visa'
     | '/translate/live'
+    | '/dashboard/interpreter/$callId/summary'
   id:
     | '__root__'
     | '/'
@@ -914,6 +949,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/auth/error'
     | '/dashboard/documents'
+    | '/dashboard/interpreter'
     | '/dashboard/messages'
     | '/dashboard/payments'
     | '/dashboard/profile'
@@ -946,6 +982,7 @@ export interface FileRouteTypes {
     | '/dashboard/claims/$id'
     | '/dashboard/claims/new'
     | '/dashboard/confirmation/$requestId'
+    | '/dashboard/interpreter/$callId'
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
@@ -969,6 +1006,7 @@ export interface FileRouteTypes {
     | '/staff/translation/'
     | '/staff/visa/'
     | '/translate/live/'
+    | '/dashboard/interpreter/$callId/summary'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1289,6 +1327,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardMessagesRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/interpreter': {
+      id: '/dashboard/interpreter'
+      path: '/interpreter'
+      fullPath: '/dashboard/interpreter'
+      preLoaderRoute: typeof DashboardInterpreterRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/documents': {
       id: '/dashboard/documents'
       path: '/documents'
@@ -1534,6 +1579,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardMyServicesIdRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/interpreter/$callId': {
+      id: '/dashboard/interpreter/$callId'
+      path: '/$callId'
+      fullPath: '/dashboard/interpreter/$callId'
+      preLoaderRoute: typeof DashboardInterpreterCallIdRouteImport
+      parentRoute: typeof DashboardInterpreterRoute
+    }
     '/dashboard/confirmation/$requestId': {
       id: '/dashboard/confirmation/$requestId'
       path: '/confirmation/$requestId'
@@ -1561,6 +1613,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/clients/$id'
       preLoaderRoute: typeof AdminClientsIdRouteImport
       parentRoute: typeof AdminClientsRoute
+    }
+    '/dashboard/interpreter/$callId/summary': {
+      id: '/dashboard/interpreter/$callId/summary'
+      path: '/summary'
+      fullPath: '/dashboard/interpreter/$callId/summary'
+      preLoaderRoute: typeof DashboardInterpreterCallIdSummaryRouteImport
+      parentRoute: typeof DashboardInterpreterCallIdRoute
     }
   }
 }
@@ -1605,8 +1664,35 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface DashboardInterpreterCallIdRouteChildren {
+  DashboardInterpreterCallIdSummaryRoute: typeof DashboardInterpreterCallIdSummaryRoute
+}
+
+const DashboardInterpreterCallIdRouteChildren: DashboardInterpreterCallIdRouteChildren =
+  {
+    DashboardInterpreterCallIdSummaryRoute:
+      DashboardInterpreterCallIdSummaryRoute,
+  }
+
+const DashboardInterpreterCallIdRouteWithChildren =
+  DashboardInterpreterCallIdRoute._addFileChildren(
+    DashboardInterpreterCallIdRouteChildren,
+  )
+
+interface DashboardInterpreterRouteChildren {
+  DashboardInterpreterCallIdRoute: typeof DashboardInterpreterCallIdRouteWithChildren
+}
+
+const DashboardInterpreterRouteChildren: DashboardInterpreterRouteChildren = {
+  DashboardInterpreterCallIdRoute: DashboardInterpreterCallIdRouteWithChildren,
+}
+
+const DashboardInterpreterRouteWithChildren =
+  DashboardInterpreterRoute._addFileChildren(DashboardInterpreterRouteChildren)
+
 interface DashboardRouteChildren {
   DashboardDocumentsRoute: typeof DashboardDocumentsRoute
+  DashboardInterpreterRoute: typeof DashboardInterpreterRouteWithChildren
   DashboardMessagesRoute: typeof DashboardMessagesRoute
   DashboardPaymentsRoute: typeof DashboardPaymentsRoute
   DashboardProfileRoute: typeof DashboardProfileRoute
@@ -1624,6 +1710,7 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDocumentsRoute: DashboardDocumentsRoute,
+  DashboardInterpreterRoute: DashboardInterpreterRouteWithChildren,
   DashboardMessagesRoute: DashboardMessagesRoute,
   DashboardPaymentsRoute: DashboardPaymentsRoute,
   DashboardProfileRoute: DashboardProfileRoute,
@@ -1815,13 +1902,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

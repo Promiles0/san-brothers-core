@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from "react";
-import { Menu, ChevronRight, AlertTriangle } from "lucide-react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
+import { Menu, ChevronRight, AlertTriangle, Phone, PhoneOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -18,6 +18,217 @@ import { NotificationBell } from "@/components/notifications/notification-bell";
 import { InterpreterProfileModal } from "@/components/staff/interpreter-profile-modal";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "@tanstack/react-router";
+import { supabase } from "@/lib/supabase";
+
+// ── Types ──────────────────────────────────────────────────────────────────────
+
+interface IncomingCall {
+  id: string;
+  client_id: string;
+  language_from: string;
+  language_to: string;
+  status?: string;
+  hold_start?: string | null;
+  total_hold_seconds?: number;
+  forwarded_to?: string | null;
+}
+
+// ── useIncomingCall hook ───────────────────────────────────────────────────────
+
+function useIncomingCall(
+  profileId: string | undefined,
+  interpreterLanguages: Array<{ from: string; to: string }> | null | undefined,
+) {
+  const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
+  const [callerName, setCallerName] = useState<string | null>(null);
+  const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const beepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const dismiss = () => {
+    setIncomingCall(null);
+    setCallerName(null);
+    if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+    stopBeep();
+  };
+
+  function startBeep() {
+    try {
+      const ctx = new AudioContext();
+      audioCtxRef.current = ctx;
+      const ring = () => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.4);
+      };
+      ring();
+      beepIntervalRef.current = setInterval(ring, 1500);
+    } catch {
+      // Web Audio not available
+    }
+  }
+
+  function stopBeep() {
+    if (beepIntervalRef.current) { clearInterval(beepIntervalRef.current); beepIntervalRef.current = null; }
+    try { audioCtxRef.current?.close(); } catch { /* ignore */ }
+    audioCtxRef.current = null;
+  }
+
+  useEffect(() => {
+    if (!profileId) return;
+
+    async function showCall(call: IncomingCall) {
+      const { data } = await supabase
+        .from("users")
+        .select("full_name")
+        .eq("id", call.client_id)
+        .single();
+      const firstName = (data as { full_name: string } | null)?.full_name?.split(" ")[0] ?? null;
+      setIncomingCall(call);
+      setCallerName(firstName);
+      startBeep();
+      if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+      dismissTimerRef.current = setTimeout(dismiss, 30000);
+    }
+
+    // Channel 1: new ringing calls matching this interpreter's language pairs
+    let channel1: ReturnType<typeof supabase.channel> | null = null;
+    if (interpreterLanguages?.length) {
+      channel1 = supabase
+        .channel("incoming-calls:" + profileId)
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "interpreter_calls", filter: "status=eq.ringing" },
+          async (payload) => {
+            const call = payload.new as IncomingCall;
+            const matches = interpreterLanguages.some(
+              (pair) => pair.from === call.language_from && pair.to === call.language_to,
+            );
+            if (!matches) return;
+            await showCall(call);
+          },
+        )
+        .subscribe();
+    }
+
+    // Channel 2: calls forwarded to this interpreter
+    const channel2 = supabase
+      .channel("forwarded-calls:" + profileId)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "interpreter_calls",
+          filter: `forwarded_to=eq.${profileId}`,
+        },
+        async (payload) => {
+          const call = payload.new as IncomingCall;
+          if (call.status !== "on_hold") return;
+          await showCall(call);
+        },
+      )
+      .subscribe();
+
+    return () => {
+      if (channel1) void supabase.removeChannel(channel1);
+      void supabase.removeChannel(channel2);
+      if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+      stopBeep();
+    };
+  }, [profileId, interpreterLanguages]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return { incomingCall, callerName, dismiss };
+}
+
+// ── IncomingCallOverlay ────────────────────────────────────────────────────────
+
+function IncomingCallOverlay({
+  call,
+  callerName,
+  profileId,
+  onDismiss,
+}: {
+  call: IncomingCall;
+  callerName: string | null;
+  profileId: string;
+  onDismiss: () => void;
+}) {
+  const navigate = useNavigate();
+
+  const handleAccept = async () => {
+    const now = new Date();
+    const isForwarded = call.hold_start != null;
+    const holdElapsed = isForwarded
+      ? Math.floor((now.getTime() - new Date(call.hold_start!).getTime()) / 1000)
+      : 0;
+
+    await supabase
+      .from("interpreter_calls")
+      .update({
+        interpreter_id: profileId,
+        status: "active",
+        answered_at: now.toISOString(),
+        ...(isForwarded && {
+          forwarded_to: null,
+          hold_start: null,
+          total_hold_seconds: (call.total_hold_seconds ?? 0) + holdElapsed,
+        }),
+      })
+      .eq("id", call.id);
+    onDismiss();
+    navigate({ to: "/staff/interpreter/$callId", params: { callId: call.id } } as never);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+      <div className="mx-4 w-full max-w-sm rounded-2xl border border-border bg-background p-8 text-center shadow-2xl">
+        {/* Pulsing ring */}
+        <div className="relative mx-auto mb-6 flex h-24 w-24 items-center justify-center">
+          <div className="absolute h-24 w-24 animate-ping rounded-full bg-green-500/30" />
+          <div className="absolute h-18 w-18 animate-ping rounded-full bg-green-500/20 [animation-delay:400ms]" />
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-green-500/15 ring-4 ring-green-500/40">
+            <Phone className="h-8 w-8 text-green-600 dark:text-green-400" />
+          </div>
+        </div>
+
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Incoming Call
+        </p>
+        <h2 className="mt-1 text-2xl font-bold">
+          {call.language_from} → {call.language_to}
+        </h2>
+        {callerName && (
+          <p className="mt-1 text-sm text-muted-foreground">From {callerName}</p>
+        )}
+
+        <div className="mt-8 flex gap-3">
+          <Button
+            variant="outline"
+            className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
+            onClick={onDismiss}
+          >
+            <PhoneOff className="mr-2 h-4 w-4" />
+            Decline
+          </Button>
+          <Button
+            className="flex-1 bg-green-600 text-white hover:bg-green-700"
+            onClick={handleAccept}
+          >
+            <Phone className="mr-2 h-4 w-4" />
+            Accept
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function StaffLayout({
   children,
@@ -30,6 +241,16 @@ export function StaffLayout({
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
+
+  const isActiveInterpreter =
+    profile?.role === "translator" && profile.interpreter_profile_complete === true;
+  const interpreterLanguages = isActiveInterpreter
+    ? (profile.interpreter_languages as Array<{ from: string; to: string }> | null)
+    : null;
+  const { incomingCall, callerName, dismiss } = useIncomingCall(
+    isActiveInterpreter ? profile.id : undefined,
+    interpreterLanguages,
+  );
   const sidebarLabel = "San Brothers — Staff";
   const sidebarBadge = "SB";
   const initial = (profile?.full_name?.[0] ?? profile?.email?.[0] ?? "S").toUpperCase();
@@ -130,6 +351,15 @@ export function StaffLayout({
       </div>
 
       <InterpreterProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
+
+      {incomingCall && profile && (
+        <IncomingCallOverlay
+          call={incomingCall}
+          callerName={callerName}
+          profileId={profile.id}
+          onDismiss={dismiss}
+        />
+      )}
     </div>
   );
 }

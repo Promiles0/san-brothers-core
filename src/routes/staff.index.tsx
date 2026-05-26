@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { Star } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useCapabilities } from "@/lib/staff/capability-context";
@@ -33,6 +34,46 @@ interface Row {
   basePath: string;
 }
 
+interface RecentCallRow {
+  id: string;
+  language_from: string;
+  language_to: string;
+  billed_seconds: number;
+  ended_at: string | null;
+  rating: number | null;
+  // Supabase returns the joined row as a single object for many-to-one FKs
+  client: { full_name: string | null } | { full_name: string | null }[] | null;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function fmtSeconds(s: number): string {
+  const m = Math.floor(Math.max(0, s) / 60);
+  const sec = Math.max(0, s) % 60;
+  return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+}
+
+function clientFirstName(client: RecentCallRow["client"]): string {
+  const obj = Array.isArray(client) ? client[0] : client;
+  return obj?.full_name?.split(" ")[0] ?? "—";
+}
+
+function Stars({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({ length: 5 }, (_, i) => (
+        <Star
+          key={i}
+          className={cn(
+            "h-3.5 w-3.5",
+            i < rating ? "fill-amber-400 text-amber-400" : "fill-muted text-muted-foreground/30",
+          )}
+        />
+      ))}
+    </div>
+  );
+}
+
 function basePathFor(cat: string) {
   return `/staff/${cat}`;
 }
@@ -45,6 +86,7 @@ function StaffHome() {
   const [pending, setPending] = useState<Row[]>([]);
   const [weekRows, setWeekRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
+  const [recentCalls, setRecentCalls] = useState<RecentCallRow[]>([]);
 
   const myCats = useMemo(
     () => capabilities.filter((c) => CAP_TO_CAT[c]).map((c) => CAP_TO_CAT[c]),
@@ -116,6 +158,22 @@ function StaffHome() {
       cancelled = true;
     };
   }, [user, myCats]);
+
+  useEffect(() => {
+    if (profile?.role !== "translator" || !profile.id) return;
+    void (async () => {
+      const { data } = await supabase
+        .from("interpreter_calls")
+        .select(
+          "id,language_from,language_to,billed_seconds,ended_at,rating,client:users!client_id(full_name)",
+        )
+        .eq("interpreter_id", profile.id)
+        .eq("status", "completed")
+        .order("ended_at", { ascending: false })
+        .limit(10);
+      if (data) setRecentCalls(data as unknown as RecentCallRow[]);
+    })();
+  }, [profile?.id, profile?.role]);
 
   const greet = (() => {
     const h = new Date().getHours();
@@ -286,6 +344,50 @@ function StaffHome() {
           </CardContent>
         </Card>
       </div>
+
+      {profile?.role === "translator" && (
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Recent Calls</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {recentCalls.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No completed calls yet.</p>
+            ) : (
+              <ul className="divide-y text-sm">
+                {recentCalls.map((row) => (
+                  <li key={row.id} className="flex items-center gap-4 py-2.5">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{clientFirstName(row.client)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {row.language_from} → {row.language_to}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="tabular-nums">{fmtSeconds(row.billed_seconds)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {row.ended_at
+                          ? new Date(row.ended_at).toLocaleDateString(undefined, {
+                              month: "short",
+                              day: "numeric",
+                            })
+                          : "—"}
+                      </p>
+                    </div>
+                    <div className="w-24 shrink-0 text-right">
+                      {row.rating != null ? (
+                        <Stars rating={row.rating} />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Not rated</span>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
