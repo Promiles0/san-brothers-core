@@ -14,6 +14,13 @@ export default defineConfig({
     server: {
       port: 3000, // 👈 change to your desired port
       strictPort: true, // optional: fail if port is taken instead of auto-picking
+      hmr: true,
+      watch: {
+        usePolling: false,
+      },
+    },
+    optimizeDeps: {
+      force: false,
     },
   },
 });

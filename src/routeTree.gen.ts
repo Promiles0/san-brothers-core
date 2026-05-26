@@ -85,6 +85,7 @@ import { Route as StaffAdminAnalyticsRouteImport } from './routes/staff.admin.an
 import { Route as StaffAccountingIdRouteImport } from './routes/staff.accounting.$id'
 import { Route as DashboardServicesSlugRouteImport } from './routes/dashboard.services.$slug'
 import { Route as DashboardMyServicesIdRouteImport } from './routes/dashboard.my-services.$id'
+import { Route as DashboardConfirmationRequestIdRouteImport } from './routes/dashboard.confirmation.$requestId'
 import { Route as DashboardClaimsNewRouteImport } from './routes/dashboard.claims.new'
 import { Route as DashboardClaimsIdRouteImport } from './routes/dashboard.claims.$id'
 import { Route as AdminClientsIdRouteImport } from './routes/admin.clients.$id'
@@ -470,6 +471,12 @@ const DashboardMyServicesIdRoute = DashboardMyServicesIdRouteImport.update({
   path: '/my-services/$id',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardConfirmationRequestIdRoute =
+  DashboardConfirmationRequestIdRouteImport.update({
+    id: '/confirmation/$requestId',
+    path: '/confirmation/$requestId',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardClaimsNewRoute = DashboardClaimsNewRouteImport.update({
   id: '/claims/new',
   path: '/claims/new',
@@ -543,6 +550,7 @@ export interface FileRoutesByFullPath {
   '/admin/clients/$id': typeof AdminClientsIdRoute
   '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
   '/dashboard/claims/new': typeof DashboardClaimsNewRoute
+  '/dashboard/confirmation/$requestId': typeof DashboardConfirmationRequestIdRoute
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
@@ -615,6 +623,7 @@ export interface FileRoutesByTo {
   '/admin/clients/$id': typeof AdminClientsIdRoute
   '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
   '/dashboard/claims/new': typeof DashboardClaimsNewRoute
+  '/dashboard/confirmation/$requestId': typeof DashboardConfirmationRequestIdRoute
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
@@ -697,6 +706,7 @@ export interface FileRoutesById {
   '/admin/clients/$id': typeof AdminClientsIdRoute
   '/dashboard/claims/$id': typeof DashboardClaimsIdRoute
   '/dashboard/claims/new': typeof DashboardClaimsNewRoute
+  '/dashboard/confirmation/$requestId': typeof DashboardConfirmationRequestIdRoute
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
@@ -780,6 +790,7 @@ export interface FileRouteTypes {
     | '/admin/clients/$id'
     | '/dashboard/claims/$id'
     | '/dashboard/claims/new'
+    | '/dashboard/confirmation/$requestId'
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
@@ -852,6 +863,7 @@ export interface FileRouteTypes {
     | '/admin/clients/$id'
     | '/dashboard/claims/$id'
     | '/dashboard/claims/new'
+    | '/dashboard/confirmation/$requestId'
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
@@ -933,6 +945,7 @@ export interface FileRouteTypes {
     | '/admin/clients/$id'
     | '/dashboard/claims/$id'
     | '/dashboard/claims/new'
+    | '/dashboard/confirmation/$requestId'
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
@@ -1521,6 +1534,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardMyServicesIdRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/confirmation/$requestId': {
+      id: '/dashboard/confirmation/$requestId'
+      path: '/confirmation/$requestId'
+      fullPath: '/dashboard/confirmation/$requestId'
+      preLoaderRoute: typeof DashboardConfirmationRequestIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/claims/new': {
       id: '/dashboard/claims/new'
       path: '/claims/new'
@@ -1594,6 +1614,7 @@ interface DashboardRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardClaimsIdRoute: typeof DashboardClaimsIdRoute
   DashboardClaimsNewRoute: typeof DashboardClaimsNewRoute
+  DashboardConfirmationRequestIdRoute: typeof DashboardConfirmationRequestIdRoute
   DashboardMyServicesIdRoute: typeof DashboardMyServicesIdRoute
   DashboardServicesSlugRoute: typeof DashboardServicesSlugRoute
   DashboardClaimsIndexRoute: typeof DashboardClaimsIndexRoute
@@ -1610,6 +1631,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardClaimsIdRoute: DashboardClaimsIdRoute,
   DashboardClaimsNewRoute: DashboardClaimsNewRoute,
+  DashboardConfirmationRequestIdRoute: DashboardConfirmationRequestIdRoute,
   DashboardMyServicesIdRoute: DashboardMyServicesIdRoute,
   DashboardServicesSlugRoute: DashboardServicesSlugRoute,
   DashboardClaimsIndexRoute: DashboardClaimsIndexRoute,

@@ -110,7 +110,7 @@ export function NotificationBell() {
 
     return () => {
       cancelled = true;
-      void channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [user, navigate]);
 

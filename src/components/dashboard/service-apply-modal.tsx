@@ -1,0 +1,1160 @@
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import {
+  Building2,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  CreditCard,
+  FileText,
+  Loader2,
+  Smartphone,
+  Upload,
+  X,
+} from "lucide-react";
+import { toast } from "sonner";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/lib/providers/i18n-provider";
+import { getRequiredDocs } from "@/lib/dashboard/service-requirements";
+import { createNotification, createNotificationForAdmins } from "@/lib/notifications";
+import { supabase } from "@/lib/supabase";
+import type { ApplicantType, Service, ServiceCategory } from "@/lib/types/database";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type PayMethod = "card" | "paypal" | "momo";
+type PayState = "idle" | "processing" | "success";
+
+interface PendingFile {
+  file: File;
+  label?: string;
+  progress: number;
+}
+
+export interface Props {
+  service: Service;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const CAT_EMOJI: Record<ServiceCategory, string> = {
+  visa: "🛂",
+  accounting: "📊",
+  translation: "📄",
+  consultancy: "💼",
+};
+
+const CAT_CAPABILITY: Record<ServiceCategory, string> = {
+  visa: "handle_visa",
+  translation: "handle_translation",
+  accounting: "handle_accounting",
+  consultancy: "handle_consultancy",
+};
+
+const WHAT_YOU_GET: Record<ServiceCategory, string[]> = {
+  visa: [
+    "Expert guidance through the entire visa process",
+    "Document checklist tailored to your visa type",
+    "Application form preparation and review",
+    "Real-time status updates at every step",
+  ],
+  accounting: [
+    "Comprehensive financial record management",
+    "Tax filing and compliance support",
+    "Monthly / quarterly professional reports",
+    "Dedicated accounting expert assigned to you",
+  ],
+  translation: [
+    "Professional certified translation",
+    "Native-speaker quality assurance review",
+    "Fast turnaround with format preservation",
+    "PDF, Word, and image formats supported",
+  ],
+  consultancy: [
+    "One-on-one expert consultation session",
+    "Tailored business strategy and advice",
+    "Written action-plan summary delivered",
+    "Follow-up support included",
+  ],
+};
+
+const SERVICE_PROGRESS: Record<ServiceCategory, string[]> = {
+  visa: ["Submitted", "Doc Review", "Verified", "Sent to Authority", "Completed"],
+  translation: ["Submitted", "Under Review", "In Translation", "QA Check", "Delivered"],
+  accounting: ["Submitted", "Assigned", "Analysis", "Report Ready", "Completed"],
+  consultancy: ["Submitted", "Assigned", "Meeting Scheduled", "Completed"],
+};
+
+const LANGUAGES = ["English", "French", "Chinese (Mandarin)", "Kinyarwanda", "Arabic", "Swahili"];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function isInterpreterSlug(slug: string) {
+  return slug === "live-interpretation" || slug.includes("live-interp");
+}
+
+async function pickMatchingStaff(category: ServiceCategory): Promise<string | null> {
+  try {
+    const { data } = await supabase
+      .from("staff_capabilities")
+      .select("user_id")
+      .eq("capability", CAT_CAPABILITY[category]);
+    if (!data?.length) return null;
+    const pick = data[Math.floor(Math.random() * data.length)] as { user_id: string };
+    return pick.user_id;
+  } catch {
+    return null;
+  }
+}
+
+function formatPrice(min: number | null, max: number | null) {
+  if (!min && !max) return null;
+  if (min && max && min !== max)
+    return `${min.toLocaleString()} – ${max.toLocaleString()} RWF`;
+  return `${(min ?? max ?? 0).toLocaleString()} RWF`;
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function TimelineDots({ steps }: { steps: string[] }) {
+  return (
+    <div className="flex items-start overflow-x-auto pb-1">
+      {steps.map((step, i) => (
+        <div key={step} className="flex items-start">
+          <div className="flex min-w-15 flex-col items-center gap-1 px-1">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted text-xs font-semibold text-muted-foreground">
+              {i + 1}
+            </div>
+            <span className="text-center text-[10px] leading-tight text-muted-foreground">
+              {step}
+            </span>
+          </div>
+          {i < steps.length - 1 && (
+            <div className="mt-3 h-px w-4 shrink-0 bg-border" />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function UploadRow({
+  label,
+  extra,
+  onPick,
+}: {
+  label: string;
+  extra?: boolean;
+  onPick: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <label
+      className={cn(
+        "flex cursor-pointer items-center gap-3 rounded-md border p-3 transition-colors hover:bg-accent",
+        extra ? "border-dashed" : "border-border",
+      )}
+    >
+      <Upload className="h-4 w-4 shrink-0 text-muted-foreground" />
+      <span className="flex-1 text-sm">{label}</span>
+      <span className="text-xs font-medium text-primary">Browse</span>
+      <input
+        type="file"
+        className="hidden"
+        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+        onChange={onPick}
+      />
+    </label>
+  );
+}
+
+function PayMethodCard({
+  id,
+  label,
+  icon,
+  selected,
+  onSelect,
+}: {
+  id: PayMethod;
+  label: string;
+  icon: React.ReactNode;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        "flex flex-1 flex-col items-center gap-2 rounded-lg border p-3 text-xs font-medium transition-all",
+        selected
+          ? "border-primary bg-primary/5 text-primary ring-1 ring-primary"
+          : "border-border hover:border-primary/50 hover:bg-accent",
+      )}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+// ─── Main modal ───────────────────────────────────────────────────────────────
+
+export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
+  const { user, profile } = useAuth();
+  const { locale } = useI18n();
+  const navigate = useNavigate();
+
+  const isInterpreter = isInterpreterSlug(service.slug);
+
+  // Tab
+  const [tab, setTab] = useState<"overview" | "requirements" | "apply">("overview");
+
+  // Form
+  const [applicantType, setApplicantType] = useState<ApplicantType>("individual");
+  const [nationality, setNationality] = useState("");
+  const [passportId, setPassportId] = useState("");
+  const [details, setDetails] = useState<Record<string, string>>({});
+  const [notes, setNotes] = useState("");
+  const [payMethod, setPayMethod] = useState<PayMethod>("card");
+
+  // Files
+  const [files, setFiles] = useState<PendingFile[]>([]);
+  const timerRefs = useRef<Map<number, ReturnType<typeof setInterval>>>(new Map());
+
+  // Payment flow
+  const [payState, setPayState] = useState<PayState>("idle");
+  const [freeConsultation, setFreeConsultation] = useState(false);
+
+  // Reset on open
+  useEffect(() => {
+    if (open) {
+      setTab("overview");
+      setApplicantType("individual");
+      setNationality("");
+      setPassportId("");
+      setDetails({});
+      setNotes("");
+      setFiles([]);
+      setPayMethod("card");
+      setPayState("idle");
+      setFreeConsultation(false);
+    }
+  }, [open, service.id]);
+
+  useEffect(() => {
+    return () => {
+      timerRefs.current.forEach(clearInterval);
+    };
+  }, []);
+
+  // ── Derived ────────────────────────────────────────────────────────────────
+
+  const localName =
+    (locale === "zh" && service.name_zh) ||
+    (locale === "rw" && service.name_rw) ||
+    service.name_en;
+
+  const localDesc =
+    (locale === "zh" && service.description_zh) ||
+    (locale === "rw" && service.description_rw) ||
+    service.description_en ||
+    "";
+
+  const priceText = formatPrice(service.price_min_rwf, service.price_max_rwf);
+  const basePrice = service.price_min_rwf ?? 0;
+
+  const timeText =
+    service.estimated_days_min != null && service.estimated_days_max != null
+      ? `${service.estimated_days_min}–${service.estimated_days_max} business days`
+      : null;
+
+  const requiredDocs = getRequiredDocs(service.slug);
+  const progressSteps = SERVICE_PROGRESS[service.category] ?? SERVICE_PROGRESS.consultancy;
+  const whatYouGet = WHAT_YOU_GET[service.category];
+
+  // ── File helpers ───────────────────────────────────────────────────────────
+
+  function addFile(label?: string) {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      const f = e.target.files?.[0];
+      if (!f) return;
+      if (f.size > 10 * 1024 * 1024) {
+        toast.error("File too large — maximum 10 MB per file.");
+        return;
+      }
+      const idx = Date.now();
+      setFiles((prev) => [...prev, { file: f, label, progress: 0 }]);
+      e.target.value = "";
+      let pct = 0;
+      const timer = setInterval(() => {
+        pct += Math.random() * 30 + 15;
+        if (pct >= 100) {
+          pct = 100;
+          clearInterval(timer);
+          timerRefs.current.delete(idx);
+        }
+        setFiles((prev) =>
+          prev.map((x) =>
+            x.file === f ? { ...x, progress: Math.min(pct, 100) } : x,
+          ),
+        );
+      }, 150);
+      timerRefs.current.set(idx, timer);
+    };
+  }
+
+  function removeFile(i: number) {
+    setFiles((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
+  // ── Validation ─────────────────────────────────────────────────────────────
+
+  function validate(): string | null {
+    if (!user) return "Please sign in to apply.";
+    if (isInterpreter) {
+      if (!details.fromLang || !details.toLang) return "Please select both languages.";
+      if (!details.timeSlot) return "Please enter a preferred time slot.";
+      return null;
+    }
+    // category-specific
+    if (service.category === "visa") {
+      if (!details.visaType) return "Please select a visa type.";
+    }
+    if (service.category === "translation") {
+      if (!details.sourceLang || !details.targetLang) return "Please select both languages.";
+    }
+    return null;
+  }
+
+  // ── Submit ─────────────────────────────────────────────────────────────────
+
+  async function handleSubmit(isFree = false) {
+    const err = validate();
+    if (err) {
+      toast.error(err);
+      return;
+    }
+    setFreeConsultation(isFree);
+    setPayState("processing");
+
+    await new Promise((r) => setTimeout(r, 2000));
+
+    setPayState("success");
+    await new Promise((r) => setTimeout(r, 900));
+
+    try {
+      // Assign staff
+      const staffId = await pickMatchingStaff(service.category);
+
+      // Build notes summary
+      const notesSummary = JSON.stringify({
+        applicantType,
+        nationality: nationality || undefined,
+        passportId: passportId || undefined,
+        ...details,
+        notes: notes || undefined,
+        paymentMethod: isFree ? "free" : payMethod,
+        isFreeConsultation: isFree,
+      });
+
+      const { data: sr, error: srErr } = await supabase
+        .from("service_requests")
+        .insert({
+          client_id: user!.id,
+          service_id: service.id,
+          service_category: service.category,
+          status: isFree ? "submitted" : "submitted",
+          progress_step: 1,
+          progress_total: progressSteps.length,
+          assigned_staff_id: staffId,
+          applicant_type: applicantType,
+          priority: "normal",
+          notes: notesSummary,
+        })
+        .select()
+        .single();
+      if (srErr) throw srErr;
+      const requestId = sr.id as string;
+
+      // Upload files
+      for (const { file } of files) {
+        const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `documents/${user!.id}/${requestId}/${Date.now()}_${safe}`;
+        const { error: upErr } = await supabase.storage
+          .from("client-documents")
+          .upload(path, file);
+        if (upErr) throw upErr;
+        await supabase.from("documents").insert({
+          service_request_id: requestId,
+          client_id: user!.id,
+          uploaded_by: user!.id,
+          file_path: path,
+          file_name: file.name,
+          file_type: file.type || null,
+          file_size_bytes: file.size,
+          status: "uploaded",
+        });
+      }
+
+      // Simulate payment record
+      if (!isFree && basePrice > 0) {
+        await supabase.from("payments").insert({
+          service_request_id: requestId,
+          client_id: user!.id,
+          amount_rwf: basePrice,
+          currency: "RWF",
+          method: payMethod === "momo" ? "momo" : payMethod === "paypal" ? "stripe" : "stripe",
+          status: "completed",
+          reference: `SB-${Date.now()}`,
+        });
+      }
+
+      // Notify client
+      await createNotification({
+        user_id: user!.id,
+        type: "case_submitted",
+        title: "Your request has been submitted",
+        body: `We received your ${localName} request. Our team will review it shortly.`,
+        link: "/dashboard/my-services",
+      });
+
+      // Notify staff
+      if (staffId) {
+        await createNotification({
+          user_id: staffId,
+          type: "new_case",
+          title: `New case: ${localName}`,
+          body: `New request from ${profile?.full_name ?? "a client"}.`,
+          link: "/staff/cases",
+        });
+      }
+
+      // Notify all admins
+      await createNotificationForAdmins({
+        type: "new_case",
+        title: `New ${service.category} request`,
+        body: `${profile?.full_name ?? "A client"} submitted a ${localName} request.`,
+        link: "/admin/clients",
+      });
+
+      onOpenChange(false);
+      navigate({
+        to: "/dashboard/confirmation/$requestId",
+        params: { requestId },
+        search: {
+          serviceName: localName,
+          priceText: isFree ? "Free" : (priceText ?? "0 RWF"),
+          payMethod: isFree ? "free" : payMethod,
+        } as never,
+      });
+    } catch (e) {
+      setPayState("idle");
+      toast.error((e as Error).message);
+    }
+  }
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        className={cn(
+          "flex flex-col gap-0 overflow-hidden p-0",
+          "h-dvh w-full rounded-none",
+          "sm:h-[90dvh] sm:max-w-2xl sm:rounded-xl",
+        )}
+      >
+        {/* Payment overlay */}
+        {payState !== "idle" && (
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-background/95 backdrop-blur-sm">
+            {payState === "processing" && (
+              <>
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <div className="text-center">
+                  <p className="text-lg font-semibold">Processing payment…</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Please do not close this window.
+                  </p>
+                </div>
+              </>
+            )}
+            {payState === "success" && (
+              <>
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500/15">
+                  <CheckCircle2 className="h-10 w-10 text-green-500" />
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-semibold text-green-600 dark:text-green-400">
+                    Payment successful!
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Submitting your request…
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Header */}
+        <DialogHeader className="shrink-0 border-b border-border px-5 py-4">
+          <DialogTitle asChild>
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{CAT_EMOJI[service.category]}</span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-base font-semibold leading-tight">{localName}</p>
+                <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{localDesc}</p>
+              </div>
+              <div className="flex shrink-0 flex-col items-end gap-1">
+                {priceText && (
+                  <Badge variant="secondary" className="font-semibold">
+                    {priceText}
+                  </Badge>
+                )}
+                {timeText && (
+                  <span className="text-[11px] text-muted-foreground">{timeText}</span>
+                )}
+              </div>
+            </div>
+          </DialogTitle>
+        </DialogHeader>
+
+        {/* Tabs */}
+        <Tabs
+          value={tab}
+          onValueChange={(v) => setTab(v as typeof tab)}
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <TabsList className="h-10 w-full shrink-0 rounded-none border-b border-border bg-transparent px-5">
+            <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="requirements" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+              Requirements
+            </TabsTrigger>
+            <TabsTrigger value="apply" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+              Apply
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Overview */}
+          <TabsContent value="overview" className="flex-1 overflow-y-auto px-5 py-4 data-[state=inactive]:hidden">
+            <div className="space-y-5">
+              <div>
+                <p className="text-sm leading-relaxed text-muted-foreground">{localDesc}</p>
+              </div>
+
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  What you get
+                </p>
+                <ul className="space-y-2">
+                  {whatYouGet.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  How it works
+                </p>
+                <TimelineDots steps={progressSteps} />
+              </div>
+
+              <Button
+                className="w-full"
+                onClick={() => setTab("apply")}
+              >
+                Start Application <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
+            </div>
+          </TabsContent>
+
+          {/* Requirements */}
+          <TabsContent value="requirements" className="flex-1 overflow-y-auto px-5 py-4 data-[state=inactive]:hidden">
+            <div className="space-y-4">
+              {isInterpreter && (
+                <div className="flex items-center gap-2 rounded-lg border border-green-500/40 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-700 dark:text-green-400">
+                  ✅ First 5 minutes FREE — no commitment required
+                </div>
+              )}
+
+              <p className="text-sm text-muted-foreground">
+                Please have the following documents and information ready before applying.
+              </p>
+
+              {requiredDocs.length === 0 ? (
+                <p className="text-sm italic text-muted-foreground">
+                  No documents required for this service.
+                </p>
+              ) : (
+                <ul className="space-y-2">
+                  {requiredDocs.map((doc) => (
+                    <li
+                      key={doc}
+                      className="flex items-center gap-3 rounded-md border border-border px-3 py-2.5"
+                    >
+                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-muted-foreground/40">
+                        <Check className="h-3 w-3 text-muted-foreground" />
+                      </div>
+                      <span className="text-sm">{doc}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <p className="rounded-md bg-muted/50 px-3 py-2.5 text-xs text-muted-foreground">
+                You can still submit your application and upload documents later from "My
+                Services" if you don't have everything ready.
+              </p>
+
+              <Button className="w-full" onClick={() => setTab("apply")}>
+                Continue to Apply <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
+            </div>
+          </TabsContent>
+
+          {/* Apply */}
+          <TabsContent value="apply" className="flex-1 overflow-y-auto data-[state=inactive]:hidden">
+            <div className="space-y-6 px-5 py-4">
+
+              {/* Personal info */}
+              <section className="space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Personal information
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Full Name</Label>
+                    <Input
+                      value={profile?.full_name ?? ""}
+                      readOnly
+                      className="bg-muted/40 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Email</Label>
+                    <Input
+                      value={profile?.email ?? ""}
+                      readOnly
+                      className="bg-muted/40 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Phone</Label>
+                    <Input
+                      value={profile?.phone ?? ""}
+                      readOnly
+                      className="bg-muted/40 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Applicant type</Label>
+                    <Select
+                      value={applicantType}
+                      onValueChange={(v) => setApplicantType(v as ApplicantType)}
+                    >
+                      <SelectTrigger className="text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="individual">Individual</SelectItem>
+                        <SelectItem value="family">Family</SelectItem>
+                        <SelectItem value="company">Company / Organization</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Nationality</Label>
+                    <Input
+                      value={nationality}
+                      onChange={(e) => setNationality(e.target.value)}
+                      placeholder="e.g. Rwandan, Chinese…"
+                      className="text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Passport / ID (optional)</Label>
+                    <Input
+                      value={passportId}
+                      onChange={(e) => setPassportId(e.target.value)}
+                      placeholder="AB1234567"
+                      className="text-sm"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              {/* Service-specific fields */}
+              <section className="space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Service details
+                </p>
+                <ServiceFields
+                  category={service.category}
+                  slug={service.slug}
+                  isInterpreter={isInterpreter}
+                  value={details}
+                  onChange={setDetails}
+                />
+              </section>
+
+              {/* Document uploads */}
+              {requiredDocs.length > 0 && (
+                <section className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Documents
+                  </p>
+                  <div className="space-y-2">
+                    {requiredDocs.map((doc) => (
+                      <UploadRow key={doc} label={doc} onPick={addFile(doc)} />
+                    ))}
+                    <UploadRow label="Add another file" extra onPick={addFile()} />
+                  </div>
+                  {files.length > 0 && (
+                    <div className="space-y-2 rounded-md border border-border p-3">
+                      {files.map((f, i) => (
+                        <div key={i} className="space-y-1">
+                          <div className="flex items-center gap-2 text-sm">
+                            <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                            <span className="min-w-0 flex-1 truncate">{f.file.name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {(f.file.size / 1024).toFixed(0)} KB
+                            </span>
+                            <button
+                              type="button"
+                              aria-label="Remove file"
+                              onClick={() => removeFile(i)}
+                              className="rounded p-0.5 hover:bg-accent"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                          {f.progress < 100 && (
+                            <Progress value={f.progress} className="h-1" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {/* Notes */}
+              <section className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">
+                  Additional notes (optional)
+                </Label>
+                <Textarea
+                  rows={3}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Any special instructions or context…"
+                  className="resize-none text-sm"
+                />
+              </section>
+
+              {/* Payment section */}
+              <section className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Payment
+                </p>
+
+                {/* Summary */}
+                <div className="rounded-lg border border-border bg-background px-4 py-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">{localName}</span>
+                    <span className="font-semibold">{priceText ?? "Free"}</span>
+                  </div>
+                  {priceText && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Final price confirmed after review · charged on approval
+                    </p>
+                  )}
+                </div>
+
+                {!isInterpreter && (
+                  <>
+                    <p className="text-xs text-muted-foreground">Payment method</p>
+                    <div className="flex gap-2">
+                      <PayMethodCard
+                        id="card"
+                        label="Card"
+                        icon={<CreditCard className="h-5 w-5" />}
+                        selected={payMethod === "card"}
+                        onSelect={() => setPayMethod("card")}
+                      />
+                      <PayMethodCard
+                        id="paypal"
+                        label="PayPal"
+                        icon={<span className="text-base font-bold text-blue-600">P</span>}
+                        selected={payMethod === "paypal"}
+                        onSelect={() => setPayMethod("paypal")}
+                      />
+                      <PayMethodCard
+                        id="momo"
+                        label="MTN MoMo"
+                        icon={<Smartphone className="h-5 w-5" />}
+                        selected={payMethod === "momo"}
+                        onSelect={() => setPayMethod("momo")}
+                      />
+                    </div>
+
+                    <Button
+                      className="w-full"
+                      size="lg"
+                      onClick={() => handleSubmit(false)}
+                      disabled={payState !== "idle"}
+                    >
+                      {payState === "processing" ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing…
+                        </>
+                      ) : (
+                        <>
+                          Submit &amp; Pay{" "}
+                          {basePrice > 0 ? `${basePrice.toLocaleString()} RWF` : ""}
+                        </>
+                      )}
+                    </Button>
+                  </>
+                )}
+
+                {isInterpreter && (
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-green-500 text-green-600 hover:bg-green-500/10"
+                      onClick={() => handleSubmit(true)}
+                      disabled={payState !== "idle"}
+                    >
+                      {payState === "processing" ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      Start Free 5-min Consultation
+                    </Button>
+                    <Button
+                      className="flex-1"
+                      onClick={() => handleSubmit(false)}
+                      disabled={payState !== "idle"}
+                    >
+                      Book Full Session
+                      {basePrice > 0 ? ` · ${basePrice.toLocaleString()} RWF` : ""}
+                    </Button>
+                  </div>
+                )}
+              </section>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Service-specific form fields ─────────────────────────────────────────────
+
+function ServiceFields({
+  category,
+  slug,
+  isInterpreter,
+  value,
+  onChange,
+}: {
+  category: ServiceCategory;
+  slug: string;
+  isInterpreter: boolean;
+  value: Record<string, string>;
+  onChange: (v: Record<string, string>) => void;
+}) {
+  const set = (k: string, v: string) => onChange({ ...value, [k]: v });
+
+  if (category === "visa" && !slug.includes("consultation")) {
+    return (
+      <div className="space-y-3">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label className="text-xs">Passport Number</Label>
+            <Input
+              value={value.passport ?? ""}
+              onChange={(e) => set("passport", e.target.value)}
+              placeholder="AB1234567"
+              className="text-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Nationality</Label>
+            <Input
+              value={value.nationality ?? ""}
+              onChange={(e) => set("nationality", e.target.value)}
+              placeholder="e.g. Rwandan"
+              className="text-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">
+              Visa Type <span className="text-destructive">*</span>
+            </Label>
+            <Select value={value.visaType ?? ""} onValueChange={(v) => set("visaType", v)}>
+              <SelectTrigger className="text-sm">
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="tourist">Tourist</SelectItem>
+                <SelectItem value="business">Business</SelectItem>
+                <SelectItem value="student">Student</SelectItem>
+                <SelectItem value="work">Work / Employment</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Destination Country</Label>
+            <Input
+              value={value.destination ?? ""}
+              onChange={(e) => set("destination", e.target.value)}
+              placeholder="e.g. Rwanda, China…"
+              className="text-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Travel Date</Label>
+            <Input
+              type="date"
+              value={value.travelDate ?? ""}
+              onChange={(e) => set("travelDate", e.target.value)}
+              className="text-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Return Date</Label>
+            <Input
+              type="date"
+              value={value.returnDate ?? ""}
+              onChange={(e) => set("returnDate", e.target.value)}
+              className="text-sm"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (category === "translation" || isInterpreter) {
+    return (
+      <div className="space-y-3">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label className="text-xs">
+              Source Language <span className="text-destructive">*</span>
+            </Label>
+            <Select
+              value={value.fromLang ?? ""}
+              onValueChange={(v) => set("fromLang", v)}
+            >
+              <SelectTrigger className="text-sm">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map((l) => (
+                  <SelectItem key={l} value={l}>
+                    {l}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">
+              Target Language <span className="text-destructive">*</span>
+            </Label>
+            <Select
+              value={value.toLang ?? ""}
+              onValueChange={(v) => set("toLang", v)}
+            >
+              <SelectTrigger className="text-sm">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map((l) => (
+                  <SelectItem key={l} value={l}>
+                    {l}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        {!isInterpreter && (
+          <div className="space-y-1.5">
+            <Label className="text-xs">Document Type</Label>
+            <Input
+              value={value.docType ?? ""}
+              onChange={(e) => set("docType", e.target.value)}
+              placeholder="e.g. Contract, certificate, ID…"
+              className="text-sm"
+            />
+          </div>
+        )}
+        {isInterpreter && (
+          <>
+            <div className="space-y-1.5">
+              <Label className="text-xs">
+                Preferred Date &amp; Time <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                value={value.timeSlot ?? ""}
+                onChange={(e) => set("timeSlot", e.target.value)}
+                placeholder="e.g. Monday 10am–12pm, or ASAP"
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">What do you need help with?</Label>
+              <Textarea
+                rows={2}
+                value={value.description ?? ""}
+                onChange={(e) => set("description", e.target.value)}
+                placeholder="Medical appointment, business meeting, legal matter…"
+                className="resize-none text-sm"
+              />
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  if (category === "accounting") {
+    return (
+      <div className="space-y-3">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label className="text-xs">Company Name</Label>
+            <Input
+              value={value.companyName ?? ""}
+              onChange={(e) => set("companyName", e.target.value)}
+              placeholder="Your company name"
+              className="text-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Business Registration No.</Label>
+            <Input
+              value={value.regNumber ?? ""}
+              onChange={(e) => set("regNumber", e.target.value)}
+              placeholder="RDB / registration number"
+              className="text-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Fiscal Year</Label>
+            <Input
+              value={value.fiscalYear ?? ""}
+              onChange={(e) => set("fiscalYear", e.target.value)}
+              placeholder="e.g. 2024 / 2025"
+              className="text-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Reporting Period</Label>
+            <Select value={value.period ?? ""} onValueChange={(v) => set("period", v)}>
+              <SelectTrigger className="text-sm">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="month">Monthly</SelectItem>
+                <SelectItem value="quarter">Quarterly</SelectItem>
+                <SelectItem value="year">Annual</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // consultancy (default)
+  return (
+    <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label className="text-xs">Company / Project Name</Label>
+          <Input
+            value={value.companyName ?? ""}
+            onChange={(e) => set("companyName", e.target.value)}
+            placeholder="Your company or project"
+            className="text-sm"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Business Stage</Label>
+          <Select
+            value={value.businessStage ?? ""}
+            onValueChange={(v) => set("businessStage", v)}
+          >
+            <SelectTrigger className="text-sm">
+              <SelectValue placeholder="Select stage" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="idea">Idea</SelectItem>
+              <SelectItem value="startup">Startup</SelectItem>
+              <SelectItem value="growing">Growing</SelectItem>
+              <SelectItem value="established">Established</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">Preferred meeting format</Label>
+        <Select value={value.meetingType ?? ""} onValueChange={(v) => set("meetingType", v)}>
+          <SelectTrigger className="text-sm">
+            <SelectValue placeholder="Select" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="in-person">In-person</SelectItem>
+            <SelectItem value="video">Video call</SelectItem>
+            <SelectItem value="phone">Phone call</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">Brief description of your needs</Label>
+        <Textarea
+          rows={3}
+          value={value.brief ?? ""}
+          onChange={(e) => set("brief", e.target.value)}
+          placeholder="Describe what you need help with…"
+          className="resize-none text-sm"
+        />
+      </div>
+    </div>
+  );
+}

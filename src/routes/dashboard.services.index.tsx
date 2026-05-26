@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { PlusCircle, Search } from "lucide-react";
+import { Clock, PlusCircle, Search, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ServiceApplyModal } from "@/components/dashboard/service-apply-modal";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
@@ -17,11 +18,21 @@ export const Route = createFileRoute("/dashboard/services/")({
 });
 
 const CATEGORIES = ["all", "visa", "accounting", "consultancy", "translation"] as const;
+
+function isInterpreterSlug(slug: string) {
+  return (
+    slug.includes("live-interpret") ||
+    slug.includes("live-interp") ||
+    slug === "live-interpretation"
+  );
+}
+
 function ServiceCatalog() {
   const { t, locale } = useI18n();
   const [services, setServices] = useState<Service[] | null>(null);
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<(typeof CATEGORIES)[number]>("all");
+  const [applyService, setApplyService] = useState<Service | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -94,42 +105,57 @@ function ServiceCatalog() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((s) => (
-            <Card key={s.id} className="flex flex-col">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-base">{localName(s)}</CardTitle>
-                  <Badge variant="secondary" className="capitalize">
-                    {t(`dashboard.services.cat.${s.category}`)}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="flex flex-1 flex-col gap-3">
-                <p className="line-clamp-2 text-sm text-muted-foreground">{localDesc(s)}</p>
-                <div className="space-y-1 text-xs text-muted-foreground">
-                  {s.price_min_rwf != null && (
-                    <div>
-                      {t("dashboard.services.from")}{" "}
-                      <span className="font-semibold text-foreground">
-                        {s.price_min_rwf.toLocaleString()} RWF
+          {filtered.map((s) => {
+            const interpreter = isInterpreterSlug(s.slug);
+            const priceText = (() => {
+              if (!s.price_min_rwf && !s.price_max_rwf) return null;
+              if (s.price_min_rwf && s.price_max_rwf && s.price_min_rwf !== s.price_max_rwf)
+                return `${s.price_min_rwf.toLocaleString()} – ${s.price_max_rwf.toLocaleString()} RWF`;
+              return `${(s.price_min_rwf ?? s.price_max_rwf ?? 0).toLocaleString()} RWF`;
+            })();
+
+            return (
+              <Card key={s.id} className="flex flex-col">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-base">{localName(s)}</CardTitle>
+                    <Badge variant="secondary" className="capitalize shrink-0">
+                      {t(`dashboard.services.cat.${s.category}`)}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex flex-1 flex-col gap-3">
+                  <p className="line-clamp-2 text-sm text-muted-foreground">{localDesc(s)}</p>
+
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    {priceText && (
+                      <span className="font-semibold text-foreground">{priceText}</span>
+                    )}
+                    {s.estimated_days_min != null && s.estimated_days_max != null && (
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {`${s.estimated_days_min}–${s.estimated_days_max} ${t("dashboard.common.days")}`}
                       </span>
-                    </div>
-                  )}
-                  {s.estimated_days_min != null && s.estimated_days_max != null && (
-                    <div>
-                      {t("dashboard.services.usually")} {s.estimated_days_min}–
-                      {s.estimated_days_max} {t("dashboard.common.days")}
-                    </div>
-                  )}
-                </div>
-                <Button asChild className="mt-auto">
-                  <Link to="/dashboard/services/$slug" params={{ slug: s.slug }}>
-                    {t("dashboard.services.request")}
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                    )}
+                  </div>
+
+                  <Button
+                    className={`mt-auto ${interpreter ? "bg-amber-500 text-white hover:bg-amber-600" : ""}`}
+                    variant={interpreter ? "default" : "default"}
+                    onClick={() => setApplyService(s)}
+                  >
+                    {interpreter ? (
+                      <>
+                        <Zap className="mr-1.5 h-3.5 w-3.5" /> Book / Free Trial
+                      </>
+                    ) : (
+                      t("dashboard.services.request")
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
 
           {/* See more / contact card */}
           <Link
@@ -145,6 +171,16 @@ function ServiceCatalog() {
             </div>
           </Link>
         </div>
+      )}
+
+      {applyService && (
+        <ServiceApplyModal
+          service={applyService}
+          open={!!applyService}
+          onOpenChange={(v) => {
+            if (!v) setApplyService(null);
+          }}
+        />
       )}
     </div>
   );
