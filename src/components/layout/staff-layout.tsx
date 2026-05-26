@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Menu, ChevronRight } from "lucide-react";
+import { Menu, ChevronRight, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -15,6 +15,7 @@ import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { StaffSidebar } from "@/components/layout/staff-sidebar";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import { InterpreterProfileModal } from "@/components/staff/interpreter-profile-modal";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -26,6 +27,7 @@ export function StaffLayout({
   breadcrumbs?: string[];
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const sidebarLabel = "San Brothers — Staff";
@@ -104,8 +106,30 @@ export function StaffLayout({
             </DropdownMenu>
           </div>
         </header>
+        {profile?.role === "translator" && profile.interpreter_profile_complete === false && (
+          <div className="flex items-center justify-between gap-3 border-b border-amber-300 bg-amber-50 px-4 py-2.5 text-amber-900 dark:border-amber-700 dark:bg-amber-950/60 dark:text-amber-200">
+            <div className="flex items-center gap-2 text-sm">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <span>
+                <strong>Complete your interpreter profile</strong> — Tell us which languages you
+                interpret so clients can find you.
+              </span>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="shrink-0 border-amber-400 bg-amber-100 text-amber-900 hover:bg-amber-200 dark:border-amber-600 dark:bg-amber-900/40 dark:text-amber-100 dark:hover:bg-amber-900/70"
+              onClick={() => setProfileModalOpen(true)}
+            >
+              Complete Profile →
+            </Button>
+          </div>
+        )}
+
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
+
+      <InterpreterProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
     </div>
   );
 }

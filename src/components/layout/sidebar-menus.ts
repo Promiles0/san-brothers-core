@@ -20,6 +20,7 @@ import {
   Award,
   MessageSquare,
   PhoneCall,
+  Headphones,
   History,
   DollarSign,
   LayoutDashboard,
@@ -63,6 +64,12 @@ export const sidebarMenus: Record<UserRole, SidebarItem[]> = {
       badge: "active",
     },
     { key: "documents", label: "Documents", icon: FolderOpen, to: "/dashboard/documents" },
+    {
+      key: "liveInterpreter",
+      label: "Live Interpreter",
+      icon: Headphones,
+      to: "/dashboard/interpreter",
+    },
     {
       key: "messages",
       label: "Messages",

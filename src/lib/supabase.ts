@@ -45,4 +45,7 @@ export interface ProfileRow {
   updated_at: string;
   last_login_at: string | null;
   status: string;
+  interpreter_profile_complete: boolean;
+  interpreter_languages: { from: string; to: string }[] | null;
+  interpreter_bio: string | null;
 }
