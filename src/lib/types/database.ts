@@ -73,6 +73,8 @@ export interface Service {
   description_rw: string | null;
   price_min_rwf: number | null;
   price_max_rwf: number | null;
+  price_usd_min: number | null;
+  price_usd_max: number | null;
   estimated_days_min: number | null;
   estimated_days_max: number | null;
   is_active: boolean;

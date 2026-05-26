@@ -107,11 +107,13 @@ function ServiceCatalog() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((s) => {
             const interpreter = isInterpreterSlug(s.slug);
+            const fmtUSD = (n: number) => `$${Math.round(n)}`;
             const priceText = (() => {
-              if (!s.price_min_rwf && !s.price_max_rwf) return null;
-              if (s.price_min_rwf && s.price_max_rwf && s.price_min_rwf !== s.price_max_rwf)
-                return `${s.price_min_rwf.toLocaleString()} – ${s.price_max_rwf.toLocaleString()} RWF`;
-              return `${(s.price_min_rwf ?? s.price_max_rwf ?? 0).toLocaleString()} RWF`;
+              const min = s.price_usd_min;
+              const max = s.price_usd_max;
+              if (!min && !max) return null;
+              if (min && max && min !== max) return `${fmtUSD(min)} – ${fmtUSD(max)}`;
+              return fmtUSD(min ?? max ?? 0);
             })();
 
             return (

@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
-  Building2,
+  Calendar,
   Check,
   CheckCircle2,
+  ChevronLeft,
   ChevronRight,
   CreditCard,
   FileText,
   Loader2,
+  Phone,
   Smartphone,
   Upload,
   X,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -113,6 +116,8 @@ const LANGUAGES = ["English", "French", "Chinese (Mandarin)", "Kinyarwanda", "Ar
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+const fmtUSD = (n: number) => `$${Math.round(n)}`;
+
 function isInterpreterSlug(slug: string) {
   return slug === "live-interpretation" || slug.includes("live-interp");
 }
@@ -133,9 +138,8 @@ async function pickMatchingStaff(category: ServiceCategory): Promise<string | nu
 
 function formatPrice(min: number | null, max: number | null) {
   if (!min && !max) return null;
-  if (min && max && min !== max)
-    return `${min.toLocaleString()} – ${max.toLocaleString()} RWF`;
-  return `${(min ?? max ?? 0).toLocaleString()} RWF`;
+  if (min && max && min !== max) return `${fmtUSD(min)} – ${fmtUSD(max)}`;
+  return fmtUSD(min ?? max ?? 0);
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -221,6 +225,38 @@ function PayMethodCard({
   );
 }
 
+// ─── Payment overlay (shared) ─────────────────────────────────────────────────
+
+function PayOverlay({ state }: { state: PayState }) {
+  if (state === "idle") return null;
+  return (
+    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-background/95 backdrop-blur-sm">
+      {state === "processing" && (
+        <>
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <div className="text-center">
+            <p className="text-lg font-semibold">Processing…</p>
+            <p className="mt-1 text-sm text-muted-foreground">Please do not close this window.</p>
+          </div>
+        </>
+      )}
+      {state === "success" && (
+        <>
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500/15">
+            <CheckCircle2 className="h-10 w-10 text-green-500" />
+          </div>
+          <div className="text-center">
+            <p className="text-lg font-semibold text-green-600 dark:text-green-400">
+              Success!
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">Submitting your request…</p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ─── Main modal ───────────────────────────────────────────────────────────────
 
 export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
@@ -230,10 +266,8 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
   const isInterpreter = isInterpreterSlug(service.slug);
 
-  // Tab
+  // Standard form state
   const [tab, setTab] = useState<"overview" | "requirements" | "apply">("overview");
-
-  // Form
   const [applicantType, setApplicantType] = useState<ApplicantType>("individual");
   const [nationality, setNationality] = useState("");
   const [passportId, setPassportId] = useState("");
@@ -247,7 +281,14 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
   // Payment flow
   const [payState, setPayState] = useState<PayState>("idle");
-  const [freeConsultation, setFreeConsultation] = useState(false);
+
+  // Interpreter-specific state
+  const [interpreterView, setInterpreterView] = useState<"options" | "booking">("options");
+  const [bookFromLang, setBookFromLang] = useState("");
+  const [bookToLang, setBookToLang] = useState("");
+  const [bookDate, setBookDate] = useState("");
+  const [bookTime, setBookTime] = useState("");
+  const [bookNotes, setBookNotes] = useState("");
 
   // Reset on open
   useEffect(() => {
@@ -261,7 +302,13 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       setFiles([]);
       setPayMethod("card");
       setPayState("idle");
-      setFreeConsultation(false);
+
+      setInterpreterView("options");
+      setBookFromLang("");
+      setBookToLang("");
+      setBookDate("");
+      setBookTime("");
+      setBookNotes("");
     }
   }, [open, service.id]);
 
@@ -284,8 +331,8 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
     service.description_en ||
     "";
 
-  const priceText = formatPrice(service.price_min_rwf, service.price_max_rwf);
-  const basePrice = service.price_min_rwf ?? 0;
+  const priceText = formatPrice(service.price_usd_min, service.price_usd_max);
+  const basePrice = service.price_usd_min ?? 0;
 
   const timeText =
     service.estimated_days_min != null && service.estimated_days_max != null
@@ -335,12 +382,6 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
   function validate(): string | null {
     if (!user) return "Please sign in to apply.";
-    if (isInterpreter) {
-      if (!details.fromLang || !details.toLang) return "Please select both languages.";
-      if (!details.timeSlot) return "Please enter a preferred time slot.";
-      return null;
-    }
-    // category-specific
     if (service.category === "visa") {
       if (!details.visaType) return "Please select a visa type.";
     }
@@ -350,7 +391,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
     return null;
   }
 
-  // ── Submit ─────────────────────────────────────────────────────────────────
+  // ── Submit (standard services) ─────────────────────────────────────────────
 
   async function handleSubmit(isFree = false) {
     const err = validate();
@@ -358,7 +399,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       toast.error(err);
       return;
     }
-    setFreeConsultation(isFree);
+
     setPayState("processing");
 
     await new Promise((r) => setTimeout(r, 2000));
@@ -367,10 +408,8 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
     await new Promise((r) => setTimeout(r, 900));
 
     try {
-      // Assign staff
       const staffId = await pickMatchingStaff(service.category);
 
-      // Build notes summary
       const notesSummary = JSON.stringify({
         applicantType,
         nationality: nationality || undefined,
@@ -387,7 +426,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           client_id: user!.id,
           service_id: service.id,
           service_category: service.category,
-          status: isFree ? "submitted" : "submitted",
+          status: "submitted",
           progress_step: 1,
           progress_total: progressSteps.length,
           assigned_staff_id: staffId,
@@ -400,7 +439,6 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       if (srErr) throw srErr;
       const requestId = sr.id as string;
 
-      // Upload files
       for (const { file } of files) {
         const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const path = `documents/${user!.id}/${requestId}/${Date.now()}_${safe}`;
@@ -420,20 +458,18 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         });
       }
 
-      // Simulate payment record
       if (!isFree && basePrice > 0) {
         await supabase.from("payments").insert({
           service_request_id: requestId,
           client_id: user!.id,
           amount_rwf: basePrice,
-          currency: "RWF",
-          method: payMethod === "momo" ? "momo" : payMethod === "paypal" ? "stripe" : "stripe",
+          currency: "USD",
+          method: payMethod === "momo" ? "momo" : "stripe",
           status: "completed",
           reference: `SB-${Date.now()}`,
         });
       }
 
-      // Notify client
       await createNotification({
         user_id: user!.id,
         type: "case_submitted",
@@ -442,7 +478,6 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         link: "/dashboard/my-services",
       });
 
-      // Notify staff
       if (staffId) {
         await createNotification({
           user_id: staffId,
@@ -453,7 +488,6 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         });
       }
 
-      // Notify all admins
       await createNotificationForAdmins({
         type: "new_case",
         title: `New ${service.category} request`,
@@ -467,8 +501,143 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         params: { requestId },
         search: {
           serviceName: localName,
-          priceText: isFree ? "Free" : (priceText ?? "0 RWF"),
+          priceText: isFree ? "Free" : (priceText ?? "$0"),
           payMethod: isFree ? "free" : payMethod,
+        } as never,
+      });
+    } catch (e) {
+      setPayState("idle");
+      toast.error((e as Error).message);
+    }
+  }
+
+  // ── Submit: interpreter free call ──────────────────────────────────────────
+
+  async function handleFreeCall() {
+    if (!user) { toast.error("Please sign in."); return; }
+    setPayState("processing");
+    try {
+      const staffId = await pickMatchingStaff(service.category);
+      const { data: sr, error: srErr } = await supabase
+        .from("service_requests")
+        .insert({
+          client_id: user.id,
+          service_id: service.id,
+          service_category: service.category,
+          status: "free_consultation",
+          progress_step: 1,
+          progress_total: 3,
+          assigned_staff_id: staffId,
+          applicant_type: "individual",
+          priority: "normal",
+          notes: JSON.stringify({ type: "free_call" }),
+        })
+        .select()
+        .single();
+      if (srErr) throw srErr;
+
+      await createNotification({
+        user_id: user.id,
+        type: "case_submitted",
+        title: "Free consultation started",
+        body: "Your interpreter is ready. Head to Messages to begin.",
+        link: "/dashboard/messages",
+      });
+
+      if (staffId) {
+        await createNotification({
+          user_id: staffId,
+          type: "new_case",
+          title: "Free interpreter call",
+          body: `${profile?.full_name ?? "A client"} wants to connect now.`,
+          link: "/staff/cases",
+        });
+      }
+
+      onOpenChange(false);
+      navigate({ to: "/dashboard/messages" });
+    } catch (e) {
+      setPayState("idle");
+      toast.error((e as Error).message);
+    }
+  }
+
+  // ── Submit: interpreter booked session ─────────────────────────────────────
+
+  async function handleBookSession() {
+    if (!user) { toast.error("Please sign in."); return; }
+    if (!bookFromLang || !bookToLang) { toast.error("Please select both languages."); return; }
+    if (!bookDate || !bookTime) { toast.error("Please select a date and time."); return; }
+
+    setPayState("processing");
+    await new Promise((r) => setTimeout(r, 2000));
+    setPayState("success");
+    await new Promise((r) => setTimeout(r, 900));
+
+    try {
+      const staffId = await pickMatchingStaff(service.category);
+      const { data: sr, error: srErr } = await supabase
+        .from("service_requests")
+        .insert({
+          client_id: user.id,
+          service_id: service.id,
+          service_category: service.category,
+          status: "submitted",
+          progress_step: 1,
+          progress_total: 3,
+          assigned_staff_id: staffId,
+          applicant_type: "individual",
+          priority: "normal",
+          notes: JSON.stringify({
+            type: "booked_session",
+            fromLang: bookFromLang,
+            toLang: bookToLang,
+            date: bookDate,
+            time: bookTime,
+            notes: bookNotes || undefined,
+          }),
+        })
+        .select()
+        .single();
+      if (srErr) throw srErr;
+      const requestId = sr.id as string;
+
+      await supabase.from("payments").insert({
+        service_request_id: requestId,
+        client_id: user.id,
+        amount_rwf: basePrice,
+        currency: "USD",
+        method: "stripe",
+        status: "completed",
+        reference: `SB-${Date.now()}`,
+      });
+
+      await createNotification({
+        user_id: user.id,
+        type: "case_submitted",
+        title: "Interpreter session booked",
+        body: `Your session is scheduled for ${bookDate} at ${bookTime}.`,
+        link: "/dashboard/my-services",
+      });
+
+      if (staffId) {
+        await createNotification({
+          user_id: staffId,
+          type: "new_case",
+          title: "New interpreter booking",
+          body: `${profile?.full_name ?? "A client"} booked a session on ${bookDate}.`,
+          link: "/staff/cases",
+        });
+      }
+
+      onOpenChange(false);
+      navigate({
+        to: "/dashboard/confirmation/$requestId",
+        params: { requestId },
+        search: {
+          serviceName: "Live Interpreter Session",
+          priceText: priceText ?? "$2 – $17",
+          payMethod: "card",
         } as never,
       });
     } catch (e) {
@@ -488,321 +657,446 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           "sm:h-[90dvh] sm:max-w-2xl sm:rounded-xl",
         )}
       >
-        {/* Payment overlay */}
-        {payState !== "idle" && (
-          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-background/95 backdrop-blur-sm">
-            {payState === "processing" && (
-              <>
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <div className="text-center">
-                  <p className="text-lg font-semibold">Processing payment…</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Please do not close this window.
-                  </p>
-                </div>
-              </>
-            )}
-            {payState === "success" && (
-              <>
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500/15">
-                  <CheckCircle2 className="h-10 w-10 text-green-500" />
-                </div>
-                <div className="text-center">
-                  <p className="text-lg font-semibold text-green-600 dark:text-green-400">
-                    Payment successful!
-                  </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Submitting your request…
-                  </p>
-                </div>
-              </>
-            )}
-          </div>
-        )}
+        <PayOverlay state={payState} />
 
-        {/* Header */}
-        <DialogHeader className="shrink-0 border-b border-border px-5 py-4">
-          <DialogTitle asChild>
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">{CAT_EMOJI[service.category]}</span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-base font-semibold leading-tight">{localName}</p>
-                <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{localDesc}</p>
-              </div>
-              <div className="flex shrink-0 flex-col items-end gap-1">
-                {priceText && (
-                  <Badge variant="secondary" className="font-semibold">
-                    {priceText}
-                  </Badge>
-                )}
-                {timeText && (
-                  <span className="text-[11px] text-muted-foreground">{timeText}</span>
-                )}
-              </div>
-            </div>
-          </DialogTitle>
-        </DialogHeader>
-
-        {/* Tabs */}
-        <Tabs
-          value={tab}
-          onValueChange={(v) => setTab(v as typeof tab)}
-          className="flex min-h-0 flex-1 flex-col"
-        >
-          <TabsList className="h-10 w-full shrink-0 rounded-none border-b border-border bg-transparent px-5">
-            <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="requirements" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
-              Requirements
-            </TabsTrigger>
-            <TabsTrigger value="apply" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
-              Apply
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Overview */}
-          <TabsContent value="overview" className="flex-1 overflow-y-auto px-5 py-4 data-[state=inactive]:hidden">
-            <div className="space-y-5">
-              <div>
-                <p className="text-sm leading-relaxed text-muted-foreground">{localDesc}</p>
-              </div>
-
-              <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  What you get
-                </p>
-                <ul className="space-y-2">
-                  {whatYouGet.map((item) => (
-                    <li key={item} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  How it works
-                </p>
-                <TimelineDots steps={progressSteps} />
-              </div>
-
-              <Button
-                className="w-full"
-                onClick={() => setTab("apply")}
-              >
-                Start Application <ChevronRight className="ml-1 h-4 w-4" />
-              </Button>
-            </div>
-          </TabsContent>
-
-          {/* Requirements */}
-          <TabsContent value="requirements" className="flex-1 overflow-y-auto px-5 py-4 data-[state=inactive]:hidden">
-            <div className="space-y-4">
-              {isInterpreter && (
-                <div className="flex items-center gap-2 rounded-lg border border-green-500/40 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-700 dark:text-green-400">
-                  ✅ First 5 minutes FREE — no commitment required
-                </div>
-              )}
-
-              <p className="text-sm text-muted-foreground">
-                Please have the following documents and information ready before applying.
-              </p>
-
-              {requiredDocs.length === 0 ? (
-                <p className="text-sm italic text-muted-foreground">
-                  No documents required for this service.
-                </p>
-              ) : (
-                <ul className="space-y-2">
-                  {requiredDocs.map((doc) => (
-                    <li
-                      key={doc}
-                      className="flex items-center gap-3 rounded-md border border-border px-3 py-2.5"
-                    >
-                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-muted-foreground/40">
-                        <Check className="h-3 w-3 text-muted-foreground" />
-                      </div>
-                      <span className="text-sm">{doc}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              <p className="rounded-md bg-muted/50 px-3 py-2.5 text-xs text-muted-foreground">
-                You can still submit your application and upload documents later from "My
-                Services" if you don't have everything ready.
-              </p>
-
-              <Button className="w-full" onClick={() => setTab("apply")}>
-                Continue to Apply <ChevronRight className="ml-1 h-4 w-4" />
-              </Button>
-            </div>
-          </TabsContent>
-
-          {/* Apply */}
-          <TabsContent value="apply" className="flex-1 overflow-y-auto data-[state=inactive]:hidden">
-            <div className="space-y-6 px-5 py-4">
-
-              {/* Personal info */}
-              <section className="space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Personal information
-                </p>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Full Name</Label>
-                    <Input
-                      value={profile?.full_name ?? ""}
-                      readOnly
-                      className="bg-muted/40 text-sm"
-                    />
+        {isInterpreter ? (
+          // ── Interpreter layout ───────────────────────────────────────────
+          <>
+            <DialogHeader className="shrink-0 border-b border-border px-5 py-4">
+              <DialogTitle asChild>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/15">
+                    <Phone className="h-5 w-5 text-amber-500" />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Email</Label>
-                    <Input
-                      value={profile?.email ?? ""}
-                      readOnly
-                      className="bg-muted/40 text-sm"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Phone</Label>
-                    <Input
-                      value={profile?.phone ?? ""}
-                      readOnly
-                      className="bg-muted/40 text-sm"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Applicant type</Label>
-                    <Select
-                      value={applicantType}
-                      onValueChange={(v) => setApplicantType(v as ApplicantType)}
-                    >
-                      <SelectTrigger className="text-sm">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="individual">Individual</SelectItem>
-                        <SelectItem value="family">Family</SelectItem>
-                        <SelectItem value="company">Company / Organization</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Nationality</Label>
-                    <Input
-                      value={nationality}
-                      onChange={(e) => setNationality(e.target.value)}
-                      placeholder="e.g. Rwandan, Chinese…"
-                      className="text-sm"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Passport / ID (optional)</Label>
-                    <Input
-                      value={passportId}
-                      onChange={(e) => setPassportId(e.target.value)}
-                      placeholder="AB1234567"
-                      className="text-sm"
-                    />
-                  </div>
-                </div>
-              </section>
-
-              {/* Service-specific fields */}
-              <section className="space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Service details
-                </p>
-                <ServiceFields
-                  category={service.category}
-                  slug={service.slug}
-                  isInterpreter={isInterpreter}
-                  value={details}
-                  onChange={setDetails}
-                />
-              </section>
-
-              {/* Document uploads */}
-              {requiredDocs.length > 0 && (
-                <section className="space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Documents
-                  </p>
-                  <div className="space-y-2">
-                    {requiredDocs.map((doc) => (
-                      <UploadRow key={doc} label={doc} onPick={addFile(doc)} />
-                    ))}
-                    <UploadRow label="Add another file" extra onPick={addFile()} />
-                  </div>
-                  {files.length > 0 && (
-                    <div className="space-y-2 rounded-md border border-border p-3">
-                      {files.map((f, i) => (
-                        <div key={i} className="space-y-1">
-                          <div className="flex items-center gap-2 text-sm">
-                            <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                            <span className="min-w-0 flex-1 truncate">{f.file.name}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {(f.file.size / 1024).toFixed(0)} KB
-                            </span>
-                            <button
-                              type="button"
-                              aria-label="Remove file"
-                              onClick={() => removeFile(i)}
-                              className="rounded p-0.5 hover:bg-accent"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </div>
-                          {f.progress < 100 && (
-                            <Progress value={f.progress} className="h-1" />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </section>
-              )}
-
-              {/* Notes */}
-              <section className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">
-                  Additional notes (optional)
-                </Label>
-                <Textarea
-                  rows={3}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Any special instructions or context…"
-                  className="resize-none text-sm"
-                />
-              </section>
-
-              {/* Payment section */}
-              <section className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Payment
-                </p>
-
-                {/* Summary */}
-                <div className="rounded-lg border border-border bg-background px-4 py-3 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">{localName}</span>
-                    <span className="font-semibold">{priceText ?? "Free"}</span>
-                  </div>
-                  {priceText && (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Final price confirmed after review · charged on approval
+                  <div>
+                    <p className="text-base font-semibold leading-tight">Live Interpreter Call</p>
+                    <p className="mt-0.5 text-xs font-medium text-green-600 dark:text-green-400">
+                      First 5 minutes FREE
                     </p>
-                  )}
+                  </div>
                 </div>
+              </DialogTitle>
+            </DialogHeader>
 
-                {!isInterpreter && (
-                  <>
+            <div className="flex-1 overflow-y-auto px-5 py-6">
+              {interpreterView === "options" ? (
+                <div className="space-y-5">
+                  <p className="text-center text-sm text-muted-foreground">
+                    Choose how you'd like to connect with an interpreter
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Call Now */}
+                    <div className="flex flex-col gap-4 rounded-xl border border-border p-5 transition-colors hover:border-primary/50">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/15">
+                        <Zap className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold">Call Now</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Connect instantly with an available interpreter
+                        </p>
+                      </div>
+                      <Button
+                        className="mt-auto w-full bg-green-600 text-white hover:bg-green-700"
+                        onClick={handleFreeCall}
+                        disabled={payState !== "idle"}
+                      >
+                        {payState === "processing" ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          "Start Free Call"
+                        )}
+                      </Button>
+                    </div>
+
+                    {/* Book a Session */}
+                    <div className="flex flex-col gap-4 rounded-xl border border-border p-5 transition-colors hover:border-primary/50">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/15">
+                        <Calendar className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold">Book a Session</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Schedule for a specific date and time
+                        </p>
+                      </div>
+                      <Button
+                        className="mt-auto w-full"
+                        onClick={() => setInterpreterView("booking")}
+                      >
+                        Book Session
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Booking form
+                <div className="space-y-5">
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                    onClick={() => setInterpreterView("options")}
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" /> Back
+                  </button>
+
+                  <p className="font-semibold">Book an Interpreter Session</p>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">
+                        From Language <span className="text-destructive">*</span>
+                      </Label>
+                      <Select value={bookFromLang} onValueChange={setBookFromLang}>
+                        <SelectTrigger className="text-sm">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {LANGUAGES.map((l) => (
+                            <SelectItem key={l} value={l}>{l}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">
+                        To Language <span className="text-destructive">*</span>
+                      </Label>
+                      <Select value={bookToLang} onValueChange={setBookToLang}>
+                        <SelectTrigger className="text-sm">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {LANGUAGES.map((l) => (
+                            <SelectItem key={l} value={l}>{l}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">
+                        Date <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        type="date"
+                        value={bookDate}
+                        onChange={(e) => setBookDate(e.target.value)}
+                        className="text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">
+                        Time <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        type="time"
+                        value={bookTime}
+                        onChange={(e) => setBookTime(e.target.value)}
+                        className="text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Notes (optional)</Label>
+                    <Textarea
+                      rows={2}
+                      value={bookNotes}
+                      onChange={(e) => setBookNotes(e.target.value)}
+                      placeholder="Medical appointment, business meeting, legal matter…"
+                      className="resize-none text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Live Interpreter Session</span>
+                      <span className="font-semibold">$2 – $17 / session</span>
+                    </div>
+                    <Button
+                      className="w-full"
+                      size="lg"
+                      onClick={handleBookSession}
+                      disabled={payState !== "idle"}
+                    >
+                      {payState === "processing" ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing…
+                        </>
+                      ) : (
+                        "Confirm & Pay"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          // ── Standard service layout ──────────────────────────────────────
+          <>
+            {/* Header */}
+            <DialogHeader className="shrink-0 border-b border-border px-5 py-4">
+              <DialogTitle asChild>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{CAT_EMOJI[service.category]}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-base font-semibold leading-tight">{localName}</p>
+                    <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{localDesc}</p>
+                  </div>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    {priceText && (
+                      <Badge variant="secondary" className="font-semibold">
+                        {priceText}
+                      </Badge>
+                    )}
+                    {timeText && (
+                      <span className="text-[11px] text-muted-foreground">{timeText}</span>
+                    )}
+                  </div>
+                </div>
+              </DialogTitle>
+            </DialogHeader>
+
+            {/* Tabs */}
+            <Tabs
+              value={tab}
+              onValueChange={(v) => setTab(v as typeof tab)}
+              className="flex min-h-0 flex-1 flex-col"
+            >
+              <TabsList className="h-10 w-full shrink-0 rounded-none border-b border-border bg-transparent px-5">
+                <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="requirements" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                  Requirements
+                </TabsTrigger>
+                <TabsTrigger value="apply" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                  Apply
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Overview */}
+              <TabsContent value="overview" className="flex-1 overflow-y-auto px-5 py-4 data-[state=inactive]:hidden">
+                <div className="space-y-5">
+                  <div>
+                    <p className="text-sm leading-relaxed text-muted-foreground">{localDesc}</p>
+                  </div>
+
+                  <div>
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      What you get
+                    </p>
+                    <ul className="space-y-2">
+                      {whatYouGet.map((item) => (
+                        <li key={item} className="flex items-start gap-2 text-sm">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      How it works
+                    </p>
+                    <TimelineDots steps={progressSteps} />
+                  </div>
+
+                  <Button className="w-full" onClick={() => setTab("apply")}>
+                    Start Application <ChevronRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
+              </TabsContent>
+
+              {/* Requirements */}
+              <TabsContent value="requirements" className="flex-1 overflow-y-auto px-5 py-4 data-[state=inactive]:hidden">
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Please have the following documents and information ready before applying.
+                  </p>
+
+                  {requiredDocs.length === 0 ? (
+                    <p className="text-sm italic text-muted-foreground">
+                      No documents required for this service.
+                    </p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {requiredDocs.map((doc) => (
+                        <li
+                          key={doc}
+                          className="flex items-center gap-3 rounded-md border border-border px-3 py-2.5"
+                        >
+                          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-muted-foreground/40">
+                            <Check className="h-3 w-3 text-muted-foreground" />
+                          </div>
+                          <span className="text-sm">{doc}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <p className="rounded-md bg-muted/50 px-3 py-2.5 text-xs text-muted-foreground">
+                    You can still submit your application and upload documents later from "My
+                    Services" if you don't have everything ready.
+                  </p>
+
+                  <Button className="w-full" onClick={() => setTab("apply")}>
+                    Continue to Apply <ChevronRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
+              </TabsContent>
+
+              {/* Apply */}
+              <TabsContent value="apply" className="flex-1 overflow-y-auto data-[state=inactive]:hidden">
+                <div className="space-y-6 px-5 py-4">
+
+                  {/* Personal info */}
+                  <section className="space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Personal information
+                    </p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Full Name</Label>
+                        <Input value={profile?.full_name ?? ""} readOnly className="bg-muted/40 text-sm" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Email</Label>
+                        <Input value={profile?.email ?? ""} readOnly className="bg-muted/40 text-sm" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Phone</Label>
+                        <Input value={profile?.phone ?? ""} readOnly className="bg-muted/40 text-sm" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Applicant type</Label>
+                        <Select
+                          value={applicantType}
+                          onValueChange={(v) => setApplicantType(v as ApplicantType)}
+                        >
+                          <SelectTrigger className="text-sm">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="individual">Individual</SelectItem>
+                            <SelectItem value="family">Family</SelectItem>
+                            <SelectItem value="company">Company / Organization</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Nationality</Label>
+                        <Input
+                          value={nationality}
+                          onChange={(e) => setNationality(e.target.value)}
+                          placeholder="e.g. Rwandan, Chinese…"
+                          className="text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Passport / ID (optional)</Label>
+                        <Input
+                          value={passportId}
+                          onChange={(e) => setPassportId(e.target.value)}
+                          placeholder="AB1234567"
+                          className="text-sm"
+                        />
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Service-specific fields */}
+                  <section className="space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Service details
+                    </p>
+                    <ServiceFields
+                      category={service.category}
+                      slug={service.slug}
+                      value={details}
+                      onChange={setDetails}
+                    />
+                  </section>
+
+                  {/* Document uploads */}
+                  {requiredDocs.length > 0 && (
+                    <section className="space-y-3">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Documents
+                      </p>
+                      <div className="space-y-2">
+                        {requiredDocs.map((doc) => (
+                          <UploadRow key={doc} label={doc} onPick={addFile(doc)} />
+                        ))}
+                        <UploadRow label="Add another file" extra onPick={addFile()} />
+                      </div>
+                      {files.length > 0 && (
+                        <div className="space-y-2 rounded-md border border-border p-3">
+                          {files.map((f, i) => (
+                            <div key={i} className="space-y-1">
+                              <div className="flex items-center gap-2 text-sm">
+                                <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                                <span className="min-w-0 flex-1 truncate">{f.file.name}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {(f.file.size / 1024).toFixed(0)} KB
+                                </span>
+                                <button
+                                  type="button"
+                                  aria-label="Remove file"
+                                  onClick={() => removeFile(i)}
+                                  className="rounded p-0.5 hover:bg-accent"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </div>
+                              {f.progress < 100 && (
+                                <Progress value={f.progress} className="h-1" />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </section>
+                  )}
+
+                  {/* Notes */}
+                  <section className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">
+                      Additional notes (optional)
+                    </Label>
+                    <Textarea
+                      rows={3}
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Any special instructions or context…"
+                      className="resize-none text-sm"
+                    />
+                  </section>
+
+                  {/* Payment */}
+                  <section className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Payment
+                    </p>
+
+                    <div className="rounded-lg border border-border bg-background px-4 py-3 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">{localName}</span>
+                        <span className="font-semibold">{priceText ?? "Free"}</span>
+                      </div>
+                      {priceText && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Final price confirmed after review · charged on approval
+                        </p>
+                      )}
+                    </div>
+
                     <p className="text-xs text-muted-foreground">Payment method</p>
                     <div className="flex gap-2">
                       <PayMethodCard
@@ -841,40 +1135,16 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                       ) : (
                         <>
                           Submit &amp; Pay{" "}
-                          {basePrice > 0 ? `${basePrice.toLocaleString()} RWF` : ""}
+                          {basePrice > 0 ? fmtUSD(basePrice) : ""}
                         </>
                       )}
                     </Button>
-                  </>
-                )}
-
-                {isInterpreter && (
-                  <div className="flex flex-col gap-2 sm:flex-row">
-                    <Button
-                      variant="outline"
-                      className="flex-1 border-green-500 text-green-600 hover:bg-green-500/10"
-                      onClick={() => handleSubmit(true)}
-                      disabled={payState !== "idle"}
-                    >
-                      {payState === "processing" ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : null}
-                      Start Free 5-min Consultation
-                    </Button>
-                    <Button
-                      className="flex-1"
-                      onClick={() => handleSubmit(false)}
-                      disabled={payState !== "idle"}
-                    >
-                      Book Full Session
-                      {basePrice > 0 ? ` · ${basePrice.toLocaleString()} RWF` : ""}
-                    </Button>
-                  </div>
-                )}
-              </section>
-            </div>
-          </TabsContent>
-        </Tabs>
+                  </section>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
@@ -885,13 +1155,11 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 function ServiceFields({
   category,
   slug,
-  isInterpreter,
   value,
   onChange,
 }: {
   category: ServiceCategory;
   slug: string;
-  isInterpreter: boolean;
   value: Record<string, string>;
   onChange: (v: Record<string, string>) => void;
 }) {
@@ -967,7 +1235,7 @@ function ServiceFields({
     );
   }
 
-  if (category === "translation" || isInterpreter) {
+  if (category === "translation") {
     return (
       <div className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-2">
@@ -975,18 +1243,13 @@ function ServiceFields({
             <Label className="text-xs">
               Source Language <span className="text-destructive">*</span>
             </Label>
-            <Select
-              value={value.fromLang ?? ""}
-              onValueChange={(v) => set("fromLang", v)}
-            >
+            <Select value={value.sourceLang ?? ""} onValueChange={(v) => set("sourceLang", v)}>
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
                 {LANGUAGES.map((l) => (
-                  <SelectItem key={l} value={l}>
-                    {l}
-                  </SelectItem>
+                  <SelectItem key={l} value={l}>{l}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -995,59 +1258,27 @@ function ServiceFields({
             <Label className="text-xs">
               Target Language <span className="text-destructive">*</span>
             </Label>
-            <Select
-              value={value.toLang ?? ""}
-              onValueChange={(v) => set("toLang", v)}
-            >
+            <Select value={value.targetLang ?? ""} onValueChange={(v) => set("targetLang", v)}>
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
                 {LANGUAGES.map((l) => (
-                  <SelectItem key={l} value={l}>
-                    {l}
-                  </SelectItem>
+                  <SelectItem key={l} value={l}>{l}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
         </div>
-        {!isInterpreter && (
-          <div className="space-y-1.5">
-            <Label className="text-xs">Document Type</Label>
-            <Input
-              value={value.docType ?? ""}
-              onChange={(e) => set("docType", e.target.value)}
-              placeholder="e.g. Contract, certificate, ID…"
-              className="text-sm"
-            />
-          </div>
-        )}
-        {isInterpreter && (
-          <>
-            <div className="space-y-1.5">
-              <Label className="text-xs">
-                Preferred Date &amp; Time <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                value={value.timeSlot ?? ""}
-                onChange={(e) => set("timeSlot", e.target.value)}
-                placeholder="e.g. Monday 10am–12pm, or ASAP"
-                className="text-sm"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">What do you need help with?</Label>
-              <Textarea
-                rows={2}
-                value={value.description ?? ""}
-                onChange={(e) => set("description", e.target.value)}
-                placeholder="Medical appointment, business meeting, legal matter…"
-                className="resize-none text-sm"
-              />
-            </div>
-          </>
-        )}
+        <div className="space-y-1.5">
+          <Label className="text-xs">Document Type</Label>
+          <Input
+            value={value.docType ?? ""}
+            onChange={(e) => set("docType", e.target.value)}
+            placeholder="e.g. Contract, certificate, ID…"
+            className="text-sm"
+          />
+        </div>
       </div>
     );
   }
@@ -1116,10 +1347,7 @@ function ServiceFields({
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs">Business Stage</Label>
-          <Select
-            value={value.businessStage ?? ""}
-            onValueChange={(v) => set("businessStage", v)}
-          >
+          <Select value={value.businessStage ?? ""} onValueChange={(v) => set("businessStage", v)}>
             <SelectTrigger className="text-sm">
               <SelectValue placeholder="Select stage" />
             </SelectTrigger>
