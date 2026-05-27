@@ -73,6 +73,9 @@ function ActiveCallPage() {
   const holdTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const billingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const queueTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // BUG 3 FIX: guard against handleEndCall being invoked more than once
+  // (e.g. user clicks "End Call" the same tick the minutes-zero effect fires).
+  const callEndedRef = useRef(false);
 
   // Snapshot of minutes at call start so billing diffs correctly
   const originalMinutesRef = useRef<ClientMinutes | null>(null);
@@ -292,7 +295,10 @@ function ActiveCallPage() {
       setWarned(true);
       toast.warning("⚠️ Less than 1 minute remaining");
     }
-    if (minutesRemaining === 0 && callSeconds > 0) {
+    // BUG 3 FIX: use <= 0 (not ===) so a timing skew can't let it slip past,
+    // and gate on callEndedRef so we never call handleEndCall twice.
+    if (minutesRemaining <= 0 && callSeconds > 0 && !callEndedRef.current) {
+      console.log("[Minutes] Hit zero — ending call automatically");
       void handleEndCall();
     }
   }, [minutesRemaining, call?.status]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -305,27 +311,67 @@ function ActiveCallPage() {
   };
 
   const handleEndCall = async () => {
-    if (!call) return;
+    if (!call || callEndedRef.current) return;
+    // BUG 3 FIX: mark ended immediately so re-entrant calls (double-click or
+    // the minutes-zero effect firing in the same tick) are no-ops.
+    callEndedRef.current = true;
+
+    // Stop the billing interval right away — don't let it fire one more time
+    // while the DB update is in-flight.
+    if (billingTimerRef.current) {
+      clearInterval(billingTimerRef.current);
+      billingTimerRef.current = null;
+    }
+
     const billedSecs = callSecondsRef.current;
-    await supabase
+    console.log("[EndCall] Ending call:", callId, "| billedSecs:", billedSecs);
+
+    const { error } = await supabase
       .from("interpreter_calls")
-      .update({ status: "completed", ended_at: new Date().toISOString(), billed_seconds: billedSecs })
+      .update({
+        status: "completed",
+        ended_at: new Date().toISOString(),
+        billed_seconds: billedSecs,
+      })
       .eq("id", callId);
+
+    if (error) {
+      console.error("[EndCall] Failed to update call:", error);
+      toast.error("Failed to end call: " + error.message);
+      // Allow a retry by resetting the guard.
+      callEndedRef.current = false;
+      return;
+    }
 
     const o = originalMinutesRef.current;
     if (o && user) {
       const usedMin = billedSecs / 60;
-      let free = Math.max(0, o.free_minutes_remaining - usedMin);
-      let paid = o.paid_minutes_remaining;
-      if (o.free_minutes_remaining < usedMin) {
-        paid = Math.max(0, paid - (usedMin - o.free_minutes_remaining));
+      const totalAvailable = o.free_minutes_remaining + o.paid_minutes_remaining;
+
+      let free: number;
+      let paid: number;
+
+      if (usedMin >= totalAvailable) {
+        // All minutes exhausted — zero both out explicitly.
+        free = 0;
+        paid = 0;
+      } else if (usedMin <= o.free_minutes_remaining) {
+        free = Math.max(0, o.free_minutes_remaining - usedMin);
+        paid = o.paid_minutes_remaining;
+      } else {
+        free = 0;
+        paid = Math.max(0, o.paid_minutes_remaining - (usedMin - o.free_minutes_remaining));
       }
+
+      console.log("[EndCall] Updating client_minutes — free:", free, "paid:", paid);
+
       await supabase
         .from("client_minutes")
         .update({ free_minutes_remaining: free, paid_minutes_remaining: paid })
         .eq("client_id", user.id);
     }
 
+    console.log("[EndCall] Navigating to summary");
     navigate({ to: "/dashboard/interpreter/$callId/summary", params: { callId } } as never);
   };
 

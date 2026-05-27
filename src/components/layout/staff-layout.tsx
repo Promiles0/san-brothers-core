@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type ReactNode } from "react";
-import { Menu, ChevronRight, AlertTriangle, Phone, PhoneOff } from "lucide-react";
+import { Menu, ChevronRight, AlertTriangle, Phone, PhoneOff, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -44,25 +44,31 @@ function useIncomingCall(
 ) {
   const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
   const [callerName, setCallerName] = useState<string | null>(null);
+  // BUG 2 FIX: track when browser blocks audio (no user-gesture) so the
+  // overlay can show a "tap to enable sound" affordance.
+  const [audioBlocked, setAudioBlocked] = useState(false);
+
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const beepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  // Keep a stable ref so polling closure always sees the latest value
+  // Stable ref so polling closure always reads the latest incomingCall value.
   const incomingCallRef = useRef<IncomingCall | null>(null);
   useEffect(() => { incomingCallRef.current = incomingCall; }, [incomingCall]);
 
   const dismiss = () => {
     setIncomingCall(null);
     setCallerName(null);
+    setAudioBlocked(false);
     if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
     stopBeep();
   };
 
-  function startBeep() {
-    try {
-      const ctx = new AudioContext();
-      audioCtxRef.current = ctx;
-      const ring = () => {
+  // ── Audio helpers ──────────────────────────────────────────────────────────
+
+  /** Play one beep tick on an already-running AudioContext. */
+  function doBeep(ctx: AudioContext) {
+    const ring = () => {
+      try {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
@@ -72,12 +78,55 @@ function useIncomingCall(
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + 0.4);
-      };
-      ring();
-      beepIntervalRef.current = setInterval(ring, 1500);
-    } catch {
-      // Web Audio not available
+      } catch { /* node already stopped */ }
+    };
+    ring();
+    if (beepIntervalRef.current) clearInterval(beepIntervalRef.current);
+    beepIntervalRef.current = setInterval(ring, 1500);
+  }
+
+  /**
+   * Attempt to start the ring tone.
+   * If the browser blocks audio (no prior user gesture), sets audioBlocked=true
+   * so the overlay can show the "tap to enable sound" hint.
+   */
+  function startBeep() {
+    stopBeep();
+    try {
+      const ctx = new AudioContext();
+      audioCtxRef.current = ctx;
+      if (ctx.state === "suspended") {
+        // Browser requires a user gesture before audio can play.
+        console.log("[Audio] AudioContext suspended — audio blocked by browser policy");
+        setAudioBlocked(true);
+        return;
+      }
+      setAudioBlocked(false);
+      doBeep(ctx);
+    } catch (err) {
+      console.warn("[Audio] AudioContext creation failed:", err);
+      setAudioBlocked(true);
     }
+  }
+
+  /**
+   * Called when the user taps "Enable sound" on the overlay.
+   * Resumes a suspended AudioContext and starts beeping.
+   */
+  function resumeAudio() {
+    const ctx = audioCtxRef.current;
+    if (!ctx) {
+      // No context created yet (e.g. overlay came from poll) — try fresh.
+      startBeep();
+      return;
+    }
+    void ctx.resume().then(() => {
+      if (ctx.state === "running") {
+        console.log("[Audio] AudioContext resumed after user gesture");
+        setAudioBlocked(false);
+        doBeep(ctx);
+      }
+    });
   }
 
   function stopBeep() {
@@ -86,7 +135,11 @@ function useIncomingCall(
     audioCtxRef.current = null;
   }
 
-  async function showCall(call: IncomingCall) {
+  // ── showCall ───────────────────────────────────────────────────────────────
+  // tryAudio=true  → called from Realtime (post-user-gesture path — audio OK)
+  // tryAudio=false → called from poll (no gesture — audio blocked by browser)
+
+  async function showCall(call: IncomingCall, tryAudio: boolean) {
     const { data } = await supabase
       .from("users")
       .select("full_name")
@@ -95,7 +148,12 @@ function useIncomingCall(
     const firstName = (data as { full_name: string } | null)?.full_name?.split(" ")[0] ?? null;
     setIncomingCall(call);
     setCallerName(firstName);
-    startBeep();
+    if (tryAudio) {
+      startBeep();
+    } else {
+      // Poll path: flag as blocked immediately — user must tap to enable sound.
+      setAudioBlocked(true);
+    }
     if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
     dismissTimerRef.current = setTimeout(dismiss, 30000);
   }
@@ -104,9 +162,8 @@ function useIncomingCall(
   useEffect(() => {
     if (!profileId) return;
 
-    // FIX BUG 1: Subscribe to ALL INSERTs with NO filter — Supabase Realtime
-    // does not reliably deliver INSERT events filtered by non-indexed columns
-    // like `status`. Filter in JavaScript instead.
+    // Subscribe to ALL INSERTs — no server-side filter on `status` because
+    // Supabase Realtime silently drops INSERT filters on non-indexed columns.
     let channel1: ReturnType<typeof supabase.channel> | null = null;
     if (interpreterLanguages?.length) {
       channel1 = supabase
@@ -117,13 +174,13 @@ function useIncomingCall(
             event: "INSERT",
             schema: "public",
             table: "interpreter_calls",
-            // No server-side filter — JS filter below is reliable
+            // No server-side filter — JS filters below are reliable.
           },
           async (payload) => {
             const call = payload.new as IncomingCall;
             console.log("[IncomingCall] INSERT received:", call);
 
-            // JS filter 1: only ringing calls
+            // JS filter 1: only truly ringing calls
             if (call.status !== "ringing") {
               console.log("[IncomingCall] Skipping — status is not ringing:", call.status);
               return;
@@ -140,7 +197,9 @@ function useIncomingCall(
             );
             if (!isMatch) return;
 
-            await showCall(call);
+            // Realtime path fires in an event handler context (user was on the
+            // page) — audio is allowed.
+            await showCall(call, true);
           },
         )
         .subscribe((status) => {
@@ -163,7 +222,7 @@ function useIncomingCall(
           const call = payload.new as IncomingCall;
           console.log("[ForwardedCall] UPDATE received:", call);
           if (call.status !== "on_hold") return;
-          await showCall(call);
+          await showCall(call, true);
         },
       )
       .subscribe((status) => {
@@ -184,13 +243,17 @@ function useIncomingCall(
     if (!isActiveInterpreter || !interpreterLanguages?.length) return;
 
     const poll = setInterval(async () => {
-      // Don't show a second overlay if one is already up
+      // Don't show a second overlay if one is already up.
       if (incomingCallRef.current) return;
 
       const { data, error } = await supabase
         .from("interpreter_calls")
         .select("*")
         .eq("status", "ringing")
+        // BUG 1 FIX: exclude calls that already have an interpreter assigned —
+        // old accepted calls keep status='ringing' in edge cases and would
+        // otherwise keep re-showing the overlay on every poll tick.
+        .is("interpreter_id", null)
         .order("created_at", { ascending: false })
         .limit(10);
 
@@ -206,16 +269,19 @@ function useIncomingCall(
         ),
       );
 
-      if (match) {
+      if (match && !incomingCallRef.current) {
         console.log("[IncomingCall] Poll found ringing call (realtime missed it):", match);
-        await showCall(match as IncomingCall);
+        // BUG 2 FIX: poll fires without a user gesture — don't attempt audio
+        // (browser would block it). The overlay shows a "tap to enable sound"
+        // hint instead.
+        await showCall(match as IncomingCall, false);
       }
     }, 5000);
 
     return () => clearInterval(poll);
   }, [isActiveInterpreter, interpreterLanguages]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { incomingCall, callerName, dismiss };
+  return { incomingCall, callerName, dismiss, audioBlocked, resumeAudio };
 }
 
 // ── IncomingCallOverlay ────────────────────────────────────────────────────────
@@ -224,17 +290,20 @@ function IncomingCallOverlay({
   call,
   callerName,
   profileId,
+  audioBlocked,
+  onEnableAudio,
   onDismiss,
 }: {
   call: IncomingCall;
   callerName: string | null;
   profileId: string;
+  audioBlocked: boolean;
+  onEnableAudio: () => void;
   onDismiss: () => void;
 }) {
   const navigate = useNavigate();
   const [accepting, setAccepting] = useState(false);
 
-  // FIX BUG 2: Proper error handling + logging so we can trace accept failures.
   const handleAccept = async () => {
     if (accepting) return; // prevent double-tap
     setAccepting(true);
@@ -280,7 +349,7 @@ function IncomingCallOverlay({
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-200 flex items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="mx-4 w-full max-w-sm rounded-2xl border border-border bg-background p-8 text-center shadow-2xl">
         {/* Pulsing ring */}
         <div className="relative mx-auto mb-6 flex h-24 w-24 items-center justify-center">
@@ -299,6 +368,18 @@ function IncomingCallOverlay({
         </h2>
         {callerName && (
           <p className="mt-1 text-sm text-muted-foreground">From {callerName}</p>
+        )}
+
+        {/* BUG 2 FIX: show a tap-to-unmute affordance when browser blocked audio */}
+        {audioBlocked && (
+          <button
+            type="button"
+            className="mt-3 inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+            onClick={onEnableAudio}
+          >
+            <Volume2 className="h-3 w-3" />
+            Tap to enable sound
+          </button>
         )}
 
         <div className="mt-8 flex gap-3">
@@ -344,7 +425,7 @@ export function StaffLayout({
   const interpreterLanguages = isActiveInterpreter
     ? (profile.interpreter_languages as Array<{ from: string; to: string }> | null)
     : null;
-  const { incomingCall, callerName, dismiss } = useIncomingCall(
+  const { incomingCall, callerName, dismiss, audioBlocked, resumeAudio } = useIncomingCall(
     isActiveInterpreter ? profile.id : undefined,
     isActiveInterpreter,
     interpreterLanguages,
@@ -455,6 +536,8 @@ export function StaffLayout({
           call={incomingCall}
           callerName={callerName}
           profileId={profile.id}
+          audioBlocked={audioBlocked}
+          onEnableAudio={resumeAudio}
           onDismiss={dismiss}
         />
       )}
