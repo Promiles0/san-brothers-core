@@ -82,7 +82,9 @@ function ActiveCallPage() {
 
   // Keep a ref to callSeconds for use inside billing interval
   const callSecondsRef = useRef(0);
-  useEffect(() => { callSecondsRef.current = callSeconds; }, [callSeconds]);
+  useEffect(() => {
+    callSecondsRef.current = callSeconds;
+  }, [callSeconds]);
 
   // ── Initial load ─────────────────────────────────────────────────────────────
 
@@ -95,7 +97,10 @@ function ActiveCallPage() {
         supabase.from("interpreter_calls").select("*").eq("id", callId).single(),
         supabase.from("client_minutes").select("*").eq("client_id", user!.id).maybeSingle(),
       ]);
-      if (callRes.error) { toast.error(callRes.error.message); return; }
+      if (callRes.error) {
+        toast.error(callRes.error.message);
+        return;
+      }
 
       const c = callRes.data as InterpreterCall;
       const m = (minutesRes.data as ClientMinutes) ?? null;
@@ -141,7 +146,12 @@ function ActiveCallPage() {
         },
         (payload) => {
           const updated = payload.new as InterpreterCall;
-          console.log("[Realtime] status:", updated.status, "| interpreter_id:", updated.interpreter_id);
+          console.log(
+            "[Realtime] status:",
+            updated.status,
+            "| interpreter_id:",
+            updated.interpreter_id,
+          );
           setCall(updated);
           if (updated.interpreter_id) {
             void fetchInterpreter(updated.interpreter_id);
@@ -154,7 +164,9 @@ function ActiveCallPage() {
       .subscribe((status) => {
         console.log("[Realtime] channel status:", status);
       });
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [callId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Polling fallback (every 3 s) ──────────────────────────────────────────────
@@ -200,10 +212,7 @@ function ActiveCallPage() {
     if (!call || call.status !== "ringing" || !user) return;
     if (queueTimerRef.current) clearTimeout(queueTimerRef.current);
     queueTimerRef.current = setTimeout(async () => {
-      await supabase
-        .from("interpreter_calls")
-        .update({ status: "queued" })
-        .eq("id", callId);
+      await supabase.from("interpreter_calls").update({ status: "queued" }).eq("id", callId);
       await supabase.from("interpreter_queue").insert({
         client_id: user.id,
         language_from: call.language_from,
@@ -211,53 +220,65 @@ function ActiveCallPage() {
         status: "waiting",
       });
     }, 30000);
-    return () => { if (queueTimerRef.current) clearTimeout(queueTimerRef.current); };
+    return () => {
+      if (queueTimerRef.current) clearTimeout(queueTimerRef.current);
+    };
   }, [call?.status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Call duration timer ────────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (callTimerRef.current) { clearInterval(callTimerRef.current); callTimerRef.current = null; }
+    if (callTimerRef.current) {
+      clearInterval(callTimerRef.current);
+      callTimerRef.current = null;
+    }
     if (!call || call.status !== "active" || !call.answered_at) return;
 
     const answeredMs = new Date(call.answered_at).getTime();
-    const holdOffset = (call.total_hold_seconds ?? 0);
+    const holdOffset = call.total_hold_seconds ?? 0;
     const tick = () => {
       const elapsed = Math.floor((Date.now() - answeredMs) / 1000) - holdOffset;
       setCallSeconds(Math.max(0, elapsed));
     };
     tick();
     callTimerRef.current = setInterval(tick, 1000);
-    return () => { if (callTimerRef.current) clearInterval(callTimerRef.current); };
+    return () => {
+      if (callTimerRef.current) clearInterval(callTimerRef.current);
+    };
   }, [call?.status, call?.answered_at, call?.total_hold_seconds]);
 
   // ── Hold timer ─────────────────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (holdTimerRef.current) { clearInterval(holdTimerRef.current); holdTimerRef.current = null; }
+    if (holdTimerRef.current) {
+      clearInterval(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
     if (!call || call.status !== "on_hold" || !call.hold_start) return;
 
     const startMs = new Date(call.hold_start).getTime();
     const tick = () => setHoldSeconds(Math.floor((Date.now() - startMs) / 1000));
     tick();
     holdTimerRef.current = setInterval(tick, 1000);
-    return () => { if (holdTimerRef.current) clearInterval(holdTimerRef.current); };
+    return () => {
+      if (holdTimerRef.current) clearInterval(holdTimerRef.current);
+    };
   }, [call?.status, call?.hold_start]);
 
   // ── Billing (every 10s) ────────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (billingTimerRef.current) { clearInterval(billingTimerRef.current); billingTimerRef.current = null; }
+    if (billingTimerRef.current) {
+      clearInterval(billingTimerRef.current);
+      billingTimerRef.current = null;
+    }
     if (!call || call.status !== "active" || !call.answered_at || !user) return;
 
     billingTimerRef.current = setInterval(async () => {
       const elapsed = callSecondsRef.current;
       if (elapsed <= 0) return;
 
-      await supabase
-        .from("interpreter_calls")
-        .update({ billed_seconds: elapsed })
-        .eq("id", callId);
+      await supabase.from("interpreter_calls").update({ billed_seconds: elapsed }).eq("id", callId);
 
       const orig = originalMinutesRef.current;
       if (!orig) return;
@@ -278,7 +299,9 @@ function ActiveCallPage() {
         .eq("client_id", user.id);
     }, 10000);
 
-    return () => { if (billingTimerRef.current) clearInterval(billingTimerRef.current); };
+    return () => {
+      if (billingTimerRef.current) clearInterval(billingTimerRef.current);
+    };
   }, [call?.status, call?.answered_at, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Minutes remaining + warnings ──────────────────────────────────────────────
@@ -451,7 +474,9 @@ function ActiveCallPage() {
             <CardContent className="flex items-center gap-4 p-5">
               <Avatar className="h-14 w-14">
                 <AvatarImage src={interpreterProfile.profile_picture_url ?? undefined} />
-                <AvatarFallback className="text-lg">{interpreterProfile.full_name[0]}</AvatarFallback>
+                <AvatarFallback className="text-lg">
+                  {interpreterProfile.full_name[0]}
+                </AvatarFallback>
               </Avatar>
               <div>
                 <p className="font-semibold">{interpreterProfile.full_name}</p>

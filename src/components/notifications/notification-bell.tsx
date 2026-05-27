@@ -79,9 +79,7 @@ export function NotificationBell() {
         },
         (payload) => {
           const n = payload.new as Notification;
-          setItems((prev) =>
-            prev.some((p) => p.id === n.id) ? prev : [n, ...prev].slice(0, 20),
-          );
+          setItems((prev) => (prev.some((p) => p.id === n.id) ? prev : [n, ...prev].slice(0, 20)));
           toast(n.title, {
             description: n.body ?? undefined,
             action: n.link
@@ -148,10 +146,7 @@ export function NotificationBell() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="w-[calc(100vw-2rem)] max-w-sm p-0 sm:w-96"
-      >
+      <PopoverContent align="end" className="w-[calc(100vw-2rem)] max-w-sm p-0 sm:w-96">
         <div className="flex items-center justify-between border-b p-3">
           <p className="text-sm font-semibold">Notifications</p>
           <Button
@@ -166,9 +161,7 @@ export function NotificationBell() {
         </div>
         <ScrollArea className="max-h-[60vh]">
           {visible.length === 0 ? (
-            <p className="p-6 text-center text-sm text-muted-foreground">
-              No notifications yet
-            </p>
+            <p className="p-6 text-center text-sm text-muted-foreground">No notifications yet</p>
           ) : (
             <ul className="divide-y">
               {visible.map((n) => {
@@ -191,18 +184,11 @@ export function NotificationBell() {
                       />
                       <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                       <div className="min-w-0 flex-1">
-                        <p
-                          className={cn(
-                            "truncate",
-                            n.is_read ? "font-normal" : "font-semibold",
-                          )}
-                        >
+                        <p className={cn("truncate", n.is_read ? "font-normal" : "font-semibold")}>
                           {n.title}
                         </p>
                         {n.body && (
-                          <p className="line-clamp-2 text-xs text-muted-foreground">
-                            {n.body}
-                          </p>
+                          <p className="line-clamp-2 text-xs text-muted-foreground">{n.body}</p>
                         )}
                         <p className="mt-0.5 text-[10px] text-muted-foreground">
                           {relativeTime(n.created_at)}

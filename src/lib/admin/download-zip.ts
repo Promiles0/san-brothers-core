@@ -19,7 +19,10 @@ export async function downloadDocsAsZip(docs: ZipDoc[], zipName: string) {
           .download(d.file_path);
         if (error || !data) return;
         const folder = d.folder ? `${sanitize(d.folder)}/` : "";
-        zip.file(`${folder}${sanitize(d.file_name ?? d.file_path.split("/").pop() ?? "file")}`, data);
+        zip.file(
+          `${folder}${sanitize(d.file_name ?? d.file_path.split("/").pop() ?? "file")}`,
+          data,
+        );
       } catch {
         /* ignore individual failures */
       }
@@ -38,9 +41,7 @@ export async function getSignedUrl(filePath: string) {
 }
 
 export async function downloadSingle(filePath: string, fileName: string | null) {
-  const { data, error } = await supabase.storage
-    .from("client-documents")
-    .download(filePath);
+  const { data, error } = await supabase.storage.from("client-documents").download(filePath);
   if (error || !data) throw new Error(error?.message ?? "Download failed");
   saveAs(data, fileName ?? filePath.split("/").pop() ?? "file");
 }

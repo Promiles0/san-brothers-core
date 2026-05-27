@@ -109,7 +109,14 @@ function AdminAudit() {
       if (type !== "all" && actionType(a.action) !== type) return false;
       if (dateFrom && a.created_at < dateFrom) return false;
       if (dateTo && a.created_at > dateTo + "T23:59:59") return false;
-      if (q && !a.action.toLowerCase().includes(q) && !(a.user_id && nameById[a.user_id]?.toLowerCase().includes(q)) && !JSON.stringify(a.metadata ?? {}).toLowerCase().includes(q)) {
+      if (
+        q &&
+        !a.action.toLowerCase().includes(q) &&
+        !(a.user_id && nameById[a.user_id]?.toLowerCase().includes(q)) &&
+        !JSON.stringify(a.metadata ?? {})
+          .toLowerCase()
+          .includes(q)
+      ) {
         return false;
       }
       return true;
@@ -157,31 +164,69 @@ function AdminAudit() {
           }}
           className="max-w-xs"
         />
-        <Select value={staffId} onValueChange={(v) => { setStaffId(v); setPage(0); }}>
-          <SelectTrigger className="w-48"><SelectValue placeholder="All staff" /></SelectTrigger>
+        <Select
+          value={staffId}
+          onValueChange={(v) => {
+            setStaffId(v);
+            setPage(0);
+          }}
+        >
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All staff" />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All staff</SelectItem>
             {users.map((u) => (
-              <SelectItem key={u.id} value={u.id}>{u.full_name ?? u.email}</SelectItem>
+              <SelectItem key={u.id} value={u.id}>
+                {u.full_name ?? u.email}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Select value={type} onValueChange={(v) => { setType(v); setPage(0); }}>
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+        <Select
+          value={type}
+          onValueChange={(v) => {
+            setType(v);
+            setPage(0);
+          }}
+        >
+          <SelectTrigger className="w-40">
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
             {["all", "create", "update", "delete", "login", "download", "other"].map((t) => (
-              <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>
+              <SelectItem key={t} value={t} className="capitalize">
+                {t}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setPage(0); }} className="w-40" />
-        <Input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setPage(0); }} className="w-40" />
+        <Input
+          type="date"
+          value={dateFrom}
+          onChange={(e) => {
+            setDateFrom(e.target.value);
+            setPage(0);
+          }}
+          className="w-40"
+        />
+        <Input
+          type="date"
+          value={dateTo}
+          onChange={(e) => {
+            setDateTo(e.target.value);
+            setPage(0);
+          }}
+          className="w-40"
+        />
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            {loading ? "Loading…" : `${filtered.length} entries · page ${page + 1} of ${totalPages}`}
+            {loading
+              ? "Loading…"
+              : `${filtered.length} entries · page ${page + 1} of ${totalPages}`}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -243,10 +288,20 @@ function AdminAudit() {
                 </TableBody>
               </Table>
               <div className="mt-4 flex justify-end gap-2">
-                <Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={page === 0}
+                  onClick={() => setPage((p) => p - 1)}
+                >
                   Previous
                 </Button>
-                <Button size="sm" variant="outline" disabled={page + 1 >= totalPages} onClick={() => setPage((p) => p + 1)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={page + 1 >= totalPages}
+                  onClick={() => setPage((p) => p + 1)}
+                >
                   Next
                 </Button>
               </div>

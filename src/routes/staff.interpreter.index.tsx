@@ -26,10 +26,7 @@ interface ActiveCall {
 
 // ── Status badge colours ───────────────────────────────────────────────────────
 
-const STATUS_VARIANT: Record<
-  ActiveCall["status"],
-  { label: string; className: string }
-> = {
+const STATUS_VARIANT: Record<ActiveCall["status"], { label: string; className: string }> = {
   ringing: {
     label: "Ringing",
     className: "bg-blue-500/15 text-blue-700 dark:text-blue-300",
@@ -58,9 +55,7 @@ function LiveCallsPage() {
     void (async () => {
       const { data, error } = await supabase
         .from("interpreter_calls")
-        .select(
-          "id,language_from,language_to,status,client:users!client_id(full_name)",
-        )
+        .select("id,language_from,language_to,status,client:users!client_id(full_name)")
         .eq("interpreter_id", profile.id)
         .in("status", ["ringing", "active", "on_hold"])
         .order("created_at", { ascending: false });
@@ -85,9 +80,7 @@ function LiveCallsPage() {
           // Re-fetch on any change
           void supabase
             .from("interpreter_calls")
-            .select(
-              "id,language_from,language_to,status,client:users!client_id(full_name)",
-            )
+            .select("id,language_from,language_to,status,client:users!client_id(full_name)")
             .eq("interpreter_id", profile.id)
             .in("status", ["ringing", "active", "on_hold"])
             .order("created_at", { ascending: false })
@@ -110,9 +103,7 @@ function LiveCallsPage() {
         <Headphones className="h-6 w-6 text-primary" />
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Live Calls</h1>
-          <p className="text-sm text-muted-foreground">
-            Your active and ringing interpreter calls
-          </p>
+          <p className="text-sm text-muted-foreground">Your active and ringing interpreter calls</p>
         </div>
       </div>
 
@@ -138,15 +129,12 @@ function LiveCallsPage() {
           {calls.map((call) => {
             const meta = STATUS_VARIANT[call.status];
             const clientName =
-              (Array.isArray(call.client) ? call.client[0] : call.client)
-                ?.full_name ?? "Client";
+              (Array.isArray(call.client) ? call.client[0] : call.client)?.full_name ?? "Client";
             return (
               <Card key={call.id} className="flex flex-col">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between gap-2">
-                    <CardTitle className="text-sm font-semibold">
-                      {clientName}
-                    </CardTitle>
+                    <CardTitle className="text-sm font-semibold">{clientName}</CardTitle>
                     <Badge className={meta.className}>{meta.label}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -155,10 +143,7 @@ function LiveCallsPage() {
                 </CardHeader>
                 <CardContent className="mt-auto pt-0">
                   <Button asChild size="sm" className="w-full gap-1.5">
-                    <Link
-                      to="/staff/interpreter/$callId"
-                      params={{ callId: call.id }}
-                    >
+                    <Link to="/staff/interpreter/$callId" params={{ callId: call.id }}>
                       <Phone className="h-3.5 w-3.5" />
                       Join Call
                     </Link>

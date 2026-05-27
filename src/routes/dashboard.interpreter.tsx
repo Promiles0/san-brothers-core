@@ -200,7 +200,6 @@ function InterpreterLandingPage() {
         to: "/dashboard/interpreter/$callId",
         params: { callId: (data as { id: string }).id },
       } as never);
-
     } catch (err) {
       console.error("[Call] Unexpected error:", err);
       toast.error("Something went wrong. Please try again.");
@@ -223,7 +222,11 @@ function InterpreterLandingPage() {
         { onConflict: "client_id" },
       );
       if (error) throw error;
-      setMinutes({ client_id: user.id, free_minutes_remaining: freeMinutes, paid_minutes_remaining: newPaid });
+      setMinutes({
+        client_id: user.id,
+        free_minutes_remaining: freeMinutes,
+        paid_minutes_remaining: newPaid,
+      });
       toast.success(`${pkg.label} purchased — ${pkg.minutes} minutes added!`);
     } catch (e) {
       toast.error((e as Error).message);
@@ -275,8 +278,14 @@ function InterpreterLandingPage() {
                   langFrom={langFrom}
                   langTo={langTo}
                   error={langError}
-                  onFromChange={(v) => { setLangFrom(v); clearLangError(); }}
-                  onToChange={(v) => { setLangTo(v); clearLangError(); }}
+                  onFromChange={(v) => {
+                    setLangFrom(v);
+                    clearLangError();
+                  }}
+                  onToChange={(v) => {
+                    setLangTo(v);
+                    clearLangError();
+                  }}
                 />
               </div>
 
@@ -333,15 +342,16 @@ function InterpreterLandingPage() {
                 langFrom={langFrom}
                 langTo={langTo}
                 error={langError}
-                onFromChange={(v) => { setLangFrom(v); clearLangError(); }}
-                onToChange={(v) => { setLangTo(v); clearLangError(); }}
+                onFromChange={(v) => {
+                  setLangFrom(v);
+                  clearLangError();
+                }}
+                onToChange={(v) => {
+                  setLangTo(v);
+                  clearLangError();
+                }}
               />
-              <Button
-                size="lg"
-                className="w-full"
-                onClick={handleStartCall}
-                disabled={starting}
-              >
+              <Button size="lg" className="w-full" onClick={handleStartCall} disabled={starting}>
                 {starting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -380,8 +390,14 @@ function InterpreterLandingPage() {
                 langFrom={langFrom}
                 langTo={langTo}
                 error={langError}
-                onFromChange={(v) => { setLangFrom(v); clearLangError(); }}
-                onToChange={(v) => { setLangTo(v); clearLangError(); }}
+                onFromChange={(v) => {
+                  setLangFrom(v);
+                  clearLangError();
+                }}
+                onToChange={(v) => {
+                  setLangTo(v);
+                  clearLangError();
+                }}
                 disabled
               />
               <Button size="lg" className="w-full" disabled>
@@ -503,12 +519,7 @@ function PackagePicker({
             <TabsContent key={t} value={t} className="mt-4">
               <div className="grid gap-3 sm:grid-cols-3">
                 {(packagesByTab[t] ?? []).slice(0, 3).map((pkg) => (
-                  <PkgCard
-                    key={pkg.id}
-                    pkg={pkg}
-                    purchasing={purchasing}
-                    onPurchase={onPurchase}
-                  />
+                  <PkgCard key={pkg.id} pkg={pkg} purchasing={purchasing} onPurchase={onPurchase} />
                 ))}
               </div>
             </TabsContent>
@@ -569,11 +580,7 @@ function PkgCard({
         disabled={purchasing !== null}
         onClick={() => onPurchase(pkg)}
       >
-        {isLoading ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-        ) : (
-          `Buy ${pkg.label}`
-        )}
+        {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : `Buy ${pkg.label}`}
       </Button>
     </div>
   );

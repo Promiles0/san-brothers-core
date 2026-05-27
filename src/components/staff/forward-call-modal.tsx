@@ -73,7 +73,10 @@ export function ForwardCallModal({
         .eq("availability_status", "online")
         .neq("id", currentInterpreterId);
 
-      if (error) { toast.error(error.message); return; }
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
 
       // Filter in JS: keep only interpreters who handle this language pair
       const filtered = ((data ?? []) as AvailableInterpreter[]).filter((u) =>
@@ -175,9 +178,7 @@ export function ForwardCallModal({
                         Online
                       </Badge>
                     </div>
-                    {selected === interp.id && (
-                      <Check className="h-4 w-4 shrink-0 text-primary" />
-                    )}
+                    {selected === interp.id && <Check className="h-4 w-4 shrink-0 text-primary" />}
                   </button>
                 </li>
               ))}

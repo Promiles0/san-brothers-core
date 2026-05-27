@@ -85,9 +85,7 @@ export function InterpreterProfileModal({
     setPairs((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const isValid =
-    pairs.length > 0 &&
-    pairs.every((p) => p.from && p.to && p.from !== p.to);
+  const isValid = pairs.length > 0 && pairs.every((p) => p.from && p.to && p.from !== p.to);
 
   const handleSubmit = async () => {
     if (!user || !isValid) return;
@@ -193,7 +191,13 @@ export function InterpreterProfileModal({
                 ))}
 
                 {pairs.length < MAX_PAIRS && (
-                  <Button type="button" variant="outline" size="sm" className="gap-1" onClick={addPair}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1"
+                    onClick={addPair}
+                  >
                     <Plus className="h-3.5 w-3.5" />
                     Add language pair
                   </Button>

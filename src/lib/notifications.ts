@@ -19,17 +19,13 @@ export async function createNotifications(items: NotificationPayload[]) {
   if (error) console.error("createNotifications error", error);
 }
 
-export async function createNotificationForAdmins(
-  payload: Omit<NotificationPayload, "user_id">,
-) {
+export async function createNotificationForAdmins(payload: Omit<NotificationPayload, "user_id">) {
   const { data: admins, error } = await supabase
     .from("users")
     .select("id")
     .in("role", ["admin", "manager"]);
   if (error || !admins?.length) return;
-  await createNotifications(
-    admins.map((a) => ({ ...payload, user_id: (a as { id: string }).id })),
-  );
+  await createNotifications(admins.map((a) => ({ ...payload, user_id: (a as { id: string }).id })));
 }
 
 export function relativeTime(iso: string): string {

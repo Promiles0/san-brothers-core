@@ -235,9 +235,7 @@ function MessagesPage() {
                       {selectedDep.icon}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate font-medium">
-                        {claimerName ?? selectedDep.label}
-                      </p>
+                      <p className="truncate font-medium">{claimerName ?? selectedDep.label}</p>
                       <p className="text-xs text-muted-foreground">
                         {claimerName
                           ? `Handled by ${claimerName}`

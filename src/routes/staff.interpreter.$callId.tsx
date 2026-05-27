@@ -84,7 +84,10 @@ function InterpreterCallScreen() {
         .select("*")
         .eq("id", callId)
         .single();
-      if (error) { toast.error(error.message); return; }
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
 
       const c = data as InterpreterCall;
       setCall(c);
@@ -107,17 +110,29 @@ function InterpreterCallScreen() {
       .channel("staff-call:" + callId)
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "interpreter_calls", filter: `id=eq.${callId}` },
-        (payload) => { setCall(payload.new as InterpreterCall); },
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "interpreter_calls",
+          filter: `id=eq.${callId}`,
+        },
+        (payload) => {
+          setCall(payload.new as InterpreterCall);
+        },
       )
       .subscribe();
-    return () => { void supabase.removeChannel(channel); };
+    return () => {
+      void supabase.removeChannel(channel);
+    };
   }, [callId]);
 
   // ── Duration timer ────────────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (callTimerRef.current) { clearInterval(callTimerRef.current); callTimerRef.current = null; }
+    if (callTimerRef.current) {
+      clearInterval(callTimerRef.current);
+      callTimerRef.current = null;
+    }
     if (!call || call.status !== "active" || !call.answered_at) return;
 
     const answeredMs = new Date(call.answered_at).getTime();
@@ -127,7 +142,9 @@ function InterpreterCallScreen() {
     };
     tick();
     callTimerRef.current = setInterval(tick, 1000);
-    return () => { if (callTimerRef.current) clearInterval(callTimerRef.current); };
+    return () => {
+      if (callTimerRef.current) clearInterval(callTimerRef.current);
+    };
   }, [call?.status, call?.answered_at, call?.total_hold_seconds]);
 
   // ── Actions ───────────────────────────────────────────────────────────────────

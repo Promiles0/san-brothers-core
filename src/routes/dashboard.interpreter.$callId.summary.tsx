@@ -81,11 +81,17 @@ function CallSummaryPage() {
         supabase.from("interpreter_calls").select("*").eq("id", callId).single(),
         supabase.from("client_minutes").select("*").eq("client_id", user!.id).maybeSingle(),
       ]);
-      if (callRes.error) { toast.error(callRes.error.message); return; }
+      if (callRes.error) {
+        toast.error(callRes.error.message);
+        return;
+      }
 
       const c = callRes.data as InterpreterCall;
       setCall(c);
-      if (c.rating) { setRating(c.rating); setSubmitted(true); }
+      if (c.rating) {
+        setRating(c.rating);
+        setSubmitted(true);
+      }
       if (c.rating_comment) setComment(c.rating_comment);
       setClientMinutes((minutesRes.data as ClientMinutes) ?? null);
 
