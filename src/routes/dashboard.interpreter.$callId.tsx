@@ -119,17 +119,27 @@ function ActiveCallPage() {
   }
 
   // ── Realtime subscription ─────────────────────────────────────────────────────
+  // FIX: channel name uses "-" not ":" (colons break Supabase channel names),
+  //      event is "*" to catch INSERT as well as UPDATE,
+  //      interpreterProfile removed from deps so the channel isn't torn down
+  //      and recreated the moment the profile loads (which was swallowing the
+  //      ringing→active transition event).
 
   useEffect(() => {
     const channel = supabase
-      .channel("call:" + callId)
+      .channel("call-" + callId)
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "interpreter_calls", filter: `id=eq.${callId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "interpreter_calls",
+          filter: `id=eq.${callId}`,
+        },
         (payload) => {
           const updated = payload.new as InterpreterCall;
           setCall(updated);
-          if (updated.interpreter_id && !interpreterProfile) {
+          if (updated.interpreter_id) {
             void fetchInterpreter(updated.interpreter_id);
           }
           if (updated.status === "completed" || updated.status === "cancelled") {
@@ -138,8 +148,45 @@ function ActiveCallPage() {
         },
       )
       .subscribe();
-    return () => { void supabase.removeChannel(channel); };
-  }, [callId, interpreterProfile]); // eslint-disable-line react-hooks/exhaustive-deps
+    return () => { supabase.removeChannel(channel); };
+  }, [callId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Polling fallback (every 3 s) ──────────────────────────────────────────────
+  // Safety net: even if Realtime fails or the event is missed, the UI will
+  // reflect the current DB state within 3 seconds.
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const { data } = await supabase
+        .from("interpreter_calls")
+        .select("*, interpreter:users!interpreter_id(full_name, profile_picture_url)")
+        .eq("id", callId)
+        .single();
+
+      if (!data) return;
+
+      // Separate the joined interpreter row from the flat call fields
+      const { interpreter, ...callData } = data as typeof data & {
+        interpreter: { full_name: string; profile_picture_url: string | null } | null;
+      };
+
+      setCall(callData as InterpreterCall);
+
+      if (interpreter && callData.interpreter_id) {
+        setInterpreterProfile({
+          id: callData.interpreter_id,
+          full_name: interpreter.full_name,
+          profile_picture_url: interpreter.profile_picture_url,
+        });
+      }
+
+      if (callData.status === "completed" || callData.status === "cancelled") {
+        navigate({ to: "/dashboard/interpreter/$callId/summary", params: { callId } } as never);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [callId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Ringing → queue after 30s ─────────────────────────────────────────────────
 
