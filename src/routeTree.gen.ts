@@ -37,6 +37,7 @@ import { Route as StaffTranslationRouteImport } from './routes/staff.translation
 import { Route as StaffSettingsRouteImport } from './routes/staff.settings'
 import { Route as StaffReportsRouteImport } from './routes/staff.reports'
 import { Route as StaffMessagesRouteImport } from './routes/staff.messages'
+import { Route as StaffInterpreterRouteImport } from './routes/staff.interpreter'
 import { Route as StaffConsultancyRouteImport } from './routes/staff.consultancy'
 import { Route as StaffAdminRouteImport } from './routes/staff.admin'
 import { Route as StaffAccountingRouteImport } from './routes/staff.accounting'
@@ -66,6 +67,7 @@ import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as TranslateLiveIndexRouteImport } from './routes/translate/live/index'
 import { Route as StaffVisaIndexRouteImport } from './routes/staff.visa.index'
 import { Route as StaffTranslationIndexRouteImport } from './routes/staff.translation.index'
+import { Route as StaffInterpreterIndexRouteImport } from './routes/staff.interpreter.index'
 import { Route as StaffConsultancyIndexRouteImport } from './routes/staff.consultancy.index'
 import { Route as StaffClientsIndexRouteImport } from './routes/staff.clients.index'
 import { Route as StaffClaimsIndexRouteImport } from './routes/staff.claims.index'
@@ -77,6 +79,7 @@ import { Route as DashboardClaimsIndexRouteImport } from './routes/dashboard.cla
 import { Route as TranslateLiveSessionRouteImport } from './routes/translate.live.session'
 import { Route as StaffVisaIdRouteImport } from './routes/staff.visa.$id'
 import { Route as StaffTranslationIdRouteImport } from './routes/staff.translation.$id'
+import { Route as StaffInterpreterCallIdRouteImport } from './routes/staff.interpreter.$callId'
 import { Route as StaffConsultancyIdRouteImport } from './routes/staff.consultancy.$id'
 import { Route as StaffClientsNewRouteImport } from './routes/staff.clients.new'
 import { Route as StaffClientsIdRouteImport } from './routes/staff.clients.$id'
@@ -233,6 +236,11 @@ const StaffMessagesRoute = StaffMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => StaffRoute,
 } as any)
+const StaffInterpreterRoute = StaffInterpreterRouteImport.update({
+  id: '/interpreter',
+  path: '/interpreter',
+  getParentRoute: () => StaffRoute,
+} as any)
 const StaffConsultancyRoute = StaffConsultancyRouteImport.update({
   id: '/consultancy',
   path: '/consultancy',
@@ -378,6 +386,11 @@ const StaffTranslationIndexRoute = StaffTranslationIndexRouteImport.update({
   path: '/',
   getParentRoute: () => StaffTranslationRoute,
 } as any)
+const StaffInterpreterIndexRoute = StaffInterpreterIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StaffInterpreterRoute,
+} as any)
 const StaffConsultancyIndexRoute = StaffConsultancyIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -433,6 +446,11 @@ const StaffTranslationIdRoute = StaffTranslationIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => StaffTranslationRoute,
+} as any)
+const StaffInterpreterCallIdRoute = StaffInterpreterCallIdRouteImport.update({
+  id: '/$callId',
+  path: '/$callId',
+  getParentRoute: () => StaffInterpreterRoute,
 } as any)
 const StaffConsultancyIdRoute = StaffConsultancyIdRouteImport.update({
   id: '/$id',
@@ -553,6 +571,7 @@ export interface FileRoutesByFullPath {
   '/staff/accounting': typeof StaffAccountingRouteWithChildren
   '/staff/admin': typeof StaffAdminRouteWithChildren
   '/staff/consultancy': typeof StaffConsultancyRouteWithChildren
+  '/staff/interpreter': typeof StaffInterpreterRouteWithChildren
   '/staff/messages': typeof StaffMessagesRoute
   '/staff/reports': typeof StaffReportsRoute
   '/staff/settings': typeof StaffSettingsRoute
@@ -582,6 +601,7 @@ export interface FileRoutesByFullPath {
   '/staff/clients/$id': typeof StaffClientsIdRoute
   '/staff/clients/new': typeof StaffClientsNewRoute
   '/staff/consultancy/$id': typeof StaffConsultancyIdRoute
+  '/staff/interpreter/$callId': typeof StaffInterpreterCallIdRoute
   '/staff/translation/$id': typeof StaffTranslationIdRoute
   '/staff/visa/$id': typeof StaffVisaIdRoute
   '/translate/live/session': typeof TranslateLiveSessionRoute
@@ -593,6 +613,7 @@ export interface FileRoutesByFullPath {
   '/staff/claims/': typeof StaffClaimsIndexRoute
   '/staff/clients/': typeof StaffClientsIndexRoute
   '/staff/consultancy/': typeof StaffConsultancyIndexRoute
+  '/staff/interpreter/': typeof StaffInterpreterIndexRoute
   '/staff/translation/': typeof StaffTranslationIndexRoute
   '/staff/visa/': typeof StaffVisaIndexRoute
   '/translate/live/': typeof TranslateLiveIndexRoute
@@ -658,6 +679,7 @@ export interface FileRoutesByTo {
   '/staff/clients/$id': typeof StaffClientsIdRoute
   '/staff/clients/new': typeof StaffClientsNewRoute
   '/staff/consultancy/$id': typeof StaffConsultancyIdRoute
+  '/staff/interpreter/$callId': typeof StaffInterpreterCallIdRoute
   '/staff/translation/$id': typeof StaffTranslationIdRoute
   '/staff/visa/$id': typeof StaffVisaIdRoute
   '/translate/live/session': typeof TranslateLiveSessionRoute
@@ -669,6 +691,7 @@ export interface FileRoutesByTo {
   '/staff/claims': typeof StaffClaimsIndexRoute
   '/staff/clients': typeof StaffClientsIndexRoute
   '/staff/consultancy': typeof StaffConsultancyIndexRoute
+  '/staff/interpreter': typeof StaffInterpreterIndexRoute
   '/staff/translation': typeof StaffTranslationIndexRoute
   '/staff/visa': typeof StaffVisaIndexRoute
   '/translate/live': typeof TranslateLiveIndexRoute
@@ -715,6 +738,7 @@ export interface FileRoutesById {
   '/staff/accounting': typeof StaffAccountingRouteWithChildren
   '/staff/admin': typeof StaffAdminRouteWithChildren
   '/staff/consultancy': typeof StaffConsultancyRouteWithChildren
+  '/staff/interpreter': typeof StaffInterpreterRouteWithChildren
   '/staff/messages': typeof StaffMessagesRoute
   '/staff/reports': typeof StaffReportsRoute
   '/staff/settings': typeof StaffSettingsRoute
@@ -744,6 +768,7 @@ export interface FileRoutesById {
   '/staff/clients/$id': typeof StaffClientsIdRoute
   '/staff/clients/new': typeof StaffClientsNewRoute
   '/staff/consultancy/$id': typeof StaffConsultancyIdRoute
+  '/staff/interpreter/$callId': typeof StaffInterpreterCallIdRoute
   '/staff/translation/$id': typeof StaffTranslationIdRoute
   '/staff/visa/$id': typeof StaffVisaIdRoute
   '/translate/live/session': typeof TranslateLiveSessionRoute
@@ -755,6 +780,7 @@ export interface FileRoutesById {
   '/staff/claims/': typeof StaffClaimsIndexRoute
   '/staff/clients/': typeof StaffClientsIndexRoute
   '/staff/consultancy/': typeof StaffConsultancyIndexRoute
+  '/staff/interpreter/': typeof StaffInterpreterIndexRoute
   '/staff/translation/': typeof StaffTranslationIndexRoute
   '/staff/visa/': typeof StaffVisaIndexRoute
   '/translate/live/': typeof TranslateLiveIndexRoute
@@ -802,6 +828,7 @@ export interface FileRouteTypes {
     | '/staff/accounting'
     | '/staff/admin'
     | '/staff/consultancy'
+    | '/staff/interpreter'
     | '/staff/messages'
     | '/staff/reports'
     | '/staff/settings'
@@ -831,6 +858,7 @@ export interface FileRouteTypes {
     | '/staff/clients/$id'
     | '/staff/clients/new'
     | '/staff/consultancy/$id'
+    | '/staff/interpreter/$callId'
     | '/staff/translation/$id'
     | '/staff/visa/$id'
     | '/translate/live/session'
@@ -842,6 +870,7 @@ export interface FileRouteTypes {
     | '/staff/claims/'
     | '/staff/clients/'
     | '/staff/consultancy/'
+    | '/staff/interpreter/'
     | '/staff/translation/'
     | '/staff/visa/'
     | '/translate/live/'
@@ -907,6 +936,7 @@ export interface FileRouteTypes {
     | '/staff/clients/$id'
     | '/staff/clients/new'
     | '/staff/consultancy/$id'
+    | '/staff/interpreter/$callId'
     | '/staff/translation/$id'
     | '/staff/visa/$id'
     | '/translate/live/session'
@@ -918,6 +948,7 @@ export interface FileRouteTypes {
     | '/staff/claims'
     | '/staff/clients'
     | '/staff/consultancy'
+    | '/staff/interpreter'
     | '/staff/translation'
     | '/staff/visa'
     | '/translate/live'
@@ -963,6 +994,7 @@ export interface FileRouteTypes {
     | '/staff/accounting'
     | '/staff/admin'
     | '/staff/consultancy'
+    | '/staff/interpreter'
     | '/staff/messages'
     | '/staff/reports'
     | '/staff/settings'
@@ -992,6 +1024,7 @@ export interface FileRouteTypes {
     | '/staff/clients/$id'
     | '/staff/clients/new'
     | '/staff/consultancy/$id'
+    | '/staff/interpreter/$callId'
     | '/staff/translation/$id'
     | '/staff/visa/$id'
     | '/translate/live/session'
@@ -1003,6 +1036,7 @@ export interface FileRouteTypes {
     | '/staff/claims/'
     | '/staff/clients/'
     | '/staff/consultancy/'
+    | '/staff/interpreter/'
     | '/staff/translation/'
     | '/staff/visa/'
     | '/translate/live/'
@@ -1236,6 +1270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffMessagesRouteImport
       parentRoute: typeof StaffRoute
     }
+    '/staff/interpreter': {
+      id: '/staff/interpreter'
+      path: '/interpreter'
+      fullPath: '/staff/interpreter'
+      preLoaderRoute: typeof StaffInterpreterRouteImport
+      parentRoute: typeof StaffRoute
+    }
     '/staff/consultancy': {
       id: '/staff/consultancy'
       path: '/consultancy'
@@ -1439,6 +1480,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffTranslationIndexRouteImport
       parentRoute: typeof StaffTranslationRoute
     }
+    '/staff/interpreter/': {
+      id: '/staff/interpreter/'
+      path: '/'
+      fullPath: '/staff/interpreter/'
+      preLoaderRoute: typeof StaffInterpreterIndexRouteImport
+      parentRoute: typeof StaffInterpreterRoute
+    }
     '/staff/consultancy/': {
       id: '/staff/consultancy/'
       path: '/'
@@ -1515,6 +1563,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/staff/translation/$id'
       preLoaderRoute: typeof StaffTranslationIdRouteImport
       parentRoute: typeof StaffTranslationRoute
+    }
+    '/staff/interpreter/$callId': {
+      id: '/staff/interpreter/$callId'
+      path: '/$callId'
+      fullPath: '/staff/interpreter/$callId'
+      preLoaderRoute: typeof StaffInterpreterCallIdRouteImport
+      parentRoute: typeof StaffInterpreterRoute
     }
     '/staff/consultancy/$id': {
       id: '/staff/consultancy/$id'
@@ -1794,6 +1849,19 @@ const StaffConsultancyRouteChildren: StaffConsultancyRouteChildren = {
 const StaffConsultancyRouteWithChildren =
   StaffConsultancyRoute._addFileChildren(StaffConsultancyRouteChildren)
 
+interface StaffInterpreterRouteChildren {
+  StaffInterpreterCallIdRoute: typeof StaffInterpreterCallIdRoute
+  StaffInterpreterIndexRoute: typeof StaffInterpreterIndexRoute
+}
+
+const StaffInterpreterRouteChildren: StaffInterpreterRouteChildren = {
+  StaffInterpreterCallIdRoute: StaffInterpreterCallIdRoute,
+  StaffInterpreterIndexRoute: StaffInterpreterIndexRoute,
+}
+
+const StaffInterpreterRouteWithChildren =
+  StaffInterpreterRoute._addFileChildren(StaffInterpreterRouteChildren)
+
 interface StaffTranslationRouteChildren {
   StaffTranslationIdRoute: typeof StaffTranslationIdRoute
   StaffTranslationIndexRoute: typeof StaffTranslationIndexRoute
@@ -1825,6 +1893,7 @@ interface StaffRouteChildren {
   StaffAccountingRoute: typeof StaffAccountingRouteWithChildren
   StaffAdminRoute: typeof StaffAdminRouteWithChildren
   StaffConsultancyRoute: typeof StaffConsultancyRouteWithChildren
+  StaffInterpreterRoute: typeof StaffInterpreterRouteWithChildren
   StaffMessagesRoute: typeof StaffMessagesRoute
   StaffReportsRoute: typeof StaffReportsRoute
   StaffSettingsRoute: typeof StaffSettingsRoute
@@ -1842,6 +1911,7 @@ const StaffRouteChildren: StaffRouteChildren = {
   StaffAccountingRoute: StaffAccountingRouteWithChildren,
   StaffAdminRoute: StaffAdminRouteWithChildren,
   StaffConsultancyRoute: StaffConsultancyRouteWithChildren,
+  StaffInterpreterRoute: StaffInterpreterRouteWithChildren,
   StaffMessagesRoute: StaffMessagesRoute,
   StaffReportsRoute: StaffReportsRoute,
   StaffSettingsRoute: StaffSettingsRoute,

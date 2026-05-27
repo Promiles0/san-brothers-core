@@ -6,6 +6,7 @@ import {
   Calculator,
   Briefcase,
   Languages,
+  Headphones,
   Users,
   ShieldAlert,
   BarChart2,
@@ -48,6 +49,7 @@ const items: Item[] = [
   },
   { label: "Consultancy", icon: Briefcase, to: "/staff/consultancy", cap: "handle_consultancy" },
   { label: "Translation", icon: Languages, to: "/staff/translation", cap: "handle_translation" },
+  { label: "Live Calls", icon: Headphones, to: "/staff/interpreter", cap: "handle_live_calls" },
   { label: "Clients", icon: Users, to: "/staff/clients", cap: "register_clients_manually" },
   {
     label: "Claims",

@@ -22,12 +22,15 @@ interface DashboardLayoutProps {
   role: UserRole;
   children: ReactNode;
   breadcrumbs?: string[];
+  /** Nav item keys to suppress in the sidebar */
+  hiddenNavKeys?: string[];
 }
 
 export function DashboardLayout({
   role,
   children,
   breadcrumbs = [role, "Home"],
+  hiddenNavKeys,
 }: DashboardLayoutProps) {
   const { t } = useI18n();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -43,7 +46,7 @@ export function DashboardLayout({
           <span className="text-sm font-semibold text-sidebar-foreground">San Brothers</span>
         </div>
         <div className="flex-1 overflow-y-auto">
-          <Sidebar role={role} />
+          <Sidebar role={role} hiddenNavKeys={hiddenNavKeys} />
         </div>
       </aside>
 
@@ -60,7 +63,7 @@ export function DashboardLayout({
               <SheetHeader className="border-b border-sidebar-border p-4">
                 <SheetTitle>San Brothers</SheetTitle>
               </SheetHeader>
-              <Sidebar role={role} onNavigate={() => setMobileOpen(false)} />
+              <Sidebar role={role} onNavigate={() => setMobileOpen(false)} hiddenNavKeys={hiddenNavKeys} />
             </SheetContent>
           </Sheet>
 

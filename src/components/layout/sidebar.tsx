@@ -11,10 +11,15 @@ interface SidebarProps {
   role: UserRole;
   collapsed?: boolean;
   onNavigate?: () => void;
+  /** Nav item keys to hide (matched against SidebarItem.key) */
+  hiddenNavKeys?: string[];
 }
 
-export function Sidebar({ role, collapsed = false, onNavigate }: SidebarProps) {
-  const items = sidebarMenus[role];
+export function Sidebar({ role, collapsed = false, onNavigate, hiddenNavKeys }: SidebarProps) {
+  const rawItems = sidebarMenus[role];
+  const items = hiddenNavKeys?.length
+    ? rawItems.filter((item) => !item.key || !hiddenNavKeys.includes(item.key))
+    : rawItems;
   const counts = useDashboardCounts();
   const { signOut } = useAuth();
   const navigate = useNavigate();
