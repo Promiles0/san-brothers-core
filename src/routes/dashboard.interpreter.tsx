@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Headphones, Loader2, Star } from "lucide-react";
 import { toast } from "sonner";
@@ -75,8 +75,21 @@ export const Route = createFileRoute("/dashboard/interpreter")({
 });
 
 // ── Main page ─────────────────────────────────────────────────────────────────
+// dashboard.interpreter.$callId (and its .summary child) live INSIDE this route
+// in the TanStack Router file-based tree.  TanStack Router renders the parent
+// component first and renders the child into <Outlet />.  We split into two
+// components so React's Rules of Hooks are never violated by a conditional
+// early-return that sits before other hook calls.
 
 function InterpreterPage() {
+  const childMatches = useChildMatches();
+  // When $callId (or its .summary) is active, pass through to that screen.
+  if (childMatches.length > 0) return <Outlet />;
+  // Otherwise render the language-selector / minute-purchase page.
+  return <InterpreterLandingPage />;
+}
+
+function InterpreterLandingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
