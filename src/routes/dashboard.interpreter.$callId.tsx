@@ -138,6 +138,7 @@ function ActiveCallPage() {
         },
         (payload) => {
           const updated = payload.new as InterpreterCall;
+          console.log("[Realtime] status:", updated.status, "| interpreter_id:", updated.interpreter_id);
           setCall(updated);
           if (updated.interpreter_id) {
             void fetchInterpreter(updated.interpreter_id);
@@ -147,40 +148,42 @@ function ActiveCallPage() {
           }
         },
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("[Realtime] channel status:", status);
+      });
     return () => { supabase.removeChannel(channel); };
   }, [callId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Polling fallback (every 3 s) ──────────────────────────────────────────────
-  // Safety net: even if Realtime fails or the event is missed, the UI will
-  // reflect the current DB state within 3 seconds.
+  // Simple select("*") — no FK join that could silently fail.
+  // Errors are logged so they show up in the browser console.
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("interpreter_calls")
-        .select("*, interpreter:users!interpreter_id(full_name, profile_picture_url)")
+        .select("*")
         .eq("id", callId)
         .single();
 
+      if (error) {
+        console.error("[Poll] fetch error:", error.message);
+        return;
+      }
       if (!data) return;
 
-      // Separate the joined interpreter row from the flat call fields
-      const { interpreter, ...callData } = data as typeof data & {
-        interpreter: { full_name: string; profile_picture_url: string | null } | null;
-      };
+      const updated = data as InterpreterCall;
+      console.log("[Poll] status:", updated.status, "| interpreter_id:", updated.interpreter_id);
 
-      setCall(callData as InterpreterCall);
+      setCall(updated);
 
-      if (interpreter && callData.interpreter_id) {
-        setInterpreterProfile({
-          id: callData.interpreter_id,
-          full_name: interpreter.full_name,
-          profile_picture_url: interpreter.profile_picture_url,
-        });
+      // Fetch interpreter profile as a separate, simple query when we first
+      // see an interpreter_id (avoids FK-join syntax that can silently fail).
+      if (updated.interpreter_id) {
+        void fetchInterpreter(updated.interpreter_id);
       }
 
-      if (callData.status === "completed" || callData.status === "cancelled") {
+      if (updated.status === "completed" || updated.status === "cancelled") {
         navigate({ to: "/dashboard/interpreter/$callId/summary", params: { callId } } as never);
       }
     }, 3000);
