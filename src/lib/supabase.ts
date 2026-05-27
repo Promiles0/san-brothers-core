@@ -48,4 +48,7 @@ export interface ProfileRow {
   interpreter_profile_complete: boolean;
   interpreter_languages: { from: string; to: string }[] | null;
   interpreter_bio: string | null;
+  availability_status: string | null;
+  city: string | null;
+  country: string | null;
 }

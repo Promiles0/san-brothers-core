@@ -35,6 +35,7 @@ import { Route as TranslateDocumentRouteImport } from './routes/translate/docume
 import { Route as StaffVisaRouteImport } from './routes/staff.visa'
 import { Route as StaffTranslationRouteImport } from './routes/staff.translation'
 import { Route as StaffSettingsRouteImport } from './routes/staff.settings'
+import { Route as StaffProfileRouteImport } from './routes/staff.profile'
 import { Route as StaffReportsRouteImport } from './routes/staff.reports'
 import { Route as StaffMessagesRouteImport } from './routes/staff.messages'
 import { Route as StaffInterpreterRouteImport } from './routes/staff.interpreter'
@@ -224,6 +225,11 @@ const StaffTranslationRoute = StaffTranslationRouteImport.update({
 const StaffSettingsRoute = StaffSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffProfileRoute = StaffProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => StaffRoute,
 } as any)
 const StaffReportsRoute = StaffReportsRouteImport.update({
@@ -1249,6 +1255,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffTranslationRouteImport
       parentRoute: typeof StaffRoute
     }
+    '/staff/profile': {
+      id: '/staff/profile'
+      path: '/profile'
+      fullPath: '/staff/profile'
+      preLoaderRoute: typeof StaffProfileRouteImport
+      parentRoute: typeof StaffRoute
+    }
     '/staff/settings': {
       id: '/staff/settings'
       path: '/settings'
@@ -1895,6 +1908,7 @@ interface StaffRouteChildren {
   StaffConsultancyRoute: typeof StaffConsultancyRouteWithChildren
   StaffInterpreterRoute: typeof StaffInterpreterRouteWithChildren
   StaffMessagesRoute: typeof StaffMessagesRoute
+  StaffProfileRoute: typeof StaffProfileRoute
   StaffReportsRoute: typeof StaffReportsRoute
   StaffSettingsRoute: typeof StaffSettingsRoute
   StaffTranslationRoute: typeof StaffTranslationRouteWithChildren
@@ -1913,6 +1927,7 @@ const StaffRouteChildren: StaffRouteChildren = {
   StaffConsultancyRoute: StaffConsultancyRouteWithChildren,
   StaffInterpreterRoute: StaffInterpreterRouteWithChildren,
   StaffMessagesRoute: StaffMessagesRoute,
+  StaffProfileRoute: StaffProfileRoute,
   StaffReportsRoute: StaffReportsRoute,
   StaffSettingsRoute: StaffSettingsRoute,
   StaffTranslationRoute: StaffTranslationRouteWithChildren,
