@@ -17,6 +17,7 @@ import { StaffSidebar } from "@/components/layout/staff-sidebar";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { InterpreterProfileModal } from "@/components/staff/interpreter-profile-modal";
 import { useAuth } from "@/hooks/useAuth";
+import { useCapabilities } from "@/lib/staff/capability-context";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/lib/supabase";
 
@@ -240,10 +241,12 @@ export function StaffLayout({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const { profile, signOut } = useAuth();
+  const { hasCapability } = useCapabilities();
   const navigate = useNavigate();
 
+  const canHandleCalls = hasCapability("handle_live_calls");
   const isActiveInterpreter =
-    profile?.role === "translator" && profile.interpreter_profile_complete === true;
+    canHandleCalls && profile?.interpreter_profile_complete === true;
   const interpreterLanguages = isActiveInterpreter
     ? (profile.interpreter_languages as Array<{ from: string; to: string }> | null)
     : null;
@@ -327,7 +330,7 @@ export function StaffLayout({
             </DropdownMenu>
           </div>
         </header>
-        {profile?.role === "translator" && profile.interpreter_profile_complete === false && (
+        {canHandleCalls && !profile?.interpreter_profile_complete && (
           <div className="flex items-center justify-between gap-3 border-b border-amber-300 bg-amber-50 px-4 py-2.5 text-amber-900 dark:border-amber-700 dark:bg-amber-950/60 dark:text-amber-200">
             <div className="flex items-center gap-2 text-sm">
               <AlertTriangle className="h-4 w-4 shrink-0" />

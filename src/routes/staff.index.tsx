@@ -80,7 +80,8 @@ function basePathFor(cat: string) {
 
 function StaffHome() {
   const { user, profile } = useAuth();
-  const { capabilities } = useCapabilities();
+  const { capabilities, hasCapability } = useCapabilities();
+  const canHandleCalls = hasCapability("handle_live_calls");
 
   const [today, setToday] = useState<Row[]>([]);
   const [pending, setPending] = useState<Row[]>([]);
@@ -160,7 +161,7 @@ function StaffHome() {
   }, [user, myCats]);
 
   useEffect(() => {
-    if (profile?.role !== "translator" || !profile.id) return;
+    if (!canHandleCalls || !profile?.id) return;
     void (async () => {
       const { data } = await supabase
         .from("interpreter_calls")
@@ -173,7 +174,7 @@ function StaffHome() {
         .limit(10);
       if (data) setRecentCalls(data as unknown as RecentCallRow[]);
     })();
-  }, [profile?.id, profile?.role]);
+  }, [profile?.id, canHandleCalls]);
 
   const greet = (() => {
     const h = new Date().getHours();
@@ -345,7 +346,7 @@ function StaffHome() {
         </Card>
       </div>
 
-      {profile?.role === "translator" && (
+      {canHandleCalls && (
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Recent Calls</CardTitle>
