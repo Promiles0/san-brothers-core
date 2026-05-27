@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, type ReactNode } from "react";
 import { Menu, ChevronRight, AlertTriangle, Phone, PhoneOff } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -38,6 +39,7 @@ interface IncomingCall {
 
 function useIncomingCall(
   profileId: string | undefined,
+  isActiveInterpreter: boolean,
   interpreterLanguages: Array<{ from: string; to: string }> | null | undefined,
 ) {
   const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
@@ -45,6 +47,9 @@ function useIncomingCall(
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const beepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Keep a stable ref so polling closure always sees the latest value
+  const incomingCallRef = useRef<IncomingCall | null>(null);
+  useEffect(() => { incomingCallRef.current = incomingCall; }, [incomingCall]);
 
   const dismiss = () => {
     setIncomingCall(null);
@@ -81,46 +86,71 @@ function useIncomingCall(
     audioCtxRef.current = null;
   }
 
+  async function showCall(call: IncomingCall) {
+    const { data } = await supabase
+      .from("users")
+      .select("full_name")
+      .eq("id", call.client_id)
+      .single();
+    const firstName = (data as { full_name: string } | null)?.full_name?.split(" ")[0] ?? null;
+    setIncomingCall(call);
+    setCallerName(firstName);
+    startBeep();
+    if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+    dismissTimerRef.current = setTimeout(dismiss, 30000);
+  }
+
+  // ── Realtime subscriptions ─────────────────────────────────────────────────
   useEffect(() => {
     if (!profileId) return;
 
-    async function showCall(call: IncomingCall) {
-      const { data } = await supabase
-        .from("users")
-        .select("full_name")
-        .eq("id", call.client_id)
-        .single();
-      const firstName = (data as { full_name: string } | null)?.full_name?.split(" ")[0] ?? null;
-      setIncomingCall(call);
-      setCallerName(firstName);
-      startBeep();
-      if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
-      dismissTimerRef.current = setTimeout(dismiss, 30000);
-    }
-
-    // Channel 1: new ringing calls matching this interpreter's language pairs
+    // FIX BUG 1: Subscribe to ALL INSERTs with NO filter — Supabase Realtime
+    // does not reliably deliver INSERT events filtered by non-indexed columns
+    // like `status`. Filter in JavaScript instead.
     let channel1: ReturnType<typeof supabase.channel> | null = null;
     if (interpreterLanguages?.length) {
       channel1 = supabase
-        .channel("incoming-calls:" + profileId)
+        .channel("incoming-calls-" + profileId)
         .on(
           "postgres_changes",
-          { event: "INSERT", schema: "public", table: "interpreter_calls", filter: "status=eq.ringing" },
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "interpreter_calls",
+            // No server-side filter — JS filter below is reliable
+          },
           async (payload) => {
             const call = payload.new as IncomingCall;
-            const matches = interpreterLanguages.some(
+            console.log("[IncomingCall] INSERT received:", call);
+
+            // JS filter 1: only ringing calls
+            if (call.status !== "ringing") {
+              console.log("[IncomingCall] Skipping — status is not ringing:", call.status);
+              return;
+            }
+
+            // JS filter 2: language pair must match this interpreter's pairs
+            const isMatch = interpreterLanguages.some(
               (pair) => pair.from === call.language_from && pair.to === call.language_to,
             );
-            if (!matches) return;
+            console.log(
+              "[IncomingCall] language match:", isMatch,
+              "| interpreter pairs:", interpreterLanguages,
+              "| call:", call.language_from, "->", call.language_to,
+            );
+            if (!isMatch) return;
+
             await showCall(call);
           },
         )
-        .subscribe();
+        .subscribe((status) => {
+          console.log("[IncomingCall] channel1 status:", status);
+        });
     }
 
     // Channel 2: calls forwarded to this interpreter
     const channel2 = supabase
-      .channel("forwarded-calls:" + profileId)
+      .channel("forwarded-calls-" + profileId)
       .on(
         "postgres_changes",
         {
@@ -131,11 +161,14 @@ function useIncomingCall(
         },
         async (payload) => {
           const call = payload.new as IncomingCall;
+          console.log("[ForwardedCall] UPDATE received:", call);
           if (call.status !== "on_hold") return;
           await showCall(call);
         },
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("[IncomingCall] channel2 (forwarded) status:", status);
+      });
 
     return () => {
       if (channel1) void supabase.removeChannel(channel1);
@@ -144,6 +177,43 @@ function useIncomingCall(
       stopBeep();
     };
   }, [profileId, interpreterLanguages]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Polling fallback (every 5 s) ──────────────────────────────────────────
+  // Guards against Supabase Realtime silently dropping events.
+  useEffect(() => {
+    if (!isActiveInterpreter || !interpreterLanguages?.length) return;
+
+    const poll = setInterval(async () => {
+      // Don't show a second overlay if one is already up
+      if (incomingCallRef.current) return;
+
+      const { data, error } = await supabase
+        .from("interpreter_calls")
+        .select("*")
+        .eq("status", "ringing")
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.warn("[IncomingCall] Poll error:", error.message);
+        return;
+      }
+      if (!data?.length) return;
+
+      const match = data.find((call) =>
+        interpreterLanguages.some(
+          (pair) => pair.from === call.language_from && pair.to === call.language_to,
+        ),
+      );
+
+      if (match) {
+        console.log("[IncomingCall] Poll found ringing call (realtime missed it):", match);
+        await showCall(match as IncomingCall);
+      }
+    }, 5000);
+
+    return () => clearInterval(poll);
+  }, [isActiveInterpreter, interpreterLanguages]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return { incomingCall, callerName, dismiss };
 }
@@ -162,28 +232,50 @@ function IncomingCallOverlay({
   onDismiss: () => void;
 }) {
   const navigate = useNavigate();
+  const [accepting, setAccepting] = useState(false);
 
+  // FIX BUG 2: Proper error handling + logging so we can trace accept failures.
   const handleAccept = async () => {
-    const now = new Date();
+    if (accepting) return; // prevent double-tap
+    setAccepting(true);
+    console.log("[Accept] Attempting to accept call:", call.id, "profileId:", profileId);
+
+    const now = new Date().toISOString();
     const isForwarded = call.hold_start != null;
     const holdElapsed = isForwarded
-      ? Math.floor((now.getTime() - new Date(call.hold_start!).getTime()) / 1000)
+      ? Math.floor((Date.now() - new Date(call.hold_start!).getTime()) / 1000)
       : 0;
 
-    await supabase
+    const updatePayload = {
+      interpreter_id: profileId,
+      status: "active",
+      answered_at: now,
+      ...(isForwarded && {
+        forwarded_to: null,
+        hold_start: null,
+        total_hold_seconds: (call.total_hold_seconds ?? 0) + holdElapsed,
+      }),
+    };
+
+    console.log("[Accept] Sending UPDATE:", updatePayload, "for call id:", call.id);
+
+    const { error, data } = await supabase
       .from("interpreter_calls")
-      .update({
-        interpreter_id: profileId,
-        status: "active",
-        answered_at: now.toISOString(),
-        ...(isForwarded && {
-          forwarded_to: null,
-          hold_start: null,
-          total_hold_seconds: (call.total_hold_seconds ?? 0) + holdElapsed,
-        }),
-      })
-      .eq("id", call.id);
+      .update(updatePayload)
+      .eq("id", call.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("[Accept] UPDATE failed:", error);
+      toast.error("Could not accept call: " + error.message);
+      setAccepting(false);
+      return;
+    }
+
+    console.log("[Accept] UPDATE succeeded, row returned:", data);
     onDismiss();
+    console.log("[Accept] Navigating to interpreter screen for callId:", call.id);
     navigate({ to: "/staff/interpreter/$callId", params: { callId: call.id } } as never);
   };
 
@@ -214,6 +306,7 @@ function IncomingCallOverlay({
             variant="outline"
             className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
             onClick={onDismiss}
+            disabled={accepting}
           >
             <PhoneOff className="mr-2 h-4 w-4" />
             Decline
@@ -221,9 +314,10 @@ function IncomingCallOverlay({
           <Button
             className="flex-1 bg-green-600 text-white hover:bg-green-700"
             onClick={handleAccept}
+            disabled={accepting}
           >
             <Phone className="mr-2 h-4 w-4" />
-            Accept
+            {accepting ? "Connecting…" : "Accept"}
           </Button>
         </div>
       </div>
@@ -252,6 +346,7 @@ export function StaffLayout({
     : null;
   const { incomingCall, callerName, dismiss } = useIncomingCall(
     isActiveInterpreter ? profile.id : undefined,
+    isActiveInterpreter,
     interpreterLanguages,
   );
   const sidebarLabel = "San Brothers — Staff";
@@ -366,3 +461,21 @@ export function StaffLayout({
     </div>
   );
 }
+
+/*
+ * ── RLS POLICY — run once in Supabase SQL Editor ──────────────────────────────
+ *
+ * This allows any staff member with the `handle_live_calls` capability to
+ * UPDATE a ringing call (claim it). Without this, the UPDATE silently succeeds
+ * client-side but is rolled back by RLS, leaving the call in `ringing` forever.
+ *
+ * DROP POLICY IF EXISTS "Interpreter can update calls" ON interpreter_calls;
+ * CREATE POLICY "Interpreter can update calls" ON interpreter_calls
+ *   FOR UPDATE USING (
+ *     EXISTS (
+ *       SELECT 1 FROM staff_capabilities
+ *       WHERE user_id = auth.uid()
+ *       AND capability = 'handle_live_calls'
+ *     )
+ *   );
+ */
