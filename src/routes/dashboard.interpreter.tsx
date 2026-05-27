@@ -154,7 +154,10 @@ function InterpreterPage() {
   const handleStartCall = async () => {
     if (!validateLangs() || !user) return;
     setStarting(true);
+
     try {
+      console.log("[Call] Inserting call row…", { langFrom, langTo, userId: user.id });
+
       const { data, error } = await supabase
         .from("interpreter_calls")
         .insert({
@@ -164,15 +167,30 @@ function InterpreterPage() {
           status: "ringing",
           is_free_call: freeMinutes > 0,
         })
-        .select("id")
+        .select()
         .single();
-      if (error) throw error;
+
+      if (error) {
+        console.error("[Call] Insert failed:", error);
+        toast.error("Could not start call: " + error.message);
+        setStarting(false);
+        return;
+      }
+
+      console.log("[Call] Row created:", data);
+
+      // Reset loading state BEFORE navigating — if the component stays mounted
+      // during the route transition the button would stay stuck in loading.
+      setStarting(false);
+
       navigate({
         to: "/dashboard/interpreter/$callId",
         params: { callId: (data as { id: string }).id },
       } as never);
-    } catch (e) {
-      toast.error((e as Error).message);
+
+    } catch (err) {
+      console.error("[Call] Unexpected error:", err);
+      toast.error("Something went wrong. Please try again.");
       setStarting(false);
     }
   };
@@ -255,8 +273,14 @@ function InterpreterPage() {
                 onClick={handleStartCall}
                 disabled={starting}
               >
-                {starting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Start Free Call →
+                {starting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Connecting…
+                  </>
+                ) : (
+                  "Start Free Call →"
+                )}
               </Button>
 
               <p className="text-xs text-muted-foreground">
@@ -305,8 +329,14 @@ function InterpreterPage() {
                 onClick={handleStartCall}
                 disabled={starting}
               >
-                {starting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Call Now →
+                {starting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Connecting…
+                  </>
+                ) : (
+                  "Call Now →"
+                )}
               </Button>
             </CardContent>
           </Card>
