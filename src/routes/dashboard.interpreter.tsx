@@ -100,6 +100,29 @@ function normalizeTab(tab: string): string {
 // Schema migrations — run once:
 // ALTER TABLE interpreter_calls ADD COLUMN IF NOT EXISTS queue_reason text;
 // ALTER TABLE interpreter_queue  ADD COLUMN IF NOT EXISTS queue_reason text;
+//
+// interpreter_queue RLS — run once in Supabase SQL Editor:
+// DROP POLICY IF EXISTS "Client can join queue" ON interpreter_queue;
+// CREATE POLICY "Client can join queue" ON interpreter_queue
+//   FOR INSERT WITH CHECK (client_id = auth.uid());
+//
+// DROP POLICY IF EXISTS "Client sees own queue" ON interpreter_queue;
+// CREATE POLICY "Client sees own queue" ON interpreter_queue
+//   FOR SELECT USING (client_id = auth.uid());
+//
+// DROP POLICY IF EXISTS "System manages queue" ON interpreter_queue;
+// CREATE POLICY "System manages queue" ON interpreter_queue
+//   FOR UPDATE USING (true);
+//
+// DROP POLICY IF EXISTS "Staff can read queue" ON interpreter_queue;
+// CREATE POLICY "Staff can read queue" ON interpreter_queue
+//   FOR SELECT USING (
+//     EXISTS (
+//       SELECT 1 FROM staff_capabilities
+//       WHERE user_id = auth.uid()
+//       AND capability = 'handle_live_calls'
+//     )
+//   );
 
 type AvailabilityResult =
   | { available: true }
@@ -380,6 +403,7 @@ function InterpreterLandingPage() {
             language_from: langFrom,
             language_to: langTo,
             status: "waiting",
+            queued_at: new Date().toISOString(),
             queue_reason: result.reason,
           });
         }
@@ -485,72 +509,73 @@ function InterpreterLandingPage() {
       </div>
 
       {/* ── Preferred interpreter card ── */}
-      {interpreterId && preferredInterpLoading && (
-        <Skeleton className="h-48 w-full rounded-xl" />
-      )}
+      {interpreterId && preferredInterpLoading && <Skeleton className="h-48 w-full rounded-xl" />}
 
-      {interpreterId && !preferredInterpLoading && preferredInterp && showPreferredCard && (
-        isPreferredAvailable ? (
+      {interpreterId &&
+        !preferredInterpLoading &&
+        preferredInterp &&
+        showPreferredCard &&
+        (isPreferredAvailable ? (
           /* Online + free → "Call [Name] Again" card with subtle gradient border */
           <div className="rounded-xl bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 p-[1.5px] shadow-lg shadow-green-500/20">
-          <Card className="border-0 bg-background rounded-[calc(0.75rem-1.5px)]">
-            <CardContent className="space-y-4 px-5 pb-5 pt-5">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={preferredInterp.profile_picture_url ?? undefined} />
-                  <AvatarFallback>{preferredInterp.full_name[0]}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <p className="font-semibold">{preferredInterp.full_name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    You spoke with this interpreter before
-                  </p>
+            <Card className="border-0 bg-background rounded-[calc(0.75rem-1.5px)]">
+              <CardContent className="space-y-4 px-5 pb-5 pt-5">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={preferredInterp.profile_picture_url ?? undefined} />
+                    <AvatarFallback>{preferredInterp.full_name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="font-semibold">{preferredInterp.full_name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      You spoke with this interpreter before
+                    </p>
+                  </div>
+                  <Badge className="bg-green-500/15 text-green-700 dark:text-green-300">
+                    Available
+                  </Badge>
                 </div>
-                <Badge className="bg-green-500/15 text-green-700 dark:text-green-300">
-                  Available
-                </Badge>
-              </div>
 
-              <LanguagePair
-                languages={languages}
-                langFrom={langFrom}
-                langTo={langTo}
-                error={langError}
-                onFromChange={(v) => {
-                  setLangFrom(v);
-                  clearLangError();
-                }}
-                onToChange={(v) => {
-                  setLangTo(v);
-                  clearLangError();
-                }}
-              />
+                <LanguagePair
+                  languages={languages}
+                  langFrom={langFrom}
+                  langTo={langTo}
+                  error={langError}
+                  onFromChange={(v) => {
+                    setLangFrom(v);
+                    clearLangError();
+                  }}
+                  onToChange={(v) => {
+                    setLangTo(v);
+                    clearLangError();
+                  }}
+                />
 
-              <Button
-                size="lg"
-                className="w-full bg-green-600 text-white hover:bg-green-700"
-                onClick={() => handleStartCall(interpreterId)}
-                disabled={starting}
-              >
-                {starting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Connecting…
-                  </>
-                ) : (
-                  `Call ${preferredInterp.full_name} Again →`
-                )}
-              </Button>
+                <Button
+                  size="lg"
+                  className="w-full bg-green-600 text-white hover:bg-green-700"
+                  onClick={() => handleStartCall(interpreterId)}
+                  disabled={starting}
+                >
+                  {starting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Connecting…
+                    </>
+                  ) : (
+                    `Call ${preferredInterp.full_name} Again →`
+                  )}
+                </Button>
 
-              <button
-                type="button"
-                className="w-full text-center text-xs text-muted-foreground underline-offset-2 hover:underline"
-                onClick={() => setShowPreferredCard(false)}
-              >
-                Or find a different interpreter
-              </button>
-            </CardContent>
-          </Card>
+                <button
+                  type="button"
+                  className="w-full text-center text-xs text-muted-foreground underline-offset-2 hover:underline"
+                  onClick={() => setShowPreferredCard(false)}
+                >
+                  Or find a different interpreter
+                </button>
+              </CardContent>
+            </Card>
           </div>
         ) : (
           /* Offline / busy → amber unavailable card; normal flow renders below */
@@ -582,8 +607,7 @@ function InterpreterLandingPage() {
               </Button>
             </CardContent>
           </Card>
-        )
-      )}
+        ))}
 
       {/* ── Normal flow ── */}
       <div ref={normalFlowRef} className="space-y-6">
@@ -592,64 +616,64 @@ function InterpreterLandingPage() {
             {/* STATE 1: Free minutes available */}
             {pageState === "first_time" && (
               <div className="rounded-xl bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 p-[1.5px] shadow-lg shadow-green-500/20">
-              <Card className="border-0 bg-background rounded-[calc(0.75rem-1.5px)]">
-                <CardContent className="px-6 py-10">
-                  <div className="flex flex-col items-center gap-5 text-center">
-                    <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-green-500/15">
-                      <span className="absolute inset-0 animate-ping rounded-full bg-green-500/20" />
-                      <Headphones className="relative h-8 w-8 text-green-600 dark:text-green-400" />
-                    </div>
+                <Card className="border-0 bg-background rounded-[calc(0.75rem-1.5px)]">
+                  <CardContent className="px-6 py-10">
+                    <div className="flex flex-col items-center gap-5 text-center">
+                      <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-green-500/15">
+                        <span className="absolute inset-0 animate-ping rounded-full bg-green-500/20" />
+                        <Headphones className="relative h-8 w-8 text-green-600 dark:text-green-400" />
+                      </div>
 
-                    <div className="space-y-3">
-                      <Badge className="gap-1.5 bg-green-600 px-3 py-1 text-sm font-bold uppercase tracking-wider text-white shadow-md shadow-green-600/30 hover:bg-green-600">
-                        <Sparkles className="h-3.5 w-3.5" />
-                        {fmtMinutes(freeMinutes)} Free Minutes
-                      </Badge>
-                      <h2 className="text-xl font-semibold">Live Interpreter Call</h2>
-                      <p className="text-sm text-muted-foreground">
-                        No payment needed — start talking right away
+                      <div className="space-y-3">
+                        <Badge className="gap-1.5 bg-green-600 px-3 py-1 text-sm font-bold uppercase tracking-wider text-white shadow-md shadow-green-600/30 hover:bg-green-600">
+                          <Sparkles className="h-3.5 w-3.5" />
+                          {fmtMinutes(freeMinutes)} Free Minutes
+                        </Badge>
+                        <h2 className="text-xl font-semibold">Live Interpreter Call</h2>
+                        <p className="text-sm text-muted-foreground">
+                          No payment needed — start talking right away
+                        </p>
+                      </div>
+
+                      <div className="w-full">
+                        <LanguagePair
+                          languages={languages}
+                          langFrom={langFrom}
+                          langTo={langTo}
+                          error={langError}
+                          onFromChange={(v) => {
+                            setLangFrom(v);
+                            clearLangError();
+                          }}
+                          onToChange={(v) => {
+                            setLangTo(v);
+                            clearLangError();
+                          }}
+                        />
+                      </div>
+
+                      <Button
+                        size="lg"
+                        className="w-full bg-green-600 text-white hover:bg-green-700"
+                        onClick={() => handleStartCall()}
+                        disabled={starting}
+                      >
+                        {starting ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Connecting…
+                          </>
+                        ) : (
+                          "Start Free Call →"
+                        )}
+                      </Button>
+
+                      <p className="text-xs text-muted-foreground">
+                        First {fmtMinutes(freeMinutes)} minutes free. Unused minutes carry over.
                       </p>
                     </div>
-
-                    <div className="w-full">
-                      <LanguagePair
-                        languages={languages}
-                        langFrom={langFrom}
-                        langTo={langTo}
-                        error={langError}
-                        onFromChange={(v) => {
-                          setLangFrom(v);
-                          clearLangError();
-                        }}
-                        onToChange={(v) => {
-                          setLangTo(v);
-                          clearLangError();
-                        }}
-                      />
-                    </div>
-
-                    <Button
-                      size="lg"
-                      className="w-full bg-green-600 text-white hover:bg-green-700"
-                      onClick={() => handleStartCall()}
-                      disabled={starting}
-                    >
-                      {starting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Connecting…
-                        </>
-                      ) : (
-                        "Start Free Call →"
-                      )}
-                    </Button>
-
-                    <p className="text-xs text-muted-foreground">
-                      First {fmtMinutes(freeMinutes)} minutes free. Unused minutes carry over.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
               </div>
             )}
 

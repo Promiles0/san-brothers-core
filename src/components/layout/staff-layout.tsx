@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCapabilities } from "@/lib/staff/capability-context";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/lib/supabase";
+import { checkQueueAndNotify } from "@/lib/interpreter/check-queue";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -69,57 +70,9 @@ function useIncomingCall(
   // Track accepted calls so a channel reconnect / poll replay never re-shows them.
   const acceptedCallIds = useRef<Set<string>>(new Set());
 
-  // Notify queued clients when this interpreter comes online, then show interpreter a toast.
-  const checkQueue = async () => {
-    if (!profileId || !interpreterLanguages?.length) return;
-
-    const { data: queuedClients } = await supabase
-      .from("interpreter_queue")
-      .select("id, client_id, language_from, language_to")
-      .eq("status", "waiting");
-
-    if (!queuedClients?.length) return;
-
-    type QueueRow = { id: string; client_id: string; language_from: string; language_to: string };
-
-    // Strict language-pair match; unsupported_language entries are never in this table
-    const matches = (queuedClients as QueueRow[]).filter((entry) =>
-      interpreterLanguages.some(
-        (pair) => pair.from === entry.language_from && pair.to === entry.language_to,
-      ),
-    );
-
-    if (!matches.length) return;
-
-    await supabase.from("notifications").insert(
-      matches.map((entry) => ({
-        user_id: entry.client_id,
-        type: "interpreter_available",
-        title: "Interpreter now available",
-        body: `An interpreter for ${formatLangName(entry.language_from)} → ${formatLangName(entry.language_to)} just finished and is ready for your call`,
-        link: `/dashboard/interpreter?language_from=${entry.language_from}&language_to=${entry.language_to}`,
-        is_read: false,
-      })),
-    );
-
-    await supabase
-      .from("interpreter_queue")
-      .update({ status: "notified", notified_at: new Date().toISOString() })
-      .in(
-        "id",
-        matches.map((e) => e.id),
-      );
-
-    toast.info(
-      matches.length === 1
-        ? "A client is waiting for your language pair"
-        : `${matches.length} clients are waiting for your language pair`,
-    );
-  };
-
   useEffect(() => {
     if (!profileId || !isActiveInterpreter || availabilityStatus !== "online" || !interpreterLanguages?.length) return;
-    void checkQueue();
+    void checkQueueAndNotify(interpreterLanguages, profileId);
   }, [profileId, isActiveInterpreter, availabilityStatus]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const dismiss = () => {

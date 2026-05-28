@@ -4,6 +4,7 @@ import { Phone, PhoneOff, ArrowRightLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
+import { checkQueueAndNotify } from "@/lib/interpreter/check-queue";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -69,52 +70,11 @@ const LANGUAGE_NAMES: Record<string, string> = {
 const formatLangPair = (from: string, to: string) =>
   `${LANGUAGE_NAMES[from] ?? from} → ${LANGUAGE_NAMES[to] ?? to}`;
 
-// Send notifications to all waiting queue clients whose language pair this interpreter covers,
-// then mark those entries as notified so staff-layout's checkQueue doesn't double-send.
-async function notifyQueuedClients(profile: { interpreter_languages: unknown }) {
-  const langs = profile.interpreter_languages as Array<{ from: string; to: string }> | null;
-  if (!langs?.length) return;
-
-  const { data: queuedClients } = await supabase
-    .from("interpreter_queue")
-    .select("id, client_id, language_from, language_to")
-    .eq("status", "waiting");
-
-  if (!queuedClients?.length) return;
-
-  type QueueRow = { id: string; client_id: string; language_from: string; language_to: string };
-
-  const matches = (queuedClients as QueueRow[]).filter((entry) =>
-    langs.some((pair) => pair.from === entry.language_from && pair.to === entry.language_to),
-  );
-
-  if (!matches.length) return;
-
-  await supabase.from("notifications").insert(
-    matches.map((entry) => ({
-      user_id: entry.client_id,
-      type: "interpreter_available",
-      title: "Interpreter now available",
-      body: `An interpreter for ${LANGUAGE_NAMES[entry.language_from] ?? entry.language_from} → ${LANGUAGE_NAMES[entry.language_to] ?? entry.language_to} just finished and is ready for your call`,
-      link: `/dashboard/interpreter?language_from=${entry.language_from}&language_to=${entry.language_to}`,
-      is_read: false,
-    })),
-  );
-
-  await supabase
-    .from("interpreter_queue")
-    .update({ status: "notified", notified_at: new Date().toISOString() })
-    .in(
-      "id",
-      matches.map((e) => e.id),
-    );
-}
-
 // ── Component ─────────────────────────────────────────────────────────────────
 
 function InterpreterCallScreen() {
   const { callId } = Route.useParams();
-  const { profile } = useAuth();
+  const { profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   const [call, setCall] = useState<InterpreterCall | null>(null);
@@ -248,7 +208,11 @@ function InterpreterCallScreen() {
 
     if (profile?.id) {
       await supabase.from("users").update({ availability_status: "online" }).eq("id", profile.id);
-      await notifyQueuedClients(profile);
+      await refreshProfile();
+      await checkQueueAndNotify(
+        (profile.interpreter_languages as Array<{ from: string; to: string }>) || [],
+        profile.id,
+      );
     }
 
     window.location.href = "/staff";
@@ -262,7 +226,11 @@ function InterpreterCallScreen() {
 
     if (profile?.id) {
       await supabase.from("users").update({ availability_status: "online" }).eq("id", profile.id);
-      await notifyQueuedClients(profile);
+      await refreshProfile();
+      await checkQueueAndNotify(
+        (profile.interpreter_languages as Array<{ from: string; to: string }>) || [],
+        profile.id,
+      );
     }
 
     navigate({ to: "/staff" } as never);
