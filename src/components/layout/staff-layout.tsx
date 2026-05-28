@@ -33,6 +33,7 @@ interface IncomingCall {
   hold_start?: string | null;
   total_hold_seconds?: number;
   forwarded_to?: string | null;
+  preferred_interpreter_id?: string | null;
 }
 
 // ── useIncomingCall hook ───────────────────────────────────────────────────────
@@ -197,6 +198,12 @@ function useIncomingCall(
             );
             if (!isMatch) return;
 
+            // JS filter 3: preferred interpreter routing — skip if call is directed at someone else
+            if (call.preferred_interpreter_id && call.preferred_interpreter_id !== profileId) {
+              console.log("[IncomingCall] Skipping — call directed to another interpreter:", call.preferred_interpreter_id);
+              return;
+            }
+
             // Realtime path fires in an event handler context (user was on the
             // page) — audio is allowed.
             await showCall(call, true);
@@ -263,10 +270,12 @@ function useIncomingCall(
       }
       if (!data?.length) return;
 
-      const match = data.find((call) =>
-        interpreterLanguages.some(
-          (pair) => pair.from === call.language_from && pair.to === call.language_to,
-        ),
+      const match = data.find(
+        (call) =>
+          interpreterLanguages.some(
+            (pair) => pair.from === call.language_from && pair.to === call.language_to,
+          ) &&
+          (!call.preferred_interpreter_id || call.preferred_interpreter_id === profileId),
       );
 
       if (match && !incomingCallRef.current) {
@@ -544,6 +553,13 @@ export function StaffLayout({
     </div>
   );
 }
+
+/*
+ * ── Schema migration — run once in Supabase SQL Editor ────────────────────────
+ *
+ * ALTER TABLE interpreter_calls
+ *    ADD COLUMN IF NOT EXISTS preferred_interpreter_id uuid references users(id);
+ */
 
 /*
  * ── RLS POLICY — run once in Supabase SQL Editor ──────────────────────────────

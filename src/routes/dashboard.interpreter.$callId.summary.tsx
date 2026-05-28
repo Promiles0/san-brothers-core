@@ -262,7 +262,7 @@ function CallSummaryPage() {
             onClick={() =>
               navigate({
                 to: "/dashboard/interpreter",
-                search: { interpreterId: interpreter.id },
+                search: { interpreterId: call.interpreter_id! },
               } as never)
             }
           >

@@ -1,9 +1,10 @@
 import { createFileRoute, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Headphones, Loader2, Star } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,6 +48,16 @@ interface MinutePackage {
   is_highlighted: boolean;
 }
 
+interface PreferredInterpreter {
+  id: string;
+  full_name: string;
+  profile_picture_url: string | null;
+  availability_status: string;
+  current_call_id: string | null;
+  lastLangFrom: string | undefined;
+  lastLangTo: string | undefined;
+}
+
 // ── Constants ──────────────────────────────────────────────────────────────────
 
 const TAB_ORDER = ["pay-as-you-go", "daily", "monthly", "yearly"];
@@ -71,6 +82,9 @@ function normalizeTab(tab: string): string {
 // ── Route ─────────────────────────────────────────────────────────────────────
 
 export const Route = createFileRoute("/dashboard/interpreter")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    interpreterId: typeof search.interpreterId === "string" ? search.interpreterId : undefined,
+  }),
   component: InterpreterPage,
 });
 
@@ -92,6 +106,7 @@ function InterpreterPage() {
 function InterpreterLandingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { interpreterId } = Route.useSearch();
 
   const [dataLoading, setDataLoading] = useState(true);
   const [minutes, setMinutes] = useState<ClientMinutes | null>(null);
@@ -105,6 +120,11 @@ function InterpreterLandingPage() {
 
   const [activeTab, setActiveTab] = useState(TAB_ORDER[0]);
   const [purchasing, setPurchasing] = useState<string | null>(null);
+
+  const [preferredInterp, setPreferredInterp] = useState<PreferredInterpreter | null>(null);
+  const [preferredInterpLoading, setPreferredInterpLoading] = useState(false);
+  const [showPreferredCard, setShowPreferredCard] = useState(true);
+  const normalFlowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -128,6 +148,41 @@ function InterpreterLandingPage() {
       setDataLoading(false);
     });
   }, [user]);
+
+  useEffect(() => {
+    if (!interpreterId || !user) return;
+    setPreferredInterpLoading(true);
+    void (async () => {
+      const [interpRes, lastCallRes] = await Promise.all([
+        supabase
+          .from("users")
+          .select("id,full_name,profile_picture_url,availability_status,current_call_id")
+          .eq("id", interpreterId)
+          .single(),
+        supabase
+          .from("interpreter_calls")
+          .select("language_from,language_to")
+          .eq("client_id", user.id)
+          .eq("interpreter_id", interpreterId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+      ]);
+
+      if (interpRes.data) {
+        const lastFrom = lastCallRes.data?.language_from;
+        const lastTo = lastCallRes.data?.language_to;
+        setPreferredInterp({
+          ...(interpRes.data as Omit<PreferredInterpreter, "lastLangFrom" | "lastLangTo">),
+          lastLangFrom: lastFrom,
+          lastLangTo: lastTo,
+        });
+        if (lastFrom) setLangFrom(lastFrom);
+        if (lastTo) setLangTo(lastTo);
+      }
+      setPreferredInterpLoading(false);
+    })();
+  }, [interpreterId, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const freeMinutes = minutes?.free_minutes_remaining ?? 0;
   const paidMinutes = minutes?.paid_minutes_remaining ?? 0;
@@ -164,7 +219,7 @@ function InterpreterLandingPage() {
     return true;
   };
 
-  const handleStartCall = async () => {
+  const handleStartCall = async (preferredInterpreterId?: string) => {
     if (!validateLangs() || !user) return;
     setStarting(true);
 
@@ -179,6 +234,7 @@ function InterpreterLandingPage() {
           language_to: langTo,
           status: "ringing",
           is_free_call: freeMinutes > 0,
+          ...(preferredInterpreterId ? { preferred_interpreter_id: preferredInterpreterId } : {}),
         })
         .select()
         .single();
@@ -235,10 +291,18 @@ function InterpreterLandingPage() {
     }
   };
 
+  const isPreferredAvailable =
+    preferredInterp?.availability_status === "online" && !preferredInterp?.current_call_id;
+
+  // Hide the normal flow only when we're showing a live "call again" card for an available interpreter.
+  const showNormalFlow =
+    !interpreterId || !showPreferredCard || !preferredInterp || !isPreferredAvailable;
+
   if (pageState === "loading") {
     return (
       <div className="mx-auto max-w-xl space-y-4 pt-2">
         <Skeleton className="h-8 w-44" />
+        {interpreterId && <Skeleton className="h-48 w-full rounded-xl" />}
         <Skeleton className="h-72 w-full rounded-xl" />
       </div>
     );
@@ -253,46 +317,51 @@ function InterpreterLandingPage() {
         </p>
       </div>
 
-      {/* ── STATE 1: Free minutes available ── */}
-      {pageState === "first_time" && (
-        <Card>
-          <CardContent className="px-6 py-10">
-            <div className="flex flex-col items-center gap-5 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/15">
-                <Headphones className="h-8 w-8 text-green-600 dark:text-green-400" />
-              </div>
+      {/* ── Preferred interpreter card ── */}
+      {interpreterId && preferredInterpLoading && (
+        <Skeleton className="h-48 w-full rounded-xl" />
+      )}
 
-              <div className="space-y-2">
-                <h2 className="text-xl font-semibold">Live Interpreter Call</h2>
-                <p className="text-sm text-muted-foreground">
-                  You have {fmtMinutes(freeMinutes)} free minutes — no payment needed
-                </p>
-                <Badge className="bg-green-500/15 text-green-700 hover:bg-green-500/20 dark:text-green-300">
-                  FREE
+      {interpreterId && !preferredInterpLoading && preferredInterp && showPreferredCard && (
+        isPreferredAvailable ? (
+          /* Online + free → "Call [Name] Again" card */
+          <Card className="border-green-300 bg-green-500/5 dark:border-green-700">
+            <CardContent className="space-y-4 px-5 pb-5 pt-5">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={preferredInterp.profile_picture_url ?? undefined} />
+                  <AvatarFallback>{preferredInterp.full_name[0]}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <p className="font-semibold">{preferredInterp.full_name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    You spoke with this interpreter before
+                  </p>
+                </div>
+                <Badge className="bg-green-500/15 text-green-700 dark:text-green-300">
+                  Available
                 </Badge>
               </div>
 
-              <div className="w-full">
-                <LanguagePair
-                  languages={languages}
-                  langFrom={langFrom}
-                  langTo={langTo}
-                  error={langError}
-                  onFromChange={(v) => {
-                    setLangFrom(v);
-                    clearLangError();
-                  }}
-                  onToChange={(v) => {
-                    setLangTo(v);
-                    clearLangError();
-                  }}
-                />
-              </div>
+              <LanguagePair
+                languages={languages}
+                langFrom={langFrom}
+                langTo={langTo}
+                error={langError}
+                onFromChange={(v) => {
+                  setLangFrom(v);
+                  clearLangError();
+                }}
+                onToChange={(v) => {
+                  setLangTo(v);
+                  clearLangError();
+                }}
+              />
 
               <Button
                 size="lg"
                 className="w-full bg-green-600 text-white hover:bg-green-700"
-                onClick={handleStartCall}
+                onClick={() => handleStartCall(interpreterId)}
                 disabled={starting}
               >
                 {starting ? (
@@ -301,115 +370,221 @@ function InterpreterLandingPage() {
                     Connecting…
                   </>
                 ) : (
-                  "Start Free Call →"
+                  `Call ${preferredInterp.full_name} Again →`
                 )}
               </Button>
 
-              <p className="text-xs text-muted-foreground">
-                First {fmtMinutes(freeMinutes)} minutes free. Unused minutes carry over.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* ── STATE 2: Has paid minutes ── */}
-      {pageState === "has_minutes" && (
-        <>
-          <Card>
-            <CardContent className="space-y-2.5 px-5 pb-5 pt-5">
-              <div className="flex items-baseline justify-between">
-                <span className="text-sm font-medium">Your balance</span>
-                <span className="text-lg font-bold tabular-nums">
-                  {fmtMinutes(paidMinutes)}{" "}
-                  <span className="text-sm font-normal text-muted-foreground">min</span>
-                </span>
+              <button
+                type="button"
+                className="w-full text-center text-xs text-muted-foreground underline-offset-2 hover:underline"
+                onClick={() => setShowPreferredCard(false)}
+              >
+                Or find a different interpreter
+              </button>
+            </CardContent>
+          </Card>
+        ) : (
+          /* Offline / busy → amber unavailable card; normal flow renders below */
+          <Card className="border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/60">
+            <CardContent className="space-y-4 px-5 pb-5 pt-5">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={preferredInterp.profile_picture_url ?? undefined} />
+                  <AvatarFallback>{preferredInterp.full_name[0]}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold text-amber-900 dark:text-amber-100">
+                    {preferredInterp.full_name}
+                  </p>
+                  <p className="text-xs text-amber-700 dark:text-amber-300">
+                    {preferredInterp.full_name} is currently unavailable
+                  </p>
+                </div>
               </div>
-              <Progress
-                value={Math.min((paidMinutes / BALANCE_VISUAL_MAX) * 100, 100)}
-                className="h-2"
-              />
-              <p className="text-xs text-muted-foreground">
-                {fmtMinutes(paidMinutes)} minutes remaining
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                They may be on another call or offline.
               </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="space-y-4 px-5 pb-5 pt-5">
-              <LanguagePair
-                languages={languages}
-                langFrom={langFrom}
-                langTo={langTo}
-                error={langError}
-                onFromChange={(v) => {
-                  setLangFrom(v);
-                  clearLangError();
-                }}
-                onToChange={(v) => {
-                  setLangTo(v);
-                  clearLangError();
-                }}
-              />
-              <Button size="lg" className="w-full" onClick={handleStartCall} disabled={starting}>
-                {starting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Connecting…
-                  </>
-                ) : (
-                  "Call Now →"
-                )}
+              <Button
+                variant="outline"
+                className="w-full border-amber-400 bg-amber-100 text-amber-900 hover:bg-amber-200 dark:border-amber-600 dark:bg-amber-900/40 dark:text-amber-100 dark:hover:bg-amber-900/70"
+                onClick={() => normalFlowRef.current?.scrollIntoView({ behavior: "smooth" })}
+              >
+                Find Another Interpreter
               </Button>
             </CardContent>
           </Card>
-        </>
+        )
       )}
 
-      {/* ── STATE 3: No minutes left ── */}
-      {pageState === "no_minutes" && (
-        <>
-          <div className="flex items-center gap-2.5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/60 dark:text-amber-200">
-            <Headphones className="h-4 w-4 shrink-0" />
-            <span>You've used your free minutes — buy minutes to continue</span>
-          </div>
+      {/* ── Normal flow ── */}
+      <div ref={normalFlowRef} className="space-y-6">
+        {showNormalFlow && (
+          <>
+            {/* STATE 1: Free minutes available */}
+            {pageState === "first_time" && (
+              <Card>
+                <CardContent className="px-6 py-10">
+                  <div className="flex flex-col items-center gap-5 text-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/15">
+                      <Headphones className="h-8 w-8 text-green-600 dark:text-green-400" />
+                    </div>
 
-          <PackagePicker
-            tabs={availableTabs}
-            activeTab={activeTab}
-            packagesByTab={packagesByTab}
-            purchasing={purchasing}
-            onTabChange={setActiveTab}
-            onPurchase={handlePurchase}
-          />
+                    <div className="space-y-2">
+                      <h2 className="text-xl font-semibold">Live Interpreter Call</h2>
+                      <p className="text-sm text-muted-foreground">
+                        You have {fmtMinutes(freeMinutes)} free minutes — no payment needed
+                      </p>
+                      <Badge className="bg-green-500/15 text-green-700 hover:bg-green-500/20 dark:text-green-300">
+                        FREE
+                      </Badge>
+                    </div>
 
-          <Card>
-            <CardContent className="space-y-4 px-5 pb-5 pt-5">
-              <LanguagePair
-                languages={languages}
-                langFrom={langFrom}
-                langTo={langTo}
-                error={langError}
-                onFromChange={(v) => {
-                  setLangFrom(v);
-                  clearLangError();
-                }}
-                onToChange={(v) => {
-                  setLangTo(v);
-                  clearLangError();
-                }}
-                disabled
-              />
-              <Button size="lg" className="w-full" disabled>
-                Call Now →
-              </Button>
-              <p className="text-center text-xs text-muted-foreground">
-                Purchase minutes above to enable calling
-              </p>
-            </CardContent>
-          </Card>
-        </>
-      )}
+                    <div className="w-full">
+                      <LanguagePair
+                        languages={languages}
+                        langFrom={langFrom}
+                        langTo={langTo}
+                        error={langError}
+                        onFromChange={(v) => {
+                          setLangFrom(v);
+                          clearLangError();
+                        }}
+                        onToChange={(v) => {
+                          setLangTo(v);
+                          clearLangError();
+                        }}
+                      />
+                    </div>
+
+                    <Button
+                      size="lg"
+                      className="w-full bg-green-600 text-white hover:bg-green-700"
+                      onClick={() => handleStartCall()}
+                      disabled={starting}
+                    >
+                      {starting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Connecting…
+                        </>
+                      ) : (
+                        "Start Free Call →"
+                      )}
+                    </Button>
+
+                    <p className="text-xs text-muted-foreground">
+                      First {fmtMinutes(freeMinutes)} minutes free. Unused minutes carry over.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* STATE 2: Has paid minutes */}
+            {pageState === "has_minutes" && (
+              <>
+                <Card>
+                  <CardContent className="space-y-2.5 px-5 pb-5 pt-5">
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-sm font-medium">Your balance</span>
+                      <span className="text-lg font-bold tabular-nums">
+                        {fmtMinutes(paidMinutes)}{" "}
+                        <span className="text-sm font-normal text-muted-foreground">min</span>
+                      </span>
+                    </div>
+                    <Progress
+                      value={Math.min((paidMinutes / BALANCE_VISUAL_MAX) * 100, 100)}
+                      className="h-2"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {fmtMinutes(paidMinutes)} minutes remaining
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="space-y-4 px-5 pb-5 pt-5">
+                    <LanguagePair
+                      languages={languages}
+                      langFrom={langFrom}
+                      langTo={langTo}
+                      error={langError}
+                      onFromChange={(v) => {
+                        setLangFrom(v);
+                        clearLangError();
+                      }}
+                      onToChange={(v) => {
+                        setLangTo(v);
+                        clearLangError();
+                      }}
+                    />
+                    <Button
+                      size="lg"
+                      className="w-full"
+                      onClick={() => handleStartCall()}
+                      disabled={starting}
+                    >
+                      {starting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Connecting…
+                        </>
+                      ) : (
+                        "Call Now →"
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+
+            {/* STATE 3: No minutes left */}
+            {pageState === "no_minutes" && (
+              <>
+                <div className="flex items-center gap-2.5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/60 dark:text-amber-200">
+                  <Headphones className="h-4 w-4 shrink-0" />
+                  <span>You've used your free minutes — buy minutes to continue</span>
+                </div>
+
+                <PackagePicker
+                  tabs={availableTabs}
+                  activeTab={activeTab}
+                  packagesByTab={packagesByTab}
+                  purchasing={purchasing}
+                  onTabChange={setActiveTab}
+                  onPurchase={handlePurchase}
+                />
+
+                <Card>
+                  <CardContent className="space-y-4 px-5 pb-5 pt-5">
+                    <LanguagePair
+                      languages={languages}
+                      langFrom={langFrom}
+                      langTo={langTo}
+                      error={langError}
+                      onFromChange={(v) => {
+                        setLangFrom(v);
+                        clearLangError();
+                      }}
+                      onToChange={(v) => {
+                        setLangTo(v);
+                        clearLangError();
+                      }}
+                      disabled
+                    />
+                    <Button size="lg" className="w-full" disabled>
+                      Call Now →
+                    </Button>
+                    <p className="text-center text-xs text-muted-foreground">
+                      Purchase minutes above to enable calling
+                    </p>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
