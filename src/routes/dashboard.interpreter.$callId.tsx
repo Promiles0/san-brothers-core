@@ -59,6 +59,17 @@ function fmt(totalSeconds: number): string {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  fr: "French",
+  zh: "Chinese",
+  rw: "Kinyarwanda",
+  sw: "Kiswahili",
+};
+
+const formatLangPair = (from: string, to: string) =>
+  `${LANGUAGE_NAMES[from] ?? from} → ${LANGUAGE_NAMES[to] ?? to}`;
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 function ActiveCallPage() {
@@ -484,7 +495,7 @@ function ActiveCallPage() {
         <div className="space-y-2">
           <h2 className="text-xl font-semibold">Finding your interpreter...</h2>
           <p className="text-sm text-muted-foreground">
-            {call.language_from} → {call.language_to}
+            {formatLangPair(call.language_from, call.language_to)}
           </p>
         </div>
 

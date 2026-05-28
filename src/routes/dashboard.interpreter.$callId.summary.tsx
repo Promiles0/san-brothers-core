@@ -54,6 +54,17 @@ function fmt(totalSeconds: number): string {
   return `${String(m).padStart(2, "0")}:${String(rem).padStart(2, "0")}`;
 }
 
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  fr: "French",
+  zh: "Chinese",
+  rw: "Kinyarwanda",
+  sw: "Kiswahili",
+};
+
+const formatLangPair = (from: string, to: string) =>
+  `${LANGUAGE_NAMES[from] ?? from} → ${LANGUAGE_NAMES[to] ?? to}`;
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 function CallSummaryPage() {
@@ -170,7 +181,7 @@ function CallSummaryPage() {
             <div>
               <p className="text-xs text-muted-foreground">Languages</p>
               <p className="font-medium">
-                {call.language_from} → {call.language_to}
+                {formatLangPair(call.language_from, call.language_to)}
               </p>
             </div>
             <div>

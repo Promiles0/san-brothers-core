@@ -53,7 +53,6 @@ interface PreferredInterpreter {
   full_name: string;
   profile_picture_url: string | null;
   availability_status: string;
-  current_call_id: string | null;
   lastLangFrom: string | undefined;
   lastLangTo: string | undefined;
 }
@@ -156,7 +155,7 @@ function InterpreterLandingPage() {
       const [interpRes, lastCallRes] = await Promise.all([
         supabase
           .from("users")
-          .select("id,full_name,profile_picture_url,availability_status,current_call_id")
+          .select("id,full_name,profile_picture_url,availability_status")
           .eq("id", interpreterId)
           .single(),
         supabase
@@ -174,8 +173,8 @@ function InterpreterLandingPage() {
         const lastTo = lastCallRes.data?.language_to;
         setPreferredInterp({
           ...(interpRes.data as Omit<PreferredInterpreter, "lastLangFrom" | "lastLangTo">),
-          lastLangFrom: lastFrom,
-          lastLangTo: lastTo,
+          lastLangFrom: lastFrom ?? undefined,
+          lastLangTo: lastTo ?? undefined,
         });
         if (lastFrom) setLangFrom(lastFrom);
         if (lastTo) setLangTo(lastTo);
@@ -291,8 +290,7 @@ function InterpreterLandingPage() {
     }
   };
 
-  const isPreferredAvailable =
-    preferredInterp?.availability_status === "online" && !preferredInterp?.current_call_id;
+  const isPreferredAvailable = preferredInterp?.availability_status === "online";
 
   // Hide the normal flow only when we're showing a live "call again" card for an available interpreter.
   const showNormalFlow =

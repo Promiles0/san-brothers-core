@@ -58,6 +58,17 @@ function fmt(totalSeconds: number): string {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  fr: "French",
+  zh: "Chinese",
+  rw: "Kinyarwanda",
+  sw: "Kiswahili",
+};
+
+const formatLangPair = (from: string, to: string) =>
+  `${LANGUAGE_NAMES[from] ?? from} → ${LANGUAGE_NAMES[to] ?? to}`;
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 function InterpreterCallScreen() {
@@ -104,11 +115,11 @@ function InterpreterCallScreen() {
     }
   }, [callId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Realtime ─────────────────────────────────────────────────────────────────
+  // ── Realtime + polling ────────────────────────────────────────────────────────
 
   useEffect(() => {
     const channel = supabase
-      .channel("staff-call:" + callId)
+      .channel("staff-call-" + callId)
       .on(
         "postgres_changes",
         {
@@ -118,12 +129,37 @@ function InterpreterCallScreen() {
           filter: `id=eq.${callId}`,
         },
         (payload) => {
-          setCall(payload.new as InterpreterCall);
+          const updated = payload.new as InterpreterCall;
+          console.log("[StaffCall] status update:", updated.status);
+          if (updated.status === "completed" || updated.status === "cancelled") {
+            console.log("[StaffCall] Call ended by client, navigating away");
+            window.location.href = "/staff";
+          }
+          if (updated.status === "on_hold") {
+            setCall(updated);
+          }
         },
       )
       .subscribe();
+
+    const poll = setInterval(async () => {
+      const { data } = await supabase
+        .from("interpreter_calls")
+        .select("status")
+        .eq("id", callId)
+        .single();
+
+      console.log("[StaffCall] Poll status:", data?.status);
+
+      if (data?.status === "completed" || data?.status === "cancelled") {
+        clearInterval(poll);
+        window.location.href = "/staff";
+      }
+    }, 5000);
+
     return () => {
       void supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, [callId]);
 
@@ -154,19 +190,21 @@ function InterpreterCallScreen() {
     if (isEnding) return;
     setIsEnding(true);
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("interpreter_calls")
       .update({ status: "completed", ended_at: new Date().toISOString() })
-      .eq("id", callId);
+      .eq("id", callId)
+      .select()
+      .single();
+
+    console.log("[StaffEndCall] result:", { data, error });
 
     if (error) {
-      console.error("[StaffEndCall] Failed:", error.message);
-      toast.error("Could not end call: " + error.message);
+      toast.error("Failed: " + error.message);
       setIsEnding(false);
       return;
     }
 
-    console.log("[StaffEndCall] Ended, navigating to /staff");
     window.location.href = "/staff";
   };
 
@@ -220,7 +258,7 @@ function InterpreterCallScreen() {
           <div>
             <p className="text-lg font-semibold">{clientFirstName}</p>
             <p className="text-sm text-muted-foreground">
-              {call.language_from} → {call.language_to}
+              {formatLangPair(call.language_from, call.language_to)}
             </p>
           </div>
         </CardContent>
