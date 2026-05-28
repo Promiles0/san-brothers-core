@@ -366,20 +366,33 @@ function ActiveCallPage() {
     }
 
     const billedSecs = callSecondsRef.current;
+    const now = new Date().toISOString();
     console.log("[EndCall] Ending call:", callId, "| billedSecs:", billedSecs);
 
-    const { error } = await supabase
+    /*
+     * RLS NOTE — run once in Supabase SQL editor if the update fails with
+     * a permissions error (code 42501 or empty data returned):
+     *
+     * DROP POLICY IF EXISTS "Client can end own call" ON interpreter_calls;
+     * CREATE POLICY "Client can end own call" ON interpreter_calls
+     *   FOR UPDATE USING (client_id = auth.uid());
+     */
+    const { data: updatedCall, error } = await supabase
       .from("interpreter_calls")
       .update({
         status: "completed",
-        ended_at: new Date().toISOString(),
+        ended_at: now,
         billed_seconds: billedSecs,
       })
-      .eq("id", callId);
+      .eq("id", callId)
+      .select()
+      .single();
+
+    console.log("[EndCall] Update result:", { data: updatedCall, error });
 
     if (error) {
-      console.error("[EndCall] Failed to update call:", error);
-      toast.error("Failed to end call: " + error.message);
+      console.error("[EndCall] FAILED:", error.message, error.code);
+      toast.error("Failed: " + error.message);
       callEndedRef.current = false;
       setIsEnding(false);
       return;
@@ -394,7 +407,6 @@ function ActiveCallPage() {
       let paid: number;
 
       if (usedMin >= totalAvailable) {
-        // All minutes exhausted — zero both out explicitly.
         free = 0;
         paid = 0;
       } else if (usedMin <= o.free_minutes_remaining) {
@@ -414,11 +426,7 @@ function ActiveCallPage() {
     }
 
     console.log("[EndCall] Navigating to summary");
-    navigate({
-      to: "/dashboard/interpreter/$callId/summary",
-      params: { callId },
-      replace: true,
-    } as never);
+    window.location.href = `/dashboard/interpreter/${callId}/summary`;
   };
 
   // ── Render ────────────────────────────────────────────────────────────────────
