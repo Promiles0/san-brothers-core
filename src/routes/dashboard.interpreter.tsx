@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Headphones, Loader2, Star } from "lucide-react";
+import { Headphones, Loader2, Sparkles, Star } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
