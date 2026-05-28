@@ -389,6 +389,7 @@ function InterpreterLandingPage() {
               </button>
             </CardContent>
           </Card>
+          </div>
         ) : (
           /* Offline / busy → amber unavailable card; normal flow renders below */
           <Card className="border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/60">
