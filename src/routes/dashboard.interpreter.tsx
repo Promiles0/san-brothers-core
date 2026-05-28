@@ -488,6 +488,7 @@ function InterpreterLandingPage() {
                   </div>
                 </CardContent>
               </Card>
+              </div>
             )}
 
             {/* STATE 2: Has paid minutes */}
