@@ -1,6 +1,14 @@
-import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Sparkles, FolderOpen, MessageCircle, LayoutGrid, FileText, Plus } from "lucide-react";
+import {
+  Sparkles,
+  FolderOpen,
+  MessageCircle,
+  LayoutGrid,
+  FileText,
+  Plus,
+  Headphones,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +29,17 @@ interface ActiveService {
   services: { name_en: string; name_zh: string | null; name_rw: string | null } | null;
 }
 
+interface InterpreterCallSummary {
+  id: string;
+  status: string;
+  language_from: string;
+  language_to: string;
+  created_at: string;
+  ended_at: string | null;
+  interpreter_id: string | null;
+  interpreter_name: string | null;
+}
+
 export const Route = createFileRoute("/dashboard/")({
   validateSearch: (s: Record<string, unknown>) => ({
     intent: typeof s.intent === "string" ? s.intent : undefined,
@@ -31,11 +50,18 @@ function DashboardHome() {
   const { user, profile } = useAuth();
   const { t, locale } = useI18n();
   const { intent } = useSearch({ from: "/dashboard/" });
+  const navigate = useNavigate();
   const [active, setActive] = useState<ActiveService[] | null>(null);
   const [counts, setCounts] = useState({ docs: 0, messages: 0 });
   const [expiring, setExpiring] = useState<
     { id: string; visa_expiry_date: string; services: { name_en: string } | null }[]
   >([]);
+  const [activeInterpreterCall, setActiveInterpreterCall] = useState<
+    InterpreterCallSummary | null | undefined
+  >(undefined);
+  const [lastInterpreterCall, setLastInterpreterCall] = useState<InterpreterCallSummary | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!user) return;

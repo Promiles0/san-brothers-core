@@ -71,6 +71,7 @@ function InterpreterCallScreen() {
   const [callSeconds, setCallSeconds] = useState(0);
   const [releaseDialogOpen, setReleaseDialogOpen] = useState(false);
   const [forwardModalOpen, setForwardModalOpen] = useState(false);
+  const [isEnding, setIsEnding] = useState(false);
 
   const callTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -150,11 +151,23 @@ function InterpreterCallScreen() {
   // ── Actions ───────────────────────────────────────────────────────────────────
 
   const handleEndCall = async () => {
-    await supabase
+    if (isEnding) return;
+    setIsEnding(true);
+
+    const { error } = await supabase
       .from("interpreter_calls")
       .update({ status: "completed", ended_at: new Date().toISOString() })
       .eq("id", callId);
-    navigate({ to: "/staff" } as never);
+
+    if (error) {
+      console.error("[StaffEndCall] Failed:", error.message);
+      toast.error("Could not end call: " + error.message);
+      setIsEnding(false);
+      return;
+    }
+
+    console.log("[StaffEndCall] Ended, navigating to /staff");
+    window.location.href = "/staff";
   };
 
   const handleRelease = async () => {
@@ -228,9 +241,13 @@ function InterpreterCallScreen() {
           <ArrowRightLeft className="mr-2 h-4 w-4" />
           Hold & Forward
         </Button>
-        <Button variant="destructive" onClick={handleEndCall}>
-          <PhoneOff className="mr-2 h-4 w-4" />
-          End Call
+        <Button variant="destructive" onClick={handleEndCall} disabled={isEnding}>
+          {isEnding ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <PhoneOff className="mr-2 h-4 w-4" />
+          )}
+          {isEnding ? "Ending…" : "End Call"}
         </Button>
         <Button variant="outline" onClick={() => setReleaseDialogOpen(true)}>
           Release
