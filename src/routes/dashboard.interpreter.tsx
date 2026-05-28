@@ -79,49 +79,101 @@ function normalizeTab(tab: string): string {
 }
 
 // ── Availability check ────────────────────────────────────────────────────────
+//
+// RLS POLICIES — run these in Supabase SQL editor if clients always see no staff:
+//
+// CREATE POLICY "Clients can read interpreter availability"
+//   ON users FOR SELECT
+//   USING (
+//     interpreter_profile_complete = true
+//     AND EXISTS (
+//       SELECT 1 FROM staff_capabilities
+//       WHERE user_id = users.id
+//       AND capability = 'handle_live_calls'
+//     )
+//   );
+//
+// CREATE POLICY "Anyone can read staff capabilities"
+//   ON staff_capabilities FOR SELECT
+//   USING (true);
 
-async function checkAvailability(langFrom: string, langTo: string): Promise<boolean> {
-  const { data: capableStaff } = await supabase
+const checkAvailability = async (langFrom: string, langTo: string): Promise<boolean> => {
+  console.log("[Availability] Checking for:", langFrom, "->", langTo);
+
+  const { data: capableStaff, error: capError } = await supabase
     .from("staff_capabilities")
     .select("user_id")
     .eq("capability", "handle_live_calls");
 
-  if (!capableStaff?.length) return false;
+  console.log("[Availability] Capable staff:", capableStaff, capError);
+
+  if (!capableStaff?.length) {
+    console.log("[Availability] No capable staff found");
+    return false;
+  }
 
   const staffIds = capableStaff.map((s: { user_id: string }) => s.user_id);
+  console.log("[Availability] Staff IDs:", staffIds);
 
-  const { data: available } = await supabase
+  const { data: available, error: availError } = await supabase
     .from("users")
-    .select("id, interpreter_languages, availability_status")
-    .in("id", staffIds)
-    .eq("availability_status", "online")
-    .eq("interpreter_profile_complete", true);
+    .select(
+      "id, full_name, interpreter_languages, availability_status, interpreter_profile_complete",
+    )
+    .in("id", staffIds);
 
-  if (!available?.length) return false;
+  console.log("[Availability] All capable staff details:", available, availError);
+
+  const onlineStaff = available?.filter(
+    (s: { availability_status: string; interpreter_profile_complete: boolean }) =>
+      s.availability_status === "online" && s.interpreter_profile_complete === true,
+  );
+  console.log("[Availability] Online + complete staff:", onlineStaff);
+
+  if (!onlineStaff?.length) {
+    console.log("[Availability] No online staff");
+    return false;
+  }
 
   const { data: activeCalls } = await supabase
     .from("interpreter_calls")
     .select("interpreter_id")
-    .in("status", ["ringing", "active", "on_hold"])
-    .in("interpreter_id", staffIds);
+    .in("status", ["ringing", "active", "on_hold"]);
 
   const busyIds = new Set(
-    (activeCalls ?? []).map((c: { interpreter_id: string }) => c.interpreter_id),
+    (activeCalls ?? [])
+      .map((c: { interpreter_id: string | null }) => c.interpreter_id)
+      .filter(Boolean),
   );
+  console.log("[Availability] Busy interpreter IDs:", [...busyIds]);
 
   const trulyAvailable = (
-    available as Array<{
+    onlineStaff as Array<{
       id: string;
+      full_name: string;
       interpreter_languages: Array<{ from: string; to: string }> | null;
     }>
-  ).filter(
-    (staff) =>
-      !busyIds.has(staff.id) &&
-      staff.interpreter_languages?.some((pair) => pair.from === langFrom && pair.to === langTo),
-  );
+  ).filter((staff) => {
+    const notBusy = !busyIds.has(staff.id);
+    const hasLanguage = staff.interpreter_languages?.some(
+      (pair) => pair.from === langFrom && pair.to === langTo,
+    );
+    console.log(
+      "[Availability] Staff",
+      staff.full_name,
+      "| notBusy:",
+      notBusy,
+      "| hasLanguage:",
+      hasLanguage,
+      "| languages:",
+      staff.interpreter_languages,
+    );
+    return notBusy && hasLanguage;
+  });
 
+  console.log("[Availability] Truly available:", trulyAvailable);
   return trulyAvailable.length > 0;
-}
+};
 
 // ── Route ─────────────────────────────────────────────────────────────────────
 
