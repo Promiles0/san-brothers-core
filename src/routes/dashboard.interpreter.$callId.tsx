@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Phone, PhoneOff, Pause, Clock, Loader2 } from "lucide-react";
+import { Phone, PhoneOff, Pause, Clock, Loader2, Moon, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,6 +18,7 @@ interface InterpreterCall {
   language_from: string;
   language_to: string;
   status: "ringing" | "active" | "on_hold" | "completed" | "cancelled" | "queued";
+  queue_reason: "all_busy" | "none_online" | "unsupported_language" | null;
   is_free_call: boolean;
   interpreter_id: string | null;
   answered_at: string | null;
@@ -415,7 +416,7 @@ function ActiveCallPage() {
 
   const handleCancelCall = async () => {
     await supabase.from("interpreter_calls").update({ status: "cancelled" }).eq("id", callId);
-    navigate({ to: "/dashboard/interpreter" });
+    navigate({ to: "/dashboard/interpreter" } as never);
   };
 
   const handleCancelQueue = async () => {
@@ -426,7 +427,7 @@ function ActiveCallPage() {
         .eq("id", queueEntryId);
     }
     await supabase.from("interpreter_calls").update({ status: "cancelled" }).eq("id", callId);
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/dashboard" } as never);
   };
 
   const handleEndCall = async () => {
@@ -526,26 +527,102 @@ function ActiveCallPage() {
 
   // ── Queued (no interpreter found) ─────────────────────────────────────────────
   if (call.status === "queued") {
+    const reason = call.queue_reason ?? "none_online";
+
+    if (reason === "unsupported_language") {
+      return (
+        <div className="mx-auto flex max-w-md flex-col items-center gap-6 py-16 text-center">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40">
+            <XCircle className="h-10 w-10 text-red-600 dark:text-red-400" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold">Language pair not yet supported</h2>
+            <p className="text-sm text-muted-foreground">
+              {formatLangPair(call.language_from, call.language_to)}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              We don't currently have interpreters for this language combination.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Try a different language combination or contact our support team.
+            </p>
+          </div>
+          <div className="flex w-full flex-col gap-3">
+            <Button onClick={() => navigate({ to: "/dashboard/interpreter" } as never)}>
+              Try Different Languages
+            </Button>
+            <Button
+              variant="ghost"
+              className="text-muted-foreground"
+              onClick={() => navigate({ to: "/dashboard/messages" } as never)}
+            >
+              Contact Support
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    if (reason === "all_busy") {
+      return (
+        <div className="mx-auto flex max-w-md flex-col items-center gap-6 py-16 text-center">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
+            <Clock className="h-10 w-10 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold">Your interpreter is finishing another call</h2>
+            <p className="text-sm text-muted-foreground">
+              {formatLangPair(call.language_from, call.language_to)}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              An interpreter who speaks {formatLangPair(call.language_from, call.language_to)} is
+              currently with another client.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              We'll notify you as soon as they're available.
+            </p>
+          </div>
+          <div className="w-full rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/60 dark:text-amber-200">
+            This usually takes a few minutes.
+          </div>
+          <div className="flex w-full flex-col gap-3">
+            <Button variant="outline" onClick={() => navigate({ to: "/dashboard" } as never)}>
+              Back to Dashboard
+            </Button>
+            <Button
+              variant="ghost"
+              className="text-muted-foreground hover:text-destructive"
+              onClick={handleCancelQueue}
+            >
+              Cancel &amp; Leave Queue
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    // reason === "none_online"
     return (
       <div className="mx-auto flex max-w-md flex-col items-center gap-6 py-16 text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
-          <Clock className="h-10 w-10 text-amber-600 dark:text-amber-400" />
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800/60">
+          <Moon className="h-10 w-10 text-slate-500 dark:text-slate-400" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-xl font-semibold">No interpreter available right now</h2>
+          <h2 className="text-xl font-semibold">No interpreter online right now</h2>
           <p className="text-sm text-muted-foreground">
             {formatLangPair(call.language_from, call.language_to)}
           </p>
           <p className="text-sm text-muted-foreground">
-            We'll notify you as soon as one becomes available.
+            We'll notify you when an interpreter for{" "}
+            {formatLangPair(call.language_from, call.language_to)} comes online.
           </p>
         </div>
-        <div className="w-full rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/60 dark:text-amber-200">
+        <div className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300">
           You'll receive a notification when an interpreter is ready. You can safely leave this
           page.
         </div>
         <div className="flex w-full flex-col gap-3">
-          <Button variant="outline" onClick={() => navigate({ to: "/dashboard" })}>
+          <Button variant="outline" onClick={() => navigate({ to: "/dashboard" } as never)}>
             Back to Dashboard
           </Button>
           <Button

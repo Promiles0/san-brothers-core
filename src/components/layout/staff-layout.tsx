@@ -24,6 +24,16 @@ import { supabase } from "@/lib/supabase";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  fr: "French",
+  zh: "Chinese",
+  rw: "Kinyarwanda",
+  sw: "Kiswahili",
+};
+
+const formatLangName = (code: string) => LANGUAGE_NAMES[code] ?? code;
+
 interface IncomingCall {
   id: string;
   client_id: string;
@@ -59,31 +69,52 @@ function useIncomingCall(
   // Track accepted calls so a channel reconnect / poll replay never re-shows them.
   const acceptedCallIds = useRef<Set<string>>(new Set());
 
-  // FIX 3: notify interpreter of queued clients when they come online
+  // Notify queued clients when this interpreter comes online, then show interpreter a toast.
   const checkQueue = async () => {
     if (!profileId || !interpreterLanguages?.length) return;
 
     const { data: queuedClients } = await supabase
       .from("interpreter_queue")
-      .select("language_from, language_to")
+      .select("id, client_id, language_from, language_to")
       .eq("status", "waiting");
 
     if (!queuedClients?.length) return;
 
-    const matches = (queuedClients as Array<{ language_from: string; language_to: string }>).filter(
-      (entry) =>
-        interpreterLanguages.some(
-          (pair) => pair.from === entry.language_from && pair.to === entry.language_to,
-        ),
+    type QueueRow = { id: string; client_id: string; language_from: string; language_to: string };
+
+    // Strict language-pair match; unsupported_language entries are never in this table
+    const matches = (queuedClients as QueueRow[]).filter((entry) =>
+      interpreterLanguages.some(
+        (pair) => pair.from === entry.language_from && pair.to === entry.language_to,
+      ),
     );
 
-    if (matches.length > 0) {
-      toast.info(
-        matches.length === 1
-          ? "A client is waiting for your language pair"
-          : `${matches.length} clients are waiting for your language pair`,
+    if (!matches.length) return;
+
+    await supabase.from("notifications").insert(
+      matches.map((entry) => ({
+        user_id: entry.client_id,
+        type: "interpreter_available",
+        title: "Interpreter now available",
+        body: `An interpreter for ${formatLangName(entry.language_from)} → ${formatLangName(entry.language_to)} just finished and is ready for your call`,
+        link: `/dashboard/interpreter?language_from=${entry.language_from}&language_to=${entry.language_to}`,
+        is_read: false,
+      })),
+    );
+
+    await supabase
+      .from("interpreter_queue")
+      .update({ status: "notified", notified_at: new Date().toISOString() })
+      .in(
+        "id",
+        matches.map((e) => e.id),
       );
-    }
+
+    toast.info(
+      matches.length === 1
+        ? "A client is waiting for your language pair"
+        : `${matches.length} clients are waiting for your language pair`,
+    );
   };
 
   useEffect(() => {

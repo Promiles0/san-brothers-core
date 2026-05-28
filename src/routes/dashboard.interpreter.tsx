@@ -96,8 +96,18 @@ function normalizeTab(tab: string): string {
 // CREATE POLICY "Anyone can read staff capabilities"
 //   ON staff_capabilities FOR SELECT
 //   USING (true);
+//
+// Schema migrations — run once:
+// ALTER TABLE interpreter_calls ADD COLUMN IF NOT EXISTS queue_reason text;
+// ALTER TABLE interpreter_queue  ADD COLUMN IF NOT EXISTS queue_reason text;
 
-const checkAvailability = async (langFrom: string, langTo: string): Promise<boolean> => {
+type AvailabilityResult =
+  | { available: true }
+  | { available: false; reason: "all_busy" }
+  | { available: false; reason: "none_online" }
+  | { available: false; reason: "unsupported_language" };
+
+const checkAvailability = async (langFrom: string, langTo: string): Promise<AvailabilityResult> => {
   console.log("[Availability] Checking for:", langFrom, "->", langTo);
 
   const { data: capableStaff, error: capError } = await supabase
@@ -109,32 +119,52 @@ const checkAvailability = async (langFrom: string, langTo: string): Promise<bool
 
   if (!capableStaff?.length) {
     console.log("[Availability] No capable staff found");
-    return false;
+    return { available: false, reason: "unsupported_language" };
   }
 
   const staffIds = capableStaff.map((s: { user_id: string }) => s.user_id);
   console.log("[Availability] Staff IDs:", staffIds);
 
-  const { data: available, error: availError } = await supabase
+  const { data: allStaff, error: availError } = await supabase
     .from("users")
     .select(
       "id, full_name, interpreter_languages, availability_status, interpreter_profile_complete",
     )
     .in("id", staffIds);
 
-  console.log("[Availability] All capable staff details:", available, availError);
+  console.log("[Availability] All capable staff details:", allStaff, availError);
 
-  const onlineStaff = available?.filter(
-    (s: { availability_status: string; interpreter_profile_complete: boolean }) =>
-      s.availability_status === "online" && s.interpreter_profile_complete === true,
+  type StaffRow = {
+    id: string;
+    full_name: string;
+    interpreter_languages: Array<{ from: string; to: string }> | null;
+    availability_status: string;
+    interpreter_profile_complete: boolean;
+  };
+
+  // Step 1: anyone with a complete profile who supports this language pair?
+  const langCapable = ((allStaff ?? []) as StaffRow[]).filter(
+    (s) =>
+      s.interpreter_profile_complete === true &&
+      s.interpreter_languages?.some((pair) => pair.from === langFrom && pair.to === langTo),
   );
-  console.log("[Availability] Online + complete staff:", onlineStaff);
+  console.log("[Availability] Language-capable staff:", langCapable);
 
-  if (!onlineStaff?.length) {
-    console.log("[Availability] No online staff");
-    return false;
+  if (!langCapable.length) {
+    console.log("[Availability] Unsupported language pair");
+    return { available: false, reason: "unsupported_language" };
   }
 
+  // Step 2: any of those online?
+  const onlineStaff = langCapable.filter((s) => s.availability_status === "online");
+  console.log("[Availability] Online + language-capable staff:", onlineStaff);
+
+  if (!onlineStaff.length) {
+    console.log("[Availability] None online");
+    return { available: false, reason: "none_online" };
+  }
+
+  // Step 3: any of those not on an active call?
   const { data: activeCalls } = await supabase
     .from("interpreter_calls")
     .select("interpreter_id")
@@ -147,32 +177,26 @@ const checkAvailability = async (langFrom: string, langTo: string): Promise<bool
   );
   console.log("[Availability] Busy interpreter IDs:", [...busyIds]);
 
-  const trulyAvailable = (
-    onlineStaff as Array<{
-      id: string;
-      full_name: string;
-      interpreter_languages: Array<{ from: string; to: string }> | null;
-    }>
-  ).filter((staff) => {
+  const trulyAvailable = onlineStaff.filter((staff) => {
     const notBusy = !busyIds.has(staff.id);
-    const hasLanguage = staff.interpreter_languages?.some(
-      (pair) => pair.from === langFrom && pair.to === langTo,
-    );
     console.log(
       "[Availability] Staff",
       staff.full_name,
       "| notBusy:",
       notBusy,
-      "| hasLanguage:",
-      hasLanguage,
       "| languages:",
       staff.interpreter_languages,
     );
-    return notBusy && hasLanguage;
+    return notBusy;
   });
 
   console.log("[Availability] Truly available:", trulyAvailable);
-  return trulyAvailable.length > 0;
+
+  if (!trulyAvailable.length) {
+    return { available: false, reason: "all_busy" };
+  }
+
+  return { available: true };
 };
 
 // ── Route ─────────────────────────────────────────────────────────────────────
@@ -327,9 +351,9 @@ function InterpreterLandingPage() {
     setStarting(true);
 
     try {
-      const hasAvailable = await checkAvailability(langFrom, langTo);
+      const result = await checkAvailability(langFrom, langTo);
 
-      if (!hasAvailable) {
+      if (!result.available) {
         const { data: callRow, error: callError } = await supabase
           .from("interpreter_calls")
           .insert({
@@ -338,6 +362,7 @@ function InterpreterLandingPage() {
             language_to: langTo,
             status: "queued",
             is_free_call: freeMinutes > 0,
+            queue_reason: result.reason,
           })
           .select()
           .single();
@@ -348,12 +373,16 @@ function InterpreterLandingPage() {
           return;
         }
 
-        await supabase.from("interpreter_queue").insert({
-          client_id: user.id,
-          language_from: langFrom,
-          language_to: langTo,
-          status: "waiting",
-        });
+        // unsupported_language has no queue entry — no interpreter can ever fill it
+        if (result.reason !== "unsupported_language") {
+          await supabase.from("interpreter_queue").insert({
+            client_id: user.id,
+            language_from: langFrom,
+            language_to: langTo,
+            status: "waiting",
+            queue_reason: result.reason,
+          });
+        }
 
         setStarting(false);
         navigate({

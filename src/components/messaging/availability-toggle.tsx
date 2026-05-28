@@ -35,7 +35,7 @@ interface QueueEntry {
 }
 
 export function AvailabilityToggle() {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const [status, setStatus] = useState<string>("online");
 
   useEffect(() => {
@@ -105,6 +105,7 @@ export function AvailabilityToggle() {
     }
     toast.success(`Status set to ${next}`);
     if (next === "online") await checkQueue();
+    await refreshProfile();
   };
 
   const current = OPTIONS.find((o) => o.key === status) ?? OPTIONS[0];
