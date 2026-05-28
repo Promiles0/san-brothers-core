@@ -68,14 +68,15 @@ function ActiveCallPage() {
   const [callSeconds, setCallSeconds] = useState(0);
   const [holdSeconds, setHoldSeconds] = useState(0);
   const [warned, setWarned] = useState(false);
+  const [isEnding, setIsEnding] = useState(false);
 
   const callTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const holdTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const billingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const queueTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // BUG 3 FIX: guard against handleEndCall being invoked more than once
-  // (e.g. user clicks "End Call" the same tick the minutes-zero effect fires).
+  // guard against handleEndCall being invoked more than once
   const callEndedRef = useRef(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Snapshot of minutes at call start so billing diffs correctly
   const originalMinutesRef = useRef<ClientMinutes | null>(null);
@@ -157,7 +158,13 @@ function ActiveCallPage() {
             void fetchInterpreter(updated.interpreter_id);
           }
           if (updated.status === "completed" || updated.status === "cancelled") {
-            navigate({ to: "/dashboard/interpreter/$callId/summary", params: { callId } } as never);
+            if (!callEndedRef.current) {
+              navigate({
+                to: "/dashboard/interpreter/$callId/summary",
+                params: { callId },
+                replace: true,
+              } as never);
+            }
           }
         },
       )
@@ -192,18 +199,26 @@ function ActiveCallPage() {
 
       setCall(updated);
 
-      // Fetch interpreter profile as a separate, simple query when we first
-      // see an interpreter_id (avoids FK-join syntax that can silently fail).
       if (updated.interpreter_id) {
         void fetchInterpreter(updated.interpreter_id);
       }
 
       if (updated.status === "completed" || updated.status === "cancelled") {
-        navigate({ to: "/dashboard/interpreter/$callId/summary", params: { callId } } as never);
+        if (!callEndedRef.current) {
+          navigate({
+            to: "/dashboard/interpreter/$callId/summary",
+            params: { callId },
+            replace: true,
+          } as never);
+        }
       }
     }, 3000);
 
-    return () => clearInterval(interval);
+    pollRef.current = interval;
+    return () => {
+      clearInterval(interval);
+      pollRef.current = null;
+    };
   }, [callId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Ringing → queue after 30s ─────────────────────────────────────────────────
@@ -335,12 +350,16 @@ function ActiveCallPage() {
 
   const handleEndCall = async () => {
     if (!call || callEndedRef.current) return;
-    // BUG 3 FIX: mark ended immediately so re-entrant calls (double-click or
-    // the minutes-zero effect firing in the same tick) are no-ops.
     callEndedRef.current = true;
+    setIsEnding(true);
 
-    // Stop the billing interval right away — don't let it fire one more time
-    // while the DB update is in-flight.
+    // Stop polling immediately so it can't race the navigation below.
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+
+    // Stop the billing interval so it doesn't fire while the DB update is in-flight.
     if (billingTimerRef.current) {
       clearInterval(billingTimerRef.current);
       billingTimerRef.current = null;
@@ -361,8 +380,8 @@ function ActiveCallPage() {
     if (error) {
       console.error("[EndCall] Failed to update call:", error);
       toast.error("Failed to end call: " + error.message);
-      // Allow a retry by resetting the guard.
       callEndedRef.current = false;
+      setIsEnding(false);
       return;
     }
 
@@ -395,7 +414,11 @@ function ActiveCallPage() {
     }
 
     console.log("[EndCall] Navigating to summary");
-    navigate({ to: "/dashboard/interpreter/$callId/summary", params: { callId } } as never);
+    navigate({
+      to: "/dashboard/interpreter/$callId/summary",
+      params: { callId },
+      replace: true,
+    } as never);
   };
 
   // ── Render ────────────────────────────────────────────────────────────────────
@@ -554,9 +577,13 @@ function ActiveCallPage() {
           Video call will appear here — Daily.co integration pending
         </div>
 
-        <Button size="lg" variant="destructive" className="w-full" onClick={handleEndCall}>
-          <PhoneOff className="mr-2 h-4 w-4" />
-          End Call
+        <Button size="lg" variant="destructive" className="w-full" onClick={handleEndCall} disabled={isEnding}>
+          {isEnding ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <PhoneOff className="mr-2 h-4 w-4" />
+          )}
+          {isEnding ? "Ending..." : "End Call"}
         </Button>
       </div>
     );
