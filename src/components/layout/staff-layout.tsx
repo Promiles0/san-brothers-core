@@ -367,29 +367,52 @@ function IncomingCallOverlay({
     navigate({ to: "/staff/interpreter/$callId", params: { callId: call.id } } as never);
   };
 
+  const flagFor = (code: string): string => {
+    const map: Record<string, string> = {
+      EN: "🇬🇧",
+      FR: "🇫🇷",
+      ZH: "🇨🇳",
+      RW: "🇷🇼",
+      SW: "🇰🇪",
+      KS: "🇰🇪",
+    };
+    return map[code?.toUpperCase()] ?? "🌐";
+  };
+
   return (
-    <div className="fixed inset-0 z-200 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="mx-4 w-full max-w-sm rounded-2xl border border-border bg-background p-8 text-center shadow-2xl">
-        {/* Pulsing ring */}
-        <div className="relative mx-auto mb-6 flex h-24 w-24 items-center justify-center">
-          <div className="absolute h-24 w-24 animate-ping rounded-full bg-green-500/30" />
-          <div className="absolute h-18 w-18 animate-ping rounded-full bg-green-500/20 [animation-delay:400ms]" />
-          <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-green-500/15 ring-4 ring-green-500/40">
-            <Phone className="h-8 w-8 text-green-600 dark:text-green-400" />
+    <div className="fixed inset-0 z-200 flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="mx-4 w-full max-w-md rounded-3xl border border-green-500/30 bg-background p-10 text-center shadow-2xl shadow-green-500/20 animate-in zoom-in-95 duration-300">
+        {/* Dramatic pulsing rings */}
+        <div className="relative mx-auto mb-8 flex h-32 w-32 items-center justify-center">
+          <div className="absolute inset-0 animate-ping rounded-full bg-green-500/40" />
+          <div className="absolute inset-2 animate-ping rounded-full bg-green-500/30 [animation-delay:300ms]" />
+          <div className="absolute inset-4 animate-ping rounded-full bg-green-500/20 [animation-delay:600ms]" />
+          <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/50 ring-4 ring-green-400/60">
+            <Phone className="h-9 w-9 text-white" />
           </div>
         </div>
 
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Incoming Call
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-green-600 dark:text-green-400">
+          ● Incoming Call
         </p>
-        <h2 className="mt-1 text-2xl font-bold">
-          {call.language_from} → {call.language_to}
-        </h2>
+
+        {/* Language pair with prominent flags */}
+        <div className="mt-4 flex items-center justify-center gap-3 text-3xl font-bold">
+          <span className="flex items-center gap-2">
+            <span className="text-4xl leading-none">{flagFor(call.language_from)}</span>
+            <span>{call.language_from}</span>
+          </span>
+          <span className="text-muted-foreground">→</span>
+          <span className="flex items-center gap-2">
+            <span className="text-4xl leading-none">{flagFor(call.language_to)}</span>
+            <span>{call.language_to}</span>
+          </span>
+        </div>
+
         {callerName && (
-          <p className="mt-1 text-sm text-muted-foreground">From {callerName}</p>
+          <p className="mt-3 text-sm text-muted-foreground">From <span className="font-medium text-foreground">{callerName}</span></p>
         )}
 
-        {/* BUG 2 FIX: show a tap-to-unmute affordance when browser blocked audio */}
         {audioBlocked && (
           <button
             type="button"
@@ -401,23 +424,25 @@ function IncomingCallOverlay({
           </button>
         )}
 
-        <div className="mt-8 flex gap-3">
+        <div className="mt-9 flex items-center gap-3">
           <Button
             variant="outline"
-            className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
+            size="lg"
+            className="h-14 flex-1 border-destructive/40 text-destructive hover:bg-destructive/10"
             onClick={onDismiss}
             disabled={accepting}
           >
-            <PhoneOff className="mr-2 h-4 w-4" />
+            <PhoneOff className="mr-2 h-5 w-5" />
             Decline
           </Button>
           <Button
-            className="flex-1 bg-green-600 text-white hover:bg-green-700"
+            size="lg"
+            className="h-14 flex-[1.5] bg-gradient-to-r from-green-500 to-emerald-600 text-base font-semibold text-white shadow-lg shadow-green-600/40 hover:from-green-600 hover:to-emerald-700"
             onClick={handleAccept}
             disabled={accepting}
           >
-            <Phone className="mr-2 h-4 w-4" />
-            {accepting ? "Connecting…" : "Accept"}
+            <Phone className="mr-2 h-5 w-5" />
+            {accepting ? "Connecting…" : "Accept Call"}
           </Button>
         </div>
       </div>

@@ -14,6 +14,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as InterpreterRouteImport } from './routes/interpreter'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DevRouteImport } from './routes/dev'
@@ -120,6 +121,11 @@ const PricingRoute = PricingRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InterpreterRoute = InterpreterRouteImport.update({
+  id: '/interpreter',
+  path: '/interpreter',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -546,6 +552,7 @@ export interface FileRoutesByFullPath {
   '/dev': typeof DevRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/interpreter': typeof InterpreterRoute
   '/login': typeof LoginRouteWithChildren
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -633,6 +640,7 @@ export interface FileRoutesByTo {
   '/dev': typeof DevRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/interpreter': typeof InterpreterRoute
   '/login': typeof LoginRouteWithChildren
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -715,6 +723,7 @@ export interface FileRoutesById {
   '/dev': typeof DevRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/interpreter': typeof InterpreterRoute
   '/login': typeof LoginRouteWithChildren
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -806,6 +815,7 @@ export interface FileRouteTypes {
     | '/dev'
     | '/faq'
     | '/forgot-password'
+    | '/interpreter'
     | '/login'
     | '/pricing'
     | '/reset-password'
@@ -893,6 +903,7 @@ export interface FileRouteTypes {
     | '/dev'
     | '/faq'
     | '/forgot-password'
+    | '/interpreter'
     | '/login'
     | '/pricing'
     | '/reset-password'
@@ -974,6 +985,7 @@ export interface FileRouteTypes {
     | '/dev'
     | '/faq'
     | '/forgot-password'
+    | '/interpreter'
     | '/login'
     | '/pricing'
     | '/reset-password'
@@ -1064,6 +1076,7 @@ export interface RootRouteChildren {
   DevRoute: typeof DevRoute
   FaqRoute: typeof FaqRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  InterpreterRoute: typeof InterpreterRoute
   LoginRoute: typeof LoginRouteWithChildren
   PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -1119,6 +1132,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/interpreter': {
+      id: '/interpreter'
+      path: '/interpreter'
+      fullPath: '/interpreter'
+      preLoaderRoute: typeof InterpreterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -1971,6 +1991,7 @@ const rootRouteChildren: RootRouteChildren = {
   DevRoute: DevRoute,
   FaqRoute: FaqRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  InterpreterRoute: InterpreterRoute,
   LoginRoute: LoginRouteWithChildren,
   PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
@@ -1993,13 +2014,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

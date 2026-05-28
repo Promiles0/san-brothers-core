@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Headphones, Loader2, Star } from "lucide-react";
+import { Headphones, Loader2, Sparkles, Star } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
@@ -329,8 +329,9 @@ function InterpreterLandingPage() {
 
       {interpreterId && !preferredInterpLoading && preferredInterp && showPreferredCard && (
         isPreferredAvailable ? (
-          /* Online + free → "Call [Name] Again" card */
-          <Card className="border-green-300 bg-green-500/5 dark:border-green-700">
+          /* Online + free → "Call [Name] Again" card with subtle gradient border */
+          <div className="rounded-xl bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 p-[1.5px] shadow-lg shadow-green-500/20">
+          <Card className="border-0 bg-background rounded-[calc(0.75rem-1.5px)]">
             <CardContent className="space-y-4 px-5 pb-5 pt-5">
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12">
@@ -388,6 +389,7 @@ function InterpreterLandingPage() {
               </button>
             </CardContent>
           </Card>
+          </div>
         ) : (
           /* Offline / busy → amber unavailable card; normal flow renders below */
           <Card className="border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/60">
@@ -427,21 +429,24 @@ function InterpreterLandingPage() {
           <>
             {/* STATE 1: Free minutes available */}
             {pageState === "first_time" && (
-              <Card>
+              <div className="rounded-xl bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 p-[1.5px] shadow-lg shadow-green-500/20">
+              <Card className="border-0 bg-background rounded-[calc(0.75rem-1.5px)]">
                 <CardContent className="px-6 py-10">
                   <div className="flex flex-col items-center gap-5 text-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/15">
-                      <Headphones className="h-8 w-8 text-green-600 dark:text-green-400" />
+                    <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-green-500/15">
+                      <span className="absolute inset-0 animate-ping rounded-full bg-green-500/20" />
+                      <Headphones className="relative h-8 w-8 text-green-600 dark:text-green-400" />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-3">
+                      <Badge className="gap-1.5 bg-green-600 px-3 py-1 text-sm font-bold uppercase tracking-wider text-white shadow-md shadow-green-600/30 hover:bg-green-600">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        {fmtMinutes(freeMinutes)} Free Minutes
+                      </Badge>
                       <h2 className="text-xl font-semibold">Live Interpreter Call</h2>
                       <p className="text-sm text-muted-foreground">
-                        You have {fmtMinutes(freeMinutes)} free minutes — no payment needed
+                        No payment needed — start talking right away
                       </p>
-                      <Badge className="bg-green-500/15 text-green-700 hover:bg-green-500/20 dark:text-green-300">
-                        FREE
-                      </Badge>
                     </div>
 
                     <div className="w-full">
@@ -483,6 +488,7 @@ function InterpreterLandingPage() {
                   </div>
                 </CardContent>
               </Card>
+              </div>
             )}
 
             {/* STATE 2: Has paid minutes */}
