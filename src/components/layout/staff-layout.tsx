@@ -42,6 +42,7 @@ function useIncomingCall(
   profileId: string | undefined,
   isActiveInterpreter: boolean,
   interpreterLanguages: Array<{ from: string; to: string }> | null | undefined,
+  availabilityStatus: string | null | undefined,
 ) {
   const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
   const [callerName, setCallerName] = useState<string | null>(null);
@@ -57,6 +58,38 @@ function useIncomingCall(
   useEffect(() => { incomingCallRef.current = incomingCall; }, [incomingCall]);
   // Track accepted calls so a channel reconnect / poll replay never re-shows them.
   const acceptedCallIds = useRef<Set<string>>(new Set());
+
+  // FIX 3: notify interpreter of queued clients when they come online
+  const checkQueue = async () => {
+    if (!profileId || !interpreterLanguages?.length) return;
+
+    const { data: queuedClients } = await supabase
+      .from("interpreter_queue")
+      .select("language_from, language_to")
+      .eq("status", "waiting");
+
+    if (!queuedClients?.length) return;
+
+    const matches = (queuedClients as Array<{ language_from: string; language_to: string }>).filter(
+      (entry) =>
+        interpreterLanguages.some(
+          (pair) => pair.from === entry.language_from && pair.to === entry.language_to,
+        ),
+    );
+
+    if (matches.length > 0) {
+      toast.info(
+        matches.length === 1
+          ? "A client is waiting for your language pair"
+          : `${matches.length} clients are waiting for your language pair`,
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (!profileId || !isActiveInterpreter || availabilityStatus !== "online" || !interpreterLanguages?.length) return;
+    void checkQueue();
+  }, [profileId, isActiveInterpreter, availabilityStatus]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const dismiss = () => {
     setIncomingCall(null);
@@ -209,6 +242,25 @@ function useIncomingCall(
               return;
             }
 
+            // FIX 2: skip if this interpreter is already on a call
+            const { data: myActiveCalls } = await supabase
+              .from("interpreter_calls")
+              .select("id")
+              .eq("interpreter_id", profileId)
+              .in("status", ["ringing", "active", "on_hold"])
+              .limit(1);
+
+            if ((myActiveCalls?.length ?? 0) > 0) {
+              console.log("[IncomingCall] Already on a call, skipping");
+              return;
+            }
+
+            // FIX 2: skip if not online
+            if (availabilityStatus !== "online") {
+              console.log("[IncomingCall] Not online, skipping");
+              return;
+            }
+
             // Realtime path fires in an event handler context (user was on the
             // page) — audio is allowed.
             await showCall(call, true);
@@ -284,6 +336,25 @@ function useIncomingCall(
       );
 
       if (match && !incomingCallRef.current && !acceptedCallIds.current.has(match.id)) {
+        // FIX 2: skip if this interpreter is already on a call
+        const { data: myActiveCalls } = await supabase
+          .from("interpreter_calls")
+          .select("id")
+          .eq("interpreter_id", profileId)
+          .in("status", ["ringing", "active", "on_hold"])
+          .limit(1);
+
+        if ((myActiveCalls?.length ?? 0) > 0) {
+          console.log("[IncomingCall] Poll: Already on a call, skipping");
+          return;
+        }
+
+        // FIX 2: skip if not online
+        if (availabilityStatus !== "online") {
+          console.log("[IncomingCall] Poll: Not online, skipping");
+          return;
+        }
+
         console.log("[IncomingCall] Poll found ringing call (realtime missed it):", match);
         // Poll fires without a user gesture — don't attempt audio.
         await showCall(match as IncomingCall, false);
@@ -361,6 +432,10 @@ function IncomingCallOverlay({
     }
 
     console.log("[Accept] UPDATE succeeded, row returned:", data);
+
+    // FIX 4: mark interpreter as busy so new callers don't see them as available
+    await supabase.from("users").update({ availability_status: "busy" }).eq("id", profileId);
+
     onMarkAccepted(call.id);
     onDismiss();
     console.log("[Accept] Navigating to interpreter screen for callId:", call.id);
@@ -480,6 +555,7 @@ export function StaffLayout({
     isActiveInterpreter ? profile?.id : undefined,
     isActiveInterpreter,
     interpreterLanguages,
+    profile?.availability_status,
   );
   const sidebarLabel = "San Brothers — Staff";
   const sidebarBadge = "SB";

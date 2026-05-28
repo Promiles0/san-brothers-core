@@ -205,6 +205,26 @@ function InterpreterCallScreen() {
       return;
     }
 
+    // FIX 4: restore online status and notify of any queued clients
+    if (profile?.id) {
+      await supabase.from("users").update({ availability_status: "online" }).eq("id", profile.id);
+
+      const { data: queuedClients } = await supabase
+        .from("interpreter_queue")
+        .select("language_from, language_to")
+        .eq("status", "waiting");
+
+      const langs = profile.interpreter_languages as Array<{ from: string; to: string }> | null;
+      if (
+        langs &&
+        queuedClients?.some((entry: { language_from: string; language_to: string }) =>
+          langs.some((pair) => pair.from === entry.language_from && pair.to === entry.language_to),
+        )
+      ) {
+        toast.info("A client is waiting for your language pair");
+      }
+    }
+
     window.location.href = "/staff";
   };
 
@@ -213,6 +233,27 @@ function InterpreterCallScreen() {
       .from("interpreter_calls")
       .update({ status: "ringing", interpreter_id: null, answered_at: null })
       .eq("id", callId);
+
+    // FIX 4: restore online status and notify of any queued clients
+    if (profile?.id) {
+      await supabase.from("users").update({ availability_status: "online" }).eq("id", profile.id);
+
+      const { data: queuedClients } = await supabase
+        .from("interpreter_queue")
+        .select("language_from, language_to")
+        .eq("status", "waiting");
+
+      const langs = profile.interpreter_languages as Array<{ from: string; to: string }> | null;
+      if (
+        langs &&
+        queuedClients?.some((entry: { language_from: string; language_to: string }) =>
+          langs.some((pair) => pair.from === entry.language_from && pair.to === entry.language_to),
+        )
+      ) {
+        toast.info("A client is waiting for your language pair");
+      }
+    }
+
     navigate({ to: "/staff" } as never);
   };
 

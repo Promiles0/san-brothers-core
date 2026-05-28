@@ -78,6 +78,51 @@ function normalizeTab(tab: string): string {
   return tab.toLowerCase().replace(/\s+/g, "-");
 }
 
+// ── Availability check ────────────────────────────────────────────────────────
+
+async function checkAvailability(langFrom: string, langTo: string): Promise<boolean> {
+  const { data: capableStaff } = await supabase
+    .from("staff_capabilities")
+    .select("user_id")
+    .eq("capability", "handle_live_calls");
+
+  if (!capableStaff?.length) return false;
+
+  const staffIds = capableStaff.map((s: { user_id: string }) => s.user_id);
+
+  const { data: available } = await supabase
+    .from("users")
+    .select("id, interpreter_languages, availability_status")
+    .in("id", staffIds)
+    .eq("availability_status", "online")
+    .eq("interpreter_profile_complete", true);
+
+  if (!available?.length) return false;
+
+  const { data: activeCalls } = await supabase
+    .from("interpreter_calls")
+    .select("interpreter_id")
+    .in("status", ["ringing", "active", "on_hold"])
+    .in("interpreter_id", staffIds);
+
+  const busyIds = new Set(
+    (activeCalls ?? []).map((c: { interpreter_id: string }) => c.interpreter_id),
+  );
+
+  const trulyAvailable = (
+    available as Array<{
+      id: string;
+      interpreter_languages: Array<{ from: string; to: string }> | null;
+    }>
+  ).filter(
+    (staff) =>
+      !busyIds.has(staff.id) &&
+      staff.interpreter_languages?.some((pair) => pair.from === langFrom && pair.to === langTo),
+  );
+
+  return trulyAvailable.length > 0;
+}
+
 // ── Route ─────────────────────────────────────────────────────────────────────
 
 export const Route = createFileRoute("/dashboard/interpreter")({
@@ -230,6 +275,42 @@ function InterpreterLandingPage() {
     setStarting(true);
 
     try {
+      const hasAvailable = await checkAvailability(langFrom, langTo);
+
+      if (!hasAvailable) {
+        const { data: callRow, error: callError } = await supabase
+          .from("interpreter_calls")
+          .insert({
+            client_id: user.id,
+            language_from: langFrom,
+            language_to: langTo,
+            status: "queued",
+            is_free_call: freeMinutes > 0,
+          })
+          .select()
+          .single();
+
+        if (callError) {
+          toast.error("Could not start call: " + callError.message);
+          setStarting(false);
+          return;
+        }
+
+        await supabase.from("interpreter_queue").insert({
+          client_id: user.id,
+          language_from: langFrom,
+          language_to: langTo,
+          status: "waiting",
+        });
+
+        setStarting(false);
+        navigate({
+          to: "/dashboard/interpreter/$callId",
+          params: { callId: (callRow as { id: string }).id },
+        } as never);
+        return;
+      }
+
       console.log("[Call] Inserting call row…", { langFrom, langTo, userId: user.id });
 
       const { data, error } = await supabase
