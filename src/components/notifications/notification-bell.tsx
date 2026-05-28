@@ -8,6 +8,7 @@ import {
   Briefcase,
   UserPlus,
   DollarSign,
+  Headphones,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
@@ -31,6 +32,7 @@ interface Notification {
 }
 
 const iconForType = (type: string) => {
+  if (type === "interpreter_available") return Headphones;
   if (type.includes("message")) return MessageCircle;
   if (type.includes("status")) return RefreshCw;
   if (type.includes("document")) return FileText;

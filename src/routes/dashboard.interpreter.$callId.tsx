@@ -86,6 +86,7 @@ function ActiveCallPage() {
   const [holdSeconds, setHoldSeconds] = useState(0);
   const [warned, setWarned] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
+  const [queueEntryId, setQueueEntryId] = useState<string | null>(null);
 
   const callTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const holdTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -238,6 +239,58 @@ function ActiveCallPage() {
     };
   }, [callId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── Queue entry lookup ────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (call?.status !== "queued" || !user) return;
+    supabase
+      .from("interpreter_queue")
+      .select("id")
+      .eq("client_id", user.id)
+      .in("status", ["waiting", "notified"])
+      .order("queued_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setQueueEntryId((data as { id: string }).id);
+      });
+  }, [call?.status, user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Notifications realtime (queued screen only) ────────────────────────────────
+
+  useEffect(() => {
+    if (call?.status !== "queued" || !user) return;
+    const channel = supabase
+      .channel("queue-notify-" + user.id)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: "user_id=eq." + user.id,
+        },
+        (payload) => {
+          const n = payload.new as { type: string; body: string | null; link: string | null };
+          if (n.type !== "interpreter_available") return;
+          toast("An interpreter is now available! Tap to call", {
+            description: n.body ?? undefined,
+            action: {
+              label: "Call Now →",
+              onClick: () => {
+                window.location.href = n.link ?? "/dashboard/interpreter";
+              },
+            },
+            duration: 15000,
+          });
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [call?.status, user]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Ringing → queue after 30s ─────────────────────────────────────────────────
 
   useEffect(() => {
@@ -365,6 +418,17 @@ function ActiveCallPage() {
     navigate({ to: "/dashboard/interpreter" });
   };
 
+  const handleCancelQueue = async () => {
+    if (queueEntryId) {
+      await supabase
+        .from("interpreter_queue")
+        .update({ status: "cancelled" })
+        .eq("id", queueEntryId);
+    }
+    await supabase.from("interpreter_calls").update({ status: "cancelled" }).eq("id", callId);
+    navigate({ to: "/dashboard" });
+  };
+
   const handleEndCall = async () => {
     if (!call || callEndedRef.current) return;
     callEndedRef.current = true;
@@ -463,19 +527,35 @@ function ActiveCallPage() {
   // ── Queued (no interpreter found) ─────────────────────────────────────────────
   if (call.status === "queued") {
     return (
-      <div className="mx-auto flex max-w-md flex-col items-center gap-6 py-20 text-center">
+      <div className="mx-auto flex max-w-md flex-col items-center gap-6 py-16 text-center">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
           <Clock className="h-10 w-10 text-amber-600 dark:text-amber-400" />
         </div>
-        <div>
+        <div className="space-y-2">
           <h2 className="text-xl font-semibold">No interpreter available right now</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
+            {formatLangPair(call.language_from, call.language_to)}
+          </p>
+          <p className="text-sm text-muted-foreground">
             We'll notify you as soon as one becomes available.
           </p>
         </div>
-        <Button variant="outline" onClick={() => navigate({ to: "/dashboard" })}>
-          Back to Dashboard
-        </Button>
+        <div className="w-full rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/60 dark:text-amber-200">
+          You'll receive a notification when an interpreter is ready. You can safely leave this
+          page.
+        </div>
+        <div className="flex w-full flex-col gap-3">
+          <Button variant="outline" onClick={() => navigate({ to: "/dashboard" })}>
+            Back to Dashboard
+          </Button>
+          <Button
+            variant="ghost"
+            className="text-muted-foreground hover:text-destructive"
+            onClick={handleCancelQueue}
+          >
+            Cancel &amp; Leave Queue
+          </Button>
+        </div>
       </div>
     );
   }

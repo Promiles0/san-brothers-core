@@ -19,8 +19,23 @@ const OPTIONS = [
   { key: "away", label: "Away", color: "bg-slate-400" },
 ] as const;
 
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  fr: "French",
+  zh: "Chinese",
+  rw: "Kinyarwanda",
+  sw: "Kiswahili",
+};
+
+interface QueueEntry {
+  id: string;
+  client_id: string;
+  language_from: string;
+  language_to: string;
+}
+
 export function AvailabilityToggle() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [status, setStatus] = useState<string>("online");
 
   useEffect(() => {
@@ -35,6 +50,48 @@ export function AvailabilityToggle() {
     })();
   }, [user]);
 
+  const checkQueue = async () => {
+    const langs = profile?.interpreter_languages as
+      | Array<{ from: string; to: string }>
+      | null
+      | undefined;
+    if (!langs?.length) return;
+
+    const { data: queuedClients } = await supabase
+      .from("interpreter_queue")
+      .select("*")
+      .eq("status", "waiting");
+
+    if (!queuedClients?.length) return;
+
+    const matches = (queuedClients as QueueEntry[]).filter((entry) =>
+      langs.some((pair) => pair.from === entry.language_from && pair.to === entry.language_to),
+    );
+
+    if (!matches.length) return;
+
+    await supabase.from("notifications").insert(
+      matches.map((entry) => ({
+        user_id: entry.client_id,
+        type: "interpreter_available",
+        title: "Interpreter Available",
+        body: `An interpreter for ${LANGUAGE_NAMES[entry.language_from] ?? entry.language_from} → ${LANGUAGE_NAMES[entry.language_to] ?? entry.language_to} is now available`,
+        link: `/dashboard/interpreter?language_from=${entry.language_from}&language_to=${entry.language_to}`,
+        is_read: false,
+      })),
+    );
+
+    await supabase
+      .from("interpreter_queue")
+      .update({ status: "notified", notified_at: new Date().toISOString() })
+      .in(
+        "id",
+        matches.map((e) => e.id),
+      );
+
+    console.log("[Queue] Notified", matches.length, "queued clients");
+  };
+
   const update = async (next: string) => {
     if (!user) return;
     setStatus(next);
@@ -42,8 +99,12 @@ export function AvailabilityToggle() {
       .from("users")
       .update({ availability_status: next })
       .eq("id", user.id);
-    if (error) toast.error(error.message);
-    else toast.success(`Status set to ${next}`);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(`Status set to ${next}`);
+    if (next === "online") await checkQueue();
   };
 
   const current = OPTIONS.find((o) => o.key === status) ?? OPTIONS[0];

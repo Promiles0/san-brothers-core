@@ -83,6 +83,8 @@ function normalizeTab(tab: string): string {
 export const Route = createFileRoute("/dashboard/interpreter")({
   validateSearch: (search: Record<string, unknown>) => ({
     interpreterId: typeof search.interpreterId === "string" ? search.interpreterId : undefined,
+    language_from: typeof search.language_from === "string" ? search.language_from : undefined,
+    language_to: typeof search.language_to === "string" ? search.language_to : undefined,
   }),
   component: InterpreterPage,
 });
@@ -105,7 +107,7 @@ function InterpreterPage() {
 function InterpreterLandingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { interpreterId } = Route.useSearch();
+  const { interpreterId, language_from, language_to } = Route.useSearch();
 
   const [dataLoading, setDataLoading] = useState(true);
   const [minutes, setMinutes] = useState<ClientMinutes | null>(null);
@@ -147,6 +149,11 @@ function InterpreterLandingPage() {
       setDataLoading(false);
     });
   }, [user]);
+
+  useEffect(() => {
+    if (language_from) setLangFrom(language_from);
+    if (language_to) setLangTo(language_to);
+  }, [language_from, language_to]);
 
   useEffect(() => {
     if (!interpreterId || !user) return;
