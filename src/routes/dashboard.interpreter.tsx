@@ -329,8 +329,11 @@ function InterpreterLandingPage() {
 
       {interpreterId && !preferredInterpLoading && preferredInterp && showPreferredCard && (
         isPreferredAvailable ? (
-          /* Online + free → "Call [Name] Again" card */
-          <Card className="border-green-300 bg-green-500/5 dark:border-green-700">
+          /* Online + free → "Call [Name] Again" card with gradient border */
+          <div className="relative rounded-xl bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 p-[1.5px] shadow-lg shadow-green-500/20">
+          <Card className="border-0 bg-background">
+          {/* spacer wrapper */}
+          {false && <div className="border-green-300 bg-green-500/5 dark:border-green-700" />}
             <CardContent className="space-y-4 px-5 pb-5 pt-5">
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12">
