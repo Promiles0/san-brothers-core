@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Phone, PhoneOff, Pause, Clock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -42,8 +42,14 @@ interface ClientMinutes {
 // ── Route ─────────────────────────────────────────────────────────────────────
 
 export const Route = createFileRoute("/dashboard/interpreter/$callId")({
-  component: ActiveCallPage,
+  component: CallIdPage,
 });
+
+function CallIdPage() {
+  const childMatches = useChildMatches();
+  if (childMatches.length > 0) return <Outlet />;
+  return <ActiveCallPage />;
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

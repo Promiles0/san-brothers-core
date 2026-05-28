@@ -35,8 +35,8 @@ import { Route as TranslateDocumentRouteImport } from './routes/translate/docume
 import { Route as StaffVisaRouteImport } from './routes/staff.visa'
 import { Route as StaffTranslationRouteImport } from './routes/staff.translation'
 import { Route as StaffSettingsRouteImport } from './routes/staff.settings'
-import { Route as StaffProfileRouteImport } from './routes/staff.profile'
 import { Route as StaffReportsRouteImport } from './routes/staff.reports'
+import { Route as StaffProfileRouteImport } from './routes/staff.profile'
 import { Route as StaffMessagesRouteImport } from './routes/staff.messages'
 import { Route as StaffInterpreterRouteImport } from './routes/staff.interpreter'
 import { Route as StaffConsultancyRouteImport } from './routes/staff.consultancy'
@@ -227,14 +227,14 @@ const StaffSettingsRoute = StaffSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => StaffRoute,
 } as any)
-const StaffProfileRoute = StaffProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => StaffRoute,
-} as any)
 const StaffReportsRoute = StaffReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffProfileRoute = StaffProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => StaffRoute,
 } as any)
 const StaffMessagesRoute = StaffMessagesRouteImport.update({
@@ -579,6 +579,7 @@ export interface FileRoutesByFullPath {
   '/staff/consultancy': typeof StaffConsultancyRouteWithChildren
   '/staff/interpreter': typeof StaffInterpreterRouteWithChildren
   '/staff/messages': typeof StaffMessagesRoute
+  '/staff/profile': typeof StaffProfileRoute
   '/staff/reports': typeof StaffReportsRoute
   '/staff/settings': typeof StaffSettingsRoute
   '/staff/translation': typeof StaffTranslationRouteWithChildren
@@ -660,6 +661,7 @@ export interface FileRoutesByTo {
   '/services/visa': typeof ServicesVisaRoute
   '/signup/verify-email': typeof SignupVerifyEmailRoute
   '/staff/messages': typeof StaffMessagesRoute
+  '/staff/profile': typeof StaffProfileRoute
   '/staff/reports': typeof StaffReportsRoute
   '/staff/settings': typeof StaffSettingsRoute
   '/translate/document': typeof TranslateDocumentRoute
@@ -746,6 +748,7 @@ export interface FileRoutesById {
   '/staff/consultancy': typeof StaffConsultancyRouteWithChildren
   '/staff/interpreter': typeof StaffInterpreterRouteWithChildren
   '/staff/messages': typeof StaffMessagesRoute
+  '/staff/profile': typeof StaffProfileRoute
   '/staff/reports': typeof StaffReportsRoute
   '/staff/settings': typeof StaffSettingsRoute
   '/staff/translation': typeof StaffTranslationRouteWithChildren
@@ -836,6 +839,7 @@ export interface FileRouteTypes {
     | '/staff/consultancy'
     | '/staff/interpreter'
     | '/staff/messages'
+    | '/staff/profile'
     | '/staff/reports'
     | '/staff/settings'
     | '/staff/translation'
@@ -917,6 +921,7 @@ export interface FileRouteTypes {
     | '/services/visa'
     | '/signup/verify-email'
     | '/staff/messages'
+    | '/staff/profile'
     | '/staff/reports'
     | '/staff/settings'
     | '/translate/document'
@@ -1002,6 +1007,7 @@ export interface FileRouteTypes {
     | '/staff/consultancy'
     | '/staff/interpreter'
     | '/staff/messages'
+    | '/staff/profile'
     | '/staff/reports'
     | '/staff/settings'
     | '/staff/translation'
@@ -1255,13 +1261,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffTranslationRouteImport
       parentRoute: typeof StaffRoute
     }
-    '/staff/profile': {
-      id: '/staff/profile'
-      path: '/profile'
-      fullPath: '/staff/profile'
-      preLoaderRoute: typeof StaffProfileRouteImport
-      parentRoute: typeof StaffRoute
-    }
     '/staff/settings': {
       id: '/staff/settings'
       path: '/settings'
@@ -1274,6 +1273,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/staff/reports'
       preLoaderRoute: typeof StaffReportsRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/profile': {
+      id: '/staff/profile'
+      path: '/profile'
+      fullPath: '/staff/profile'
+      preLoaderRoute: typeof StaffProfileRouteImport
       parentRoute: typeof StaffRoute
     }
     '/staff/messages': {
@@ -1987,3 +1993,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

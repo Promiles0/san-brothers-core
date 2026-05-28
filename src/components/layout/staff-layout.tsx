@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useRef, useMemo, type ReactNode } from "react";
 import { Menu, ChevronRight, AlertTriangle, Phone, PhoneOff, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,8 @@ function useIncomingCall(
   // Stable ref so polling closure always reads the latest incomingCall value.
   const incomingCallRef = useRef<IncomingCall | null>(null);
   useEffect(() => { incomingCallRef.current = incomingCall; }, [incomingCall]);
+  // Track accepted calls so a channel reconnect / poll replay never re-shows them.
+  const acceptedCallIds = useRef<Set<string>>(new Set());
 
   const dismiss = () => {
     setIncomingCall(null);
@@ -181,6 +183,9 @@ function useIncomingCall(
             const call = payload.new as IncomingCall;
             console.log("[IncomingCall] INSERT received:", call);
 
+            // JS filter 0: skip calls we already accepted (guards against channel-reconnect replay)
+            if (acceptedCallIds.current.has(call.id)) return;
+
             // JS filter 1: only truly ringing calls
             if (call.status !== "ringing") {
               console.log("[IncomingCall] Skipping — status is not ringing:", call.status);
@@ -278,11 +283,9 @@ function useIncomingCall(
           (!call.preferred_interpreter_id || call.preferred_interpreter_id === profileId),
       );
 
-      if (match && !incomingCallRef.current) {
+      if (match && !incomingCallRef.current && !acceptedCallIds.current.has(match.id)) {
         console.log("[IncomingCall] Poll found ringing call (realtime missed it):", match);
-        // BUG 2 FIX: poll fires without a user gesture — don't attempt audio
-        // (browser would block it). The overlay shows a "tap to enable sound"
-        // hint instead.
+        // Poll fires without a user gesture — don't attempt audio.
         await showCall(match as IncomingCall, false);
       }
     }, 5000);
@@ -290,7 +293,11 @@ function useIncomingCall(
     return () => clearInterval(poll);
   }, [isActiveInterpreter, interpreterLanguages]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { incomingCall, callerName, dismiss, audioBlocked, resumeAudio };
+  function markAccepted(id: string) {
+    acceptedCallIds.current.add(id);
+  }
+
+  return { incomingCall, callerName, dismiss, markAccepted, audioBlocked, resumeAudio };
 }
 
 // ── IncomingCallOverlay ────────────────────────────────────────────────────────
@@ -301,6 +308,7 @@ function IncomingCallOverlay({
   profileId,
   audioBlocked,
   onEnableAudio,
+  onMarkAccepted,
   onDismiss,
 }: {
   call: IncomingCall;
@@ -308,6 +316,7 @@ function IncomingCallOverlay({
   profileId: string;
   audioBlocked: boolean;
   onEnableAudio: () => void;
+  onMarkAccepted: (id: string) => void;
   onDismiss: () => void;
 }) {
   const navigate = useNavigate();
@@ -352,6 +361,7 @@ function IncomingCallOverlay({
     }
 
     console.log("[Accept] UPDATE succeeded, row returned:", data);
+    onMarkAccepted(call.id);
     onDismiss();
     console.log("[Accept] Navigating to interpreter screen for callId:", call.id);
     navigate({ to: "/staff/interpreter/$callId", params: { callId: call.id } } as never);
@@ -431,11 +441,18 @@ export function StaffLayout({
   const canHandleCalls = hasCapability("handle_live_calls");
   const isActiveInterpreter =
     canHandleCalls && profile?.interpreter_profile_complete === true;
-  const interpreterLanguages = isActiveInterpreter
-    ? (profile.interpreter_languages as Array<{ from: string; to: string }> | null)
-    : null;
-  const { incomingCall, callerName, dismiss, audioBlocked, resumeAudio } = useIncomingCall(
-    isActiveInterpreter ? profile.id : undefined,
+  // Memoize so the array reference is stable — prevents the Supabase channel
+  // from being torn down and recreated on every render.
+  const interpreterLanguages = useMemo(
+    () =>
+      isActiveInterpreter
+        ? (profile?.interpreter_languages as Array<{ from: string; to: string }> | null)
+        : null,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isActiveInterpreter, profile?.id],
+  );
+  const { incomingCall, callerName, dismiss, markAccepted, audioBlocked, resumeAudio } = useIncomingCall(
+    isActiveInterpreter ? profile?.id : undefined,
     isActiveInterpreter,
     interpreterLanguages,
   );
@@ -547,6 +564,7 @@ export function StaffLayout({
           profileId={profile.id}
           audioBlocked={audioBlocked}
           onEnableAudio={resumeAudio}
+          onMarkAccepted={markAccepted}
           onDismiss={dismiss}
         />
       )}
