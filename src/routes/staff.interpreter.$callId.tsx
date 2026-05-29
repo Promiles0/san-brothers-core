@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { checkQueueAndNotify } from "@/lib/interpreter/check-queue";
-import { deleteDailyRoomFn } from "@/lib/interpreter/create-room.server";
+import { deleteDailyRoom } from "@/lib/interpreter/daily-rooms";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -233,7 +233,7 @@ function InterpreterCallScreen() {
     }
 
     if (call?.daily_room_name) {
-      await deleteDailyRoomFn({ data: call.daily_room_name });
+      await deleteDailyRoom(call.daily_room_name);
     }
 
     if (profile?.id) {

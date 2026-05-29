@@ -2,17 +2,25 @@ export async function createDailyRoom(callId: string): Promise<{
   url: string;
   name: string;
 } | null> {
+  const apiKey =
+    import.meta.env.VITE_DAILY_CO_API_KEY ||
+    import.meta.env.DAILY_CO_API_KEY;
+
+  const domain =
+    import.meta.env.VITE_DAILY_CO_DOMAIN ||
+    import.meta.env.DAILY_CO_DOMAIN ||
+    'sanbroh.daily.co';
+
+  console.log('[Daily] Creating room. Has key:', !!apiKey, 'Domain:', domain);
+
+  if (!apiKey) {
+    console.warn('[Daily] No API key found in env vars');
+    return null;
+  }
+
+  const roomName = `san-brothers-${callId}`;
+
   try {
-    const apiKey = import.meta.env.VITE_DAILY_CO_API_KEY;
-    const domain = import.meta.env.VITE_DAILY_CO_DOMAIN;
-
-    if (!apiKey || !domain) {
-      console.warn('[Daily] API key or domain not configured');
-      return null;
-    }
-
-    const roomName = `san-brothers-${callId}`;
-
     const response = await fetch('https://api.daily.co/v1/rooms', {
       method: 'POST',
       headers: {
@@ -38,20 +46,25 @@ export async function createDailyRoom(callId: string): Promise<{
       return null;
     }
 
-    await response.json();
+    console.log('[Daily] Room created successfully');
     return {
       url: `https://${domain}/${roomName}`,
       name: roomName,
     };
   } catch (err) {
-    console.error('[Daily] Unexpected error:', err);
+    console.error('[Daily] Network error:', err);
     return null;
   }
 }
 
 export async function deleteDailyRoom(roomName: string): Promise<void> {
+  const apiKey =
+    import.meta.env.VITE_DAILY_CO_API_KEY ||
+    import.meta.env.DAILY_CO_API_KEY;
+
+  if (!apiKey) return;
+
   try {
-    const apiKey = import.meta.env.VITE_DAILY_CO_API_KEY;
     await fetch(`https://api.daily.co/v1/rooms/${roomName}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${apiKey}` },
