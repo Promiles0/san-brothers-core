@@ -62,6 +62,7 @@ import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminServicesRouteImport } from './routes/admin.services'
 import { Route as AdminRevenueRouteImport } from './routes/admin.revenue'
 import { Route as AdminMessagesRouteImport } from './routes/admin.messages'
+import { Route as AdminInterpreterRouteImport } from './routes/admin.interpreter'
 import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
 import { Route as AdminClientsRouteImport } from './routes/admin.clients'
 import { Route as AdminCasesRouteImport } from './routes/admin.cases'
@@ -363,6 +364,11 @@ const AdminMessagesRoute = AdminMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminInterpreterRoute = AdminInterpreterRouteImport.update({
+  id: '/interpreter',
+  path: '/interpreter',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminDocumentsRoute = AdminDocumentsRouteImport.update({
   id: '/documents',
   path: '/documents',
@@ -562,6 +568,7 @@ export interface FileRoutesByFullPath {
   '/admin/cases': typeof AdminCasesRoute
   '/admin/clients': typeof AdminClientsRouteWithChildren
   '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/interpreter': typeof AdminInterpreterRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/revenue': typeof AdminRevenueRoute
   '/admin/services': typeof AdminServicesRoute
@@ -649,6 +656,7 @@ export interface FileRoutesByTo {
   '/admin/cases': typeof AdminCasesRoute
   '/admin/clients': typeof AdminClientsRouteWithChildren
   '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/interpreter': typeof AdminInterpreterRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/revenue': typeof AdminRevenueRoute
   '/admin/services': typeof AdminServicesRoute
@@ -733,6 +741,7 @@ export interface FileRoutesById {
   '/admin/cases': typeof AdminCasesRoute
   '/admin/clients': typeof AdminClientsRouteWithChildren
   '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/interpreter': typeof AdminInterpreterRoute
   '/admin/messages': typeof AdminMessagesRoute
   '/admin/revenue': typeof AdminRevenueRoute
   '/admin/services': typeof AdminServicesRoute
@@ -825,6 +834,7 @@ export interface FileRouteTypes {
     | '/admin/cases'
     | '/admin/clients'
     | '/admin/documents'
+    | '/admin/interpreter'
     | '/admin/messages'
     | '/admin/revenue'
     | '/admin/services'
@@ -912,6 +922,7 @@ export interface FileRouteTypes {
     | '/admin/cases'
     | '/admin/clients'
     | '/admin/documents'
+    | '/admin/interpreter'
     | '/admin/messages'
     | '/admin/revenue'
     | '/admin/services'
@@ -995,6 +1006,7 @@ export interface FileRouteTypes {
     | '/admin/cases'
     | '/admin/clients'
     | '/admin/documents'
+    | '/admin/interpreter'
     | '/admin/messages'
     | '/admin/revenue'
     | '/admin/services'
@@ -1470,6 +1482,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMessagesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/interpreter': {
+      id: '/admin/interpreter'
+      path: '/interpreter'
+      fullPath: '/admin/interpreter'
+      preLoaderRoute: typeof AdminInterpreterRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/documents': {
       id: '/admin/documents'
       path: '/documents'
@@ -1735,6 +1754,7 @@ interface AdminRouteChildren {
   AdminCasesRoute: typeof AdminCasesRoute
   AdminClientsRoute: typeof AdminClientsRouteWithChildren
   AdminDocumentsRoute: typeof AdminDocumentsRoute
+  AdminInterpreterRoute: typeof AdminInterpreterRoute
   AdminMessagesRoute: typeof AdminMessagesRoute
   AdminRevenueRoute: typeof AdminRevenueRoute
   AdminServicesRoute: typeof AdminServicesRoute
@@ -1748,6 +1768,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCasesRoute: AdminCasesRoute,
   AdminClientsRoute: AdminClientsRouteWithChildren,
   AdminDocumentsRoute: AdminDocumentsRoute,
+  AdminInterpreterRoute: AdminInterpreterRoute,
   AdminMessagesRoute: AdminMessagesRoute,
   AdminRevenueRoute: AdminRevenueRoute,
   AdminServicesRoute: AdminServicesRoute,
