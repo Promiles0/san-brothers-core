@@ -26,6 +26,7 @@ interface InterpreterCall {
   billed_seconds: number;
   hold_start: string | null;
   total_hold_seconds: number;
+  daily_room_url: string | null;
 }
 
 interface InterpreterProfile {
@@ -755,9 +756,21 @@ function ActiveCallPage() {
           </Card>
         </div>
 
-        <div className="flex min-h-52 items-center justify-center rounded-2xl bg-zinc-900 text-sm text-zinc-400">
-          Video call will appear here — Daily.co integration pending
-        </div>
+        {call.daily_room_url ? (
+          <div className="relative h-100 w-full overflow-hidden rounded-xl bg-black">
+            <iframe
+              src={call.daily_room_url}
+              allow="camera; microphone; fullscreen; speaker; display-capture"
+              className="h-full w-full border-0"
+              title="Video call"
+            />
+          </div>
+        ) : (
+          <div className="flex h-48 w-full items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Connecting video...
+          </div>
+        )}
 
         <Button size="lg" variant="destructive" className="w-full" onClick={handleEndCall} disabled={isEnding}>
           {isEnding ? (

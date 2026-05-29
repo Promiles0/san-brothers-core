@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { checkQueueAndNotify } from "@/lib/interpreter/check-queue";
+import { deleteDailyRoom } from "@/lib/interpreter/daily-rooms";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,8 @@ interface InterpreterCall {
   total_hold_seconds: number;
   forwarded_to: string | null;
   forwarded_at: string | null;
+  daily_room_url: string | null;
+  daily_room_name: string | null;
 }
 
 interface ClientProfile {
@@ -164,6 +167,32 @@ function InterpreterCallScreen() {
     };
   }, [callId]);
 
+  // ── Watch for daily_room_url to be set after accept ──────────────────────────
+
+  useEffect(() => {
+    if (call?.daily_room_url) return;
+
+    const channel = supabase
+      .channel("staff-call-room-" + callId)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "interpreter_calls",
+          filter: `id=eq.${callId}`,
+        },
+        (payload) => {
+          if (payload.new.daily_room_url) {
+            setCall((prev) => prev ? { ...prev, ...payload.new as InterpreterCall } : prev);
+          }
+        },
+      )
+      .subscribe();
+
+    return () => { void supabase.removeChannel(channel); };
+  }, [callId, call?.daily_room_url]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Duration timer ────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -201,6 +230,10 @@ function InterpreterCallScreen() {
       toast.error("Failed: " + error.message);
       setIsEnding(false);
       return;
+    }
+
+    if (call?.daily_room_name) {
+      await deleteDailyRoom(call.daily_room_name);
     }
 
     if (profile?.id) {
@@ -289,10 +322,22 @@ function InterpreterCallScreen() {
         </CardContent>
       </Card>
 
-      {/* Daily.co placeholder */}
-      <div className="flex min-h-52 items-center justify-center rounded-2xl bg-zinc-900 text-sm text-zinc-400">
-        Video call will appear here — Daily.co integration pending
-      </div>
+      {/* Daily.co video */}
+      {call.daily_room_url ? (
+        <div className="relative h-100 w-full overflow-hidden rounded-xl bg-black">
+          <iframe
+            src={call.daily_room_url}
+            allow="camera; microphone; fullscreen; speaker; display-capture"
+            className="h-full w-full border-0"
+            title="Video call"
+          />
+        </div>
+      ) : (
+        <div className="flex h-48 w-full items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Connecting video...
+        </div>
+      )}
 
       {/* Bottom action bar */}
       <div className="grid grid-cols-3 gap-3">

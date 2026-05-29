@@ -22,6 +22,7 @@ import { useCapabilities } from "@/lib/staff/capability-context";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/lib/supabase";
 import { checkQueueAndNotify } from "@/lib/interpreter/check-queue";
+import { createDailyRoom } from "@/lib/interpreter/daily-rooms";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -438,6 +439,16 @@ function IncomingCallOverlay({
 
     // FIX 4: mark interpreter as busy so new callers don't see them as available
     await supabase.from("users").update({ availability_status: "busy" }).eq("id", profileId);
+
+    // Create Daily.co room and persist the URL so both sides can join
+    const room = await createDailyRoom(call.id);
+    if (room) {
+      await supabase
+        .from("interpreter_calls")
+        .update({ daily_room_url: room.url, daily_room_name: room.name })
+        .eq("id", call.id);
+      console.log("[Daily] Room created:", room.url);
+    }
 
     onMarkAccepted(call.id);
     onDismiss();
