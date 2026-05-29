@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { checkQueueAndNotify } from "@/lib/interpreter/check-queue";
 
 const OPTIONS = [
   { key: "online", label: "Online", color: "bg-emerald-500" },
@@ -19,25 +20,11 @@ const OPTIONS = [
   { key: "away", label: "Away", color: "bg-slate-400" },
 ] as const;
 
-const LANGUAGE_NAMES: Record<string, string> = {
-  en: "English",
-  fr: "French",
-  zh: "Chinese",
-  rw: "Kinyarwanda",
-  sw: "Kiswahili",
-};
-
-interface QueueEntry {
-  id: string;
-  client_id: string;
-  language_from: string;
-  language_to: string;
-}
-
 export function AvailabilityToggle() {
   const { user, profile, refreshProfile } = useAuth();
-  const [status, setStatus] = useState<string>("online");
+  const [status, setStatus] = useState<string>(profile?.availability_status ?? "online");
 
+  // Seed from DB on mount
   useEffect(() => {
     if (!user) return;
     (async () => {
@@ -50,62 +37,37 @@ export function AvailabilityToggle() {
     })();
   }, [user]);
 
-  const checkQueue = async () => {
-    const langs = profile?.interpreter_languages as
-      | Array<{ from: string; to: string }>
-      | null
-      | undefined;
-    if (!langs?.length) return;
-
-    const { data: queuedClients } = await supabase
-      .from("interpreter_queue")
-      .select("*")
-      .eq("status", "waiting");
-
-    if (!queuedClients?.length) return;
-
-    const matches = (queuedClients as QueueEntry[]).filter((entry) =>
-      langs.some((pair) => pair.from === entry.language_from && pair.to === entry.language_to),
-    );
-
-    if (!matches.length) return;
-
-    await supabase.from("notifications").insert(
-      matches.map((entry) => ({
-        user_id: entry.client_id,
-        type: "interpreter_available",
-        title: "Interpreter Available",
-        body: `An interpreter for ${LANGUAGE_NAMES[entry.language_from] ?? entry.language_from} → ${LANGUAGE_NAMES[entry.language_to] ?? entry.language_to} is now available`,
-        link: `/dashboard/interpreter?language_from=${entry.language_from}&language_to=${entry.language_to}`,
-        is_read: false,
-      })),
-    );
-
-    await supabase
-      .from("interpreter_queue")
-      .update({ status: "notified", notified_at: new Date().toISOString() })
-      .in(
-        "id",
-        matches.map((e) => e.id),
-      );
-
-    console.log("[Queue] Notified", matches.length, "queued clients");
-  };
+  // Keep in sync when profile refreshes (e.g. after ending a call)
+  useEffect(() => {
+    if (profile?.availability_status) {
+      setStatus(profile.availability_status);
+    }
+  }, [profile?.availability_status]);
 
   const update = async (next: string) => {
-    if (!user) return;
-    setStatus(next);
+    if (!user || !profile) return;
+    setStatus(next); // Update UI immediately
+
     const { error } = await supabase
       .from("users")
       .update({ availability_status: next })
       .eq("id", user.id);
+
     if (error) {
-      toast.error(error.message);
+      setStatus(profile.availability_status ?? "online"); // Revert on error
+      toast.error("Failed to update status");
       return;
     }
+
     toast.success(`Status set to ${next}`);
-    if (next === "online") await checkQueue();
     await refreshProfile();
+
+    if (next === "online") {
+      await checkQueueAndNotify(
+        (profile.interpreter_languages as Array<{ from: string; to: string }>) || [],
+        profile.id,
+      );
+    }
   };
 
   const current = OPTIONS.find((o) => o.key === status) ?? OPTIONS[0];

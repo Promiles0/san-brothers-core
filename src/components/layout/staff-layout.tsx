@@ -54,6 +54,7 @@ function useIncomingCall(
   isActiveInterpreter: boolean,
   interpreterLanguages: Array<{ from: string; to: string }> | null | undefined,
   availabilityStatus: string | null | undefined,
+  refreshProfile: () => Promise<void>,
 ) {
   const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
   const [callerName, setCallerName] = useState<string | null>(null);
@@ -239,8 +240,14 @@ function useIncomingCall(
               return;
             }
 
-            // FIX 2: skip if not online
-            if (availabilityStatus !== "online") {
+            // FIX 2: skip if not online (query DB directly — profile state may be stale)
+            const { data: freshProfile } = await supabase
+              .from("users")
+              .select("availability_status")
+              .eq("id", profileId)
+              .single();
+
+            if (freshProfile?.availability_status !== "online") {
               console.log("[IncomingCall] Not online, skipping");
               return;
             }
@@ -290,7 +297,13 @@ function useIncomingCall(
   useEffect(() => {
     if (!isActiveInterpreter || !interpreterLanguages?.length) return;
 
+    let pollCount = 0;
     const poll = setInterval(async () => {
+      pollCount++;
+      if (pollCount % 6 === 0) {
+        await refreshProfile();
+      }
+
       // Don't show a second overlay if one is already up.
       if (incomingCallRef.current) return;
 
@@ -333,8 +346,14 @@ function useIncomingCall(
           return;
         }
 
-        // FIX 2: skip if not online
-        if (availabilityStatus !== "online") {
+        // FIX 2: skip if not online (query DB directly — profile state may be stale)
+        const { data: freshProfile } = await supabase
+          .from("users")
+          .select("availability_status")
+          .eq("id", profileId)
+          .single();
+
+        if (freshProfile?.availability_status !== "online") {
           console.log("[IncomingCall] Poll: Not online, skipping");
           return;
         }
@@ -518,7 +537,7 @@ export function StaffLayout({
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, refreshProfile } = useAuth();
   const { hasCapability } = useCapabilities();
   const navigate = useNavigate();
 
@@ -540,6 +559,7 @@ export function StaffLayout({
     isActiveInterpreter,
     interpreterLanguages,
     profile?.availability_status,
+    refreshProfile,
   );
   const sidebarLabel = "San Brothers — Staff";
   const sidebarBadge = "SB";

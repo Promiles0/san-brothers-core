@@ -74,7 +74,7 @@ const formatLangPair = (from: string, to: string) =>
 
 function InterpreterCallScreen() {
   const { callId } = Route.useParams();
-  const { profile, refreshProfile } = useAuth();
+  const { profile } = useAuth();
   const navigate = useNavigate();
 
   const [call, setCall] = useState<InterpreterCall | null>(null);
@@ -191,24 +191,25 @@ function InterpreterCallScreen() {
     if (isEnding) return;
     setIsEnding(true);
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("interpreter_calls")
       .update({ status: "completed", ended_at: new Date().toISOString() })
-      .eq("id", callId)
-      .select()
-      .single();
-
-    console.log("[StaffEndCall] result:", { data, error });
+      .eq("id", callId);
 
     if (error) {
+      console.error("[EndCall] Failed:", error.message);
       toast.error("Failed: " + error.message);
       setIsEnding(false);
       return;
     }
 
     if (profile?.id) {
-      await supabase.from("users").update({ availability_status: "online" }).eq("id", profile.id);
-      await refreshProfile();
+      const { error: availError } = await supabase
+        .from("users")
+        .update({ availability_status: "online" })
+        .eq("id", profile.id);
+      console.log("[EndCall] Availability reset:", availError?.message ?? "OK");
+
       await checkQueueAndNotify(
         (profile.interpreter_languages as Array<{ from: string; to: string }>) || [],
         profile.id,
@@ -225,8 +226,12 @@ function InterpreterCallScreen() {
       .eq("id", callId);
 
     if (profile?.id) {
-      await supabase.from("users").update({ availability_status: "online" }).eq("id", profile.id);
-      await refreshProfile();
+      const { error: availError } = await supabase
+        .from("users")
+        .update({ availability_status: "online" })
+        .eq("id", profile.id);
+      console.log("[Release] Availability reset:", availError?.message ?? "OK");
+
       await checkQueueAndNotify(
         (profile.interpreter_languages as Array<{ from: string; to: string }>) || [],
         profile.id,
