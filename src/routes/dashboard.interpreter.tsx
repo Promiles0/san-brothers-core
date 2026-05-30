@@ -20,6 +20,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { StripePaymentForm } from "@/components/payments/stripe-payment-form";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -265,6 +267,7 @@ function InterpreterLandingPage() {
 
   const [activeTab, setActiveTab] = useState(TAB_ORDER[0]);
   const [purchasing, setPurchasing] = useState<string | null>(null);
+  const [payPkg, setPayPkg] = useState<MinutePackage | null>(null);
 
   const [preferredInterp, setPreferredInterp] = useState<PreferredInterpreter | null>(null);
   const [preferredInterpLoading, setPreferredInterpLoading] = useState(false);
@@ -455,11 +458,16 @@ function InterpreterLandingPage() {
     }
   };
 
-  const handlePurchase = async (pkg: MinutePackage) => {
+  const handlePurchase = (pkg: MinutePackage) => {
+    if (!user) return;
+    setPayPkg(pkg);
+  };
+
+  const finalizePurchase = async (pkg: MinutePackage, intentId: string) => {
     if (!user) return;
     setPurchasing(pkg.id);
+    setPayPkg(null);
     try {
-      await new Promise<void>((r) => setTimeout(r, 1500));
       const newPaid = paidMinutes + pkg.minutes;
       const { error } = await supabase.from("client_minutes").upsert(
         {
@@ -470,12 +478,20 @@ function InterpreterLandingPage() {
         { onConflict: "client_id" },
       );
       if (error) throw error;
+      await supabase.from("payments").insert({
+        client_id: user.id,
+        amount_rwf: pkg.price_usd,
+        currency: "USD",
+        method: "stripe",
+        status: "completed",
+        reference: intentId,
+      });
       setMinutes({
         client_id: user.id,
         free_minutes_remaining: freeMinutes,
         paid_minutes_remaining: newPaid,
       });
-      toast.success(`${pkg.label} purchased — ${pkg.minutes} minutes added!`);
+      toast.success(`${pkg.minutes} minutes added to your account!`);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -782,6 +798,24 @@ function InterpreterLandingPage() {
           </>
         )}
       </div>
+
+      <Dialog open={!!payPkg} onOpenChange={(o: boolean) => { if (!o) setPayPkg(null); }}>
+        <DialogContent className="max-w-md border-0 bg-transparent p-0 shadow-none">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Buy minutes</DialogTitle>
+          </DialogHeader>
+          {payPkg ? (
+            <StripePaymentForm
+              amount={payPkg.price_usd}
+              serviceTitle={`Interpreter Minutes — ${payPkg.label}`}
+              description={`${payPkg.minutes} minutes`}
+              metadata={{ client_id: user?.id ?? "", package_id: payPkg.id, minutes: String(payPkg.minutes) }}
+              onSuccess={(intentId: string) => finalizePurchase(payPkg, intentId)}
+              onCancel={() => setPayPkg(null)}
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

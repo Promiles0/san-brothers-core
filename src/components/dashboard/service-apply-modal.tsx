@@ -44,6 +44,7 @@ import { getRequiredDocs } from "@/lib/dashboard/service-requirements";
 import { createNotification, createNotificationForAdmins } from "@/lib/notifications";
 import { supabase } from "@/lib/supabase";
 import type { ApplicantType, Service, ServiceCategory } from "@/lib/types/database";
+import { StripePaymentForm } from "@/components/payments/stripe-payment-form";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -281,6 +282,10 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
   // Payment flow
   const [payState, setPayState] = useState<PayState>("idle");
+  const [payIntent, setPayIntent] = useState<
+    | { amount: number; title: string; finalize: (intentId: string) => Promise<void> }
+    | null
+  >(null);
 
   // Interpreter-specific state
   const [interpreterView, setInterpreterView] = useState<"options" | "booking">("options");
@@ -393,19 +398,29 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
   // ── Submit (standard services) ─────────────────────────────────────────────
 
-  async function handleSubmit(isFree = false) {
+  async function handleSubmit(isFree = false, stripeIntentId?: string) {
     const err = validate();
     if (err) {
       toast.error(err);
       return;
     }
 
+    // Gate paid card payments through Stripe.
+    if (!isFree && basePrice > 0 && payMethod === "card" && !stripeIntentId) {
+      setPayIntent({
+        amount: basePrice,
+        title: localName,
+        finalize: async (intentId) => {
+          setPayIntent(null);
+          await handleSubmit(false, intentId);
+        },
+      });
+      return;
+    }
+
     setPayState("processing");
 
-    await new Promise((r) => setTimeout(r, 2000));
 
-    setPayState("success");
-    await new Promise((r) => setTimeout(r, 900));
 
     try {
       const staffId = await pickMatchingStaff(service.category);
@@ -464,9 +479,9 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           client_id: user!.id,
           amount_rwf: basePrice,
           currency: "USD",
-          method: payMethod === "momo" ? "momo" : "stripe",
+          method: stripeIntentId ? "stripe" : payMethod === "momo" ? "momo" : "stripe",
           status: "completed",
-          reference: `SB-${Date.now()}`,
+          reference: stripeIntentId ?? `SB-${Date.now()}`,
         });
       }
 
@@ -564,15 +579,25 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
   // ── Submit: interpreter booked session ─────────────────────────────────────
 
-  async function handleBookSession() {
+  async function handleBookSession(stripeIntentId?: string) {
     if (!user) { toast.error("Please sign in."); return; }
     if (!bookFromLang || !bookToLang) { toast.error("Please select both languages."); return; }
     if (!bookDate || !bookTime) { toast.error("Please select a date and time."); return; }
 
+    if (basePrice > 0 && !stripeIntentId) {
+      setPayIntent({
+        amount: basePrice,
+        title: "Live Interpreter Session",
+        finalize: async (intentId) => {
+          setPayIntent(null);
+          await handleBookSession(intentId);
+        },
+      });
+      return;
+    }
+
     setPayState("processing");
-    await new Promise((r) => setTimeout(r, 2000));
-    setPayState("success");
-    await new Promise((r) => setTimeout(r, 900));
+
 
     try {
       const staffId = await pickMatchingStaff(service.category);
@@ -820,7 +845,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                     <Button
                       className="w-full"
                       size="lg"
-                      onClick={handleBookSession}
+                      onClick={() => handleBookSession()}
                       disabled={payState !== "idle"}
                     >
                       {payState === "processing" ? (
@@ -1146,6 +1171,24 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           </>
         )}
       </DialogContent>
+
+      {/* Stripe payment dialog */}
+      <Dialog open={!!payIntent} onOpenChange={(o) => { if (!o) setPayIntent(null); }}>
+        <DialogContent className="max-w-md border-0 bg-transparent p-0 shadow-none">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Complete payment</DialogTitle>
+          </DialogHeader>
+          {payIntent ? (
+            <StripePaymentForm
+              amount={payIntent.amount}
+              serviceTitle={payIntent.title}
+              metadata={{ client_id: user?.id ?? "", service_id: service.id }}
+              onSuccess={(intentId: string) => payIntent.finalize(intentId)}
+              onCancel={() => setPayIntent(null)}
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
