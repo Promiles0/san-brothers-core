@@ -844,7 +844,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                     <Button
                       className="w-full"
                       size="lg"
-                      onClick={handleBookSession}
+                      onClick={() => handleBookSession()}
                       disabled={payState !== "idle"}
                     >
                       {payState === "processing" ? (
