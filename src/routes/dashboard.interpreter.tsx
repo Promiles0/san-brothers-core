@@ -799,7 +799,7 @@ function InterpreterLandingPage() {
         )}
       </div>
 
-      <Dialog open={!!payPkg} onOpenChange={(o) => { if (!o) setPayPkg(null); }}>
+      <Dialog open={!!payPkg} onOpenChange={(o: boolean) => { if (!o) setPayPkg(null); }}>
         <DialogContent className="max-w-md border-0 bg-transparent p-0 shadow-none">
           <DialogHeader className="sr-only">
             <DialogTitle>Buy minutes</DialogTitle>
