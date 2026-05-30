@@ -265,6 +265,7 @@ function InterpreterLandingPage() {
 
   const [activeTab, setActiveTab] = useState(TAB_ORDER[0]);
   const [purchasing, setPurchasing] = useState<string | null>(null);
+  const [payPkg, setPayPkg] = useState<MinutePackage | null>(null);
 
   const [preferredInterp, setPreferredInterp] = useState<PreferredInterpreter | null>(null);
   const [preferredInterpLoading, setPreferredInterpLoading] = useState(false);
