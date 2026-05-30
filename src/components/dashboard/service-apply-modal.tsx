@@ -1170,6 +1170,24 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           </>
         )}
       </DialogContent>
+
+      {/* Stripe payment dialog */}
+      <Dialog open={!!payIntent} onOpenChange={(o) => { if (!o) setPayIntent(null); }}>
+        <DialogContent className="max-w-md border-0 bg-transparent p-0 shadow-none">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Complete payment</DialogTitle>
+          </DialogHeader>
+          {payIntent ? (
+            <StripePaymentForm
+              amount={payIntent.amount}
+              serviceTitle={payIntent.title}
+              metadata={{ client_id: user?.id ?? "", service_id: service.id }}
+              onSuccess={(intentId) => payIntent.finalize(intentId)}
+              onCancel={() => setPayIntent(null)}
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
