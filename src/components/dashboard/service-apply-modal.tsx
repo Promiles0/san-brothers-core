@@ -578,15 +578,25 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
   // ── Submit: interpreter booked session ─────────────────────────────────────
 
-  async function handleBookSession() {
+  async function handleBookSession(stripeIntentId?: string) {
     if (!user) { toast.error("Please sign in."); return; }
     if (!bookFromLang || !bookToLang) { toast.error("Please select both languages."); return; }
     if (!bookDate || !bookTime) { toast.error("Please select a date and time."); return; }
 
+    if (basePrice > 0 && !stripeIntentId) {
+      setPayIntent({
+        amount: basePrice,
+        title: "Live Interpreter Session",
+        finalize: async (intentId) => {
+          setPayIntent(null);
+          await handleBookSession(intentId);
+        },
+      });
+      return;
+    }
+
     setPayState("processing");
-    await new Promise((r) => setTimeout(r, 2000));
-    setPayState("success");
-    await new Promise((r) => setTimeout(r, 900));
+
 
     try {
       const staffId = await pickMatchingStaff(service.category);
