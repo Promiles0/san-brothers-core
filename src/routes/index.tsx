@@ -105,61 +105,12 @@ function Home() {
           <div className="relative hidden md:block">
             <div className="relative mx-auto aspect-square w-full max-w-md">
               <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary/30 to-accent/20 blur-3xl" />
-              <svg viewBox="0 0 400 400" className="relative h-full w-full">
-                <circle
-                  cx="200"
-                  cy="200"
-                  r="140"
-                  className="fill-primary/10 stroke-primary/40"
-                  strokeWidth="2"
-                />
-                <circle
-                  cx="200"
-                  cy="200"
-                  r="90"
-                  className="fill-none stroke-primary/30"
-                  strokeWidth="2"
-                  strokeDasharray="4 6"
-                />
-                <rect
-                  x="120"
-                  y="160"
-                  width="100"
-                  height="120"
-                  rx="8"
-                  className="fill-card stroke-border"
-                  strokeWidth="2"
-                />
-                <line
-                  x1="135"
-                  y1="185"
-                  x2="205"
-                  y2="185"
-                  className="stroke-muted-foreground"
-                  strokeWidth="3"
-                />
-                <line
-                  x1="135"
-                  y1="205"
-                  x2="195"
-                  y2="205"
-                  className="stroke-muted-foreground"
-                  strokeWidth="3"
-                />
-                <line
-                  x1="135"
-                  y1="225"
-                  x2="180"
-                  y2="225"
-                  className="stroke-muted-foreground"
-                  strokeWidth="3"
-                />
-                <circle cx="270" cy="140" r="34" className="fill-accent/80" />
-                <path
-                  d="M255 135 Q270 125 285 135 L285 145 L275 145 L270 152 L265 145 L255 145 Z"
-                  className="fill-accent-foreground"
-                />
-              </svg>
+              <iframe
+                src="/sbc3d.html"
+                /* ← swap with whichever version you picked */ className="relative h-full w-full"
+                style={{ border: "none", background: "transparent" }}
+                title="SBC Logo 3D"
+              />
             </div>
           </div>
         </div>
