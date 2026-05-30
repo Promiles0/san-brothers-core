@@ -322,20 +322,30 @@ function InterpreterCallScreen() {
         </CardContent>
       </Card>
 
-      {/* Daily.co video */}
+      {/* Daily.co video — premium layered stage */}
       {call.daily_room_url ? (
-        <div className="relative h-100 w-full overflow-hidden rounded-xl bg-black">
-          <iframe
-            src={call.daily_room_url}
-            allow="camera; microphone; fullscreen; speaker; display-capture"
-            className="h-full w-full border-0"
-            title="Video call"
-          />
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500/30 via-emerald-500/20 to-teal-500/30 p-[1.5px] shadow-2xl shadow-green-500/20">
+          <div className="relative h-[26rem] w-full overflow-hidden rounded-[calc(1rem-1.5px)] bg-black">
+            <iframe
+              src={call.daily_room_url}
+              allow="camera; microphone; fullscreen; autoplay; display-capture; picture-in-picture"
+              allowFullScreen
+              className="h-full w-full border-0"
+              title="Video call"
+            />
+            <span className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white backdrop-blur">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-400" />
+              LIVE
+            </span>
+          </div>
         </div>
       ) : (
-        <div className="flex h-48 w-full items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Connecting video...
+        <div className="relative flex h-[26rem] w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-muted/60 to-muted text-sm text-muted-foreground">
+          <div className="relative flex h-16 w-16 items-center justify-center">
+            <span className="absolute inset-0 animate-ping rounded-full bg-green-500/20" />
+            <Loader2 className="relative h-8 w-8 animate-spin text-green-500" />
+          </div>
+          <p className="font-medium">Connecting secure video…</p>
         </div>
       )}
 
