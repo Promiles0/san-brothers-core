@@ -478,9 +478,9 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           client_id: user!.id,
           amount_rwf: basePrice,
           currency: "USD",
-          method: payMethod === "momo" ? "momo" : "stripe",
+          method: stripeIntentId ? "stripe" : payMethod === "momo" ? "momo" : "stripe",
           status: "completed",
-          reference: `SB-${Date.now()}`,
+          reference: stripeIntentId ?? `SB-${Date.now()}`,
         });
       }
 
