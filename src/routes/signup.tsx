@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthLayout, PasswordStrength } from "@/components/auth/auth-layout";
+import { GoogleSignInButton, OrDivider } from "@/components/auth/google-signin-button";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { intentLabel, friendlyAuthError } from "@/lib/auth/intent-labels";
