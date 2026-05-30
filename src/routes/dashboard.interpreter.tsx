@@ -456,11 +456,16 @@ function InterpreterLandingPage() {
     }
   };
 
-  const handlePurchase = async (pkg: MinutePackage) => {
+  const handlePurchase = (pkg: MinutePackage) => {
+    if (!user) return;
+    setPayPkg(pkg);
+  };
+
+  const finalizePurchase = async (pkg: MinutePackage, intentId: string) => {
     if (!user) return;
     setPurchasing(pkg.id);
+    setPayPkg(null);
     try {
-      await new Promise<void>((r) => setTimeout(r, 1500));
       const newPaid = paidMinutes + pkg.minutes;
       const { error } = await supabase.from("client_minutes").upsert(
         {
@@ -471,12 +476,20 @@ function InterpreterLandingPage() {
         { onConflict: "client_id" },
       );
       if (error) throw error;
+      await supabase.from("payments").insert({
+        client_id: user.id,
+        amount_rwf: pkg.price_usd,
+        currency: "USD",
+        method: "stripe",
+        status: "completed",
+        reference: intentId,
+      });
       setMinutes({
         client_id: user.id,
         free_minutes_remaining: freeMinutes,
         paid_minutes_remaining: newPaid,
       });
-      toast.success(`${pkg.label} purchased — ${pkg.minutes} minutes added!`);
+      toast.success(`${pkg.minutes} minutes added to your account!`);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
