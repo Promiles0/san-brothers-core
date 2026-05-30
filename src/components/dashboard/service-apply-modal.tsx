@@ -281,6 +281,10 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
   // Payment flow
   const [payState, setPayState] = useState<PayState>("idle");
+  const [payIntent, setPayIntent] = useState<
+    | { amount: number; title: string; finalize: (intentId: string) => Promise<void> }
+    | null
+  >(null);
 
   // Interpreter-specific state
   const [interpreterView, setInterpreterView] = useState<"options" | "booking">("options");
