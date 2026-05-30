@@ -1,128 +1,146 @@
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SBC — Explosion Assembly</title>
+<title>SBC — Magnetic Levitation</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100%;background:transparent;overflow:hidden}
-canvas{display:block}
+canvas{display:block;width:100%!important;height:100%!important}
 </style></head><body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
-const W=window.innerWidth,H=window.innerHeight;
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(45,W/H,0.1,100);
-camera.position.set(0,0,13);
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-renderer.setSize(W,H);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setClearColor(0x000000,0);document.body.appendChild(renderer.domElement);
+  const W=window.innerWidth,H=window.innerHeight;
+  const scene=new THREE.Scene();
+  // Tighter FOV + closer camera so logo fills the square nicely
+  const camera=new THREE.PerspectiveCamera(42,W/H,0.1,100);
+  camera.position.set(0,0,10);
 
-scene.add(new THREE.AmbientLight(0xffffff,0.8));
-const key=new THREE.DirectionalLight(0xffffff,2.5);key.position.set(4,7,7);scene.add(key);
-const red=new THREE.PointLight(0xff2200,3,20);red.position.set(2,0,5);scene.add(red);
-const fill=new THREE.DirectionalLight(0xffeedd,0.4);fill.position.set(-5,-3,2);scene.add(fill);
+  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setSize(W,H);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setClearColor(0x000000,0);
+  renderer.shadowMap.enabled=true;
+  document.body.appendChild(renderer.domElement);
 
-function makeBrush(w,h,depth,color){
-  const s=new THREE.Shape();
-  s.moveTo(-w*.5,0);s.bezierCurveTo(-w*.35,h*.55,w*.1,h*.52,w*.38,h*.42);
-  s.bezierCurveTo(w*.52,h*.35,w*.52,-h*.35,w*.38,-h*.42);
-  s.bezierCurveTo(w*.1,-h*.52,-w*.35,-h*.55,-w*.5,0);s.closePath();
-  const geo=new THREE.ExtrudeGeometry(s,{steps:2,depth,bevelEnabled:true,bevelThickness:depth*.35,bevelSize:depth*.25,bevelSegments:8});
-  geo.center();
-  return new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color,metalness:0.3,roughness:0.4}));
-}
-function makeCircle(letter,cx){
-  const g=new THREE.Group();
-  const disc=new THREE.Mesh(new THREE.CylinderGeometry(.72,.72,.4,48),new THREE.MeshStandardMaterial({color:0x0d0d0d,metalness:0.4,roughness:0.35}));
-  disc.rotation.x=Math.PI/2;g.add(disc);
-  const c=document.createElement('canvas');c.width=128;c.height=128;
-  const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.font='bold 88px Arial Black';
-  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(letter,64,68);
-  const pl=new THREE.Mesh(new THREE.PlaneGeometry(.9,.9),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true}));
-  pl.position.z=.22;g.add(pl);g.position.x=cx;return g;
-}
+  // Lights
+  scene.add(new THREE.AmbientLight(0xffffff,0.75));
+  const key=new THREE.DirectionalLight(0xffffff,2.4);key.position.set(5,8,8);key.castShadow=true;scene.add(key);
+  const fill=new THREE.DirectionalLight(0xff3333,0.9);fill.position.set(-6,-4,3);scene.add(fill);
+  const back=new THREE.DirectionalLight(0xffeedd,0.5);back.position.set(0,-8,-6);scene.add(back);
+  const redPt=new THREE.PointLight(0xff1100,3,15);redPt.position.set(2,1,6);scene.add(redPt);
 
-// Final (assembled) positions
-const finalPos=[
-  {x:.25,y:2.3,z:0,rx:0,ry:0,rz:-.05},
-  {x:.3,y:.75,z:.05,rx:0,ry:0,rz:-.06},
-  {x:0,y:-.8,z:0,rx:0,ry:0,rz:-.04},
-  {x:-1.65,y:-2.35,z:0,rx:0,ry:0,rz:0},
-  {x:0,y:-2.35,z:0,rx:0,ry:0,rz:0},
-  {x:1.65,y:-2.35,z:0,rx:0,ry:0,rz:0},
-];
+  function makeBrush(w,h,depth,color,px,py,pz,rz){
+    const s=new THREE.Shape();
+    s.moveTo(-w*.5,0);
+    s.bezierCurveTo(-w*.35,h*.55,w*.1,h*.52,w*.38,h*.42);
+    s.bezierCurveTo(w*.52,h*.35,w*.52,-h*.35,w*.38,-h*.42);
+    s.bezierCurveTo(w*.1,-h*.52,-w*.35,-h*.55,-w*.5,0);
+    s.closePath();
+    const geo=new THREE.ExtrudeGeometry(s,{steps:2,depth,bevelEnabled:true,bevelThickness:depth*.35,bevelSize:depth*.25,bevelSegments:8});
+    geo.center();
+    const mat=new THREE.MeshStandardMaterial({color,metalness:0.4,roughness:0.3});
+    const m=new THREE.Mesh(geo,mat);m.castShadow=true;
+    m.position.set(px,py,pz);m.rotation.z=rz||0;
+    return m;
+  }
 
-// Exploded offsets (burst outward)
-const explodeOff=[
-  {x:-.8,y:3.5,z:3,rx:-.4,ry:.6,rz:.3},
-  {x:2.5,y:1.2,z:2.5,rx:.3,ry:-.5,rz:-.4},
-  {x:-2,y:-2.5,z:3,rx:.5,ry:.3,rz:.2},
-  {x:-3.5,y:-4,z:2,rx:-.6,ry:.4,rz:-.5},
-  {x:.5,y:-5,z:2.5,rx:.4,ry:-.3,rz:.3},
-  {x:3,y:-3.5,z:2,rx:-.3,ry:.5,rz:-.2},
-];
+  function makeCircle(letter,cx){
+    const g=new THREE.Group();
+    const mat=new THREE.MeshStandardMaterial({color:0x0d0d0d,metalness:0.5,roughness:0.3});
+    const disc=new THREE.Mesh(new THREE.CylinderGeometry(.72,.72,.4,48),mat);
+    disc.rotation.x=Math.PI/2;disc.castShadow=true;g.add(disc);
+    const c=document.createElement('canvas');c.width=128;c.height=128;
+    const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.font='bold 88px Arial Black';
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(letter,64,68);
+    const pl=new THREE.Mesh(
+      new THREE.PlaneGeometry(.9,.9),
+      new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true})
+    );
+    pl.position.z=.22;g.add(pl);
+    g.position.set(cx,-2.35,0);
+    return g;
+  }
 
-const meshes=[
-  makeBrush(3.2,.6,.45,0x111111),
-  makeBrush(2.4,.52,.38,0x7a0c0c),
-  makeBrush(4.8,.55,.42,0xe01010),
-  makeCircle('S',-1.65),makeCircle('B',0),makeCircle('C',1.65)
-];
+  // Build all pieces
+  const pieces=[
+    makeBrush(3.2,.6,.45,0x111111,.25,2.3,0,-.05),
+    makeBrush(2.4,.52,.38,0x7a0c0c,.3,.75,.05,-.06),
+    makeBrush(4.8,.55,.42,0xe01010,0,-.8,0,-.04),
+    makeCircle('S',-1.65),
+    makeCircle('B',0),
+    makeCircle('C',1.65),
+  ];
 
-// Fix circle positions (they have built-in x offset, reset)
-meshes[3].position.set(0,0,0);meshes[4].position.set(0,0,0);meshes[5].position.set(0,0,0);
+  const origY=pieces.map(p=>p.position.y);
+  const phases=[0,1.2,2.4,0.3,1.5,2.7];
+  const speeds=[1,1.3,.8,1.1,.9,1.2];
+  pieces.forEach(p=>scene.add(p));
 
-const logo=new THREE.Group();
-meshes.forEach(m=>logo.add(m));
-scene.add(logo);
+  // Drag interaction
+  let drag=false,lm={x:0,y:0},tr={x:0,y:0},cr={x:0,y:0},auto=true;
+  const el=renderer.domElement;
+  el.style.cursor='grab';
 
-let drag=false,lm={x:0,y:0},tr={x:0,y:0},cr={x:0,y:0},auto=true;
-const el=renderer.domElement;
-el.addEventListener('mousedown',e=>{drag=true;auto=false;lm={x:e.clientX,y:e.clientY}});
-window.addEventListener('mousemove',e=>{if(!drag)return;tr.y+=(e.clientX-lm.x)*.01;tr.x+=(e.clientY-lm.y)*.01;lm={x:e.clientX,y:e.clientY}});
-window.addEventListener('mouseup',()=>{drag=false;setTimeout(()=>auto=true,2000)});
-el.addEventListener('touchstart',e=>{drag=true;auto=false;lm={x:e.touches[0].clientX,y:e.touches[0].clientY}});
-window.addEventListener('touchmove',e=>{if(!drag)return;tr.y+=(e.touches[0].clientX-lm.x)*.01;tr.x+=(e.touches[0].clientY-lm.y)*.01;lm={x:e.touches[0].clientX,y:e.touches[0].clientY}});
-window.addEventListener('touchend',()=>{drag=false;setTimeout(()=>auto=true,2000)});
-
-const clock=new THREE.Clock();
-function lerp(a,b,t){return a+(b-a)*t;}
-
-function animate(){
-  requestAnimationFrame(animate);
-  const t=clock.getElapsedTime();
-
-  if(auto){tr.y=Math.sin(t*.3)*.4;tr.x=Math.sin(t*.18)*.07;}
-  cr.x+=(tr.x-cr.x)*.06;cr.y+=(tr.y-cr.y)*.06;
-  logo.rotation.x=cr.x;logo.rotation.y=cr.y;
-
-  // Explosion cycle: 0-2s assemble, 2-4s hold, 4-5.5s explode, 5.5-7s hold exploded, 7-9s reassemble
-  const cycle=8;
-  const phase=(t%cycle)/cycle;
-
-  let explodeT=0;
-  if(phase<0.25) explodeT=0; // assembled
-  else if(phase<0.4) explodeT=(phase-.25)/.15; // exploding
-  else if(phase<0.65) explodeT=1; // exploded
-  else if(phase<0.85) explodeT=1-(phase-.65)/.2; // assembling
-  else explodeT=0; // assembled
-
-  // Smooth easing
-  const e3=explodeT*explodeT*(3-2*explodeT);
-
-  meshes.forEach((m,i)=>{
-    const fp=finalPos[i],ep=explodeOff[i];
-    m.position.x=lerp(fp.x,fp.x+ep.x,e3);
-    m.position.y=lerp(fp.y,fp.y+ep.y,e3);
-    m.position.z=lerp(fp.z,fp.z+ep.z,e3);
-    m.rotation.x=lerp(fp.rx,fp.rx+ep.rx,e3);
-    m.rotation.z=lerp(fp.rz,fp.rz+ep.rz,e3);
+  el.addEventListener('mousedown',e=>{drag=true;auto=false;lm={x:e.clientX,y:e.clientY};el.style.cursor='grabbing';});
+  window.addEventListener('mousemove',e=>{
+    if(!drag)return;
+    tr.y+=(e.clientX-lm.x)*.009;
+    tr.x+=(e.clientY-lm.y)*.009;
+    lm={x:e.clientX,y:e.clientY};
   });
+  window.addEventListener('mouseup',()=>{drag=false;el.style.cursor='grab';setTimeout(()=>auto=true,2200);});
 
-  red.intensity=2.5+Math.sin(t*1.5)*.8;
-  renderer.render(scene,camera);
-}
-animate();
-window.addEventListener('resize',()=>{const W=window.innerWidth,H=window.innerHeight;camera.aspect=W/H;camera.updateProjectionMatrix();renderer.setSize(W,H)});
+  el.addEventListener('touchstart',e=>{drag=true;auto=false;lm={x:e.touches[0].clientX,y:e.touches[0].clientY};},{passive:true});
+  window.addEventListener('touchmove',e=>{
+    if(!drag)return;
+    tr.y+=(e.touches[0].clientX-lm.x)*.009;
+    tr.x+=(e.touches[0].clientY-lm.y)*.009;
+    lm={x:e.touches[0].clientX,y:e.touches[0].clientY};
+  },{passive:true});
+  window.addEventListener('touchend',()=>{drag=false;setTimeout(()=>auto=true,2200);});
+
+  const clock=new THREE.Clock();
+
+  function animate(){
+    requestAnimationFrame(animate);
+    const t=clock.getElapsedTime();
+
+    if(auto){
+      tr.y=Math.sin(t*.3)*.5;
+      tr.x=Math.sin(t*.2)*.08;
+    }
+    cr.x+=(tr.x-cr.x)*.06;
+    cr.y+=(tr.y-cr.y)*.06;
+
+    // Apply shared rotation to all pieces
+    pieces.forEach((p,i)=>{
+      p.rotation.x=cr.x+(i<3?Math.sin(t*speeds[i]*.5+phases[i])*.018:0);
+      p.rotation.y=cr.y;
+      // Each piece levitates on its own frequency
+      p.position.y=origY[i]+Math.sin(t*speeds[i]+phases[i])*.2;
+      // Subtle individual Z drift
+      p.position.z=Math.sin(t*speeds[i]*.4+phases[i]+1)*.08;
+      // Keep brushstroke Z rotations
+      if(i===0) p.rotation.z=-.05+Math.sin(t*.7+phases[i])*.012;
+      if(i===1) p.rotation.z=-.06+Math.sin(t*.8+phases[i])*.012;
+      if(i===2) p.rotation.z=-.04+Math.sin(t*.65+phases[i])*.012;
+    });
+
+    // Pulsing red point light
+    redPt.intensity=2.5+Math.sin(t*1.4)*.8;
+    redPt.position.x=Math.sin(t*.5)*3;
+    redPt.position.y=Math.cos(t*.4)*2;
+
+    renderer.render(scene,camera);
+  }
+
+  animate();
+
+  window.addEventListener('resize',()=>{
+    const W=window.innerWidth,H=window.innerHeight;
+    camera.aspect=W/H;camera.updateProjectionMatrix();
+    renderer.setSize(W,H);
+  });
 })();
-</script></body></html>
+</script>
+</body></html>

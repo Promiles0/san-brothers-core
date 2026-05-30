@@ -107,7 +107,7 @@ function Home() {
               <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary/30 to-accent/20 blur-3xl" />
               <iframe
                 src="/sbc3d.html"
-                /* ← swap with whichever version you picked */ className="relative h-full w-full"
+                className="relative h-full w-full"
                 style={{ border: "none", background: "transparent" }}
                 title="SBC Logo 3D"
               />
