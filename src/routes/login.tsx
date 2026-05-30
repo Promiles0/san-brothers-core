@@ -121,6 +121,11 @@ function LoginPage() {
         </Alert>
       ) : null}
 
+      <GoogleSignInButton />
+      <OrDivider />
+
+
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-1.5">
           <Label>{t("auth.signup.email")}</Label>
