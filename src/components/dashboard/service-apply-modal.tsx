@@ -1183,7 +1183,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
               amount={payIntent.amount}
               serviceTitle={payIntent.title}
               metadata={{ client_id: user?.id ?? "", service_id: service.id }}
-              onSuccess={(intentId) => payIntent.finalize(intentId)}
+              onSuccess={(intentId: string) => payIntent.finalize(intentId)}
               onCancel={() => setPayIntent(null)}
             />
           ) : null}
