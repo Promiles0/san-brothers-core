@@ -127,7 +127,11 @@ function SignupPage() {
         </Alert>
       ) : null}
 
+      <GoogleSignInButton />
+      <OrDivider />
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
         <Field
           label={t("auth.signup.fullName")}
           error={errors.full_name?.message ? t(errors.full_name.message) : undefined}
