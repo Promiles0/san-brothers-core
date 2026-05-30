@@ -397,19 +397,29 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
   // ── Submit (standard services) ─────────────────────────────────────────────
 
-  async function handleSubmit(isFree = false) {
+  async function handleSubmit(isFree = false, stripeIntentId?: string) {
     const err = validate();
     if (err) {
       toast.error(err);
       return;
     }
 
+    // Gate paid card payments through Stripe.
+    if (!isFree && basePrice > 0 && payMethod === "card" && !stripeIntentId) {
+      setPayIntent({
+        amount: basePrice,
+        title: localName,
+        finalize: async (intentId) => {
+          setPayIntent(null);
+          await handleSubmit(false, intentId);
+        },
+      });
+      return;
+    }
+
     setPayState("processing");
 
-    await new Promise((r) => setTimeout(r, 2000));
 
-    setPayState("success");
-    await new Promise((r) => setTimeout(r, 900));
 
     try {
       const staffId = await pickMatchingStaff(service.category);
