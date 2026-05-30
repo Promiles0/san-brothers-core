@@ -20,7 +20,6 @@ export const createPaymentIntentFn = createServerFn({ method: "POST" })
 
     // Use fetch-based HTTP client so Stripe SDK works on Cloudflare Workers.
     const stripe = new Stripe(secret, {
-      apiVersion: "2024-06-20" as Stripe.LatestApiVersion,
       httpClient: Stripe.createFetchHttpClient(),
     });
 
