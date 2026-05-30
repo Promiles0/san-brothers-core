@@ -796,6 +796,24 @@ function InterpreterLandingPage() {
           </>
         )}
       </div>
+
+      <Dialog open={!!payPkg} onOpenChange={(o) => { if (!o) setPayPkg(null); }}>
+        <DialogContent className="max-w-md border-0 bg-transparent p-0 shadow-none">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Buy minutes</DialogTitle>
+          </DialogHeader>
+          {payPkg ? (
+            <StripePaymentForm
+              amount={payPkg.price_usd}
+              serviceTitle={`Interpreter Minutes — ${payPkg.label}`}
+              description={`${payPkg.minutes} minutes`}
+              metadata={{ client_id: user?.id ?? "", package_id: payPkg.id, minutes: String(payPkg.minutes) }}
+              onSuccess={(intentId: string) => finalizePurchase(payPkg, intentId)}
+              onCancel={() => setPayPkg(null)}
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
