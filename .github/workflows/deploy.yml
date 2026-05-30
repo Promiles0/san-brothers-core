@@ -26,6 +26,7 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_DAILY_CO_API_KEY: ${{ secrets.VITE_DAILY_CO_API_KEY }}
           VITE_DAILY_CO_DOMAIN: ${{ secrets.VITE_DAILY_CO_DOMAIN }}
+          VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
