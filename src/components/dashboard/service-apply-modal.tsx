@@ -44,6 +44,7 @@ import { getRequiredDocs } from "@/lib/dashboard/service-requirements";
 import { createNotification, createNotificationForAdmins } from "@/lib/notifications";
 import { supabase } from "@/lib/supabase";
 import type { ApplicantType, Service, ServiceCategory } from "@/lib/types/database";
+import { StripePaymentForm } from "@/components/payments/stripe-payment-form";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
