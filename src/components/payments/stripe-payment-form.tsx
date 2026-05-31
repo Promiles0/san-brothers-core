@@ -36,7 +36,7 @@ export interface StripePaymentFormProps {
 }
 
 export function StripePaymentForm(props: StripePaymentFormProps) {
-  const { amount, metadata } = props;
+  const { amount, metadata, onError } = props;
   const createPaymentIntent = useServerFn(createPaymentIntentFn);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [intentId, setIntentId] = useState<string | null>(null);
@@ -48,7 +48,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
       const message = "Stripe publishable key is not configured.";
       console.error(message);
       setInitError(message);
-      props.onError?.(message);
+      onError?.(message);
       return;
     }
     setInitError(null);
@@ -65,13 +65,13 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
           const message = e.message || "Could not prepare Stripe checkout.";
           console.error("Stripe payment intent creation failed", e);
           setInitError(message);
-          props.onError?.(message, e);
+          onError?.(message, e);
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [amount, createPaymentIntent, metadata, props]);
+  }, [amount, createPaymentIntent, metadata, onError]);
 
   const options = useMemo(
     () =>
