@@ -720,15 +720,32 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       >
         <PayOverlay state={payState} />
 
-        {payIntent ? (
-          <div className="flex h-full w-full items-center justify-center overflow-y-auto p-4 sm:p-6">
-            <div className="w-full max-w-md">
+        {showingPayment && payIntent ? (
+          <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto bg-gradient-to-br from-muted/40 via-background to-primary/5 p-4 sm:p-6">
+            <div className="w-full max-w-lg space-y-4">
+              {stripeError ? (
+                <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>{stripeError}</span>
+                </div>
+              ) : null}
               <StripePaymentForm
                 amount={payIntent.amount}
                 serviceTitle={payIntent.title}
-                metadata={{ client_id: user?.id ?? "", service_id: service.id }}
-                onSuccess={(intentId: string) => payIntent.finalize(intentId)}
-                onCancel={() => setPayIntent(null)}
+                description={payIntent.description}
+                metadata={payIntent.metadata}
+                onSuccess={async (intentId: string) => {
+                  setStripeError(null);
+                  await payIntent.finalize(intentId);
+                }}
+                onCancel={() => {
+                  setShowingPayment(false);
+                  setPayIntent(null);
+                }}
+                onError={(message, error) => {
+                  console.error("Stripe checkout failed", error ?? message);
+                  setStripeError(message);
+                }}
               />
             </div>
           </div>
