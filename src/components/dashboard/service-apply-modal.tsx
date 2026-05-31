@@ -508,7 +508,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       }
 
       if (!isFree && basePrice > 0) {
-        await supabase.from("payments").insert({
+        const { error: payErr } = await supabase.from("payments").insert({
           service_request_id: requestId,
           client_id: user!.id,
           amount_rwf: basePrice,
@@ -517,6 +517,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           status: "completed",
           reference: stripeIntentId ?? `SB-${Date.now()}`,
         });
+        if (payErr) throw payErr;
       }
 
       await createNotification({
@@ -671,15 +672,16 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       if (srErr) throw srErr;
       const requestId = sr.id as string;
 
-      await supabase.from("payments").insert({
+      const { error: payErr } = await supabase.from("payments").insert({
         service_request_id: requestId,
         client_id: user.id,
         amount_rwf: basePrice,
         currency: "USD",
         method: "stripe",
         status: "completed",
-        reference: `SB-${Date.now()}`,
+        reference: stripeIntentId ?? `SB-${Date.now()}`,
       });
+      if (payErr) throw payErr;
 
       await createNotification({
         user_id: user.id,
