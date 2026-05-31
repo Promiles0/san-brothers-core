@@ -428,6 +428,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
     // Gate paid card payments through Stripe.
     if (!isFree && basePrice > 0 && payMethod === "card" && !stripeIntentId) {
       setStripeError(null);
+      console.info("Opening Stripe checkout for service request", { serviceId: service.id, amount: basePrice });
       setPayIntent({
         amount: basePrice,
         title: localName,
@@ -436,10 +437,18 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         finalize: async (intentId) => {
           console.info("Stripe payment succeeded for service request", { paymentIntentId: intentId });
           setShowingPayment(false);
+          setPayIntent(null);
           await handleSubmit(false, intentId);
         },
       });
       setShowingPayment(true);
+      return;
+    }
+
+    if (!isFree && basePrice > 0 && payMethod !== "card") {
+      const message = "This payment method is coming soon. Please choose Card to pay securely with Stripe.";
+      setStripeError(message);
+      toast.error(message);
       return;
     }
 
@@ -614,6 +623,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
     if (basePrice > 0 && !stripeIntentId) {
       setStripeError(null);
+      console.info("Opening Stripe checkout for interpreter booking", { serviceId: service.id, amount: basePrice });
       setPayIntent({
         amount: basePrice,
         title: "Live Interpreter Session",
@@ -622,6 +632,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         finalize: async (intentId) => {
           console.info("Stripe payment succeeded for interpreter booking", { paymentIntentId: intentId });
           setShowingPayment(false);
+          setPayIntent(null);
           await handleBookSession(intentId);
         },
       });
