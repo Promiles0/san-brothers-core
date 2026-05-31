@@ -175,6 +175,7 @@ function InnerForm({
   amount,
   onSuccess,
   onCancel,
+  onError,
 }: StripePaymentFormProps & { intentId: string }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -189,7 +190,10 @@ function InnerForm({
 
     const { error: submitErr } = await elements.submit();
     if (submitErr) {
-      setError(submitErr.message ?? "Payment validation failed.");
+      const message = submitErr.message ?? "Payment validation failed.";
+      console.error("Stripe payment validation failed", submitErr);
+      setError(message);
+      onError?.(message, submitErr);
       setSubmitting(false);
       return;
     }
@@ -200,15 +204,29 @@ function InnerForm({
     });
 
     if (payErr) {
-      setError(payErr.message ?? "Payment failed.");
+      const message = payErr.message ?? "Payment failed.";
+      console.error("Stripe payment confirmation failed", payErr);
+      setError(message);
+      onError?.(message, payErr);
       setSubmitting(false);
       return;
     }
 
     if (paymentIntent && paymentIntent.status === "succeeded") {
-      await onSuccess(paymentIntent.id);
+      try {
+        await onSuccess(paymentIntent.id);
+      } catch (e) {
+        const message = (e as Error).message || "Payment completed, but request submission failed.";
+        console.error("Stripe post-payment submission failed", e);
+        setError(message);
+        onError?.(message, e);
+        setSubmitting(false);
+      }
     } else {
-      setError("Payment did not complete. Please try again.");
+      const message = "Payment did not complete. Please try again.";
+      console.error("Stripe payment incomplete", paymentIntent);
+      setError(message);
+      onError?.(message, paymentIntent);
       setSubmitting(false);
     }
   };
