@@ -30,6 +30,11 @@ export const createPaymentIntentFn = createServerFn({ method: "POST" })
       metadata: data.metadata ?? {},
     });
 
+    if (!intent.client_secret) {
+      console.error("Stripe created a PaymentIntent without a client secret", { id: intent.id });
+      throw new Error("Stripe checkout could not be prepared. Please try again.");
+    }
+
     return {
       clientSecret: intent.client_secret,
       paymentIntentId: intent.id,
