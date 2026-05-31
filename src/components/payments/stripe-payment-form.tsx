@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
 import {
   Elements,
@@ -31,10 +32,12 @@ export interface StripePaymentFormProps {
   metadata?: Record<string, string>;
   onSuccess: (paymentIntentId: string) => void | Promise<void>;
   onCancel: () => void;
+  onError?: (message: string, error?: unknown) => void;
 }
 
 export function StripePaymentForm(props: StripePaymentFormProps) {
   const { amount, metadata } = props;
+  const createPaymentIntent = useServerFn(createPaymentIntentFn);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [intentId, setIntentId] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
@@ -42,10 +45,14 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
   useEffect(() => {
     let cancelled = false;
     if (!PUBLISHABLE_KEY) {
-      setInitError("Stripe publishable key is not configured.");
+      const message = "Stripe publishable key is not configured.";
+      console.error(message);
+      setInitError(message);
+      props.onError?.(message);
       return;
     }
-    createPaymentIntentFn({
+    setInitError(null);
+    createPaymentIntent({
       data: { amount, currency: "usd", metadata: metadata ?? {} },
     })
       .then((res) => {
@@ -54,12 +61,17 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
         setIntentId(res.paymentIntentId);
       })
       .catch((e: Error) => {
-        if (!cancelled) setInitError(e.message);
+        if (!cancelled) {
+          const message = e.message || "Could not prepare Stripe checkout.";
+          console.error("Stripe payment intent creation failed", e);
+          setInitError(message);
+          props.onError?.(message, e);
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [amount, metadata]);
+  }, [amount, createPaymentIntent, metadata, props]);
 
   const options = useMemo(
     () =>
