@@ -291,8 +291,16 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
   // Payment flow
   const [payState, setPayState] = useState<PayState>("idle");
+  const [showingPayment, setShowingPayment] = useState(false);
+  const [stripeError, setStripeError] = useState<string | null>(null);
   const [payIntent, setPayIntent] = useState<
-    | { amount: number; title: string; finalize: (intentId: string) => Promise<void> }
+    | {
+        amount: number;
+        title: string;
+        description?: string;
+        metadata: Record<string, string>;
+        finalize: (intentId: string) => Promise<void>;
+      }
     | null
   >(null);
 
@@ -316,6 +324,9 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       setFiles([]);
       setPayMethod("card");
       setPayState("idle");
+      setShowingPayment(false);
+      setStripeError(null);
+      setPayIntent(null);
 
       setInterpreterView("options");
       setBookFromLang("");
@@ -416,14 +427,19 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
     // Gate paid card payments through Stripe.
     if (!isFree && basePrice > 0 && payMethod === "card" && !stripeIntentId) {
+      setStripeError(null);
       setPayIntent({
         amount: basePrice,
         title: localName,
+        description: localDesc,
+        metadata: { client_id: user!.id, service_id: service.id, service_slug: service.slug },
         finalize: async (intentId) => {
-          setPayIntent(null);
+          console.info("Stripe payment succeeded for service request", { paymentIntentId: intentId });
+          setShowingPayment(false);
           await handleSubmit(false, intentId);
         },
       });
+      setShowingPayment(true);
       return;
     }
 
@@ -530,8 +546,11 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         } as never,
       });
     } catch (e) {
+      console.error("Service request submission failed", e);
       setPayState("idle");
-      toast.error((e as Error).message);
+      const message = (e as Error).message || "We could not submit your request.";
+      setStripeError(message);
+      toast.error(message);
     }
   }
 
