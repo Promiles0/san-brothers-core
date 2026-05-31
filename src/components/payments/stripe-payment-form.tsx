@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
 import {
@@ -39,9 +39,14 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
   const { amount, metadata, onError } = props;
   const createPaymentIntent = useServerFn(createPaymentIntentFn);
   const metadataKey = useMemo(() => JSON.stringify(metadata ?? {}), [metadata]);
+  const onErrorRef = useRef(onError);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [intentId, setIntentId] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,7 +54,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
       const message = "Stripe publishable key is not configured.";
       console.error(message);
       setInitError(message);
-      onError?.(message);
+      onErrorRef.current?.(message);
       return;
     }
     setInitError(null);
@@ -68,13 +73,13 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
           const message = e.message || "Could not prepare Stripe checkout.";
           console.error("Stripe payment intent creation failed", e);
           setInitError(message);
-          onError?.(message, e);
+          onErrorRef.current?.(message, e);
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [amount, createPaymentIntent, metadataKey, onError]);
+  }, [amount, createPaymentIntent, metadataKey]);
 
   const options = useMemo(
     () =>
