@@ -38,6 +38,7 @@ export interface StripePaymentFormProps {
 export function StripePaymentForm(props: StripePaymentFormProps) {
   const { amount, metadata, onError } = props;
   const createPaymentIntent = useServerFn(createPaymentIntentFn);
+  const metadataKey = useMemo(() => JSON.stringify(metadata ?? {}), [metadata]);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [intentId, setIntentId] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
@@ -52,8 +53,10 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
       return;
     }
     setInitError(null);
+    setClientSecret(null);
+    setIntentId(null);
     createPaymentIntent({
-      data: { amount, currency: "usd", metadata: metadata ?? {} },
+      data: { amount, currency: "usd", metadata: JSON.parse(metadataKey) as Record<string, string> },
     })
       .then((res) => {
         if (cancelled) return;
@@ -71,7 +74,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
     return () => {
       cancelled = true;
     };
-  }, [amount, createPaymentIntent, metadata, onError]);
+  }, [amount, createPaymentIntent, metadataKey, onError]);
 
   const options = useMemo(
     () =>
