@@ -613,14 +613,19 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
     if (!bookDate || !bookTime) { toast.error("Please select a date and time."); return; }
 
     if (basePrice > 0 && !stripeIntentId) {
+      setStripeError(null);
       setPayIntent({
         amount: basePrice,
         title: "Live Interpreter Session",
+        description: `${bookFromLang} to ${bookToLang} · ${bookDate} ${bookTime}`,
+        metadata: { client_id: user.id, service_id: service.id, service_slug: service.slug },
         finalize: async (intentId) => {
-          setPayIntent(null);
+          console.info("Stripe payment succeeded for interpreter booking", { paymentIntentId: intentId });
+          setShowingPayment(false);
           await handleBookSession(intentId);
         },
       });
+      setShowingPayment(true);
       return;
     }
 
@@ -694,8 +699,11 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         } as never,
       });
     } catch (e) {
+      console.error("Interpreter booking submission failed", e);
       setPayState("idle");
-      toast.error((e as Error).message);
+      const message = (e as Error).message || "We could not book your interpreter session.";
+      setStripeError(message);
+      toast.error(message);
     }
   }
 
