@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
+  AlertCircle,
   Calendar,
   Check,
   CheckCircle2,
@@ -9,7 +10,9 @@ import {
   CreditCard,
   FileText,
   Loader2,
+  Lock,
   Phone,
+  ShieldCheck,
   Smartphone,
   Upload,
   X,
@@ -201,27 +204,33 @@ function PayMethodCard({
   label,
   icon,
   selected,
+  disabled,
+  note,
   onSelect,
 }: {
   id: PayMethod;
   label: string;
   icon: React.ReactNode;
   selected: boolean;
+  disabled?: boolean;
+  note?: string;
   onSelect: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onSelect}
+      disabled={disabled}
       className={cn(
-        "flex flex-1 flex-col items-center gap-2 rounded-lg border p-3 text-xs font-medium transition-all",
+        "flex flex-1 flex-col items-center gap-2 rounded-lg border p-3 text-xs font-medium transition-all disabled:cursor-not-allowed disabled:opacity-60",
         selected
           ? "border-primary bg-primary/5 text-primary ring-1 ring-primary"
           : "border-border hover:border-primary/50 hover:bg-accent",
       )}
     >
       {icon}
-      {label}
+      <span>{label}</span>
+      {note ? <span className="text-[10px] font-normal text-muted-foreground">{note}</span> : null}
     </button>
   );
 }
