@@ -1215,6 +1215,8 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                         label="PayPal"
                         icon={<span className="text-base font-bold text-blue-600">P</span>}
                         selected={payMethod === "paypal"}
+                        disabled
+                        note="Soon"
                         onSelect={() => setPayMethod("paypal")}
                       />
                       <PayMethodCard
@@ -1222,12 +1224,26 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                         label="MTN MoMo"
                         icon={<Smartphone className="h-5 w-5" />}
                         selected={payMethod === "momo"}
+                        disabled
+                        note="Soon"
                         onSelect={() => setPayMethod("momo")}
                       />
                     </div>
 
+                    <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
+                      <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
+                      <span>Card payments open a secure Stripe checkout after this form is validated.</span>
+                    </div>
+
+                    {stripeError ? (
+                      <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+                        <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                        <span>{stripeError}</span>
+                      </div>
+                    ) : null}
+
                     <Button
-                      className="w-full"
+                      className="w-full shadow-lg shadow-primary/15"
                       size="lg"
                       onClick={() => handleSubmit(false)}
                       disabled={payState !== "idle"}
@@ -1238,6 +1254,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                         </>
                       ) : (
                         <>
+                          <Lock className="mr-2 h-4 w-4" />
                           Submit &amp; Pay{" "}
                           {basePrice > 0 ? fmtUSD(basePrice) : ""}
                         </>
