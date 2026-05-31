@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
 import {
   Elements,
@@ -31,22 +32,36 @@ export interface StripePaymentFormProps {
   metadata?: Record<string, string>;
   onSuccess: (paymentIntentId: string) => void | Promise<void>;
   onCancel: () => void;
+  onError?: (message: string, error?: unknown) => void;
 }
 
 export function StripePaymentForm(props: StripePaymentFormProps) {
-  const { amount, metadata } = props;
+  const { amount, metadata, onError } = props;
+  const createPaymentIntent = useServerFn(createPaymentIntentFn);
+  const metadataKey = useMemo(() => JSON.stringify(metadata ?? {}), [metadata]);
+  const onErrorRef = useRef(onError);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [intentId, setIntentId] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
 
   useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+
+  useEffect(() => {
     let cancelled = false;
     if (!PUBLISHABLE_KEY) {
-      setInitError("Stripe publishable key is not configured.");
+      const message = "Stripe publishable key is not configured.";
+      console.error(message);
+      setInitError(message);
+      onErrorRef.current?.(message);
       return;
     }
-    createPaymentIntentFn({
-      data: { amount, currency: "usd", metadata: metadata ?? {} },
+    setInitError(null);
+    setClientSecret(null);
+    setIntentId(null);
+    createPaymentIntent({
+      data: { amount, currency: "usd", metadata: JSON.parse(metadataKey) as Record<string, string> },
     })
       .then((res) => {
         if (cancelled) return;
@@ -54,12 +69,17 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
         setIntentId(res.paymentIntentId);
       })
       .catch((e: Error) => {
-        if (!cancelled) setInitError(e.message);
+        if (!cancelled) {
+          const message = e.message || "Could not prepare Stripe checkout.";
+          console.error("Stripe payment intent creation failed", e);
+          setInitError(message);
+          onErrorRef.current?.(message, e);
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [amount, metadata]);
+  }, [amount, createPaymentIntent, metadataKey]);
 
   const options = useMemo(
     () =>
@@ -163,6 +183,7 @@ function InnerForm({
   amount,
   onSuccess,
   onCancel,
+  onError,
 }: StripePaymentFormProps & { intentId: string }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -177,7 +198,10 @@ function InnerForm({
 
     const { error: submitErr } = await elements.submit();
     if (submitErr) {
-      setError(submitErr.message ?? "Payment validation failed.");
+      const message = submitErr.message ?? "Payment validation failed.";
+      console.error("Stripe payment validation failed", submitErr);
+      setError(message);
+      onError?.(message, submitErr);
       setSubmitting(false);
       return;
     }
@@ -188,15 +212,29 @@ function InnerForm({
     });
 
     if (payErr) {
-      setError(payErr.message ?? "Payment failed.");
+      const message = payErr.message ?? "Payment failed.";
+      console.error("Stripe payment confirmation failed", payErr);
+      setError(message);
+      onError?.(message, payErr);
       setSubmitting(false);
       return;
     }
 
     if (paymentIntent && paymentIntent.status === "succeeded") {
-      await onSuccess(paymentIntent.id);
+      try {
+        await onSuccess(paymentIntent.id);
+      } catch (e) {
+        const message = (e as Error).message || "Payment completed, but request submission failed.";
+        console.error("Stripe post-payment submission failed", e);
+        setError(message);
+        onError?.(message, e);
+        setSubmitting(false);
+      }
     } else {
-      setError("Payment did not complete. Please try again.");
+      const message = "Payment did not complete. Please try again.";
+      console.error("Stripe payment incomplete", paymentIntent);
+      setError(message);
+      onError?.(message, paymentIntent);
       setSubmitting(false);
     }
   };

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
+  AlertCircle,
   Calendar,
   Check,
   CheckCircle2,
@@ -9,7 +10,9 @@ import {
   CreditCard,
   FileText,
   Loader2,
+  Lock,
   Phone,
+  ShieldCheck,
   Smartphone,
   Upload,
   X,
@@ -201,27 +204,33 @@ function PayMethodCard({
   label,
   icon,
   selected,
+  disabled,
+  note,
   onSelect,
 }: {
   id: PayMethod;
   label: string;
   icon: React.ReactNode;
   selected: boolean;
+  disabled?: boolean;
+  note?: string;
   onSelect: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onSelect}
+      disabled={disabled}
       className={cn(
-        "flex flex-1 flex-col items-center gap-2 rounded-lg border p-3 text-xs font-medium transition-all",
+        "flex flex-1 flex-col items-center gap-2 rounded-lg border p-3 text-xs font-medium transition-all disabled:cursor-not-allowed disabled:opacity-60",
         selected
           ? "border-primary bg-primary/5 text-primary ring-1 ring-primary"
           : "border-border hover:border-primary/50 hover:bg-accent",
       )}
     >
       {icon}
-      {label}
+      <span>{label}</span>
+      {note ? <span className="text-[10px] font-normal text-muted-foreground">{note}</span> : null}
     </button>
   );
 }
@@ -282,8 +291,16 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
   // Payment flow
   const [payState, setPayState] = useState<PayState>("idle");
+  const [showingPayment, setShowingPayment] = useState(false);
+  const [stripeError, setStripeError] = useState<string | null>(null);
   const [payIntent, setPayIntent] = useState<
-    | { amount: number; title: string; finalize: (intentId: string) => Promise<void> }
+    | {
+        amount: number;
+        title: string;
+        description?: string;
+        metadata: Record<string, string>;
+        finalize: (intentId: string) => Promise<void>;
+      }
     | null
   >(null);
 
@@ -307,6 +324,9 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       setFiles([]);
       setPayMethod("card");
       setPayState("idle");
+      setShowingPayment(false);
+      setStripeError(null);
+      setPayIntent(null);
 
       setInterpreterView("options");
       setBookFromLang("");
@@ -407,14 +427,28 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
     // Gate paid card payments through Stripe.
     if (!isFree && basePrice > 0 && payMethod === "card" && !stripeIntentId) {
+      setStripeError(null);
+      console.info("Opening Stripe checkout for service request", { serviceId: service.id, amount: basePrice });
       setPayIntent({
         amount: basePrice,
         title: localName,
+        description: localDesc,
+        metadata: { client_id: user!.id, service_id: service.id, service_slug: service.slug },
         finalize: async (intentId) => {
+          console.info("Stripe payment succeeded for service request", { paymentIntentId: intentId });
+          setShowingPayment(false);
           setPayIntent(null);
           await handleSubmit(false, intentId);
         },
       });
+      setShowingPayment(true);
+      return;
+    }
+
+    if (!isFree && basePrice > 0 && payMethod !== "card") {
+      const message = "This payment method is coming soon. Please choose Card to pay securely with Stripe.";
+      setStripeError(message);
+      toast.error(message);
       return;
     }
 
@@ -474,7 +508,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       }
 
       if (!isFree && basePrice > 0) {
-        await supabase.from("payments").insert({
+        const { error: payErr } = await supabase.from("payments").insert({
           service_request_id: requestId,
           client_id: user!.id,
           amount_rwf: basePrice,
@@ -483,6 +517,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           status: "completed",
           reference: stripeIntentId ?? `SB-${Date.now()}`,
         });
+        if (payErr) throw payErr;
       }
 
       await createNotification({
@@ -521,8 +556,11 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         } as never,
       });
     } catch (e) {
+      console.error("Service request submission failed", e);
       setPayState("idle");
-      toast.error((e as Error).message);
+      const message = (e as Error).message || "We could not submit your request.";
+      setStripeError(message);
+      toast.error(message);
     }
   }
 
@@ -585,14 +623,21 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
     if (!bookDate || !bookTime) { toast.error("Please select a date and time."); return; }
 
     if (basePrice > 0 && !stripeIntentId) {
+      setStripeError(null);
+      console.info("Opening Stripe checkout for interpreter booking", { serviceId: service.id, amount: basePrice });
       setPayIntent({
         amount: basePrice,
         title: "Live Interpreter Session",
+        description: `${bookFromLang} to ${bookToLang} · ${bookDate} ${bookTime}`,
+        metadata: { client_id: user.id, service_id: service.id, service_slug: service.slug },
         finalize: async (intentId) => {
+          console.info("Stripe payment succeeded for interpreter booking", { paymentIntentId: intentId });
+          setShowingPayment(false);
           setPayIntent(null);
           await handleBookSession(intentId);
         },
       });
+      setShowingPayment(true);
       return;
     }
 
@@ -627,15 +672,16 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       if (srErr) throw srErr;
       const requestId = sr.id as string;
 
-      await supabase.from("payments").insert({
+      const { error: payErr } = await supabase.from("payments").insert({
         service_request_id: requestId,
         client_id: user.id,
         amount_rwf: basePrice,
         currency: "USD",
         method: "stripe",
         status: "completed",
-        reference: `SB-${Date.now()}`,
+        reference: stripeIntentId ?? `SB-${Date.now()}`,
       });
+      if (payErr) throw payErr;
 
       await createNotification({
         user_id: user.id,
@@ -666,8 +712,11 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         } as never,
       });
     } catch (e) {
+      console.error("Interpreter booking submission failed", e);
       setPayState("idle");
-      toast.error((e as Error).message);
+      const message = (e as Error).message || "We could not book your interpreter session.";
+      setStripeError(message);
+      toast.error(message);
     }
   }
 
@@ -684,15 +733,32 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       >
         <PayOverlay state={payState} />
 
-        {payIntent ? (
-          <div className="flex h-full w-full items-center justify-center overflow-y-auto p-4 sm:p-6">
-            <div className="w-full max-w-md">
+        {showingPayment && payIntent ? (
+          <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto bg-gradient-to-br from-muted/40 via-background to-primary/5 p-4 sm:p-6">
+            <div className="w-full max-w-lg space-y-4">
+              {stripeError ? (
+                <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>{stripeError}</span>
+                </div>
+              ) : null}
               <StripePaymentForm
                 amount={payIntent.amount}
                 serviceTitle={payIntent.title}
-                metadata={{ client_id: user?.id ?? "", service_id: service.id }}
-                onSuccess={(intentId: string) => payIntent.finalize(intentId)}
-                onCancel={() => setPayIntent(null)}
+                description={payIntent.description}
+                metadata={payIntent.metadata}
+                onSuccess={async (intentId: string) => {
+                  setStripeError(null);
+                  await payIntent.finalize(intentId);
+                }}
+                onCancel={() => {
+                  setShowingPayment(false);
+                  setPayIntent(null);
+                }}
+                onError={(message, error) => {
+                  console.error("Stripe checkout failed", error ?? message);
+                  setStripeError(message);
+                }}
               />
             </div>
           </div>
@@ -1149,6 +1215,8 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                         label="PayPal"
                         icon={<span className="text-base font-bold text-blue-600">P</span>}
                         selected={payMethod === "paypal"}
+                        disabled
+                        note="Soon"
                         onSelect={() => setPayMethod("paypal")}
                       />
                       <PayMethodCard
@@ -1156,12 +1224,26 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                         label="MTN MoMo"
                         icon={<Smartphone className="h-5 w-5" />}
                         selected={payMethod === "momo"}
+                        disabled
+                        note="Soon"
                         onSelect={() => setPayMethod("momo")}
                       />
                     </div>
 
+                    <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
+                      <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
+                      <span>Card payments open a secure Stripe checkout after this form is validated.</span>
+                    </div>
+
+                    {stripeError ? (
+                      <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+                        <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                        <span>{stripeError}</span>
+                      </div>
+                    ) : null}
+
                     <Button
-                      className="w-full"
+                      className="w-full shadow-lg shadow-primary/15"
                       size="lg"
                       onClick={() => handleSubmit(false)}
                       disabled={payState !== "idle"}
@@ -1172,6 +1254,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                         </>
                       ) : (
                         <>
+                          <Lock className="mr-2 h-4 w-4" />
                           Submit &amp; Pay{" "}
                           {basePrice > 0 ? fmtUSD(basePrice) : ""}
                         </>
