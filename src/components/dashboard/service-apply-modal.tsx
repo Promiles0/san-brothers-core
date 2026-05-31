@@ -684,9 +684,22 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       >
         <PayOverlay state={payState} />
 
-        {isInterpreter ? (
+        {payIntent ? (
+          <div className="flex h-full w-full items-center justify-center overflow-y-auto p-4 sm:p-6">
+            <div className="w-full max-w-md">
+              <StripePaymentForm
+                amount={payIntent.amount}
+                serviceTitle={payIntent.title}
+                metadata={{ client_id: user?.id ?? "", service_id: service.id }}
+                onSuccess={(intentId: string) => payIntent.finalize(intentId)}
+                onCancel={() => setPayIntent(null)}
+              />
+            </div>
+          </div>
+        ) : isInterpreter ? (
           // ── Interpreter layout ───────────────────────────────────────────
           <>
+
             <DialogHeader className="shrink-0 border-b border-border px-5 py-4">
               <DialogTitle asChild>
                 <div className="flex items-center gap-3">
