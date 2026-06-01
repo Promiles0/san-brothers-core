@@ -7,6 +7,11 @@ type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
 
+interface CloudflareEnv {
+  STRIPE_SECRET_KEY?: string;
+  [key: string]: unknown;
+}
+
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 
 async function getServerEntry(): Promise<ServerEntry> {
@@ -68,6 +73,68 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      // Handle Stripe payment intent creation
+      const url = new URL(request.url);
+      if (url.pathname === "/api/stripe/payment-intent" && request.method === "POST") {
+        try {
+          const cloudflareEnv = env as CloudflareEnv;
+          const secretKey = cloudflareEnv.STRIPE_SECRET_KEY;
+
+          if (!secretKey) {
+            return new Response(JSON.stringify({ error: "Stripe not configured" }), {
+              status: 500,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+
+          const body = (await request.json()) as {
+            amount: number;
+            metadata?: Record<string, string>;
+          };
+
+          // Call Stripe API directly with fetch (no SDK needed)
+          const stripeResponse = await fetch("https://api.stripe.com/v1/payment_intents", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${secretKey}`,
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              amount: Math.round(body.amount * 100).toString(),
+              currency: "usd",
+              "automatic_payment_methods[enabled]": "true",
+              ...Object.entries(body.metadata || {}).reduce(
+                (acc, [key, value]) => ({ ...acc, [`metadata[${key}]`]: value }),
+                {},
+              ),
+            }),
+          });
+
+          const paymentIntent = (await stripeResponse.json()) as {
+            client_secret: string;
+            error?: { message: string };
+          };
+
+          if (!stripeResponse.ok) {
+            return new Response(JSON.stringify({ error: paymentIntent.error?.message }), {
+              status: 400,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+
+          return new Response(JSON.stringify({ clientSecret: paymentIntent.client_secret }), {
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch (err) {
+          console.error("[Stripe API]", err);
+          return new Response(JSON.stringify({ error: "Payment processing failed" }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+      }
+
+      // All other requests go to TanStack handler
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

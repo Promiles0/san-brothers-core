@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
 import {
   Elements,
@@ -11,7 +10,6 @@ import { Loader2, Lock, ShieldCheck, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { createPaymentIntentFn } from "@/lib/payments/create-payment-intent.functions";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
 
@@ -36,12 +34,9 @@ export interface StripePaymentFormProps {
 }
 
 export function StripePaymentForm(props: StripePaymentFormProps) {
-  const { amount, metadata, onError } = props;
-  const createPaymentIntent = useServerFn(createPaymentIntentFn);
-  const metadataKey = useMemo(() => JSON.stringify(metadata ?? {}), [metadata]);
+  const { amount, serviceTitle, onError } = props;
   const onErrorRef = useRef(onError);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [intentId, setIntentId] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -59,14 +54,36 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
     }
     setInitError(null);
     setClientSecret(null);
-    setIntentId(null);
-    createPaymentIntent({
-      data: { amount, currency: "usd", metadata: JSON.parse(metadataKey) as Record<string, string> },
-    })
-      .then((res) => {
+    async function preparePaymentIntent() {
+      const response = await fetch("/api/stripe/payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount,
+          metadata: { serviceTitle },
+        }),
+      });
+
+      const payload = (await response.json().catch(() => ({}))) as {
+        clientSecret?: string;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Payment setup failed");
+      }
+
+      if (!payload.clientSecret) {
+        throw new Error("Stripe checkout could not be prepared. Please try again.");
+      }
+
+      return payload.clientSecret;
+    }
+
+    preparePaymentIntent()
+      .then((secret) => {
         if (cancelled) return;
-        setClientSecret(res.clientSecret);
-        setIntentId(res.paymentIntentId);
+        setClientSecret(secret);
       })
       .catch((e: Error) => {
         if (!cancelled) {
@@ -79,7 +96,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
     return () => {
       cancelled = true;
     };
-  }, [amount, createPaymentIntent, metadataKey]);
+  }, [amount, serviceTitle]);
 
   const options = useMemo(
     () =>
@@ -110,7 +127,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
           <LoadingState />
         ) : (
           <Elements stripe={getStripe()} options={options}>
-            <InnerForm {...props} intentId={intentId!} />
+            <InnerForm {...props} />
           </Elements>
         )}
 
@@ -184,7 +201,7 @@ function InnerForm({
   onSuccess,
   onCancel,
   onError,
-}: StripePaymentFormProps & { intentId: string }) {
+}: StripePaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
