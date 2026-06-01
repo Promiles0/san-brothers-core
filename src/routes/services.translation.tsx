@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { PageHero, CtaBanner } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
-import { useAuth } from "@/hooks/useAuth";
+import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
 
 export const Route = createFileRoute("/services/translation")({
   head: () => ({
@@ -29,8 +29,13 @@ const FEATURE_KEYS = [
 ] as const;
 function TranslationBridge() {
   const { t } = useI18n();
-  const { user } = useAuth();
   const navigate = useNavigate();
+
+  const handleIntent = async (intent: string) => {
+    const destination = await resolveServiceIntentDestination(intent);
+    void navigate(destination as never);
+  };
+
   return (
     <PublicLayout>
       <PageHero title={t("translationSvc.title")} subtitle={t("translationSvc.subtitle")} />
@@ -55,19 +60,7 @@ function TranslationBridge() {
                 <Button
                   size="lg"
                   variant="outline"
-                  onClick={() => {
-                    if (user) {
-                      void navigate({ to: "/dashboard/services/document-translation" as never });
-                    } else {
-                      void navigate({
-                        to: "/login",
-                        search: {
-                          intent: "document-translation",
-                          next: "/dashboard/services/document-translation",
-                        } as never,
-                      });
-                    }
-                  }}
+                  onClick={() => void handleIntent("document-translation")}
                 >
                   {t("translationSvc.docBtn")}
                 </Button>

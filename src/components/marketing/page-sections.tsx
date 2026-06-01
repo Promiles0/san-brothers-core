@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
 
 export function PageHero({
   title,
@@ -43,21 +44,15 @@ export function CtaBanner({
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (slug) {
-      if (user) {
-        void navigate({ to: `/dashboard/services/${slug}` as never });
-      } else {
-        void navigate({
-          to: "/login",
-          search: { intent: slug, next: `/dashboard/services/${slug}` } as never,
-        });
-      }
+      const destination = await resolveServiceIntentDestination(slug);
+      void navigate(destination as never);
     } else if (href.startsWith("/signup")) {
       if (user) {
         void navigate({ to: "/dashboard/services" });
       } else {
-        void navigate({ to: "/login", search: { intent: "service" } as never });
+        void navigate({ to: "/signup", search: { intent: "service" } as never });
       }
     } else {
       void navigate({ to: href as never });

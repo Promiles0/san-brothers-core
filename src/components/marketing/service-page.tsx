@@ -13,7 +13,7 @@ import {
 import { PublicLayout } from "@/components/layout/public-layout";
 import { PageHero, CtaBanner } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
-import { useAuth } from "@/hooks/useAuth";
+import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
 export interface SubService {
   slug: string;
   title: string;
@@ -53,18 +53,11 @@ export function ServicePage({
   docs,
 }: ServicePageProps) {
   const { t } = useI18n();
-  const { user } = useAuth();
   const navigate = useNavigate();
 
-  const handleApply = (slug: string) => {
-    if (user) {
-      void navigate({ to: `/dashboard/services/${slug}` as never });
-    } else {
-      void navigate({
-        to: "/login",
-        search: { intent: slug, next: `/dashboard/services/${slug}` } as never,
-      });
-    }
+  const handleApply = async (slug: string) => {
+    const destination = await resolveServiceIntentDestination(slug);
+    void navigate(destination as never);
   };
 
   return (

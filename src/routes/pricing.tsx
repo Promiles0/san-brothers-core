@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { PageHero, CtaBanner } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
-import { useAuth } from "@/hooks/useAuth";
+import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -33,18 +33,11 @@ const TAB_KEYS = ["visa", "accounting", "consultancy", "translation"] as const;
 
 function Pricing() {
   const { t, tRaw } = useI18n();
-  const { user } = useAuth();
   const navigate = useNavigate();
 
-  const handleGetStarted = (intent: string) => {
-    if (user) {
-      void navigate({ to: `/dashboard/services/${intent}` as never });
-    } else {
-      void navigate({
-        to: "/login",
-        search: { intent, next: `/dashboard/services/${intent}` } as never,
-      });
-    }
+  const handleGetStarted = async (intent: string) => {
+    const destination = await resolveServiceIntentDestination(intent);
+    void navigate(destination as never);
   };
 
   return (

@@ -1,11 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/providers/i18n-provider";
-import { useAuth } from "@/hooks/useAuth";
+import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
 
 export function TranslateCta() {
   const { t } = useI18n();
-  const { user } = useAuth();
   const navigate = useNavigate();
   return (
     <section className="bg-primary text-primary-foreground">
@@ -20,17 +19,10 @@ export function TranslateCta() {
           size="lg"
           variant="secondary"
           className="mt-8 h-14 px-10 text-base"
-          onClick={() =>
-            user
-              ? void navigate({ to: "/translate/live/session" })
-              : void navigate({
-                  to: "/login",
-                  search: {
-                    intent: "live-interpreter",
-                    next: "/translate/live/session",
-                  } as never,
-                })
-          }
+          onClick={async () => {
+            const destination = await resolveServiceIntentDestination("live-interpreter");
+            void navigate(destination as never);
+          }}
         >
           {t("translate.finalCta.button")}
         </Button>

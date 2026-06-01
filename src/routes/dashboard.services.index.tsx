@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Clock, PlusCircle, Search, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,9 @@ import { toast } from "sonner";
 import type { Service } from "@/lib/types/database";
 
 export const Route = createFileRoute("/dashboard/services/")({
+  validateSearch: (search) => ({
+    apply: (search.apply as string) || undefined,
+  }),
   component: ServiceCatalog,
 });
 
@@ -29,6 +32,8 @@ function isInterpreterSlug(slug: string) {
 
 function ServiceCatalog() {
   const { t, locale } = useI18n();
+  const navigate = useNavigate();
+  const { apply } = useSearch({ from: "/dashboard/services/" });
   const [services, setServices] = useState<Service[] | null>(null);
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<(typeof CATEGORIES)[number]>("all");
@@ -50,6 +55,43 @@ function ServiceCatalog() {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    if (!apply) return;
+
+    if (apply === "live-interpreter") {
+      void navigate({ to: "/dashboard/interpreter", replace: true } as never);
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("services")
+          .select("*")
+          .eq("slug", apply)
+          .eq("is_active", true)
+          .maybeSingle();
+        if (error) throw error;
+        if (!cancelled && data) {
+          setApplyService(data as Service);
+          void navigate({
+            to: "/dashboard/services",
+            search: {} as never,
+            replace: true,
+          } as never);
+        }
+      } catch (e) {
+        toast.error((e as Error).message);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [apply, navigate]);
 
   const localName = (s: Service) =>
     (locale === "zh" && s.name_zh) || (locale === "rw" && s.name_rw) || s.name_en;

@@ -8,6 +8,7 @@ import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { useAuth } from "@/hooks/useAuth";
 import { UserMenu } from "@/components/auth/user-menu";
+import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
 
 export function TranslateNavbar() {
   const { t, locale } = useI18n();
@@ -23,6 +24,11 @@ export function TranslateNavbar() {
   ];
 
   const flagMap: Record<string, string> = { en: "🇬🇧 EN", zh: "🇨🇳 中文", rw: "🇷🇼 RW" };
+
+  const handleGetHelpNow = async () => {
+    const destination = await resolveServiceIntentDestination("live-interpreter");
+    void navigate(destination as never);
+  };
 
   return (
     <>
@@ -75,9 +81,7 @@ export function TranslateNavbar() {
                 <Button
                   size="sm"
                   className="gap-2"
-                  onClick={() =>
-                    void navigate({ to: "/login", search: { intent: "translate" } as never })
-                  }
+                  onClick={() => void handleGetHelpNow()}
                 >
                   <Phone className="h-4 w-4" />
                   {t("translate.nav.getHelpNow")}
@@ -124,7 +128,7 @@ export function TranslateNavbar() {
                         <Button
                           onClick={() => {
                             setOpen(false);
-                            void navigate({ to: "/login", search: { intent: "translate" } as never });
+                            void handleGetHelpNow();
                           }}
                         >
                           <Phone className="h-4 w-4" />

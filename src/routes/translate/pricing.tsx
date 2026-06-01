@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { pricingPlans, type PricingPlan } from "@/lib/mock-data/translate";
 import { useI18n } from "@/lib/providers/i18n-provider";
-import { useAuth } from "@/hooks/useAuth";
+import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
 
 export const Route = createFileRoute("/translate/pricing")({
   head: () => ({
@@ -25,7 +25,6 @@ export const Route = createFileRoute("/translate/pricing")({
 
 function PlanCard({ plan, ctaLabel }: { plan: PricingPlan; ctaLabel: string }) {
   const { t } = useI18n();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const formatMin =
     plan.minutes >= 1000
@@ -63,15 +62,9 @@ function PlanCard({ plan, ctaLabel }: { plan: PricingPlan; ctaLabel: string }) {
         {plan.note && <p className="text-sm text-accent">{plan.note}</p>}
         <Button
           className="mt-2"
-          onClick={() => {
-            if (user) {
-              void navigate({ to: "/translate/live/session" });
-            } else {
-              void navigate({
-                to: "/login",
-                search: { intent: "live-interpreter", next: "/translate/live/session" } as never,
-              });
-            }
+          onClick={async () => {
+            const destination = await resolveServiceIntentDestination("live-interpreter");
+            void navigate(destination as never);
           }}
         >
           {ctaLabel}

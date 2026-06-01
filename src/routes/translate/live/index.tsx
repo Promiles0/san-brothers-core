@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { TranslateLayout } from "@/components/layout/translate-layout";
 import { TranslateCta } from "@/components/marketing/translate-cta";
 import { PageHero } from "@/components/marketing/page-sections";
@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, PhoneCall } from "lucide-react";
 import { useI18n } from "@/lib/providers/i18n-provider";
-import { useAuth } from "@/hooks/useAuth";
+import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
 
 export const Route = createFileRoute("/translate/live/")({
   head: () => ({
@@ -26,24 +26,27 @@ export const Route = createFileRoute("/translate/live/")({
 
 function LivePage() {
   const { t, tRaw } = useI18n();
-  const { user } = useAuth();
+  const navigate = useNavigate();
   const howSteps = tRaw<string[]>("translate.live.how.steps") ?? [];
   const useCases = tRaw<string[]>("translate.live.uses.items") ?? [];
   const trialPoints = tRaw<string[]>("translate.live.trial.points") ?? [];
   const pricingPoints = tRaw<string[]>("translate.live.pricing.points") ?? [];
-
-  const startHref = user ? "/translate/live/session" : "/login?intent=interpreter";
 
   return (
     <TranslateLayout>
       <PageHero title={t("translate.live.title")} subtitle={t("translate.live.subtitle")} />
 
       <div className="mx-auto -mt-6 flex max-w-4xl justify-center px-4 md:px-6">
-        <Button size="lg" className="h-14 px-10 text-base" asChild>
-          <a href={startHref}>
-            <PhoneCall className="h-5 w-5" />
-            Start Session
-          </a>
+        <Button
+          size="lg"
+          className="h-14 px-10 text-base"
+          onClick={async () => {
+            const destination = await resolveServiceIntentDestination("live-interpreter");
+            void navigate(destination as never);
+          }}
+        >
+          <PhoneCall className="h-5 w-5" />
+          Start Session
         </Button>
       </div>
 

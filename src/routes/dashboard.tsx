@@ -20,7 +20,11 @@ function DashboardLayoutRoute() {
 function DashboardShell() {
   const { profile, loading } = useAuth();
   const navigate = useNavigate();
-  const [hasInterpreterHistory, setHasInterpreterHistory] = useState(false);
+  const [clientNavAccess, setClientNavAccess] = useState({
+    hasServiceRequests: false,
+    hasInterpreterHistory: false,
+    hasConversations: false,
+  });
 
   // Staff/admin: silently redirect to /staff
   useEffect(() => {
@@ -29,19 +33,49 @@ function DashboardShell() {
     }
   }, [profile, loading, navigate]);
 
-  // Check if this client has any interpreter call history; subscribe for new ones
+  // Check client-only navigation unlocks; subscribe for newly-created activity
   useEffect(() => {
     if (!profile?.id || profile.role !== "client") return;
 
-    void supabase
-      .from("interpreter_calls")
-      .select("id", { count: "exact", head: true })
-      .eq("client_id", profile.id)
-      .then(({ count }) => {
-        if ((count ?? 0) > 0) setHasInterpreterHistory(true);
-      });
+    let cancelled = false;
 
-    const channel = supabase
+    void Promise.all([
+      supabase
+        .from("service_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("client_id", profile.id),
+      supabase
+        .from("interpreter_calls")
+        .select("id", { count: "exact", head: true })
+        .eq("client_id", profile.id),
+      supabase
+        .from("conversations")
+        .select("id", { count: "exact", head: true })
+        .eq("client_id", profile.id),
+    ]).then(([serviceRequests, interpreterCalls, conversations]) => {
+      if (cancelled) return;
+      setClientNavAccess({
+        hasServiceRequests: (serviceRequests.count ?? 0) > 0,
+        hasInterpreterHistory: (interpreterCalls.count ?? 0) > 0,
+        hasConversations: (conversations.count ?? 0) > 0,
+      });
+    });
+
+    const serviceRequestsChannel = supabase
+      .channel("client-service-requests:" + profile.id)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "service_requests",
+          filter: `client_id=eq.${profile.id}`,
+        },
+        () => setClientNavAccess((current) => ({ ...current, hasServiceRequests: true })),
+      )
+      .subscribe();
+
+    const interpreterChannel = supabase
       .channel("client-interp-history:" + profile.id)
       .on(
         "postgres_changes",
@@ -51,12 +85,29 @@ function DashboardShell() {
           table: "interpreter_calls",
           filter: `client_id=eq.${profile.id}`,
         },
-        () => setHasInterpreterHistory(true),
+        () => setClientNavAccess((current) => ({ ...current, hasInterpreterHistory: true })),
+      )
+      .subscribe();
+
+    const conversationsChannel = supabase
+      .channel("client-conversations:" + profile.id)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "conversations",
+          filter: `client_id=eq.${profile.id}`,
+        },
+        () => setClientNavAccess((current) => ({ ...current, hasConversations: true })),
       )
       .subscribe();
 
     return () => {
-      void supabase.removeChannel(channel);
+      cancelled = true;
+      void supabase.removeChannel(serviceRequestsChannel);
+      void supabase.removeChannel(interpreterChannel);
+      void supabase.removeChannel(conversationsChannel);
     };
   }, [profile?.id, profile?.role]);
 
@@ -67,10 +118,23 @@ function DashboardShell() {
     | "translator"
     | "admin";
 
+  const hiddenNavKeys =
+    role === "client"
+      ? [
+          ...(!clientNavAccess.hasServiceRequests
+            ? ["myServices", "documents", "payments", "claims"]
+            : []),
+          ...(!clientNavAccess.hasInterpreterHistory ? ["liveInterpreter"] : []),
+          ...(!clientNavAccess.hasServiceRequests && !clientNavAccess.hasConversations
+            ? ["messages"]
+            : []),
+        ]
+      : undefined;
+
   return (
     <DashboardLayout
       role={role}
-      hiddenNavKeys={role === "client" && !hasInterpreterHistory ? ["liveInterpreter"] : undefined}
+      hiddenNavKeys={hiddenNavKeys}
     >
       <Outlet />
       {role === "client" && <AiChatWidget />}

@@ -17,7 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { TranslateLayout } from "@/components/layout/translate-layout";
 import { TranslateCta } from "@/components/marketing/translate-cta";
 import { useI18n } from "@/lib/providers/i18n-provider";
-import { useAuth } from "@/hooks/useAuth";
+import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
 
 export const Route = createFileRoute("/translate/")({
   head: () => ({
@@ -37,8 +37,12 @@ export const Route = createFileRoute("/translate/")({
 });
 function TranslateHome() {
   const { t } = useI18n();
-  const { user } = useAuth();
   const navigate = useNavigate();
+
+  const handleIntent = async (intent: string) => {
+    const destination = await resolveServiceIntentDestination(intent);
+    void navigate(destination as never);
+  };
 
   const steps = [
     {
@@ -135,17 +139,7 @@ function TranslateHome() {
             <Button
               size="lg"
               className="h-14 gap-2 px-8 text-base"
-              onClick={() =>
-                user
-                  ? void navigate({ to: "/translate/live/session" })
-                  : void navigate({
-                      to: "/login",
-                      search: {
-                        intent: "live-interpreter",
-                        next: "/translate/live/session",
-                      } as never,
-                    })
-              }
+              onClick={() => void handleIntent("live-interpreter")}
             >
               <Phone className="h-5 w-5" />
               {t("translate.home.hero.primaryCta")}
@@ -154,17 +148,7 @@ function TranslateHome() {
               size="lg"
               variant="outline"
               className="h-14 gap-2 px-8 text-base"
-              onClick={() =>
-                user
-                  ? void navigate({ to: "/dashboard/services/document-translation" as never })
-                  : void navigate({
-                      to: "/login",
-                      search: {
-                        intent: "document-translation",
-                        next: "/dashboard/services/document-translation",
-                      } as never,
-                    })
-              }
+              onClick={() => void handleIntent("document-translation")}
             >
               <FileText className="h-5 w-5" />
               {t("translate.home.hero.secondaryCta")}
