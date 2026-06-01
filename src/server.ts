@@ -72,31 +72,29 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    const url = new URL(request.url);
+
+    // THIS MUST BE FIRST — before any TanStack handler
+    if (url.pathname === "/api/stripe/payment-intent" && request.method === "POST") {
+      const cloudflareEnv = env as Record<string, unknown>;
+      const envKeys = Object.keys(cloudflareEnv);
+
+      // DEBUG - return env info
+      return new Response(
+        JSON.stringify({
+          debug: true,
+          envKeys,
+          hasStripeKey: "STRIPE_SECRET_KEY" in cloudflareEnv,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    // TanStack handler AFTER our custom routes
     try {
-      // Handle Stripe payment intent creation
-      const url = new URL(request.url);
-      if (url.pathname === "/api/stripe/payment-intent" && request.method === "POST") {
-        const cloudflareEnv = env as Record<string, unknown>;
-
-        // DEBUG: log all available env keys
-        const envKeys = Object.keys(cloudflareEnv);
-        console.log("[Stripe Debug] Available env keys:", envKeys);
-        console.log("[Stripe Debug] STRIPE_SECRET_KEY exists:", "STRIPE_SECRET_KEY" in cloudflareEnv);
-        console.log("[Stripe Debug] Value type:", typeof cloudflareEnv.STRIPE_SECRET_KEY);
-
-        // Temporarily return env keys so we can see them
-        return new Response(
-          JSON.stringify({
-            debug: true,
-            envKeys,
-            hasStripeKey: "STRIPE_SECRET_KEY" in cloudflareEnv,
-            keyType: typeof cloudflareEnv.STRIPE_SECRET_KEY,
-          }),
-          { headers: { "Content-Type": "application/json" } },
-        );
-      }
-
-      // All other requests go to TanStack handler
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
