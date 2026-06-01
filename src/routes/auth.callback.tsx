@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useI18n } from "@/lib/providers/i18n-provider";
 
 export const Route = createFileRoute("/auth/callback")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    intent: typeof s.intent === "string" ? s.intent : undefined,
+  }),
   component: AuthCallbackPage,
 });
 
 function AuthCallbackPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
+  const { intent } = useSearch({ from: "/auth/callback" }) as { intent?: string };
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,6 +33,17 @@ function AuthCallbackPage() {
           return;
         }
         const uid = data.session.user.id;
+        const savedIntent = intent || sessionStorage.getItem("signup_intent");
+
+        if (savedIntent) {
+          sessionStorage.removeItem("signup_intent");
+          navigate({
+            to: "/dashboard/services",
+            search: { apply: savedIntent } as never,
+          });
+          return;
+        }
+
         // Pick up pending intent
         const { data: intents } = await supabase
           .from("signup_intents")
@@ -57,7 +72,7 @@ function AuthCallbackPage() {
     return () => {
       cancelled = true;
     };
-  }, [navigate]);
+  }, [intent, navigate]);
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">

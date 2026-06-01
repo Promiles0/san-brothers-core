@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,6 +34,7 @@ function LoginPage() {
   const { intent, next } = useSearch({ from: "/login" }) as { intent?: string; next?: string };
   const [serverError, setServerError] = useState<string | null>(null);
   const [remember, setRemember] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const {
     register,
@@ -42,6 +43,36 @@ function LoginPage() {
   } = useForm<Form>({
     resolver: zodResolver(schema),
   });
+
+  useEffect(() => {
+    if (intent) {
+      sessionStorage.setItem("signup_intent", intent);
+    }
+  }, [intent]);
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+
+    const googleIntent = intent || new URLSearchParams(window.location.search).get("intent");
+
+    if (googleIntent) {
+      sessionStorage.setItem("signup_intent", googleIntent);
+    }
+
+    const intentParam = googleIntent ? `?intent=${encodeURIComponent(googleIntent)}` : "";
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback${intentParam}`,
+      },
+    });
+
+    if (error) {
+      toast.error(error.message);
+      setGoogleLoading(false);
+    }
+  };
 
   const onSubmit = async (data: Form) => {
     console.log("submit fired");
@@ -82,6 +113,16 @@ function LoginPage() {
         .eq("id", authData.user.id)
         .maybeSingle();
       const role = (profileData as { role?: string } | null)?.role;
+      const savedIntent = intent || sessionStorage.getItem("signup_intent");
+
+      if (savedIntent && role === "client") {
+        sessionStorage.removeItem("signup_intent");
+        navigate({
+          to: "/dashboard/services",
+          search: { apply: savedIntent } as never,
+        });
+        return;
+      }
 
       if (role === "admin") {
         navigate({ to: "/admin", search: {} as never });
@@ -106,7 +147,7 @@ function LoginPage() {
           {t("auth.login.noAccount")}{" "}
           <Link
             to="/signup"
-            search={{ intent } as never}
+            search={{ intent: intent || undefined } as never}
             className="font-medium text-primary hover:underline"
           >
             {t("common.signup")}
@@ -121,7 +162,7 @@ function LoginPage() {
         </Alert>
       ) : null}
 
-      <GoogleSignInButton />
+      <GoogleSignInButton onClick={handleGoogleSignIn} loading={googleLoading} />
       <OrDivider />
 
 

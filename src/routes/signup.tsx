@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -56,6 +56,7 @@ function SignupPage() {
   const navigate = useNavigate();
   const { signUp } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const {
     register,
@@ -71,6 +72,36 @@ function SignupPage() {
   const password = watch("password") || "";
   const lang = watch("preferred_language");
   const intentName = intentLabel(intent);
+
+  useEffect(() => {
+    if (intent) {
+      sessionStorage.setItem("signup_intent", intent);
+    }
+  }, [intent]);
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+
+    const googleIntent = intent || new URLSearchParams(window.location.search).get("intent");
+
+    if (googleIntent) {
+      sessionStorage.setItem("signup_intent", googleIntent);
+    }
+
+    const intentParam = googleIntent ? `?intent=${encodeURIComponent(googleIntent)}` : "";
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback${intentParam}`,
+      },
+    });
+
+    if (error) {
+      toast.error(error.message);
+      setGoogleLoading(false);
+    }
+  };
 
   const onSubmit = async (data: SignupForm) => {
     setServerError(null);
@@ -106,7 +137,7 @@ function SignupPage() {
           {t("auth.signup.haveAccount")}{" "}
           <Link
             to="/login"
-            search={{ intent } as never}
+            search={{ intent: intent || undefined } as never}
             className="font-medium text-primary hover:underline"
           >
             {t("common.login")}
@@ -127,7 +158,7 @@ function SignupPage() {
         </Alert>
       ) : null}
 
-      <GoogleSignInButton />
+      <GoogleSignInButton onClick={handleGoogleSignIn} loading={googleLoading} />
       <OrDivider />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
