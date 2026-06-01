@@ -15,7 +15,8 @@ export const createPaymentIntentFn = createServerFn({ method: "POST" })
     return data;
   })
   .handler(async ({ data }) => {
-    const secret = import.meta.env.STRIPE_SECRET_KEY;
+    const secret =
+      import.meta.env.VITE_STRIPE_SECRET_KEY || import.meta.env.STRIPE_SECRET_KEY;
     if (!secret) throw new Error("Stripe is not configured (missing STRIPE_SECRET_KEY)");
 
     // Use fetch-based HTTP client so Stripe SDK works on Cloudflare Workers.
