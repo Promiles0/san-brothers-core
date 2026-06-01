@@ -76,62 +76,24 @@ export default {
       // Handle Stripe payment intent creation
       const url = new URL(request.url);
       if (url.pathname === "/api/stripe/payment-intent" && request.method === "POST") {
-        try {
-          const cloudflareEnv = env as CloudflareEnv;
-          const secretKey = cloudflareEnv.STRIPE_SECRET_KEY;
+        const cloudflareEnv = env as Record<string, unknown>;
 
-          if (!secretKey) {
-            return new Response(JSON.stringify({ error: "Stripe not configured" }), {
-              status: 500,
-              headers: { "Content-Type": "application/json" },
-            });
-          }
+        // DEBUG: log all available env keys
+        const envKeys = Object.keys(cloudflareEnv);
+        console.log("[Stripe Debug] Available env keys:", envKeys);
+        console.log("[Stripe Debug] STRIPE_SECRET_KEY exists:", "STRIPE_SECRET_KEY" in cloudflareEnv);
+        console.log("[Stripe Debug] Value type:", typeof cloudflareEnv.STRIPE_SECRET_KEY);
 
-          const body = (await request.json()) as {
-            amount: number;
-            metadata?: Record<string, string>;
-          };
-
-          // Call Stripe API directly with fetch (no SDK needed)
-          const stripeResponse = await fetch("https://api.stripe.com/v1/payment_intents", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${secretKey}`,
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({
-              amount: Math.round(body.amount * 100).toString(),
-              currency: "usd",
-              "automatic_payment_methods[enabled]": "true",
-              ...Object.entries(body.metadata || {}).reduce(
-                (acc, [key, value]) => ({ ...acc, [`metadata[${key}]`]: value }),
-                {},
-              ),
-            }),
-          });
-
-          const paymentIntent = (await stripeResponse.json()) as {
-            client_secret: string;
-            error?: { message: string };
-          };
-
-          if (!stripeResponse.ok) {
-            return new Response(JSON.stringify({ error: paymentIntent.error?.message }), {
-              status: 400,
-              headers: { "Content-Type": "application/json" },
-            });
-          }
-
-          return new Response(JSON.stringify({ clientSecret: paymentIntent.client_secret }), {
-            headers: { "Content-Type": "application/json" },
-          });
-        } catch (err) {
-          console.error("[Stripe API]", err);
-          return new Response(JSON.stringify({ error: "Payment processing failed" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
+        // Temporarily return env keys so we can see them
+        return new Response(
+          JSON.stringify({
+            debug: true,
+            envKeys,
+            hasStripeKey: "STRIPE_SECRET_KEY" in cloudflareEnv,
+            keyType: typeof cloudflareEnv.STRIPE_SECRET_KEY,
+          }),
+          { headers: { "Content-Type": "application/json" } },
+        );
       }
 
       // All other requests go to TanStack handler
