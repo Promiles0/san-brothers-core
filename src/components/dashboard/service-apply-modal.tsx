@@ -553,6 +553,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           serviceName: localName,
           priceText: isFree ? "Free" : (priceText ?? "$0"),
           payMethod: isFree ? "free" : payMethod,
+          paymentRef: stripeIntentId ?? undefined,
         } as never,
       });
     } catch (e) {
@@ -709,6 +710,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           serviceName: "Live Interpreter Session",
           priceText: priceText ?? "$2 – $17",
           payMethod: "card",
+          paymentRef: stripeIntentId ?? undefined,
         } as never,
       });
     } catch (e) {
