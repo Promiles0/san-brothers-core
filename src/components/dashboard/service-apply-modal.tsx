@@ -710,6 +710,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           serviceName: "Live Interpreter Session",
           priceText: priceText ?? "$2 – $17",
           payMethod: "card",
+          paymentRef: stripeIntentId ?? undefined,
         } as never,
       });
     } catch (e) {
