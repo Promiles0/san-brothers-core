@@ -14,6 +14,7 @@ import { AuthLayout } from "@/components/auth/auth-layout";
 import { GoogleSignInButton, OrDivider } from "@/components/auth/google-signin-button";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase } from "@/lib/supabase";
+import { usePortal } from "@/lib/portal-context";
 
 const schema = z.object({
   email: z.string().email("auth.errors.invalidEmail"),
@@ -25,13 +26,16 @@ export const Route = createFileRoute("/login")({
   validateSearch: (s: Record<string, unknown>) => ({
     intent: typeof s.intent === "string" ? s.intent : undefined,
     next: typeof s.next === "string" ? s.next : undefined,
+    portal: typeof s.portal === "string" ? s.portal : undefined,
   }),
   component: LoginPage,
 });
 function LoginPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { intent, next } = useSearch({ from: "/login" }) as { intent?: string; next?: string };
+  const { intent, next, portal: portalParam } = useSearch({ from: "/login" }) as { intent?: string; next?: string; portal?: string };
+  const { current: detectedPortal } = usePortal();
+  const targetPortal = (portalParam || detectedPortal) as "san-brothers" | "translate" | "consultancy";
   const [serverError, setServerError] = useState<string | null>(null);
   const [remember, setRemember] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
