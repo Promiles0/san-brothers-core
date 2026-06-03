@@ -110,13 +110,20 @@ function LoginPage() {
         return;
       }
 
-      // Fetch role to redirect correctly
+      // Fetch role + portals to redirect correctly and track portal source
       const { data: profileData } = await supabase
         .from("users")
-        .select("role")
+        .select("role, source_portals")
         .eq("id", authData.user.id)
         .maybeSingle();
       const role = (profileData as { role?: string } | null)?.role;
+      const existingPortals = ((profileData as { source_portals?: string[] } | null)?.source_portals) ?? [];
+      if (!existingPortals.includes(targetPortal)) {
+        await supabase
+          .from("users")
+          .update({ source_portals: [...existingPortals, targetPortal] })
+          .eq("id", authData.user.id);
+      }
       const savedIntent = intent || sessionStorage.getItem("signup_intent");
 
       if (savedIntent && role === "client") {
