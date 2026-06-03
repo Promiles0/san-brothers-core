@@ -192,7 +192,7 @@ function SignupPage() {
           hint={t("auth.signup.phoneHint")}
           error={errors.phone?.message ? t(errors.phone.message) : undefined}
         >
-          <Input type="tel" placeholder="+250 7XX XXX XXX" {...register("phone")} />
+          <Input type="tel" placeholder="+250 7--- --- ---" {...register("phone")} />
         </Field>
         <Field label={t("auth.signup.preferredLanguage")}>
           <Select
