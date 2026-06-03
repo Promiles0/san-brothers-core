@@ -274,6 +274,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
   const { user, profile } = useAuth();
   const { locale } = useI18n();
   const navigate = useNavigate();
+  const { current: portalSource } = usePortal();
 
   const isInterpreter = isInterpreterSlug(service.slug);
 
@@ -483,6 +484,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           applicant_type: applicantType,
           priority: "normal",
           notes: notesSummary,
+          portal_source: portalSource,
         })
         .select()
         .single();
@@ -586,6 +588,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           applicant_type: "individual",
           priority: "normal",
           notes: JSON.stringify({ type: "free_call" }),
+          portal_source: portalSource,
         })
         .select()
         .single();
