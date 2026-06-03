@@ -68,12 +68,20 @@ function useIncomingCall(
   const beepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // Stable ref so polling closure always reads the latest incomingCall value.
   const incomingCallRef = useRef<IncomingCall | null>(null);
-  useEffect(() => { incomingCallRef.current = incomingCall; }, [incomingCall]);
+  useEffect(() => {
+    incomingCallRef.current = incomingCall;
+  }, [incomingCall]);
   // Track accepted calls so a channel reconnect / poll replay never re-shows them.
   const acceptedCallIds = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    if (!profileId || !isActiveInterpreter || availabilityStatus !== "online" || !interpreterLanguages?.length) return;
+    if (
+      !profileId ||
+      !isActiveInterpreter ||
+      availabilityStatus !== "online" ||
+      !interpreterLanguages?.length
+    )
+      return;
     void checkQueueAndNotify(interpreterLanguages, profileId);
   }, [profileId, isActiveInterpreter, availabilityStatus]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -100,7 +108,9 @@ function useIncomingCall(
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + 0.4);
-      } catch { /* node already stopped */ }
+      } catch {
+        /* node already stopped */
+      }
     };
     ring();
     if (beepIntervalRef.current) clearInterval(beepIntervalRef.current);
@@ -152,8 +162,15 @@ function useIncomingCall(
   }
 
   function stopBeep() {
-    if (beepIntervalRef.current) { clearInterval(beepIntervalRef.current); beepIntervalRef.current = null; }
-    try { audioCtxRef.current?.close(); } catch { /* ignore */ }
+    if (beepIntervalRef.current) {
+      clearInterval(beepIntervalRef.current);
+      beepIntervalRef.current = null;
+    }
+    try {
+      audioCtxRef.current?.close();
+    } catch {
+      /* ignore */
+    }
     audioCtxRef.current = null;
   }
 
@@ -216,15 +233,23 @@ function useIncomingCall(
               (pair) => pair.from === call.language_from && pair.to === call.language_to,
             );
             console.log(
-              "[IncomingCall] language match:", isMatch,
-              "| interpreter pairs:", interpreterLanguages,
-              "| call:", call.language_from, "->", call.language_to,
+              "[IncomingCall] language match:",
+              isMatch,
+              "| interpreter pairs:",
+              interpreterLanguages,
+              "| call:",
+              call.language_from,
+              "->",
+              call.language_to,
             );
             if (!isMatch) return;
 
             // JS filter 3: preferred interpreter routing — skip if call is directed at someone else
             if (call.preferred_interpreter_id && call.preferred_interpreter_id !== profileId) {
-              console.log("[IncomingCall] Skipping — call directed to another interpreter:", call.preferred_interpreter_id);
+              console.log(
+                "[IncomingCall] Skipping — call directed to another interpreter:",
+                call.preferred_interpreter_id,
+              );
               return;
             }
 
@@ -476,7 +501,7 @@ function IncomingCallOverlay({
           <div className="absolute inset-0 animate-ping rounded-full bg-green-500/40" />
           <div className="absolute inset-2 animate-ping rounded-full bg-green-500/30 [animation-delay:300ms]" />
           <div className="absolute inset-4 animate-ping rounded-full bg-green-500/20 [animation-delay:600ms]" />
-          <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/50 ring-4 ring-green-400/60">
+          <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/50 ring-4 ring-green-400/60">
             <Phone className="h-9 w-9 text-white" />
           </div>
         </div>
@@ -499,7 +524,9 @@ function IncomingCallOverlay({
         </div>
 
         {callerName && (
-          <p className="mt-3 text-sm text-muted-foreground">From <span className="font-medium text-foreground">{callerName}</span></p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            From <span className="font-medium text-foreground">{callerName}</span>
+          </p>
         )}
 
         {audioBlocked && (
@@ -526,7 +553,7 @@ function IncomingCallOverlay({
           </Button>
           <Button
             size="lg"
-            className="h-14 flex-[1.5] bg-gradient-to-r from-green-500 to-emerald-600 text-base font-semibold text-white shadow-lg shadow-green-600/40 hover:from-green-600 hover:to-emerald-700"
+            className="h-14 flex-[1.5] bg-linear-to-r from-green-500 to-emerald-600 text-base font-semibold text-white shadow-lg shadow-green-600/40 hover:from-green-600 hover:to-emerald-700"
             onClick={handleAccept}
             disabled={accepting}
           >
@@ -553,8 +580,7 @@ export function StaffLayout({
   const navigate = useNavigate();
 
   const canHandleCalls = hasCapability("handle_live_calls");
-  const isActiveInterpreter =
-    canHandleCalls && profile?.interpreter_profile_complete === true;
+  const isActiveInterpreter = canHandleCalls && profile?.interpreter_profile_complete === true;
   // Memoize so the array reference is stable — prevents the Supabase channel
   // from being torn down and recreated on every render.
   const interpreterLanguages = useMemo(
@@ -565,13 +591,14 @@ export function StaffLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [isActiveInterpreter, profile?.id],
   );
-  const { incomingCall, callerName, dismiss, markAccepted, audioBlocked, resumeAudio } = useIncomingCall(
-    isActiveInterpreter ? profile?.id : undefined,
-    isActiveInterpreter,
-    interpreterLanguages,
-    profile?.availability_status,
-    refreshProfile,
-  );
+  const { incomingCall, callerName, dismiss, markAccepted, audioBlocked, resumeAudio } =
+    useIncomingCall(
+      isActiveInterpreter ? profile?.id : undefined,
+      isActiveInterpreter,
+      interpreterLanguages,
+      profile?.availability_status,
+      refreshProfile,
+    );
   const sidebarLabel = "San Brothers — Staff";
   const sidebarBadge = "SB";
   const initial = (profile?.full_name?.[0] ?? profile?.email?.[0] ?? "S").toUpperCase();

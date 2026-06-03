@@ -32,7 +32,7 @@ function HowItWorks() {
         <ol className="relative space-y-6 border-l-2 border-border pl-8">
           {steps.map((s, i) => (
             <li key={i} className="relative">
-              <span className="absolute -left-[2.45rem] grid h-8 w-8 place-items-center rounded-full bg-accent font-bold text-accent-foreground">
+              <span className="absolute left-[-2.45rem] grid h-8 w-8 place-items-center rounded-full bg-accent font-bold text-accent-foreground">
                 {i + 1}
               </span>
               <Card>

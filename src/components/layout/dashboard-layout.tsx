@@ -64,7 +64,11 @@ export function DashboardLayout({
               <SheetHeader className="border-b border-sidebar-border p-4">
                 <SheetTitle>San Brothers</SheetTitle>
               </SheetHeader>
-              <Sidebar role={role} onNavigate={() => setMobileOpen(false)} hiddenNavKeys={hiddenNavKeys} />
+              <Sidebar
+                role={role}
+                onNavigate={() => setMobileOpen(false)}
+                hiddenNavKeys={hiddenNavKeys}
+              />
             </SheetContent>
           </Sheet>
 
@@ -116,7 +120,9 @@ function PortalBanner() {
   if (!isChild) return null;
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-primary/5 px-4 py-2 text-sm md:px-6">
-      <span className="font-medium">You're on: <span className="text-primary">{displayName}</span></span>
+      <span className="font-medium">
+        You're on: <span className="text-primary">{displayName}</span>
+      </span>
       <a
         href={getParentLink()}
         className="inline-flex items-center gap-1 text-primary hover:underline"

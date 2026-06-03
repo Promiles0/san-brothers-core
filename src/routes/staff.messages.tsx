@@ -93,11 +93,15 @@ function StaffMessagesPage() {
     if (!user) return;
     const channel = supabase
       .channel("staff-conv-" + user.id)
-      .on("postgres_changes", { event: "*", schema: "public", table: "conversations" }, () =>
-        void load(),
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "conversations" },
+        () => void load(),
       )
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () =>
-        void load(),
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        () => void load(),
       )
       .subscribe();
     return () => {
@@ -313,7 +317,7 @@ function StaffMessagesPage() {
                     />
                   </>
                 ) : (
-                  <div className="flex h-[400px] items-center justify-center text-sm text-muted-foreground">
+                  <div className="flex h-100 items-center justify-center text-sm text-muted-foreground">
                     Select a conversation to view messages.
                   </div>
                 )}
@@ -354,7 +358,7 @@ function StaffMessagesPage() {
                     />
                   </>
                 ) : (
-                  <div className="flex h-[400px] items-center justify-center text-sm text-muted-foreground">
+                  <div className="flex h-100 items-center justify-center text-sm text-muted-foreground">
                     Select a conversation to view.
                   </div>
                 )}
@@ -459,9 +463,7 @@ function ConvList({
       </div>
     );
   if (rows.length === 0)
-    return (
-      <p className="p-6 text-center text-sm text-muted-foreground">{emptyText}</p>
-    );
+    return <p className="p-6 text-center text-sm text-muted-foreground">{emptyText}</p>;
   return (
     <ul className="space-y-1">
       {rows.map((c) => {
@@ -538,7 +540,9 @@ function HoldBanner({ startedAt }: { startedAt: string }) {
   return (
     <div className="flex items-center justify-between rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-300">
       <span>Session on hold — billing paused</span>
-      <span className="font-mono">{mm}:{ss}</span>
+      <span className="font-mono">
+        {mm}:{ss}
+      </span>
     </div>
   );
 }

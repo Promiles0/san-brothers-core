@@ -1,9 +1,4 @@
-export type DepartmentKey =
-  | "visa"
-  | "translation"
-  | "accounting"
-  | "consultancy"
-  | "general";
+export type DepartmentKey = "visa" | "translation" | "accounting" | "consultancy" | "general";
 
 export interface Department {
   key: DepartmentKey;

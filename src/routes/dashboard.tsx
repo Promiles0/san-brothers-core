@@ -132,10 +132,7 @@ function DashboardShell() {
       : undefined;
 
   return (
-    <DashboardLayout
-      role={role}
-      hiddenNavKeys={hiddenNavKeys}
-    >
+    <DashboardLayout role={role} hiddenNavKeys={hiddenNavKeys}>
       <Outlet />
       {role === "client" && <AiChatWidget />}
     </DashboardLayout>

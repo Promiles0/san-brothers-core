@@ -98,12 +98,20 @@ export function ConsultancyNavbar() {
                       {l.label}
                     </a>
                   ))}
-                  <div className="mt-2 px-3"><LanguageSwitcher /></div>
+                  <div className="mt-2 px-3">
+                    <LanguageSwitcher />
+                  </div>
                   <div className="mt-2 flex flex-col gap-2 px-3">
-                    {user ? <UserMenu /> : (
+                    {user ? (
+                      <UserMenu />
+                    ) : (
                       <>
-                        <Button variant="outline" asChild><a href="/login?portal=consultancy">Log in</a></Button>
-                        <Button asChild><a href="/signup?portal=consultancy">Get started</a></Button>
+                        <Button variant="outline" asChild>
+                          <a href="/login?portal=consultancy">Log in</a>
+                        </Button>
+                        <Button asChild>
+                          <a href="/signup?portal=consultancy">Get started</a>
+                        </Button>
                       </>
                     )}
                   </div>

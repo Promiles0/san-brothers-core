@@ -22,12 +22,7 @@ import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -162,9 +157,7 @@ function TimelineDots({ steps }: { steps: string[] }) {
               {step}
             </span>
           </div>
-          {i < steps.length - 1 && (
-            <div className="mt-3 h-px w-4 shrink-0 bg-border" />
-          )}
+          {i < steps.length - 1 && <div className="mt-3 h-px w-4 shrink-0 bg-border" />}
         </div>
       ))}
     </div>
@@ -257,9 +250,7 @@ function PayOverlay({ state }: { state: PayState }) {
             <CheckCircle2 className="h-10 w-10 text-green-500" />
           </div>
           <div className="text-center">
-            <p className="text-lg font-semibold text-green-600 dark:text-green-400">
-              Success!
-            </p>
+            <p className="text-lg font-semibold text-green-600 dark:text-green-400">Success!</p>
             <p className="mt-1 text-sm text-muted-foreground">Submitting your request…</p>
           </div>
         </>
@@ -295,16 +286,13 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
   const [payState, setPayState] = useState<PayState>("idle");
   const [showingPayment, setShowingPayment] = useState(false);
   const [stripeError, setStripeError] = useState<string | null>(null);
-  const [payIntent, setPayIntent] = useState<
-    | {
-        amount: number;
-        title: string;
-        description?: string;
-        metadata: Record<string, string>;
-        finalize: (intentId: string) => Promise<void>;
-      }
-    | null
-  >(null);
+  const [payIntent, setPayIntent] = useState<{
+    amount: number;
+    title: string;
+    description?: string;
+    metadata: Record<string, string>;
+    finalize: (intentId: string) => Promise<void>;
+  } | null>(null);
 
   // Interpreter-specific state
   const [interpreterView, setInterpreterView] = useState<"options" | "booking">("options");
@@ -348,9 +336,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
   // ── Derived ────────────────────────────────────────────────────────────────
 
   const localName =
-    (locale === "zh" && service.name_zh) ||
-    (locale === "rw" && service.name_rw) ||
-    service.name_en;
+    (locale === "zh" && service.name_zh) || (locale === "rw" && service.name_rw) || service.name_en;
 
   const localDesc =
     (locale === "zh" && service.description_zh) ||
@@ -392,9 +378,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           timerRefs.current.delete(idx);
         }
         setFiles((prev) =>
-          prev.map((x) =>
-            x.file === f ? { ...x, progress: Math.min(pct, 100) } : x,
-          ),
+          prev.map((x) => (x.file === f ? { ...x, progress: Math.min(pct, 100) } : x)),
         );
       }, 150);
       timerRefs.current.set(idx, timer);
@@ -430,14 +414,19 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
     // Gate paid card payments through Stripe.
     if (!isFree && basePrice > 0 && payMethod === "card" && !stripeIntentId) {
       setStripeError(null);
-      console.info("Opening Stripe checkout for service request", { serviceId: service.id, amount: basePrice });
+      console.info("Opening Stripe checkout for service request", {
+        serviceId: service.id,
+        amount: basePrice,
+      });
       setPayIntent({
         amount: basePrice,
         title: localName,
         description: localDesc,
         metadata: { client_id: user!.id, service_id: service.id, service_slug: service.slug },
         finalize: async (intentId) => {
-          console.info("Stripe payment succeeded for service request", { paymentIntentId: intentId });
+          console.info("Stripe payment succeeded for service request", {
+            paymentIntentId: intentId,
+          });
           setShowingPayment(false);
           setPayIntent(null);
           await handleSubmit(false, intentId);
@@ -448,15 +437,14 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
     }
 
     if (!isFree && basePrice > 0 && payMethod !== "card") {
-      const message = "This payment method is coming soon. Please choose Card to pay securely with Stripe.";
+      const message =
+        "This payment method is coming soon. Please choose Card to pay securely with Stripe.";
       setStripeError(message);
       toast.error(message);
       return;
     }
 
     setPayState("processing");
-
-
 
     try {
       const staffId = await pickMatchingStaff(service.category);
@@ -494,9 +482,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       for (const { file } of files) {
         const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const path = `documents/${user!.id}/${requestId}/${Date.now()}_${safe}`;
-        const { error: upErr } = await supabase.storage
-          .from("client-documents")
-          .upload(path, file);
+        const { error: upErr } = await supabase.storage.from("client-documents").upload(path, file);
         if (upErr) throw upErr;
         await supabase.from("documents").insert({
           service_request_id: requestId,
@@ -571,7 +557,10 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
   // ── Submit: interpreter free call ──────────────────────────────────────────
 
   async function handleFreeCall() {
-    if (!user) { toast.error("Please sign in."); return; }
+    if (!user) {
+      toast.error("Please sign in.");
+      return;
+    }
     setPayState("processing");
     try {
       const staffId = await pickMatchingStaff(service.category);
@@ -623,20 +612,34 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
   // ── Submit: interpreter booked session ─────────────────────────────────────
 
   async function handleBookSession(stripeIntentId?: string) {
-    if (!user) { toast.error("Please sign in."); return; }
-    if (!bookFromLang || !bookToLang) { toast.error("Please select both languages."); return; }
-    if (!bookDate || !bookTime) { toast.error("Please select a date and time."); return; }
+    if (!user) {
+      toast.error("Please sign in.");
+      return;
+    }
+    if (!bookFromLang || !bookToLang) {
+      toast.error("Please select both languages.");
+      return;
+    }
+    if (!bookDate || !bookTime) {
+      toast.error("Please select a date and time.");
+      return;
+    }
 
     if (basePrice > 0 && !stripeIntentId) {
       setStripeError(null);
-      console.info("Opening Stripe checkout for interpreter booking", { serviceId: service.id, amount: basePrice });
+      console.info("Opening Stripe checkout for interpreter booking", {
+        serviceId: service.id,
+        amount: basePrice,
+      });
       setPayIntent({
         amount: basePrice,
         title: "Live Interpreter Session",
         description: `${bookFromLang} to ${bookToLang} · ${bookDate} ${bookTime}`,
         metadata: { client_id: user.id, service_id: service.id, service_slug: service.slug },
         finalize: async (intentId) => {
-          console.info("Stripe payment succeeded for interpreter booking", { paymentIntentId: intentId });
+          console.info("Stripe payment succeeded for interpreter booking", {
+            paymentIntentId: intentId,
+          });
           setShowingPayment(false);
           setPayIntent(null);
           await handleBookSession(intentId);
@@ -647,7 +650,6 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
     }
 
     setPayState("processing");
-
 
     try {
       const staffId = await pickMatchingStaff(service.category);
@@ -741,7 +743,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         <PayOverlay state={payState} />
 
         {showingPayment && payIntent ? (
-          <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto bg-gradient-to-br from-muted/40 via-background to-primary/5 p-4 sm:p-6">
+          <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto bg-linear-to-br from-muted/40 via-background to-primary/5 p-4 sm:p-6">
             <div className="w-full max-w-lg space-y-4">
               {stripeError ? (
                 <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
@@ -772,7 +774,6 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         ) : isInterpreter ? (
           // ── Interpreter layout ───────────────────────────────────────────
           <>
-
             <DialogHeader className="shrink-0 border-b border-border px-5 py-4">
               <DialogTitle asChild>
                 <div className="flex items-center gap-3">
@@ -865,7 +866,9 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                         </SelectTrigger>
                         <SelectContent>
                           {LANGUAGES.map((l) => (
-                            <SelectItem key={l} value={l}>{l}</SelectItem>
+                            <SelectItem key={l} value={l}>
+                              {l}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -880,7 +883,9 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                         </SelectTrigger>
                         <SelectContent>
                           {LANGUAGES.map((l) => (
-                            <SelectItem key={l} value={l}>{l}</SelectItem>
+                            <SelectItem key={l} value={l}>
+                              {l}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -980,19 +985,31 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
               className="flex min-h-0 flex-1 flex-col"
             >
               <TabsList className="h-10 w-full shrink-0 rounded-none border-b border-border bg-transparent px-5">
-                <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                <TabsTrigger
+                  value="overview"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+                >
                   Overview
                 </TabsTrigger>
-                <TabsTrigger value="requirements" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                <TabsTrigger
+                  value="requirements"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+                >
                   Requirements
                 </TabsTrigger>
-                <TabsTrigger value="apply" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                <TabsTrigger
+                  value="apply"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+                >
                   Apply
                 </TabsTrigger>
               </TabsList>
 
               {/* Overview */}
-              <TabsContent value="overview" className="flex-1 overflow-y-auto px-5 py-4 data-[state=inactive]:hidden">
+              <TabsContent
+                value="overview"
+                className="flex-1 overflow-y-auto px-5 py-4 data-[state=inactive]:hidden"
+              >
                 <div className="space-y-5">
                   <div>
                     <p className="text-sm leading-relaxed text-muted-foreground">{localDesc}</p>
@@ -1026,7 +1043,10 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
               </TabsContent>
 
               {/* Requirements */}
-              <TabsContent value="requirements" className="flex-1 overflow-y-auto px-5 py-4 data-[state=inactive]:hidden">
+              <TabsContent
+                value="requirements"
+                className="flex-1 overflow-y-auto px-5 py-4 data-[state=inactive]:hidden"
+              >
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">
                     Please have the following documents and information ready before applying.
@@ -1064,9 +1084,11 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
               </TabsContent>
 
               {/* Apply */}
-              <TabsContent value="apply" className="flex-1 overflow-y-auto data-[state=inactive]:hidden">
+              <TabsContent
+                value="apply"
+                className="flex-1 overflow-y-auto data-[state=inactive]:hidden"
+              >
                 <div className="space-y-6 px-5 py-4">
-
                   {/* Personal info */}
                   <section className="space-y-3">
                     <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -1075,15 +1097,27 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="space-y-1.5">
                         <Label className="text-xs">Full Name</Label>
-                        <Input value={profile?.full_name ?? ""} readOnly className="bg-muted/40 text-sm" />
+                        <Input
+                          value={profile?.full_name ?? ""}
+                          readOnly
+                          className="bg-muted/40 text-sm"
+                        />
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs">Email</Label>
-                        <Input value={profile?.email ?? ""} readOnly className="bg-muted/40 text-sm" />
+                        <Input
+                          value={profile?.email ?? ""}
+                          readOnly
+                          className="bg-muted/40 text-sm"
+                        />
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs">Phone</Label>
-                        <Input value={profile?.phone ?? ""} readOnly className="bg-muted/40 text-sm" />
+                        <Input
+                          value={profile?.phone ?? ""}
+                          readOnly
+                          className="bg-muted/40 text-sm"
+                        />
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs">Applicant type</Label>
@@ -1166,9 +1200,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                                   <X className="h-3 w-3" />
                                 </button>
                               </div>
-                              {f.progress < 100 && (
-                                <Progress value={f.progress} className="h-1" />
-                              )}
+                              {f.progress < 100 && <Progress value={f.progress} className="h-1" />}
                             </div>
                           ))}
                         </div>
@@ -1239,7 +1271,9 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
                     <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
                       <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
-                      <span>Card payments open a secure Stripe checkout after this form is validated.</span>
+                      <span>
+                        Card payments open a secure Stripe checkout after this form is validated.
+                      </span>
                     </div>
 
                     {stripeError ? (
@@ -1262,8 +1296,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                       ) : (
                         <>
                           <Lock className="mr-2 h-4 w-4" />
-                          Submit &amp; Pay{" "}
-                          {basePrice > 0 ? fmtUSD(basePrice) : ""}
+                          Submit &amp; Pay {basePrice > 0 ? fmtUSD(basePrice) : ""}
                         </>
                       )}
                     </Button>
@@ -1277,7 +1310,6 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
     </Dialog>
   );
 }
-
 
 // ─── Service-specific form fields ─────────────────────────────────────────────
 
@@ -1378,7 +1410,9 @@ function ServiceFields({
               </SelectTrigger>
               <SelectContent>
                 {LANGUAGES.map((l) => (
-                  <SelectItem key={l} value={l}>{l}</SelectItem>
+                  <SelectItem key={l} value={l}>
+                    {l}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -1393,7 +1427,9 @@ function ServiceFields({
               </SelectTrigger>
               <SelectContent>
                 {LANGUAGES.map((l) => (
-                  <SelectItem key={l} value={l}>{l}</SelectItem>
+                  <SelectItem key={l} value={l}>
+                    {l}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>

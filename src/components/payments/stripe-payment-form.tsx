@@ -1,11 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
-import {
-  Elements,
-  PaymentElement,
-  useElements,
-  useStripe,
-} from "@stripe/react-stripe-js";
+import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { Loader2, Lock, ShieldCheck, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,9 +11,7 @@ const PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | 
 let _stripePromise: Promise<StripeJs | null> | null = null;
 function getStripe() {
   if (!_stripePromise) {
-    _stripePromise = PUBLISHABLE_KEY
-      ? loadStripe(PUBLISHABLE_KEY)
-      : Promise.resolve(null);
+    _stripePromise = PUBLISHABLE_KEY ? loadStripe(PUBLISHABLE_KEY) : Promise.resolve(null);
   }
   return _stripePromise;
 }
@@ -117,7 +110,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
   );
 
   return (
-    <Card className="border-0 bg-gradient-to-br from-background to-muted/30 shadow-xl ring-1 ring-border/60 backdrop-blur">
+    <Card className="border-0 bg-linear-to-br from-background to-muted/30 shadow-xl ring-1 ring-border/60 backdrop-blur">
       <CardContent className="p-6 sm:p-7">
         <Header {...props} />
 
@@ -196,12 +189,7 @@ function SecureFooter() {
   );
 }
 
-function InnerForm({
-  amount,
-  onSuccess,
-  onCancel,
-  onError,
-}: StripePaymentFormProps) {
+function InnerForm({ amount, onSuccess, onCancel, onError }: StripePaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -282,7 +270,7 @@ function InnerForm({
           type="submit"
           disabled={!stripe || submitting}
           className={cn(
-            "sm:min-w-[180px] bg-gradient-to-r from-primary via-primary to-indigo-500",
+            "sm:min-w-45 bg-linear-to-r from-primary via-primary to-indigo-500",
             "text-primary-foreground shadow-lg shadow-primary/20 hover:opacity-95",
           )}
         >

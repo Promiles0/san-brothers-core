@@ -78,11 +78,7 @@ export function TranslateNavbar() {
                 <Button variant="ghost" size="sm" asChild>
                   <a href="/login">{t("common.login")}</a>
                 </Button>
-                <Button
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => void handleGetHelpNow()}
-                >
+                <Button size="sm" className="gap-2" onClick={() => void handleGetHelpNow()}>
                   <Phone className="h-4 w-4" />
                   {t("translate.nav.getHelpNow")}
                 </Button>

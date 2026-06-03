@@ -4,7 +4,7 @@
 //   service_request_id uuid REFERENCES public.service_requests(id),
 //   client_id uuid REFERENCES public.users(id),
 //   amount_rwf integer NOT NULL,
-//   currency text DEFAULT 'RWF',
+// currency text DEFAULT 'RWF',
 //   method text CHECK (method IN ('momo','stripe','paypal','crypto','office')),
 //   status text DEFAULT 'pending' CHECK (status IN ('pending','completed','failed','refunded')),
 //   reference text,

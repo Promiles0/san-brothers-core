@@ -135,10 +135,7 @@ function SessionInner() {
     if (sessionType === "bank" && user && minutesUsed > 0 && bank > 0) {
       const newBalance = Math.max(0, bank - minutesUsed);
       try {
-        await supabase
-          .from("users")
-          .update({ minute_bank_balance: newBalance })
-          .eq("id", user.id);
+        await supabase.from("users").update({ minute_bank_balance: newBalance }).eq("id", user.id);
         setBank(newBalance);
       } catch {
         // ignore — column may not exist yet
@@ -173,10 +170,14 @@ function SessionInner() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">From</label>
                 <Select value={from} onValueChange={setFrom}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {LANGS.map((l) => (
-                      <SelectItem key={l.code} value={l.code}>{l.label}</SelectItem>
+                      <SelectItem key={l.code} value={l.code}>
+                        {l.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -184,10 +185,14 @@ function SessionInner() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">To</label>
                 <Select value={to} onValueChange={setTo}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {LANGS.filter((l) => l.code !== from).map((l) => (
-                      <SelectItem key={l.code} value={l.code}>{l.label}</SelectItem>
+                      <SelectItem key={l.code} value={l.code}>
+                        {l.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -207,9 +212,7 @@ function SessionInner() {
                   }`}
                 >
                   <div className="font-medium">Pay as you go</div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    {PAYG_RATE} RWF / minute
-                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">{PAYG_RATE} RWF / minute</div>
                 </button>
                 <button
                   type="button"
@@ -222,9 +225,7 @@ function SessionInner() {
                   }`}
                 >
                   <div className="font-medium">Use minute bank</div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    {bank} minutes available
-                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">{bank} minutes available</div>
                 </button>
               </div>
             </div>
@@ -267,15 +268,16 @@ function SessionInner() {
                   </div>
                   {sessionType === "payg" ? (
                     <div className="text-sm text-muted-foreground">
-                      Cost: <span className="font-semibold text-foreground">
+                      Cost:{" "}
+                      <span className="font-semibold text-foreground">
                         {costRwf.toLocaleString()} RWF
                       </span>
                     </div>
                   ) : (
                     <div className="text-sm text-muted-foreground">
-                      Using bank: <span className="font-semibold text-foreground">
-                        {minutesUsed} min
-                      </span> ({Math.max(0, bank - minutesUsed)} remaining)
+                      Using bank:{" "}
+                      <span className="font-semibold text-foreground">{minutesUsed} min</span> (
+                      {Math.max(0, bank - minutesUsed)} remaining)
                     </div>
                   )}
                 </>
@@ -321,14 +323,10 @@ function SessionInner() {
               <Row
                 label={sessionType === "payg" ? "Total cost" : "Deducted from bank"}
                 value={
-                  sessionType === "payg"
-                    ? `${costRwf.toLocaleString()} RWF`
-                    : `${minutesUsed} min`
+                  sessionType === "payg" ? `${costRwf.toLocaleString()} RWF` : `${minutesUsed} min`
                 }
               />
-              {sessionType === "bank" && (
-                <Row label="Bank remaining" value={`${bank} min`} />
-              )}
+              {sessionType === "bank" && <Row label="Bank remaining" value={`${bank} min`} />}
             </dl>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={resetCall}>
@@ -348,14 +346,16 @@ function SessionInner() {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between px-4 py-3 text-sm">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="font-medium">{value}</dd>
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-medium">{value}</span>
     </div>
   );
 }
 
 function fmt(s: number) {
-  const m = Math.floor(s / 60).toString().padStart(2, "0");
+  const m = Math.floor(s / 60)
+    .toString()
+    .padStart(2, "0");
   const r = (s % 60).toString().padStart(2, "0");
   return `${m}:${r}`;
 }

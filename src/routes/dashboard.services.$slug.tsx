@@ -437,7 +437,7 @@ function ProgressPreview({ steps }: { steps: string[] }) {
     <div className="flex items-center overflow-x-auto pb-1">
       {steps.map((step, i) => (
         <div key={step} className="flex items-center">
-          <div className="flex min-w-[72px] flex-col items-center gap-1 px-1">
+          <div className="flex min-w-18 flex-col items-center gap-1 px-1">
             <div
               className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
                 i === 0

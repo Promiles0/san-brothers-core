@@ -986,7 +986,7 @@ function PaymentCard({
           </div>
         )}
         <div className="flex flex-wrap items-end gap-2 pt-2 border-t">
-          <div className="flex-1 min-w-[150px]">
+          <div className="flex-1 min-w-37.5">
             <label className="text-xs text-muted-foreground">Amount (RWF)</label>
             <Input
               type="number"

@@ -63,7 +63,10 @@ export function AiChatWidget() {
       const data = await res.json();
       const reply =
         data?.content?.[0]?.text ??
-        data?.content?.map((c: { text?: string }) => c.text).filter(Boolean).join("\n") ??
+        data?.content
+          ?.map((c: { text?: string }) => c.text)
+          .filter(Boolean)
+          .join("\n") ??
         "";
       setMessages((m) => [...m, { role: "assistant", content: reply || "(no response)" }]);
     } catch (e) {
@@ -90,7 +93,7 @@ export function AiChatWidget() {
       )}
 
       {open && (
-        <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[400px] flex-col border-l border-border bg-background shadow-2xl">
+        <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-100 flex-col border-l border-border bg-background shadow-2xl">
           <header className="flex items-center justify-between border-b border-border px-4 py-3">
             <div className="flex items-center gap-2">
               <div className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-primary">
@@ -157,11 +160,7 @@ export function AiChatWidget() {
 
           <div className="border-t border-border p-3">
             {limitReached ? (
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => setMessages([])}
-              >
+              <Button variant="outline" className="w-full" onClick={() => setMessages([])}>
                 <RotateCcw className="h-4 w-4" /> Start new conversation
               </Button>
             ) : (

@@ -9,7 +9,10 @@ export const Route = createFileRoute("/consultancy/pricing")({
   head: () => ({
     meta: [
       { title: "Pricing — San Brothers Consultancy" },
-      { name: "description", content: "Transparent pricing for business consultancy services in Rwanda." },
+      {
+        name: "description",
+        content: "Transparent pricing for business consultancy services in Rwanda.",
+      },
     ],
   }),
   component: Pricing,
@@ -57,10 +60,14 @@ function Pricing() {
   const navigate = useNavigate();
   return (
     <ConsultancyLayout>
-      <section className="border-b border-border bg-gradient-to-b from-primary/5 to-background">
+      <section className="border-b border-border bg-linear-to-b from-primary/5 to-background">
         <div className="mx-auto max-w-4xl px-4 py-16 text-center md:px-6">
-          <h1 className="text-4xl font-bold tracking-tight md:text-5xl">Simple, transparent pricing</h1>
-          <p className="mt-4 text-lg text-muted-foreground">Pay per service, or pick a monthly package. No surprises.</p>
+          <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
+            Simple, transparent pricing
+          </h1>
+          <p className="mt-4 text-lg text-muted-foreground">
+            Pay per service, or pick a monthly package. No surprises.
+          </p>
         </div>
       </section>
 
@@ -82,7 +89,11 @@ function Pricing() {
                     <td className="px-5 py-4 font-medium">{r.name}</td>
                     <td className="px-5 py-4 text-muted-foreground">{r.range}</td>
                     <td className="px-5 py-4 text-right">
-                      <Button size="sm" variant="outline" onClick={() => void apply(r.slug, navigate)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => void apply(r.slug, navigate)}
+                      >
                         Request
                       </Button>
                     </td>
@@ -107,10 +118,16 @@ function Pricing() {
                   </div>
                   <ul className="space-y-2 text-sm">
                     {p.perks.map((perk) => (
-                      <li key={perk} className="flex gap-2"><Check className="h-4 w-4 shrink-0 text-primary" /> {perk}</li>
+                      <li key={perk} className="flex gap-2">
+                        <Check className="h-4 w-4 shrink-0 text-primary" /> {perk}
+                      </li>
                     ))}
                   </ul>
-                  <Button className="mt-2" variant={p.featured ? "default" : "outline"} onClick={() => void apply("administrative-support", navigate)}>
+                  <Button
+                    className="mt-2"
+                    variant={p.featured ? "default" : "outline"}
+                    onClick={() => void apply("administrative-support", navigate)}
+                  >
                     Choose {p.name}
                   </Button>
                 </CardContent>
@@ -122,7 +139,9 @@ function Pricing() {
 
       <section className="mx-auto max-w-3xl px-4 py-16 text-center md:px-6">
         <h2 className="text-2xl font-bold tracking-tight">Need a custom quote?</h2>
-        <p className="mt-2 text-muted-foreground">Complex project or multi-service engagement? Let's scope it together.</p>
+        <p className="mt-2 text-muted-foreground">
+          Complex project or multi-service engagement? Let's scope it together.
+        </p>
         <Button className="mt-6" size="lg" asChild>
           <a href="/contact?portal=consultancy">Request a custom quote</a>
         </Button>

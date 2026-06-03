@@ -220,9 +220,16 @@ function ConfirmationPage() {
       .channel(`confirmation-${requestId}`)
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "service_requests", filter: `id=eq.${requestId}` },
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "service_requests",
+          filter: `id=eq.${requestId}`,
+        },
         (payload) => {
-          setRequest((prev) => (prev ? { ...prev, ...(payload.new as Partial<RequestRow>) } : prev));
+          setRequest((prev) =>
+            prev ? { ...prev, ...(payload.new as Partial<RequestRow>) } : prev,
+          );
         },
       )
       .subscribe();
@@ -297,7 +304,7 @@ function ConfirmationPage() {
       >
         <div className="relative">
           <div className="absolute inset-0 -m-4 animate-pulse rounded-full bg-success/20 blur-xl" />
-          <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-success to-success/70 shadow-lg shadow-success/30 ring-8 ring-success/10">
+          <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-linear-to-br from-success to-success/70 shadow-lg shadow-success/30 ring-8 ring-success/10">
             <CheckCircle2 className="h-12 w-12 text-success-foreground" />
           </div>
         </div>
@@ -311,12 +318,10 @@ function ConfirmationPage() {
               : "Your request is confirmed. Here's everything you need."}
           </p>
           <div className="flex items-center justify-center gap-2 pt-2">
-            <span className="font-mono text-xs text-muted-foreground">Case #{requestId.slice(0, 8).toUpperCase()}</span>
-            {request ? (
-              <StatusBadge status={currentStatus} />
-            ) : (
-              <Skeleton className="h-5 w-20" />
-            )}
+            <span className="font-mono text-xs text-muted-foreground">
+              Case #{requestId.slice(0, 8).toUpperCase()}
+            </span>
+            {request ? <StatusBadge status={currentStatus} /> : <Skeleton className="h-5 w-20" />}
           </div>
         </div>
       </div>
@@ -325,7 +330,7 @@ function ConfirmationPage() {
       {!isFree && (
         <Card
           className={cn(
-            "overflow-hidden border-border/60 bg-gradient-to-br from-card to-card/60 backdrop-blur transition-all delay-150 duration-500",
+            "overflow-hidden border-border/60 bg-linear-to-br from-card to-card/60 backdrop-blur transition-all delay-150 duration-500",
             animIn ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
           )}
         >
@@ -364,7 +369,7 @@ function ConfirmationPage() {
       {/* Status tracker */}
       <Card
         className={cn(
-          "border-border/60 bg-gradient-to-br from-card to-card/60 backdrop-blur transition-all delay-300 duration-500",
+          "border-border/60 bg-linear-to-br from-card to-card/60 backdrop-blur transition-all delay-300 duration-500",
           animIn ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
         )}
       >
@@ -421,7 +426,7 @@ function ConfirmationPage() {
       {/* What happens next */}
       <Card
         className={cn(
-          "border-border/60 bg-gradient-to-br from-card to-card/60 backdrop-blur transition-all delay-500 duration-500",
+          "border-border/60 bg-linear-to-br from-card to-card/60 backdrop-blur transition-all delay-500 duration-500",
           animIn ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
         )}
       >
@@ -440,7 +445,8 @@ function ConfirmationPage() {
             ))}
           </ul>
           <div className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-foreground/80">
-            <span className="font-medium text-primary">Estimated response:</span> within 2 business hours
+            <span className="font-medium text-primary">Estimated response:</span> within 2 business
+            hours
           </div>
           <div className="flex flex-wrap items-center gap-2 pt-1">
             <Button asChild size="sm" variant="outline" className="h-8 gap-1.5">

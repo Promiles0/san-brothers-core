@@ -16,13 +16,10 @@ export async function createDailyRoom(callId: string): Promise<{
   url: string;
   name: string;
 } | null> {
-  const apiKey =
-    import.meta.env.VITE_DAILY_CO_API_KEY || import.meta.env.DAILY_CO_API_KEY;
+  const apiKey = import.meta.env.VITE_DAILY_CO_API_KEY || import.meta.env.DAILY_CO_API_KEY;
 
   const rawDomain =
-    import.meta.env.VITE_DAILY_CO_DOMAIN ||
-    import.meta.env.DAILY_CO_DOMAIN ||
-    "sanbroh.daily.co";
+    import.meta.env.VITE_DAILY_CO_DOMAIN || import.meta.env.DAILY_CO_DOMAIN || "sanbroh.daily.co";
   const domain = normalizeDomain(rawDomain);
 
   console.log("[Daily] Creating room. Has key:", !!apiKey, "Domain:", domain);
@@ -83,8 +80,7 @@ export async function createDailyRoom(callId: string): Promise<{
 }
 
 export async function deleteDailyRoom(roomName: string): Promise<void> {
-  const apiKey =
-    import.meta.env.VITE_DAILY_CO_API_KEY || import.meta.env.DAILY_CO_API_KEY;
+  const apiKey = import.meta.env.VITE_DAILY_CO_API_KEY || import.meta.env.DAILY_CO_API_KEY;
 
   if (!apiKey) return;
 

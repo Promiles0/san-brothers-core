@@ -129,7 +129,10 @@ function SignupPage() {
     }
     if (userId) {
       // Track which portal the user signed up from (best-effort).
-      await supabase.from("users").update({ source_portals: [targetPortal] }).eq("id", userId);
+      await supabase
+        .from("users")
+        .update({ source_portals: [targetPortal] })
+        .eq("id", userId);
     }
     toast.success(t("auth.signup.successToast"));
     navigate({
@@ -172,7 +175,6 @@ function SignupPage() {
       <OrDivider />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
         <Field
           label={t("auth.signup.fullName")}
           error={errors.full_name?.message ? t(errors.full_name.message) : undefined}

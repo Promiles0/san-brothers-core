@@ -14,15 +14,7 @@ import {
   CheckCircle2,
   Loader2,
 } from "lucide-react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -212,14 +204,10 @@ function AdminInterpreter() {
 
     const callsCh = supabase
       .channel("admin-interp-calls")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "interpreter_calls" },
-        () => {
-          void loadCalls();
-          void loadTodayCalls();
-        },
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "interpreter_calls" }, () => {
+        void loadCalls();
+        void loadTodayCalls();
+      })
       .subscribe();
 
     const usersCh = supabase
@@ -280,7 +268,7 @@ function AdminInterpreter() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-primary to-primary/60 text-primary-foreground shadow-lg shadow-primary/20">
+        <div className="grid h-11 w-11 place-items-center rounded-xl bg-linear-to-br from-primary to-primary/60 text-primary-foreground shadow-lg shadow-primary/20">
           <Headphones className="h-5 w-5" />
         </div>
         <div>
@@ -325,7 +313,7 @@ function AdminInterpreter() {
 
       {/* Section 1: Live calls */}
       <Card className="overflow-hidden border-border/60">
-        <CardHeader className="flex flex-row items-center justify-between border-b border-border/60 bg-gradient-to-b from-muted/40 to-transparent">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-border/60 bg-linear-to-b from-muted/40 to-transparent">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2.5 w-2.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500/60" />
@@ -356,12 +344,7 @@ function AdminInterpreter() {
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {calls.map((c) => (
-                <LiveCallCard
-                  key={c.id}
-                  call={c}
-                  tick={tick}
-                  onView={() => setSelectedCall(c)}
-                />
+                <LiveCallCard key={c.id} call={c} tick={tick} onView={() => setSelectedCall(c)} />
               ))}
             </div>
           )}
@@ -393,10 +376,8 @@ function AdminInterpreter() {
                   stat && stat.ratings.length > 0
                     ? stat.ratings.reduce((a, b) => a + b, 0) / stat.ratings.length
                     : null;
-                const meta =
-                  AVAIL_META[u.availability_status ?? "offline"] ?? AVAIL_META.offline;
-                const initial =
-                  (u.full_name?.[0] ?? u.email?.[0] ?? "I").toUpperCase();
+                const meta = AVAIL_META[u.availability_status ?? "offline"] ?? AVAIL_META.offline;
+                const initial = (u.full_name?.[0] ?? u.email?.[0] ?? "I").toUpperCase();
                 return (
                   <div
                     key={u.id}
@@ -406,7 +387,7 @@ function AdminInterpreter() {
                       className={cn(
                         "absolute inset-x-0 top-0 h-0.5",
                         u.availability_status === "online"
-                          ? "bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-500"
+                          ? "bg-linear-to-r from-emerald-500 via-emerald-400 to-emerald-500"
                           : u.availability_status === "busy"
                             ? "bg-rose-500/70"
                             : u.availability_status === "away"
@@ -417,7 +398,7 @@ function AdminInterpreter() {
                     <div className="flex items-start gap-3">
                       <div className="relative">
                         <Avatar className="h-11 w-11 ring-2 ring-border">
-                          <AvatarFallback className="bg-gradient-to-br from-primary/30 to-primary/10 text-sm font-semibold">
+                          <AvatarFallback className="bg-linear-to-br from-primary/30 to-primary/10 text-sm font-semibold">
                             {initial}
                           </AvatarFallback>
                         </Avatar>
@@ -430,9 +411,7 @@ function AdminInterpreter() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="truncate text-sm font-semibold">
-                            {u.full_name ?? u.email}
-                          </p>
+                          <p className="truncate text-sm font-semibold">{u.full_name ?? u.email}</p>
                           <Badge variant="outline" className={cn("border", meta.chip)}>
                             {meta.label}
                           </Badge>
@@ -453,9 +432,7 @@ function AdminInterpreter() {
                         </span>
                       ))}
                       {(u.interpreter_languages?.length ?? 0) === 0 && (
-                        <span className="text-[11px] text-muted-foreground">
-                          No languages set
-                        </span>
+                        <span className="text-[11px] text-muted-foreground">No languages set</span>
                       )}
                     </div>
 
@@ -495,11 +472,7 @@ function AdminInterpreter() {
                     <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.45} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="currentColor"
-                  strokeOpacity={0.15}
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.15} />
                 <XAxis
                   dataKey="hour"
                   stroke="currentColor"
@@ -562,8 +535,7 @@ function AdminInterpreter() {
                       </span>
                       <span className="text-muted-foreground">→</span>
                       <span>
-                        {langFlag(selectedCall.language_to)}{" "}
-                        {langLabel(selectedCall.language_to)}
+                        {langFlag(selectedCall.language_to)} {langLabel(selectedCall.language_to)}
                       </span>
                     </span>
                   }
@@ -618,7 +590,7 @@ function KpiCard({
 }) {
   return (
     <Card className="relative overflow-hidden border-border/60">
-      <div className={cn("absolute inset-0 bg-gradient-to-br opacity-60", tone)} />
+      <div className={cn("absolute inset-0 bg-linear-to-br opacity-60", tone)} />
       <CardContent className="relative p-5">
         <div className="flex items-center justify-between">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -629,7 +601,12 @@ function KpiCard({
               "grid h-8 w-8 place-items-center rounded-lg bg-background/70 backdrop-blur",
             )}
           >
-            <Icon className={cn("h-4 w-4", tone.split(" ").find((c) => c.startsWith("text-")))} />
+            <Icon
+              className={cn(
+                "h-4 w-4",
+                tone.split(" ").find((c) => c.startsWith("text-")),
+              )}
+            />
           </div>
         </div>
         <p className="mt-3 text-2xl font-bold tabular-nums">
@@ -669,9 +646,9 @@ function LiveCallCard({
         className={cn(
           "absolute inset-x-0 top-0 h-0.5",
           call.status === "active"
-            ? "bg-gradient-to-r from-emerald-500 via-emerald-300 to-emerald-500"
+            ? "bg-linear-to-r from-emerald-500 via-emerald-300 to-emerald-500"
             : call.status === "ringing"
-              ? "bg-gradient-to-r from-blue-500 via-blue-300 to-blue-500"
+              ? "bg-linear-to-r from-blue-500 via-blue-300 to-blue-500"
               : "bg-amber-500/70",
         )}
       />

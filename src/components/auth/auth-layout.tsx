@@ -12,7 +12,7 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
   return (
-    <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-background via-background to-primary/10">
+    <div className="relative flex min-h-screen flex-col bg-linear-to-br from-background via-background to-primary/10">
       <header className="flex items-center justify-between px-4 py-4 md:px-6">
         <Link to="/" className="flex items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-md bg-primary font-bold text-primary-foreground">
@@ -26,7 +26,7 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
         </div>
       </header>
       <main className="flex flex-1 items-center justify-center px-4 py-8">
-        <div className="w-full max-w-[440px]">
+        <div className="w-full max-w-110">
           <div className="rounded-xl border border-border bg-card p-6 shadow-sm md:p-8">
             <div className="mb-6 text-center">
               <h1 className="text-2xl font-bold tracking-tight">{title}</h1>

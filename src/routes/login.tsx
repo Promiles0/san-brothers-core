@@ -33,9 +33,16 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { intent, next, portal: portalParam } = useSearch({ from: "/login" }) as { intent?: string; next?: string; portal?: string };
+  const {
+    intent,
+    next,
+    portal: portalParam,
+  } = useSearch({ from: "/login" }) as { intent?: string; next?: string; portal?: string };
   const { current: detectedPortal } = usePortal();
-  const targetPortal = (portalParam || detectedPortal) as "san-brothers" | "translate" | "consultancy";
+  const targetPortal = (portalParam || detectedPortal) as
+    | "san-brothers"
+    | "translate"
+    | "consultancy";
   const [serverError, setServerError] = useState<string | null>(null);
   const [remember, setRemember] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -117,7 +124,8 @@ function LoginPage() {
         .eq("id", authData.user.id)
         .maybeSingle();
       const role = (profileData as { role?: string } | null)?.role;
-      const existingPortals = ((profileData as { source_portals?: string[] } | null)?.source_portals) ?? [];
+      const existingPortals =
+        (profileData as { source_portals?: string[] } | null)?.source_portals ?? [];
       if (!existingPortals.includes(targetPortal)) {
         await supabase
           .from("users")
@@ -175,8 +183,6 @@ function LoginPage() {
 
       <GoogleSignInButton onClick={handleGoogleSignIn} loading={googleLoading} />
       <OrDivider />
-
-
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-1.5">

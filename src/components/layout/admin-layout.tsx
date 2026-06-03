@@ -31,7 +31,9 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           <div className="grid h-8 w-8 place-items-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
             AD
           </div>
-          <span className="text-sm font-semibold text-sidebar-foreground">San Brothers — Admin</span>
+          <span className="text-sm font-semibold text-sidebar-foreground">
+            San Brothers — Admin
+          </span>
         </div>
         <div className="flex-1 overflow-y-auto">
           <AdminSidebar />

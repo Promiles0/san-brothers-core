@@ -14,7 +14,7 @@ export function PageHero({
   children?: ReactNode;
 }) {
   return (
-    <section className="border-b border-border bg-gradient-to-b from-primary/5 to-background">
+    <section className="border-b border-border bg-linear-to-b from-primary/5 to-background">
       <div className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20">
         <h1 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">{title}</h1>
         {subtitle ? (

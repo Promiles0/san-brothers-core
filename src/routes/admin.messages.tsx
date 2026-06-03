@@ -63,7 +63,9 @@ function AdminMessages() {
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-bold">Messages</h1>
-        <p className="text-sm text-muted-foreground">Monitor all client conversations — read-only.</p>
+        <p className="text-sm text-muted-foreground">
+          Monitor all client conversations — read-only.
+        </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-[340px_1fr]">
@@ -127,7 +129,7 @@ function AdminMessages() {
             {selectedId ? (
               <MessageThread conversationId={selectedId} />
             ) : (
-              <div className="flex h-[400px] items-center justify-center text-sm text-muted-foreground">
+              <div className="flex h-100 items-center justify-center text-sm text-muted-foreground">
                 Select a conversation to view messages.
               </div>
             )}

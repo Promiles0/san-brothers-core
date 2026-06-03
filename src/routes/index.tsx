@@ -83,7 +83,7 @@ function Home() {
 
   return (
     <PublicLayout>
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-primary/10 via-background to-accent/5 dark:from-primary/30 dark:via-background dark:to-primary/10">
+      <section className="relative overflow-hidden border-b border-border bg-linear-to-br from-primary/10 via-background to-accent/5 dark:from-primary/30 dark:via-background dark:to-primary/10">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-20 md:grid-cols-2 md:items-center md:px-6 md:py-28">
           <div>
             <h1 className="text-balance text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
@@ -104,7 +104,7 @@ function Home() {
           </div>
           <div className="relative hidden md:block">
             <div className="relative mx-auto aspect-square w-full max-w-md">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary/30 to-accent/20 blur-3xl" />
+              <div className="absolute inset-0 rounded-full bg-linear-to-tr from-primary/30 to-accent/20 blur-3xl" />
               <iframe
                 src="/sbc3d.html"
                 className="relative h-full w-full"

@@ -124,7 +124,7 @@ function TranslateHome() {
 
   return (
     <TranslateLayout>
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-accent/10 via-background to-primary/5">
+      <section className="relative overflow-hidden border-b border-border bg-linear-to-b from-accent/10 via-background to-primary/5">
         <div className="mx-auto max-w-4xl px-4 py-20 text-center md:px-6 md:py-28">
           <div className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
             {t("translate.home.eyebrow")}

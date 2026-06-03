@@ -116,7 +116,7 @@ function CallSummaryPage() {
       }
       setLoading(false);
     }
-  }, [callId, user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [callId, user]);
 
   const handleSubmitRating = async () => {
     if (!rating) return;
@@ -180,9 +180,7 @@ function CallSummaryPage() {
           <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm">
             <div>
               <p className="text-xs text-muted-foreground">Languages</p>
-              <p className="font-medium">
-                {formatLangPair(call.language_from, call.language_to)}
-              </p>
+              <p className="font-medium">{formatLangPair(call.language_from, call.language_to)}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Duration</p>

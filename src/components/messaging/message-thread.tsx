@@ -122,9 +122,7 @@ export function MessageThread({
       toast.error(error.message);
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
     } else {
-      setMessages((prev) =>
-        prev.map((m) => (m.id === tempId ? (data as Message) : m)),
-      );
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? (data as Message) : m)));
       void supabase
         .from("conversations")
         .update({ last_message_at: new Date().toISOString() })
@@ -165,10 +163,10 @@ export function MessageThread({
   };
 
   return (
-    <div className="flex h-full min-h-[400px] flex-col">
+    <div className="flex h-full min-h-100 flex-col">
       <div
         ref={scrollerRef}
-        className="flex max-h-[60vh] min-h-[300px] flex-1 flex-col gap-2 overflow-y-auto p-2"
+        className="flex max-h-[60vh] min-h-75 flex-1 flex-col gap-2 overflow-y-auto p-2"
       >
         {loading ? (
           <>
@@ -189,19 +187,14 @@ export function MessageThread({
             }
             const mine = m.sender_id === user?.id;
             return (
-              <div
-                key={m.id}
-                className={cn("flex w-full", mine ? "justify-end" : "justify-start")}
-              >
+              <div key={m.id} className={cn("flex w-full", mine ? "justify-end" : "justify-start")}>
                 <div
                   className={cn(
                     "max-w-[80%] rounded-lg px-3 py-2 text-sm shadow-sm",
-                    mine
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-foreground",
+                    mine ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
                   )}
                 >
-                  <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                  <p className="whitespace-pre-wrap wrap-break-word">{m.content}</p>
                   <p
                     className={cn(
                       "mt-1 text-[10px] opacity-70",

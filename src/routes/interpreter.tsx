@@ -91,10 +91,10 @@ function InterpreterLanding() {
   return (
     <PublicLayout>
       {/* HERO */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-background via-background to-muted/30">
+      <section className="relative overflow-hidden border-b border-border bg-linear-to-b from-background via-background to-muted/30">
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-24 left-1/2 h-[480px] w-[900px] -translate-x-1/2 rounded-full bg-green-500/10 blur-3xl"
+          className="pointer-events-none absolute -top-24 left-1/2 h-120 w-225 -translate-x-1/2 rounded-full bg-green-500/10 blur-3xl"
         />
         <div className="relative mx-auto max-w-5xl px-4 py-20 text-center md:px-6 md:py-28">
           <Badge
@@ -110,7 +110,7 @@ function InterpreterLanding() {
 
           <h1 className="text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
             We Speak Your{" "}
-            <span className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
               Language
             </span>
           </h1>
@@ -197,9 +197,7 @@ function InterpreterLanding() {
           ].map((s) => (
             <Card key={s.n} className="relative overflow-hidden border-border/60">
               <CardContent className="p-7">
-                <div className="absolute right-4 top-3 text-7xl font-bold text-muted/30">
-                  {s.n}
-                </div>
+                <div className="absolute right-4 top-3 text-7xl font-bold text-muted/30">{s.n}</div>
                 <div className="relative">
                   <div className="grid h-12 w-12 place-items-center rounded-xl bg-green-500/10 text-green-600 dark:text-green-400">
                     <s.icon className="h-6 w-6" />
@@ -224,9 +222,7 @@ function InterpreterLanding() {
             <p className="text-xs font-semibold uppercase tracking-widest text-green-600 dark:text-green-400">
               Simple Pricing
             </p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
-              Pay how you want
-            </h2>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Pay how you want</h2>
             <p className="mt-3 text-muted-foreground">
               Start with 5 free minutes. No subscription required.
             </p>
@@ -263,9 +259,7 @@ function InterpreterLanding() {
 
       {/* FINAL CTA */}
       <section className="mx-auto max-w-4xl px-4 py-20 text-center md:px-6">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-          Ready to be understood?
-        </h2>
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Ready to be understood?</h2>
         <p className="mt-3 text-muted-foreground">
           Your first 5 minutes are on us. No credit card required.
         </p>
