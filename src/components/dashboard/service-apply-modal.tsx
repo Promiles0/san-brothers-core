@@ -671,6 +671,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
             time: bookTime,
             notes: bookNotes || undefined,
           }),
+          portal_source: portalSource,
         })
         .select()
         .single();

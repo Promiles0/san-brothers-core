@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
-import { Menu, ChevronRight } from "lucide-react";
+import { Menu, ChevronRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePortal, getParentLink } from "@/lib/portal-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import {
@@ -103,8 +104,26 @@ export function DashboardLayout({
           </div>
         </header>
 
+        <PortalBanner />
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
+    </div>
+  );
+}
+
+function PortalBanner() {
+  const { isChild, displayName } = usePortal();
+  if (!isChild) return null;
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-primary/5 px-4 py-2 text-sm md:px-6">
+      <span className="font-medium">You're on: <span className="text-primary">{displayName}</span></span>
+      <a
+        href={getParentLink()}
+        className="inline-flex items-center gap-1 text-primary hover:underline"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Back to San Brothers
+      </a>
     </div>
   );
 }

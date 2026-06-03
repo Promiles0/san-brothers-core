@@ -12,6 +12,8 @@ export type Capability =
   | "register_clients_manually"
   | "approve_visa"
   | "approve_accounting"
+  | "approve_consultancy"
+  | "manage_consultancy_cases"
   | "view_financial_reports"
   | "manage_staff"
   | "manage_pricing"
@@ -59,6 +61,8 @@ export function StaffCapabilityProvider({ children }: { children: ReactNode }) {
             "register_clients_manually",
             "approve_visa",
             "approve_accounting",
+            "approve_consultancy",
+            "manage_consultancy_cases",
             "view_financial_reports",
             "manage_staff",
             "manage_pricing",
