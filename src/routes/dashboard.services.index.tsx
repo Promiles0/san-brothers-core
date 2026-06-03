@@ -12,6 +12,7 @@ import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import type { Service } from "@/lib/types/database";
+import { usePortal } from "@/lib/portal-context";
 
 export const Route = createFileRoute("/dashboard/services/")({
   validateSearch: (search) => ({
@@ -34,6 +35,7 @@ function ServiceCatalog() {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
   const { apply } = useSearch({ from: "/dashboard/services/" });
+  const { servicesAvailable, isChild, displayName } = usePortal();
   const [services, setServices] = useState<Service[] | null>(null);
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<(typeof CATEGORIES)[number]>("all");
@@ -104,12 +106,13 @@ function ServiceCatalog() {
   const filtered = useMemo(() => {
     if (!services) return null;
     return services.filter((s) => {
+      const inPortal = servicesAvailable.includes(s.slug);
       const matchesCat = cat === "all" || s.category === cat;
       const matchesQ = !query || localName(s).toLowerCase().includes(query.toLowerCase());
-      return matchesCat && matchesQ;
+      return inPortal && matchesCat && matchesQ;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [services, cat, query, locale]);
+  }, [services, cat, query, locale, servicesAvailable]);
 
   return (
     <div className="space-y-6">

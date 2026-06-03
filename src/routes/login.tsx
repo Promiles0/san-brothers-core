@@ -14,6 +14,7 @@ import { AuthLayout } from "@/components/auth/auth-layout";
 import { GoogleSignInButton, OrDivider } from "@/components/auth/google-signin-button";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase } from "@/lib/supabase";
+import { usePortal } from "@/lib/portal-context";
 
 const schema = z.object({
   email: z.string().email("auth.errors.invalidEmail"),
@@ -25,13 +26,16 @@ export const Route = createFileRoute("/login")({
   validateSearch: (s: Record<string, unknown>) => ({
     intent: typeof s.intent === "string" ? s.intent : undefined,
     next: typeof s.next === "string" ? s.next : undefined,
+    portal: typeof s.portal === "string" ? s.portal : undefined,
   }),
   component: LoginPage,
 });
 function LoginPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { intent, next } = useSearch({ from: "/login" }) as { intent?: string; next?: string };
+  const { intent, next, portal: portalParam } = useSearch({ from: "/login" }) as { intent?: string; next?: string; portal?: string };
+  const { current: detectedPortal } = usePortal();
+  const targetPortal = (portalParam || detectedPortal) as "san-brothers" | "translate" | "consultancy";
   const [serverError, setServerError] = useState<string | null>(null);
   const [remember, setRemember] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -106,13 +110,20 @@ function LoginPage() {
         return;
       }
 
-      // Fetch role to redirect correctly
+      // Fetch role + portals to redirect correctly and track portal source
       const { data: profileData } = await supabase
         .from("users")
-        .select("role")
+        .select("role, source_portals")
         .eq("id", authData.user.id)
         .maybeSingle();
       const role = (profileData as { role?: string } | null)?.role;
+      const existingPortals = ((profileData as { source_portals?: string[] } | null)?.source_portals) ?? [];
+      if (!existingPortals.includes(targetPortal)) {
+        await supabase
+          .from("users")
+          .update({ source_portals: [...existingPortals, targetPortal] })
+          .eq("id", authData.user.id);
+      }
       const savedIntent = intent || sessionStorage.getItem("signup_intent");
 
       if (savedIntent && role === "client") {

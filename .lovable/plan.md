@@ -1,115 +1,186 @@
-
 ## Goal
 
-Make the post-payment confirmation page a real, professional receipt + status tracker — showing the live Stripe payment reference and the current `service_requests.status`, and tightening the surrounding flow so clients feel confident and stay engaged.
+Build multi-portal infrastructure so San Brothers, Translate, and Consultancy share one backend/auth/dashboard but render distinct public sites. Add the full Consultancy portal from scratch and make signup/login/dashboard/support portal-aware.
 
 ---
 
-## Part 1 — Confirmation page upgrade (`src/routes/dashboard.confirmation.$requestId.tsx`)
+## Part 1 — Database migrations (one batch)
 
-### 1.1 Accept and display the Stripe reference
+Migration file applied via Supabase:
 
-Extend `validateSearch` with one more optional field:
-
-- `paymentRef?: string` — the Stripe `paymentIntentId` (e.g. `pi_3Q…`)
-
-Show it in the receipt card as a new row "Payment ID" (monospace, truncated with copy-to-clipboard button). Fallback to the existing `SB-XXXXXXXX` short reference when absent (e.g. free / momo / paypal).
-
-### 1.2 Load the real service request + payment row
-
-Replace the current single `service_requests` fetch with a parallel fetch:
-
-- `service_requests` → `id, status, progress_step, progress_total, created_at, services(name_en, category)`
-- `payments` (latest for this `service_request_id`) → `amount_rwf, currency, method, status, reference`
-
-Drive the receipt and the status badge from this real data instead of relying solely on URL search params (URL params remain as instant fallback to avoid loading flash).
-
-### 1.3 Live status tracker (real, not hardcoded)
-
-Replace the static `NEXT_STEPS` array with a dynamic stepper computed from `status` + `progress_step`:
-
-```text
-submitted → under_review → verified → submitted_to_authority → completed
-```
-
-- Done steps: green check.
-- Current step: animated pulse + Loader2.
-- Future steps: muted number.
-- Map `service_requests.status` to the active step. Re-use `StatusBadge` from `src/lib/dashboard/status-badge.tsx` for the headline badge.
-
-Subscribe via Supabase realtime channel on `service_requests` (filter `id=eq.${requestId}`) so the badge and stepper update without reload when staff move the case.
-
-### 1.4 Receipt polish
-
-- Add brand header strip with the logo and "Official Receipt" label.
-- Add `Payment status` row (green "Paid" badge from the payments row).
-- Update `downloadReceipt` HTML template to include `Payment ID` and `Payment status`.
-- Keep `.html` download, but rename file to `SanBrothers-Receipt-{ref}.html`.
-
-### 1.5 Modern visual treatment
-
-- Replace flat success circle with a layered glow: outer soft ring + inner gradient using `--success` / `--primary` tokens (from `src/styles.css`).
-- Confetti burst on first mount (lightweight CSS keyframes — no extra dep).
-- Cards use `backdrop-blur` + subtle gradient border (`bg-gradient-to-br from-card to-card/60`).
-- Sticky bottom action bar on mobile (viewport is 661px) with primary "Track My Case" CTA always visible.
-- Respect existing design tokens — no hardcoded colors.
+1. `users.source_portals TEXT[] DEFAULT ARRAY['san-brothers']`
+2. `service_requests.portal_source TEXT DEFAULT 'san-brothers'`
+3. `support_messages.portal_source TEXT DEFAULT 'san-brothers'`
+4. New `portal_configurations` table (portal_slug PK, name, display_name, tagline, services_available TEXT[], support_enabled, timestamps)
+5. Seed three rows: `san-brothers`, `translate`, `consultancy` (services_available matches spec)
+6. Grants: `GRANT SELECT ON portal_configurations TO anon, authenticated; GRANT ALL TO service_role`
+7. RLS: enable + `FOR SELECT USING (true)` public read policy
 
 ---
 
-## Part 2 — Wire the Stripe reference through
+## Part 2 — Portal context (`src/lib/portal-context.ts`)
 
-In `src/components/dashboard/service-apply-modal.tsx`, both navigation calls to the confirmation route already happen after the payment record is created. Add `paymentRef` to the `search` object:
-
-- Line ~549 (service request flow): pass `paymentRef: stripeIntentId` (already in scope as the resolved intent id).
-- Line ~705 (interpreter booking flow): pass `paymentRef: stripeIntentId`.
-
-No business-logic changes — only an extra search param.
+- `Portal = 'san-brothers' | 'translate' | 'consultancy'`
+- Static `PORTAL_CONFIG` map with displayName, tagline, servicesAvailable, hostname, isChild flag
+- `detectPortal()` reads `window.location.hostname`; SSR → `'san-brothers'`
+- `usePortal()` hook returns `{ current, config, isSanBrothers, isChild, displayName, tagline, servicesAvailable }`
+- `getParentLink()` returns parent san-brothers URL
 
 ---
 
-## Part 3 — UX polish around the funnel (trust + conversion)
+## Part 3 — Consultancy public portal
 
-These are small, focused presentation tweaks that strengthen the weak handoffs the user mentioned. No new features, no backend changes.
+Mirror `src/routes/translate/` structure:
 
-### 3.1 Confirmation → next action clarity
+- `src/routes/consultancy.tsx` — layout with Outlet, navbar (lang switcher EN/中文/RW/FR/AR + "Back to San Brothers"), footer
+- `src/routes/consultancy/index.tsx` — hero "Expert Business Solutions", 3-step "How it works", service cards (Company Registration, Document Processing, Trade & Investment, Business Planning, Administrative Support), CTA buttons use `handleConsultancyApply(slug)`
+- `src/routes/consultancy/how-it-works.tsx` — 3 steps (Choose consultation → Meet expert → Get solution)
+- `src/routes/consultancy/about.tsx` — company/team/why us
+- `src/routes/consultancy/pricing.tsx` — service pricing + monthly packages + custom quote CTA
 
-Right now the page ends with three side-by-side buttons of equal weight. Restructure:
+`handleConsultancyApply(slug)`:
 
-- **Primary** (full-width on mobile): "Track My Case" with arrow.
-- **Secondary**: "Message your case manager" (links to the assigned staff thread if `assigned_staff_id` exists, otherwise generic messages).
-- **Tertiary** (ghost / icon-only): Download receipt.
+- If session → `navigate({ to: '/dashboard/services', search: { apply: slug } })`
+- Else → set `sessionStorage` keys + `navigate({ to: '/signup', search: { intent: slug, portal: 'consultancy' } })`
 
-Add an "Estimated response time: within 2 business hours" trust line above the buttons.
+Reuse `src/components/marketing/` primitives where possible. Match Translate's design tone.
 
-### 3.2 Post-purchase reassurance card
+---
 
-New small card between receipt and next-steps:
+## Part 4 — Auth wiring (portal tracking)
 
-- "What happens next" — 3 plain-language bullets tailored to the service category (visa / accounting / translation / consultancy / interpreter), pulled from a small lookup map in the route file.
-- Contact strip: WhatsApp, email, phone — same row, icon buttons.
+`**src/routes/signup.tsx**`
 
-### 3.3 Service request detail page deep link
+- Extend `validateSearch` with `portal?: string`
+- On successful signup, set `users.source_portals = [targetPortal]`
+- Persist `signup_intent` + `signup_portal` in sessionStorage
 
-The "Track My Case" CTA links to `/dashboard/my-services/$id` (the detail view already exists at `src/routes/dashboard.my-services.$id.tsx`) instead of the index, so the client lands directly on their case.
+`**src/routes/login.tsx**`
 
-### 3.4 Loading/empty states
+- Extend `validateSearch` with `portal?: string`
+- After successful login: read `source_portals`, append current portal if missing, update
 
-- While `request === undefined`, render skeleton receipt + skeleton stepper (no layout shift).
-- If `request === null` (not found / permission), show a friendly empty state with "Back to dashboard" instead of the current silent fallback.
+Both use `usePortal()` + the explicit `portal` search param (param wins for cross-portal redirects).
+
+---
+
+## Part 5 — Dashboard portal awareness
+
+`**src/routes/dashboard.services.index.tsx**`
+
+- Fetch `portal_configurations` row for current portal
+- Filter services list by `services_available`
+- Honor existing `?apply=` intent flow
+
+`**src/components/layout/dashboard-layout.tsx**`
+
+- When `isChild`, render banner above main: "You're on: {displayName}" + "← Back to San Brothers" link via `getParentLink()`
+
+**Service request creation** (`service-apply-modal.tsx`): include `portal_source: currentPortal` on insert.
+
+---
+
+## Part 6 — Support form portal awareness
+
+`src/components/support/support-form.tsx` (or current contact form):
+
+- San Brothers → full subject dropdown
+- Translate child → locked "Translation & Interpretation Services"
+- Consultancy child → locked "Business Consultancy"
+- Always insert `portal_source: currentPortal`
+
+If no existing support-form component, edit `src/routes/contact.tsx` similarly.
+
+---
+
+## Part 7 — Staff capabilities
+
+Add to existing staff capability options (in admin staff management UI + capability-context):
+
+- `handle_consultancy`
+- `approve_consultancy`
+- `manage_consultancy_cases`
+
+Consultancy staff routes already exist (`staff.consultancy.*`); ensure capability gate uses `handle_consultancy` (already does per `staff.consultancy.index.tsx`). Verify sidebar (`sidebar-menus.ts`) hides consultancy nav when capability missing.
 
 ---
 
 ## Files touched
 
-- `src/routes/dashboard.confirmation.$requestId.tsx` — major upgrade (search schema, data fetching, realtime, stepper, receipt, layout).
-- `src/components/dashboard/service-apply-modal.tsx` — add `paymentRef` to both `navigate(...)` search payloads (2 lines each).
+**New**
 
-No new dependencies. No DB migrations. No changes to payment logic, RLS, or server functions.
+- `src/lib/portal-context.ts`
+- `src/routes/consultancy.tsx`
+- `src/routes/consultancy/index.tsx`
+- `src/routes/consultancy/how-it-works.tsx`
+- `src/routes/consultancy/about.tsx`
+- `src/routes/consultancy/pricing.tsx`
+- One SQL migration
+
+**Edited**
+
+- `src/routes/signup.tsx`
+- `src/routes/login.tsx`
+- `src/routes/dashboard.services.index.tsx`
+- `src/components/layout/dashboard-layout.tsx`
+- `src/components/dashboard/service-apply-modal.tsx` (add `portal_source`)
+- Support/contact form
+- Admin staff capabilities UI + `src/lib/staff/capability-context.tsx` (add new capability keys)
+
+No changes to: payment logic, existing translate portal, RLS on user data, server functions.
 
 ---
 
-## Out of scope (call out, ask later if needed)
+## Out of scope
 
-- Email receipt delivery (would need a server function + email provider).
-- PDF receipt (current HTML download is kept; a true PDF would need a Worker-compatible library).
-- Refund / dispute UI.
+- Subdomain DNS / hosting config (must be set up separately on Cloudflare; code uses hostname detection only)
+- Migrating existing rows (defaults handle new rows; backfill not requested)
+- Email templates per portal
+- Per-portal branding theming (uses same design tokens; only copy/labels differ)  
+  
+## Clarifications & Missing Details
+  ### Service Slugs Verification
+  Before building, verify these 5 service slugs exist in Supabase `services` table:
+  - 'company-registration'
+  - 'document-processing'
+  - 'trade-investment'
+  - 'business-planning'
+  - 'administrative-support'
+  If any are missing, create them first in services table with:
+  - name: (human-readable)
+  - slug: (above)
+  - description: (brief)
+  - category: 'consultancy'
+  - price_min/price_max: (use reasonable values)
+  ### Navbar Implementation
+  - Language switcher: **Reuse existing component from `src/routes/translate/` navbar** — same EN/中文/RW/FR/AR flags
+  - "Back to San Brothers" link: **Place in navbar top-right**, near language switcher, as text link with arrow icon (← style), links to `getParentLink()`
+  - Consultancy navbar component: Create `src/components/consultancy-navbar.tsx` or conditionally render in shared navbar based on `usePortal()`
+  ### Consultancy Footer
+  - Reuse footer from `src/routes/translate/` 
+  - Keep same company info, contact details
+  - No per-portal branding changes needed
+  ### Staff Routes & Dashboard
+  - **No new consultancy staff routes** `/staff/consultancy` does NOT need to exist)
+  - Consultancy staff use shared `/staff` dashboard
+  - Capability gate: existing `useCapabilities()` hook + `hasCapability('handle_consultancy')` check in sidebar
+  - Sidebar already hides consultancy nav items when user lacks `handle_consultancy` capability
+  ### Service Request Creation
+  - **File:** `src/components/dashboard/service-apply-modal.tsx`
+  - **Location:** In handleSubmit function, when inserting to `service_requests` table
+  - **Add this field:** `portal_source: usePortal().current`
+  - Ensure import: `import { usePortal } from '@/lib/portal-context'`
+  ### Optional: Consultancy Pricing Defaults
+  If pricing page needs sample data, use (adjust as needed):
+  - Company Registration: $150–$300
+  - Document Processing: $50–$150
+  - Trade & Investment: $200–$500
+  - Business Planning: $300–$1000
+  - Administrative Support: $75–$200
+  ### Testing Order
+  1. Create consultancy services in DB (if missing)
+  2. Deploy portal context + auth updates
+  3. Deploy consultancy routes
+  4. Test signup flow: /consultancy → not logged in → /signup?portal=consultancy → create account → /dashboard/services with modal open
+  5. Test existing user: logged in on San Brothers → visit /consultancy → add consultancy to source_portals → access services
+  6. Test support: fill form on /consultancy/contact → auto-subject + portal_source = 'consultancy'

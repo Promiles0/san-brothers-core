@@ -48,6 +48,7 @@ import { createNotification, createNotificationForAdmins } from "@/lib/notificat
 import { supabase } from "@/lib/supabase";
 import type { ApplicantType, Service, ServiceCategory } from "@/lib/types/database";
 import { StripePaymentForm } from "@/components/payments/stripe-payment-form";
+import { usePortal } from "@/lib/portal-context";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -273,6 +274,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
   const { user, profile } = useAuth();
   const { locale } = useI18n();
   const navigate = useNavigate();
+  const { current: portalSource } = usePortal();
 
   const isInterpreter = isInterpreterSlug(service.slug);
 
@@ -482,6 +484,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           applicant_type: applicantType,
           priority: "normal",
           notes: notesSummary,
+          portal_source: portalSource,
         })
         .select()
         .single();
@@ -585,6 +588,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
           applicant_type: "individual",
           priority: "normal",
           notes: JSON.stringify({ type: "free_call" }),
+          portal_source: portalSource,
         })
         .select()
         .single();
@@ -667,6 +671,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
             time: bookTime,
             notes: bookNotes || undefined,
           }),
+          portal_source: portalSource,
         })
         .select()
         .single();
