@@ -20,6 +20,7 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DevRouteImport } from './routes/dev'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ConsultancyRouteImport } from './routes/consultancy'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -27,6 +28,7 @@ import { Route as TranslateIndexRouteImport } from './routes/translate/index'
 import { Route as StaffIndexRouteImport } from './routes/staff.index'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as ConsultancyIndexRouteImport } from './routes/consultancy/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as TranslatePricingRouteImport } from './routes/translate/pricing'
 import { Route as TranslateLiveRouteImport } from './routes/translate/live'
@@ -55,6 +57,9 @@ import { Route as DashboardPaymentsRouteImport } from './routes/dashboard.paymen
 import { Route as DashboardMessagesRouteImport } from './routes/dashboard.messages'
 import { Route as DashboardInterpreterRouteImport } from './routes/dashboard.interpreter'
 import { Route as DashboardDocumentsRouteImport } from './routes/dashboard.documents'
+import { Route as ConsultancyPricingRouteImport } from './routes/consultancy/pricing'
+import { Route as ConsultancyHowItWorksRouteImport } from './routes/consultancy/how-it-works'
+import { Route as ConsultancyAboutRouteImport } from './routes/consultancy/about'
 import { Route as AuthErrorRouteImport } from './routes/auth.error'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AdminStaffRouteImport } from './routes/admin.staff'
@@ -154,6 +159,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConsultancyRoute = ConsultancyRouteImport.update({
+  id: '/consultancy',
+  path: '/consultancy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -188,6 +198,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DashboardRoute,
+} as any)
+const ConsultancyIndexRoute = ConsultancyIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ConsultancyRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
@@ -328,6 +343,21 @@ const DashboardDocumentsRoute = DashboardDocumentsRouteImport.update({
   id: '/documents',
   path: '/documents',
   getParentRoute: () => DashboardRoute,
+} as any)
+const ConsultancyPricingRoute = ConsultancyPricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => ConsultancyRoute,
+} as any)
+const ConsultancyHowItWorksRoute = ConsultancyHowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => ConsultancyRoute,
+} as any)
+const ConsultancyAboutRoute = ConsultancyAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => ConsultancyRoute,
 } as any)
 const AuthErrorRoute = AuthErrorRouteImport.update({
   id: '/auth/error',
@@ -553,6 +583,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/consultancy': typeof ConsultancyRouteWithChildren
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/dev': typeof DevRoute
@@ -576,6 +607,9 @@ export interface FileRoutesByFullPath {
   '/admin/staff': typeof AdminStaffRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
+  '/consultancy/about': typeof ConsultancyAboutRoute
+  '/consultancy/how-it-works': typeof ConsultancyHowItWorksRoute
+  '/consultancy/pricing': typeof ConsultancyPricingRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
   '/dashboard/interpreter': typeof DashboardInterpreterRouteWithChildren
   '/dashboard/messages': typeof DashboardMessagesRoute
@@ -604,6 +638,7 @@ export interface FileRoutesByFullPath {
   '/translate/live': typeof TranslateLiveRouteWithChildren
   '/translate/pricing': typeof TranslatePricingRoute
   '/admin/': typeof AdminIndexRoute
+  '/consultancy/': typeof ConsultancyIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/staff/': typeof StaffIndexRoute
@@ -664,6 +699,9 @@ export interface FileRoutesByTo {
   '/admin/staff': typeof AdminStaffRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
+  '/consultancy/about': typeof ConsultancyAboutRoute
+  '/consultancy/how-it-works': typeof ConsultancyHowItWorksRoute
+  '/consultancy/pricing': typeof ConsultancyPricingRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
   '/dashboard/interpreter': typeof DashboardInterpreterRouteWithChildren
   '/dashboard/messages': typeof DashboardMessagesRoute
@@ -685,6 +723,7 @@ export interface FileRoutesByTo {
   '/translate/languages': typeof TranslateLanguagesRoute
   '/translate/pricing': typeof TranslatePricingRoute
   '/admin': typeof AdminIndexRoute
+  '/consultancy': typeof ConsultancyIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/services': typeof ServicesIndexRoute
   '/staff': typeof StaffIndexRoute
@@ -726,6 +765,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/consultancy': typeof ConsultancyRouteWithChildren
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/dev': typeof DevRoute
@@ -749,6 +789,9 @@ export interface FileRoutesById {
   '/admin/staff': typeof AdminStaffRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/error': typeof AuthErrorRoute
+  '/consultancy/about': typeof ConsultancyAboutRoute
+  '/consultancy/how-it-works': typeof ConsultancyHowItWorksRoute
+  '/consultancy/pricing': typeof ConsultancyPricingRoute
   '/dashboard/documents': typeof DashboardDocumentsRoute
   '/dashboard/interpreter': typeof DashboardInterpreterRouteWithChildren
   '/dashboard/messages': typeof DashboardMessagesRoute
@@ -777,6 +820,7 @@ export interface FileRoutesById {
   '/translate/live': typeof TranslateLiveRouteWithChildren
   '/translate/pricing': typeof TranslatePricingRoute
   '/admin/': typeof AdminIndexRoute
+  '/consultancy/': typeof ConsultancyIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/staff/': typeof StaffIndexRoute
@@ -819,6 +863,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/consultancy'
     | '/contact'
     | '/dashboard'
     | '/dev'
@@ -842,6 +887,9 @@ export interface FileRouteTypes {
     | '/admin/staff'
     | '/auth/callback'
     | '/auth/error'
+    | '/consultancy/about'
+    | '/consultancy/how-it-works'
+    | '/consultancy/pricing'
     | '/dashboard/documents'
     | '/dashboard/interpreter'
     | '/dashboard/messages'
@@ -870,6 +918,7 @@ export interface FileRouteTypes {
     | '/translate/live'
     | '/translate/pricing'
     | '/admin/'
+    | '/consultancy/'
     | '/dashboard/'
     | '/services/'
     | '/staff/'
@@ -930,6 +979,9 @@ export interface FileRouteTypes {
     | '/admin/staff'
     | '/auth/callback'
     | '/auth/error'
+    | '/consultancy/about'
+    | '/consultancy/how-it-works'
+    | '/consultancy/pricing'
     | '/dashboard/documents'
     | '/dashboard/interpreter'
     | '/dashboard/messages'
@@ -951,6 +1003,7 @@ export interface FileRouteTypes {
     | '/translate/languages'
     | '/translate/pricing'
     | '/admin'
+    | '/consultancy'
     | '/dashboard'
     | '/services'
     | '/staff'
@@ -991,6 +1044,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/consultancy'
     | '/contact'
     | '/dashboard'
     | '/dev'
@@ -1014,6 +1068,9 @@ export interface FileRouteTypes {
     | '/admin/staff'
     | '/auth/callback'
     | '/auth/error'
+    | '/consultancy/about'
+    | '/consultancy/how-it-works'
+    | '/consultancy/pricing'
     | '/dashboard/documents'
     | '/dashboard/interpreter'
     | '/dashboard/messages'
@@ -1042,6 +1099,7 @@ export interface FileRouteTypes {
     | '/translate/live'
     | '/translate/pricing'
     | '/admin/'
+    | '/consultancy/'
     | '/dashboard/'
     | '/services/'
     | '/staff/'
@@ -1083,6 +1141,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRouteWithChildren
+  ConsultancyRoute: typeof ConsultancyRouteWithChildren
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   DevRoute: typeof DevRoute
@@ -1188,6 +1247,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/consultancy': {
+      id: '/consultancy'
+      path: '/consultancy'
+      fullPath: '/consultancy'
+      preLoaderRoute: typeof ConsultancyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -1236,6 +1302,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/'
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/consultancy/': {
+      id: '/consultancy/'
+      path: '/'
+      fullPath: '/consultancy/'
+      preLoaderRoute: typeof ConsultancyIndexRouteImport
+      parentRoute: typeof ConsultancyRoute
     }
     '/admin/': {
       id: '/admin/'
@@ -1432,6 +1505,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/documents'
       preLoaderRoute: typeof DashboardDocumentsRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/consultancy/pricing': {
+      id: '/consultancy/pricing'
+      path: '/pricing'
+      fullPath: '/consultancy/pricing'
+      preLoaderRoute: typeof ConsultancyPricingRouteImport
+      parentRoute: typeof ConsultancyRoute
+    }
+    '/consultancy/how-it-works': {
+      id: '/consultancy/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/consultancy/how-it-works'
+      preLoaderRoute: typeof ConsultancyHowItWorksRouteImport
+      parentRoute: typeof ConsultancyRoute
+    }
+    '/consultancy/about': {
+      id: '/consultancy/about'
+      path: '/about'
+      fullPath: '/consultancy/about'
+      preLoaderRoute: typeof ConsultancyAboutRouteImport
+      parentRoute: typeof ConsultancyRoute
     }
     '/auth/error': {
       id: '/auth/error'
@@ -1779,6 +1873,24 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface ConsultancyRouteChildren {
+  ConsultancyAboutRoute: typeof ConsultancyAboutRoute
+  ConsultancyHowItWorksRoute: typeof ConsultancyHowItWorksRoute
+  ConsultancyPricingRoute: typeof ConsultancyPricingRoute
+  ConsultancyIndexRoute: typeof ConsultancyIndexRoute
+}
+
+const ConsultancyRouteChildren: ConsultancyRouteChildren = {
+  ConsultancyAboutRoute: ConsultancyAboutRoute,
+  ConsultancyHowItWorksRoute: ConsultancyHowItWorksRoute,
+  ConsultancyPricingRoute: ConsultancyPricingRoute,
+  ConsultancyIndexRoute: ConsultancyIndexRoute,
+}
+
+const ConsultancyRouteWithChildren = ConsultancyRoute._addFileChildren(
+  ConsultancyRouteChildren,
+)
+
 interface DashboardInterpreterCallIdRouteChildren {
   DashboardInterpreterCallIdSummaryRoute: typeof DashboardInterpreterCallIdSummaryRoute
 }
@@ -2007,6 +2119,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRouteWithChildren,
+  ConsultancyRoute: ConsultancyRouteWithChildren,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRouteWithChildren,
   DevRoute: DevRoute,
