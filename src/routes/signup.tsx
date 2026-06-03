@@ -23,6 +23,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { intentLabel, friendlyAuthError } from "@/lib/auth/intent-labels";
 import { supabase } from "@/lib/supabase";
+import { usePortal, type Portal } from "@/lib/portal-context";
 const signupSchema = z
   .object({
     full_name: z.string().min(2, "auth.errors.nameTooShort"),
@@ -46,15 +47,21 @@ type SignupForm = z.infer<typeof signupSchema>;
 export const Route = createFileRoute("/signup")({
   validateSearch: (s: Record<string, unknown>) => ({
     intent: typeof s.intent === "string" ? s.intent : undefined,
+    portal: typeof s.portal === "string" ? (s.portal as Portal) : undefined,
   }),
   component: SignupPage,
 });
 
 function SignupPage() {
   const { t } = useI18n();
-  const { intent } = useSearch({ from: "/signup" }) as { intent?: string };
+  const { intent, portal: portalParam } = useSearch({ from: "/signup" }) as {
+    intent?: string;
+    portal?: Portal;
+  };
   const navigate = useNavigate();
   const { signUp } = useAuth();
+  const { current: detectedPortal } = usePortal();
+  const targetPortal: Portal = portalParam || detectedPortal;
   const [serverError, setServerError] = useState<string | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
 
@@ -74,10 +81,9 @@ function SignupPage() {
   const intentName = intentLabel(intent);
 
   useEffect(() => {
-    if (intent) {
-      sessionStorage.setItem("signup_intent", intent);
-    }
-  }, [intent]);
+    if (intent) sessionStorage.setItem("signup_intent", intent);
+    sessionStorage.setItem("signup_portal", targetPortal);
+  }, [intent, targetPortal]);
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
@@ -120,6 +126,10 @@ function SignupPage() {
     }
     if (intent && userId) {
       await supabase.from("signup_intents").insert({ user_id: userId, intent_slug: intent });
+    }
+    if (userId) {
+      // Track which portal the user signed up from (best-effort).
+      await supabase.from("users").update({ source_portals: [targetPortal] }).eq("id", userId);
     }
     toast.success(t("auth.signup.successToast"));
     navigate({
