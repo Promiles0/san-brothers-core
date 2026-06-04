@@ -114,7 +114,11 @@ function Contact() {
                 </div>
                 <div className="grid gap-2">
                   <Label>{t("contact.labels.subject")}</Label>
-                  <Select value={subject} onValueChange={setSubject}>
+                  <Select
+                    value={subject}
+                    onValueChange={setSubject}
+                    disabled={Boolean(lockedSubject)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder={t("contact.placeholders.subject")} />
                     </SelectTrigger>
@@ -130,6 +134,11 @@ function Contact() {
                       <SelectItem value="other">{t("contact.subjects.other")}</SelectItem>
                     </SelectContent>
                   </Select>
+                  {lockedSubject ? (
+                    <p className="text-xs text-muted-foreground">
+                      Subject is set automatically for the {portal.displayName} portal.
+                    </p>
+                  ) : null}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="message">{t("contact.labels.message")}</Label>
