@@ -16,6 +16,7 @@ import { ThemeProvider } from "@/lib/providers/theme-provider";
 import { I18nProvider } from "@/lib/providers/i18n-provider";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
+import { AIChatWidget } from "@/components/chat/ai-chat-widget";
 
 function NotFoundComponent() {
   return (
@@ -132,6 +133,7 @@ function RootComponent() {
           <AuthProvider>
             <Outlet />
             <Toaster richColors position="top-right" />
+            <AIChatWidget />
           </AuthProvider>
         </I18nProvider>
       </ThemeProvider>
