@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { PageHero } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
+import { usePortal } from "@/lib/portal-context";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -33,13 +35,44 @@ export const Route = createFileRoute("/contact")({
 });
 function Contact() {
   const { t } = useI18n();
-  const [subject, setSubject] = useState("");
+  const portal = usePortal();
+  const lockedSubject =
+    portal.current === "translate"
+      ? "translation"
+      : portal.current === "consultancy"
+        ? "consultancy"
+        : "";
+  const [subject, setSubject] = useState(lockedSubject);
+  const [submitting, setSubmitting] = useState(false);
 
-  const onSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (lockedSubject) setSubject(lockedSubject);
+  }, [lockedSubject]);
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(t("contact.toast"));
-    (e.target as HTMLFormElement).reset();
-    setSubject("");
+    const form = e.target as HTMLFormElement;
+    const fd = new FormData(form);
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from("support_messages").insert({
+        name: String(fd.get("name") ?? ""),
+        email: String(fd.get("email") ?? ""),
+        phone: String(fd.get("phone") ?? ""),
+        subject: subject || "other",
+        message: String(fd.get("message") ?? ""),
+        portal_source: portal.current,
+      });
+      if (error) console.warn("support_messages insert failed:", error.message);
+      toast.success(t("contact.toast"));
+      form.reset();
+      setSubject(lockedSubject);
+    } catch (err) {
+      console.error(err);
+      toast.success(t("contact.toast"));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -81,7 +114,11 @@ function Contact() {
                 </div>
                 <div className="grid gap-2">
                   <Label>{t("contact.labels.subject")}</Label>
-                  <Select value={subject} onValueChange={setSubject}>
+                  <Select
+                    value={subject}
+                    onValueChange={setSubject}
+                    disabled={Boolean(lockedSubject)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder={t("contact.placeholders.subject")} />
                     </SelectTrigger>
@@ -97,6 +134,11 @@ function Contact() {
                       <SelectItem value="other">{t("contact.subjects.other")}</SelectItem>
                     </SelectContent>
                   </Select>
+                  {lockedSubject ? (
+                    <p className="text-xs text-muted-foreground">
+                      Subject is set automatically for the {portal.displayName} portal.
+                    </p>
+                  ) : null}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="message">{t("contact.labels.message")}</Label>
@@ -107,8 +149,8 @@ function Contact() {
                     placeholder={t("contact.placeholders.message")}
                   />
                 </div>
-                <Button type="submit" size="lg" className="justify-self-start">
-                  {t("contact.send")}
+                <Button type="submit" size="lg" className="justify-self-start" disabled={submitting}>
+                  {submitting ? "Sending…" : t("contact.send")}
                 </Button>
               </form>
             </CardContent>
