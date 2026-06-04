@@ -58,12 +58,12 @@ export function StepDocuments({
       setUploading((prev) => [...prev, { id: uploadId, name: file.name, progress: 0 }]);
 
       try {
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `service-documents/${user.id}/${fileName}`;
+        // Use established client-documents bucket pattern
+        const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const filePath = `clients/${user.id}/temp/${Date.now()}_${safe}`;
 
         const { error: uploadError } = await supabase.storage
-          .from("documents")
+          .from("client-documents")
           .upload(filePath, file, {
             onUploadProgress: (progress) => {
               const percent = (progress.loaded / progress.total) * 100;
@@ -77,15 +77,11 @@ export function StepDocuments({
 
         if (uploadError) throw uploadError;
 
-        const { data: publicUrlData } = supabase.storage
-          .from("documents")
-          .getPublicUrl(filePath);
-
         setState({
           ...state,
           uploadedDocuments: [
             ...state.uploadedDocuments,
-            { name: file.name, url: publicUrlData.publicUrl },
+            { name: file.name, url: filePath },
           ],
         });
 

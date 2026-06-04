@@ -94,16 +94,20 @@ export function StepPayment({
 
       // Upload documents to service request
       if (state.uploadedDocuments.length > 0) {
-        const documentInserts = state.uploadedDocuments.map((doc) => ({
-          service_request_id: requestData.id,
-          client_id: user.id,
-          uploaded_by: user.id,
-          file_path: doc.url,
-          file_name: doc.name,
-          file_type: doc.name.split(".").pop() || "unknown",
-          status: "uploaded" as const,
-          is_final_delivery: false,
-        }));
+        const documentInserts = state.uploadedDocuments.map((doc) => {
+          const fileExt = doc.name.split(".").pop() || "unknown";
+          return {
+            service_request_id: requestData.id,
+            client_id: user.id,
+            uploaded_by: user.id,
+            file_path: doc.url,
+            file_name: doc.name,
+            file_type: fileExt,
+            file_size_bytes: null,
+            status: "uploaded" as const,
+            is_final_delivery: false,
+          };
+        });
 
         const { error: docError } = await supabase
           .from("documents")
