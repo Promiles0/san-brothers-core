@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { PageHero } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
+import { usePortal } from "@/lib/portal-context";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -33,13 +35,44 @@ export const Route = createFileRoute("/contact")({
 });
 function Contact() {
   const { t } = useI18n();
-  const [subject, setSubject] = useState("");
+  const portal = usePortal();
+  const lockedSubject =
+    portal.current === "translate"
+      ? "translation"
+      : portal.current === "consultancy"
+        ? "consultancy"
+        : "";
+  const [subject, setSubject] = useState(lockedSubject);
+  const [submitting, setSubmitting] = useState(false);
 
-  const onSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (lockedSubject) setSubject(lockedSubject);
+  }, [lockedSubject]);
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(t("contact.toast"));
-    (e.target as HTMLFormElement).reset();
-    setSubject("");
+    const form = e.target as HTMLFormElement;
+    const fd = new FormData(form);
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from("support_messages").insert({
+        name: String(fd.get("name") ?? ""),
+        email: String(fd.get("email") ?? ""),
+        phone: String(fd.get("phone") ?? ""),
+        subject: subject || "other",
+        message: String(fd.get("message") ?? ""),
+        portal_source: portal.current,
+      });
+      if (error) console.warn("support_messages insert failed:", error.message);
+      toast.success(t("contact.toast"));
+      form.reset();
+      setSubject(lockedSubject);
+    } catch (err) {
+      console.error(err);
+      toast.success(t("contact.toast"));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
