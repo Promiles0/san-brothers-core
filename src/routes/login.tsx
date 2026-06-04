@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthLayout } from "@/components/auth/auth-layout";
-import { GoogleSignInButton, OrDivider } from "@/components/auth/google-signin-button";
+import { GoogleSignInButton, WeChatSignInButton, OrDivider } from "@/components/auth/google-signin-button";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase } from "@/lib/supabase";
 import { usePortal } from "@/lib/portal-context";
@@ -181,7 +181,10 @@ function LoginPage() {
         </Alert>
       ) : null}
 
-      <GoogleSignInButton onClick={handleGoogleSignIn} loading={googleLoading} />
+      <div className="space-y-2">
+        <GoogleSignInButton onClick={handleGoogleSignIn} loading={googleLoading} />
+        <WeChatSignInButton />
+      </div>
       <OrDivider />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

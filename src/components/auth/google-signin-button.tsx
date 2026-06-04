@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, MessageCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export function GoogleSignInButton({
   label = "Continue with Google",
@@ -38,6 +39,40 @@ export function GoogleSignInButton({
             fill="#EA4335"
             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
           />
+        </svg>
+      )}
+      {label}
+    </Button>
+  );
+}
+
+export function WeChatSignInButton({
+  label = "WeChat",
+  loading = false,
+  onClick,
+}: {
+  label?: string;
+  loading?: boolean;
+  onClick?: () => void | Promise<void>;
+}) {
+  const handleClick = () => {
+    toast.info("WeChat sign in coming soon! Please use Google or Email.");
+    onClick?.();
+  };
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      onClick={handleClick}
+      disabled={loading}
+      className="w-full bg-background hover:bg-accent"
+    >
+      {loading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true" fill="#07C160">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
         </svg>
       )}
       {label}
