@@ -149,8 +149,8 @@ function Contact() {
                     placeholder={t("contact.placeholders.message")}
                   />
                 </div>
-                <Button type="submit" size="lg" className="justify-self-start">
-                  {t("contact.send")}
+                <Button type="submit" size="lg" className="justify-self-start" disabled={submitting}>
+                  {submitting ? "Sending…" : t("contact.send")}
                 </Button>
               </form>
             </CardContent>
