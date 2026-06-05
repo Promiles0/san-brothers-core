@@ -40,7 +40,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { getRequiredDocs } from "@/lib/dashboard/service-requirements";
 import { createNotification, createNotificationForAdmins } from "@/lib/notifications";
-import { supabase } from "@/lib/supabase";
+import { supabase, uploadToStorage } from "@/lib/supabase";
 import type { ApplicantType, Service, ServiceCategory } from "@/lib/types/database";
 import { StripePaymentForm } from "@/components/payments/stripe-payment-form";
 import { usePortal } from "@/lib/portal-context";
@@ -482,7 +482,10 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
       for (const { file } of files) {
         const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const path = `documents/${user!.id}/${requestId}/${Date.now()}_${safe}`;
-        const { error: upErr } = await supabase.storage.from("client-documents").upload(path, file);
+        const { error: upErr } = await uploadToStorage("client-documents", path, file, {
+          upsert: true,
+          contentType: file.type || undefined,
+        });
         if (upErr) throw upErr;
         await supabase.from("documents").insert({
           service_request_id: requestId,

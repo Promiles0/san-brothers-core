@@ -20,6 +20,25 @@ function getSupabaseClient(): SupabaseClient {
   return _client;
 }
 
+export async function uploadToStorage(
+  bucket: string,
+  path: string,
+  file: File | Blob,
+  options?: {
+    upsert?: boolean;
+    contentType?: string;
+    cacheControl?: string;
+  }
+) {
+  const normalizedPath = String(path || "").replace(/^\/+/, "");
+  const encodedPath = encodeURI(normalizedPath);
+  return supabase.storage.from(bucket).upload(encodedPath, file, {
+    upsert: options?.upsert ?? false,
+    contentType: options?.contentType,
+    cacheControl: options?.cacheControl,
+  });
+}
+
 export const supabase = new Proxy({} as SupabaseClient, {
   get(_target, prop) {
     const client = getSupabaseClient();

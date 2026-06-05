@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/providers/i18n-provider";
-import { supabase } from "@/lib/supabase";
+import { supabase, uploadToStorage } from "@/lib/supabase";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/dashboard/claims/new")({
@@ -98,7 +98,10 @@ function NewClaimPage() {
       for (const f of files) {
         const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const path = `claims/${user.id}/${claim.id}/${Date.now()}_${safe}`;
-        const { error: upErr } = await supabase.storage.from("client-documents").upload(path, f);
+        const { error: upErr } = await uploadToStorage("client-documents", path, f, {
+          upsert: true,
+          contentType: f.type || undefined,
+        });
         if (upErr) throw upErr;
         paths.push(path);
       }

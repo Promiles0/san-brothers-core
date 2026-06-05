@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/providers/i18n-provider";
-import { supabase } from "@/lib/supabase";
+import { supabase, uploadToStorage } from "@/lib/supabase";
 import { toast } from "sonner";
 import { getRequiredDocs } from "@/lib/dashboard/service-requirements";
 import type { Service } from "@/lib/types/database";
@@ -179,7 +179,10 @@ function RequestServicePage() {
       for (const { file } of files) {
         const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const path = `clients/${user.id}/${requestId}/${Date.now()}_${safeName}`;
-        const { error: upErr } = await supabase.storage.from("client-documents").upload(path, file);
+        const { error: upErr } = await uploadToStorage("client-documents", path, file, {
+          upsert: true,
+          contentType: file.type || undefined,
+        });
         if (upErr) throw upErr;
         const { error: docErr } = await supabase.from("documents").insert({
           service_request_id: requestId,

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Eye, EyeOff, Upload, Download } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase, uploadToStorage } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useCapabilities } from "@/lib/staff/capability-context";
 import { Button } from "@/components/ui/button";
@@ -168,7 +168,10 @@ function Page() {
   };
   const uploadTo = async (file: File, srId: string) => {
     const path = `clients/${id}/${srId}/${Date.now()}-${file.name}`;
-    const { error: upErr } = await supabase.storage.from("client-documents").upload(path, file);
+    const { error: upErr } = await uploadToStorage("client-documents", path, file, {
+      upsert: true,
+      contentType: file.type || undefined,
+    });
     if (upErr) {
       toast.error(upErr.message);
       return;

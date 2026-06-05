@@ -9,7 +9,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Upload, Download, Mail } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase, uploadToStorage } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useCapabilities } from "@/lib/staff/capability-context";
 import { Button } from "@/components/ui/button";
@@ -349,7 +349,10 @@ export function StaffCaseDetail({
   const uploadFile = async (file: File) => {
     if (!data || !user) return;
     const path = `clients/${data.client_id}/${id}/${Date.now()}-${file.name}`;
-    const { error: upErr } = await supabase.storage.from("client-documents").upload(path, file);
+    const { error: upErr } = await uploadToStorage("client-documents", path, file, {
+      upsert: true,
+      contentType: file.type || undefined,
+    });
     if (upErr) {
       toast.error(upErr.message);
       return;

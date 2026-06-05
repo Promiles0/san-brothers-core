@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/lib/dashboard/status-badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/providers/i18n-provider";
-import { supabase } from "@/lib/supabase";
+import { supabase, uploadToStorage } from "@/lib/supabase";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -103,7 +103,10 @@ function ServiceDetailPage() {
     try {
       const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
       const path = `clients/${user.id}/${id}/${Date.now()}_${safe}`;
-      const { error: upErr } = await supabase.storage.from("client-documents").upload(path, f);
+      const { error: upErr } = await uploadToStorage("client-documents", path, f, {
+        upsert: true,
+        contentType: f.type || undefined,
+      });
       if (upErr) throw upErr;
       const { error: docErr } = await supabase.from("documents").insert({
         service_request_id: id,
