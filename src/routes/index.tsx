@@ -958,7 +958,7 @@ function Home() {
       </section>
 
       {/* ========== PARTNERSHIP ========== */}
-      <section className="py-20" style={{ background: "#080D1A" }}>
+      <section className="py-20 pt-32" style={{ background: "#080D1A" }}>
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="rounded-3xl p-8 md:p-12"
             style={{
@@ -999,7 +999,7 @@ function Home() {
       </section>
 
       {/* ========== CTA BANNER ========== */}
-      <section className="relative overflow-hidden py-24 gradient-animated"
+      <section className="relative overflow-hidden py-24 gradient-animated -mt-0.5"
         style={{
           background: "linear-gradient(135deg, #1D4ED8 0%, #2563EB 30%, #7C3AED 70%, #6D28D9 100%)"
         }}>
@@ -1040,12 +1040,6 @@ function Home() {
           </div>
         </div>
       </section>
-
-      <CtaBanner
-        title={t("home.ctaHeading")}
-        subtitle={t("home.ctaSubtitle")}
-        label={t("common.getStarted")}
-      />
     </PublicLayout>
   );
 }
