@@ -238,7 +238,10 @@ function StaffMessagesPage() {
         hold_reason: null,
       })
       .eq("id", selected.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     const fromName = profile?.full_name ?? profile?.email ?? "Staff";
     const toName = staff.full_name ?? staff.email;
     await insertSystem(
