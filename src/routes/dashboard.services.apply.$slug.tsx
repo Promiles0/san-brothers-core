@@ -253,11 +253,15 @@ function Step1Application({
       setUploadingFiles((prev) => [...prev, { id: uploadId, name: file.name, progress: 0 }])
 
       try {
-        const path = `${user.id}/${Date.now()}-${file.name}`
+        // Sanitize filename: remove special characters
+        const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+        const filePath = `${user.id}/${Date.now()}-${safeName}`
 
         const { error } = await supabase.storage
           .from('client-documents')
-          .upload(path, file, {
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false,
             onUploadProgress: (progress) => {
               const percent = (progress.loaded / progress.total) * 100
               setUploadingFiles((prev) =>
@@ -269,7 +273,7 @@ function Step1Application({
           })
 
         if (!error) {
-          setUploadedDocs((prev: any) => [...prev, { name: file.name, path }])
+          setUploadedDocs((prev: any) => [...prev, { name: file.name, path: filePath }])
           toast.success(`${file.name} uploaded successfully`)
         } else {
           toast.error(`Failed to upload ${file.name}`)
@@ -964,14 +968,7 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: any) 
       {showPaymentForm && (
         <StripePaymentForm
           amount={basePrice}
-          serviceTitle={`Service Application: ${service.name_en}`}
-          description={`Complete your application for ${service.name_en}`}
-          metadata={{
-            serviceId: service.id,
-            serviceSlug: service.slug,
-            notes: formData.notes,
-            documentCount: uploadedDocs.length.toString(),
-          }}
+          serviceTitle={service.name_en}
           onSuccess={handlePaymentSuccess}
           onCancel={() => setShowPaymentForm(false)}
           onError={handlePaymentError}
