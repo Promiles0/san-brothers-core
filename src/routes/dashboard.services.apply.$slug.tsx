@@ -253,8 +253,9 @@ function Step1Application({
       setUploadingFiles((prev) => [...prev, { id: uploadId, name: file.name, progress: 0 }])
 
       try {
-        // Sanitize filename: remove special characters
+        // Sanitize filename: remove special characters (only keep alphanumeric, dots, and dashes)
         const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+        // Ensure the path starts with user.id and has no leading slash
         const filePath = `${user.id}/${Date.now()}-${safeName}`
 
         const { error } = await supabase.storage

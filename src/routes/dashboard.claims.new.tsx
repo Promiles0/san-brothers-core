@@ -96,8 +96,8 @@ function NewClaimPage() {
 
       const paths: string[] = [];
       for (const f of files) {
-        const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const path = `claims/${user.id}/${claim.id}/${Date.now()}_${safe}`;
+        const safe = f.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+        const path = `${user.id}/claims/${claim.id}/${Date.now()}_${safe}`;
         const { error: upErr } = await supabase.storage.from("client-documents").upload(path, f);
         if (upErr) throw upErr;
         paths.push(path);

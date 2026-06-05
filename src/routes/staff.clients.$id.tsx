@@ -167,7 +167,8 @@ function Page() {
     window.open(signed.signedUrl, "_blank");
   };
   const uploadTo = async (file: File, srId: string) => {
-    const path = `clients/${id}/${srId}/${Date.now()}-${file.name}`;
+    const safe = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const path = `${id}/staff-uploads/${srId}/${Date.now()}-${safe}`;
     const { error: upErr } = await supabase.storage.from("client-documents").upload(path, file);
     if (upErr) {
       toast.error(upErr.message);

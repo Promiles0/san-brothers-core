@@ -101,8 +101,8 @@ function ServiceDetailPage() {
     e.target.value = "";
     setUploading(true);
     try {
-      const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const path = `clients/${user.id}/${id}/${Date.now()}_${safe}`;
+      const safe = f.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+      const path = `${user.id}/clients/${id}/${Date.now()}_${safe}`;
       const { error: upErr } = await supabase.storage.from("client-documents").upload(path, f);
       if (upErr) throw upErr;
       const { error: docErr } = await supabase.from("documents").insert({

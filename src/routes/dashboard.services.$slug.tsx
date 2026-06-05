@@ -177,8 +177,8 @@ function RequestServicePage() {
       const requestId = sr.id as string;
 
       for (const { file } of files) {
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const path = `clients/${user.id}/${requestId}/${Date.now()}_${safeName}`;
+        const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+        const path = `${user.id}/clients/${requestId}/${Date.now()}_${safeName}`;
         const { error: upErr } = await supabase.storage.from("client-documents").upload(path, file);
         if (upErr) throw upErr;
         const { error: docErr } = await supabase.from("documents").insert({
