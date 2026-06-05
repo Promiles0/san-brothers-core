@@ -1,7 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { Loader2, Lock, ShieldCheck, X, CreditCard, Building2, DollarSign, CheckCircle2 } from "lucide-react";
+import {
+  Loader2,
+  Lock,
+  ShieldCheck,
+  X,
+  CreditCard,
+  Building2,
+  DollarSign,
+  CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -129,7 +138,9 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
               Total Amount
             </div>
             <div className="text-3xl font-bold text-primary">${amount.toFixed(2)} USD</div>
-            <div className="text-sm text-muted-foreground mt-2">≈ RWF {rwfAmount.toLocaleString()}</div>
+            <div className="text-sm text-muted-foreground mt-2">
+              ≈ RWF {rwfAmount.toLocaleString()}
+            </div>
           </div>
         </div>
 
@@ -158,18 +169,10 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
               {selectedMethod === "mtn-momo" && (
                 <MTNMoMoForm amount={amount} rwfAmount={rwfAmount} />
               )}
-              {selectedMethod === "paypal" && (
-                <PayPalForm />
-              )}
-              {selectedMethod === "bank" && (
-                <BankTransferForm amount={amount} />
-              )}
-              {selectedMethod === "cash-app" && (
-                <CashAppForm amount={amount} />
-              )}
-              {selectedMethod === "amazon-pay" && (
-                <AmazonPayForm amount={amount} />
-              )}
+              {selectedMethod === "paypal" && <PayPalForm />}
+              {selectedMethod === "bank" && <BankTransferForm amount={amount} />}
+              {selectedMethod === "cash-app" && <CashAppForm amount={amount} />}
+              {selectedMethod === "amazon-pay" && <AmazonPayForm amount={amount} />}
             </div>
           </>
         )}
@@ -238,11 +241,25 @@ function PaymentMethodGrid({
     comingSoon?: boolean;
   }> = [
     { id: "card", name: "Card", icon: <CreditCard className="h-6 w-6" /> },
-    { id: "mtn-momo", name: "MTN MoMo", icon: <span className="text-lg font-bold">MoMo</span>, comingSoon: true },
-    { id: "paypal", name: "PayPal", icon: <span className="text-lg font-bold text-blue-600">PP</span>, comingSoon: true },
+    {
+      id: "mtn-momo",
+      name: "MTN MoMo",
+      icon: <span className="text-lg font-bold">MoMo</span>,
+      comingSoon: true,
+    },
+    {
+      id: "paypal",
+      name: "PayPal",
+      icon: <span className="text-lg font-bold text-blue-600">PP</span>,
+      comingSoon: true,
+    },
     { id: "bank", name: "Bank Transfer", icon: <Building2 className="h-6 w-6" /> },
     { id: "cash-app", name: "Cash App", icon: <DollarSign className="h-6 w-6" /> },
-    { id: "amazon-pay", name: "Amazon Pay", icon: <span className="text-lg font-bold text-orange-500">a</span> },
+    {
+      id: "amazon-pay",
+      name: "Amazon Pay",
+      icon: <span className="text-lg font-bold text-orange-500">a</span>,
+    },
   ];
 
   return (
@@ -256,7 +273,7 @@ function PaymentMethodGrid({
             selectedMethod === method.id
               ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
               : "border-border/50 bg-background/50 hover:border-border hover:bg-muted/50",
-            method.comingSoon && "opacity-70"
+            method.comingSoon && "opacity-70",
           )}
         >
           {method.comingSoon && (
@@ -348,7 +365,7 @@ function MTNMoMoForm({ amount, rwfAmount }: { amount: number; rwfAmount: number 
             Sending payment request...
           </>
         ) : (
-          `Pay RWF ${(Math.round(amount * 1285)).toLocaleString()} with MTN MoMo`
+          `Pay RWF ${Math.round(amount * 1285).toLocaleString()} with MTN MoMo`
         )}
       </Button>
 
@@ -413,7 +430,8 @@ function BankTransferForm({ amount }: { amount: number }) {
         <h4 className="font-semibold">Bank Transfer</h4>
       </div>
       <p className="text-sm text-muted-foreground">
-        Bank transfer details will be provided after you proceed. Please contact support for assistance.
+        Bank transfer details will be provided after you proceed. Please contact support for
+        assistance.
       </p>
       <Button className="w-full" disabled>
         Bank Transfer (Coming Soon)
@@ -430,7 +448,8 @@ function CashAppForm({ amount }: { amount: number }) {
         <h4 className="font-semibold">Cash App</h4>
       </div>
       <p className="text-sm text-muted-foreground">
-        Cash App payment details will be provided after you proceed. Please contact support for assistance.
+        Cash App payment details will be provided after you proceed. Please contact support for
+        assistance.
       </p>
       <Button className="w-full" disabled>
         Cash App (Coming Soon)
