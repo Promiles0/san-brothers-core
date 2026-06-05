@@ -19,6 +19,7 @@ import { useTheme } from "@/lib/providers/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import { Smartphone } from "lucide-react";
 import type { Locale, Theme } from "@/lib/types";
 
 export const Route = createFileRoute("/dashboard/settings")({
@@ -33,6 +34,16 @@ function SettingsPage() {
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [busy, setBusy] = useState(false);
+  const [smsPhoneNumber, setSmsPhoneNumber] = useState("+250 ");
+  const [smsNotificationsEnabled, setSmsNotificationsEnabled] = useState<boolean>(
+    (profile as any)?.sms_notifications_enabled ?? false
+  );
+  const [smsPreferences, setSmsPreferences] = useState({
+    serviceUpdates: true,
+    paymentConfirmations: true,
+    promotionalMessages: false,
+  });
+  const [smsBusy, setSmsBusy] = useState(false);
 
   const setLanguage = async (l: Locale) => {
     setLocale(l);
@@ -76,6 +87,42 @@ function SettingsPage() {
     setTwoFA(v);
     if (user) await supabase.from("users").update({ two_factor_enabled: v }).eq("id", user.id);
     toast.message(t("dashboard.settings.twoFAStub"));
+  };
+
+  const formatPhoneNumber = (value: string) => {
+    // Remove non-digits except +
+    const cleaned = value.replace(/[^\d+]/g, "");
+    // Ensure it starts with +250
+    if (!cleaned.startsWith("+250")) {
+      return "+250 ";
+    }
+    // Format as +250 078X XXX XXX
+    const digits = cleaned.slice(4); // Remove +250
+    if (digits.length === 0) return "+250 ";
+    if (digits.length <= 3) return `+250 ${digits}`;
+    if (digits.length <= 6) return `+250 ${digits.slice(0, 3)} ${digits.slice(3)}`;
+    return `+250 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 9)}`;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setSmsPhoneNumber(formatted);
+  };
+
+  const handleVerifyPhone = () => {
+    toast.info("SMS verification coming soon. We'll notify you when this feature is available.");
+  };
+
+  const handleSaveSmsPreferences = async () => {
+    setSmsBusy(true);
+    if (user) {
+      await supabase
+        .from("users")
+        .update({ sms_notifications_enabled: smsNotificationsEnabled })
+        .eq("id", user.id);
+    }
+    setSmsBusy(false);
+    toast.success("Preferences saved!");
   };
 
   return (
@@ -178,10 +225,87 @@ function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{t("dashboard.settings.notifications")}</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Smartphone className="h-5 w-5" />
+            SMS Notifications
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">{t("dashboard.settings.notifStub")}</p>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">Get SMS updates about your services</p>
+
+          <div className="space-y-2">
+            <Label className="text-sm">Phone number</Label>
+            <div className="flex gap-2">
+              <Input
+                type="tel"
+                placeholder="+250 078X XXX XXX"
+                value={smsPhoneNumber}
+                onChange={handlePhoneChange}
+                maxLength="17"
+                className="flex-1"
+              />
+              <Button variant="outline" size="sm" onClick={handleVerifyPhone}>
+                Verify
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-3 border-t pt-4">
+            <Label className="text-sm font-medium">Notification preferences</Label>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={smsPreferences.serviceUpdates}
+                  onChange={(e) =>
+                    setSmsPreferences((prev) => ({
+                      ...prev,
+                      serviceUpdates: e.target.checked,
+                    }))
+                  }
+                  className="h-4 w-4 rounded border-border"
+                />
+                <span>Service status updates</span>
+              </label>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={smsPreferences.paymentConfirmations}
+                  onChange={(e) =>
+                    setSmsPreferences((prev) => ({
+                      ...prev,
+                      paymentConfirmations: e.target.checked,
+                    }))
+                  }
+                  className="h-4 w-4 rounded border-border"
+                />
+                <span>Payment confirmations</span>
+              </label>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={smsPreferences.promotionalMessages}
+                  onChange={(e) =>
+                    setSmsPreferences((prev) => ({
+                      ...prev,
+                      promotionalMessages: e.target.checked,
+                    }))
+                  }
+                  className="h-4 w-4 rounded border-border"
+                />
+                <span>Promotional messages</span>
+              </label>
+            </div>
+          </div>
+
+          <Button onClick={handleSaveSmsPreferences} disabled={smsBusy} className="w-full">
+            {smsBusy ? "Saving..." : "Save Preferences"}
+          </Button>
+
+          <div className="rounded-lg bg-yellow-500/10 p-3 text-sm text-yellow-700 dark:text-yellow-400">
+            <p className="font-medium">SMS notifications coming soon!</p>
+            <p className="text-xs mt-1">We're working on integrating SMS delivery. Your preferences are saved and will be used once the feature is available.</p>
+          </div>
         </CardContent>
       </Card>
     </div>

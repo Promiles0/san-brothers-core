@@ -167,7 +167,8 @@ function Page() {
     window.open(signed.signedUrl, "_blank");
   };
   const uploadTo = async (file: File, srId: string) => {
-    const path = `clients/${id}/${srId}/${Date.now()}-${file.name}`;
+    const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const path = `clients/${id}/${srId}/${Date.now()}-${safe}`;
     const { error: upErr } = await uploadToStorage("client-documents", path, file, {
       upsert: true,
       contentType: file.type || undefined,

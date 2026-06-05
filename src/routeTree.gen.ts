@@ -102,6 +102,7 @@ import { Route as DashboardConfirmationRequestIdRouteImport } from './routes/das
 import { Route as DashboardClaimsNewRouteImport } from './routes/dashboard.claims.new'
 import { Route as DashboardClaimsIdRouteImport } from './routes/dashboard.claims.$id'
 import { Route as AdminClientsIdRouteImport } from './routes/admin.clients.$id'
+import { Route as DashboardServicesApplySlugRouteImport } from './routes/dashboard.services.apply.$slug'
 import { Route as DashboardInterpreterCallIdSummaryRouteImport } from './routes/dashboard.interpreter.$callId.summary'
 
 const StaffRoute = StaffRouteImport.update({
@@ -572,6 +573,12 @@ const AdminClientsIdRoute = AdminClientsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AdminClientsRoute,
 } as any)
+const DashboardServicesApplySlugRoute =
+  DashboardServicesApplySlugRouteImport.update({
+    id: '/services/apply/$slug',
+    path: '/services/apply/$slug',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardInterpreterCallIdSummaryRoute =
   DashboardInterpreterCallIdSummaryRouteImport.update({
     id: '/summary',
@@ -674,6 +681,7 @@ export interface FileRoutesByFullPath {
   '/staff/visa/': typeof StaffVisaIndexRoute
   '/translate/live/': typeof TranslateLiveIndexRoute
   '/dashboard/interpreter/$callId/summary': typeof DashboardInterpreterCallIdSummaryRoute
+  '/dashboard/services/apply/$slug': typeof DashboardServicesApplySlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -759,6 +767,7 @@ export interface FileRoutesByTo {
   '/staff/visa': typeof StaffVisaIndexRoute
   '/translate/live': typeof TranslateLiveIndexRoute
   '/dashboard/interpreter/$callId/summary': typeof DashboardInterpreterCallIdSummaryRoute
+  '/dashboard/services/apply/$slug': typeof DashboardServicesApplySlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -856,6 +865,7 @@ export interface FileRoutesById {
   '/staff/visa/': typeof StaffVisaIndexRoute
   '/translate/live/': typeof TranslateLiveIndexRoute
   '/dashboard/interpreter/$callId/summary': typeof DashboardInterpreterCallIdSummaryRoute
+  '/dashboard/services/apply/$slug': typeof DashboardServicesApplySlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -954,6 +964,7 @@ export interface FileRouteTypes {
     | '/staff/visa/'
     | '/translate/live/'
     | '/dashboard/interpreter/$callId/summary'
+    | '/dashboard/services/apply/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1039,6 +1050,7 @@ export interface FileRouteTypes {
     | '/staff/visa'
     | '/translate/live'
     | '/dashboard/interpreter/$callId/summary'
+    | '/dashboard/services/apply/$slug'
   id:
     | '__root__'
     | '/'
@@ -1135,6 +1147,7 @@ export interface FileRouteTypes {
     | '/staff/visa/'
     | '/translate/live/'
     | '/dashboard/interpreter/$callId/summary'
+    | '/dashboard/services/apply/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1821,6 +1834,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminClientsIdRouteImport
       parentRoute: typeof AdminClientsRoute
     }
+    '/dashboard/services/apply/$slug': {
+      id: '/dashboard/services/apply/$slug'
+      path: '/services/apply/$slug'
+      fullPath: '/dashboard/services/apply/$slug'
+      preLoaderRoute: typeof DashboardServicesApplySlugRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/interpreter/$callId/summary': {
       id: '/dashboard/interpreter/$callId/summary'
       path: '/summary'
@@ -1933,6 +1953,7 @@ interface DashboardRouteChildren {
   DashboardClaimsIndexRoute: typeof DashboardClaimsIndexRoute
   DashboardMyServicesIndexRoute: typeof DashboardMyServicesIndexRoute
   DashboardServicesIndexRoute: typeof DashboardServicesIndexRoute
+  DashboardServicesApplySlugRoute: typeof DashboardServicesApplySlugRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
@@ -1951,6 +1972,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardClaimsIndexRoute: DashboardClaimsIndexRoute,
   DashboardMyServicesIndexRoute: DashboardMyServicesIndexRoute,
   DashboardServicesIndexRoute: DashboardServicesIndexRoute,
+  DashboardServicesApplySlugRoute: DashboardServicesApplySlugRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(

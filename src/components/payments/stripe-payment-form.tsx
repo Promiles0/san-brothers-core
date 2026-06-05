@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { Loader2, Lock, ShieldCheck, X } from "lucide-react";
+import { Loader2, Lock, ShieldCheck, X, CreditCard, Building2, DollarSign, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
 
@@ -26,11 +29,14 @@ export interface StripePaymentFormProps {
   onError?: (message: string, error?: unknown) => void;
 }
 
+type PaymentMethod = "card" | "mtn-momo" | "paypal" | "bank" | "cash-app" | "amazon-pay";
+
 export function StripePaymentForm(props: StripePaymentFormProps) {
   const { amount, serviceTitle, onError } = props;
   const onErrorRef = useRef(onError);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>("card");
 
   useEffect(() => {
     onErrorRef.current = onError;
@@ -109,19 +115,63 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
     [clientSecret],
   );
 
+  const rwfAmount = Math.round(amount * 1285);
+
   return (
     <Card className="border-0 bg-linear-to-br from-background to-muted/30 shadow-xl ring-1 ring-border/60 backdrop-blur">
       <CardContent className="p-6 sm:p-7">
         <Header {...props} />
+
+        {/* Amount Display */}
+        <div className="mb-6 rounded-lg bg-primary/5 p-4 border border-primary/20">
+          <div className="text-center">
+            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">
+              Total Amount
+            </div>
+            <div className="text-3xl font-bold text-primary">${amount.toFixed(2)} USD</div>
+            <div className="text-sm text-muted-foreground mt-2">≈ RWF {rwfAmount.toLocaleString()}</div>
+          </div>
+        </div>
 
         {initError ? (
           <ErrorState message={initError} onCancel={props.onCancel} />
         ) : !options ? (
           <LoadingState />
         ) : (
-          <Elements stripe={getStripe()} options={options}>
-            <InnerForm {...props} />
-          </Elements>
+          <>
+            {/* Payment Method Selector */}
+            <div className="mb-6">
+              <Label className="text-sm font-semibold mb-3 block">Select Payment Method</Label>
+              <PaymentMethodGrid
+                selectedMethod={selectedMethod}
+                onSelectMethod={setSelectedMethod}
+              />
+            </div>
+
+            {/* Payment Form Based on Selected Method */}
+            <div className="mb-6">
+              {selectedMethod === "card" && (
+                <Elements stripe={getStripe()} options={options}>
+                  <InnerForm {...props} />
+                </Elements>
+              )}
+              {selectedMethod === "mtn-momo" && (
+                <MTNMoMoForm amount={amount} rwfAmount={rwfAmount} />
+              )}
+              {selectedMethod === "paypal" && (
+                <PayPalForm />
+              )}
+              {selectedMethod === "bank" && (
+                <BankTransferForm amount={amount} />
+              )}
+              {selectedMethod === "cash-app" && (
+                <CashAppForm amount={amount} />
+              )}
+              {selectedMethod === "amazon-pay" && (
+                <AmazonPayForm amount={amount} />
+              )}
+            </div>
+          </>
         )}
 
         <SecureFooter />
@@ -141,11 +191,6 @@ function Header({ serviceTitle, description, amount, onCancel }: StripePaymentFo
         {description ? (
           <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{description}</p>
         ) : null}
-        <div className="mt-3 inline-flex items-baseline gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-primary">
-          <span className="text-[11px] font-medium uppercase tracking-wider">Total</span>
-          <span className="text-base font-bold tabular-nums">${amount.toFixed(2)}</span>
-          <span className="text-[11px] font-medium">USD</span>
-        </div>
       </div>
       <button
         type="button"
@@ -179,12 +224,252 @@ function ErrorState({ message, onCancel }: { message: string; onCancel: () => vo
   );
 }
 
+function PaymentMethodGrid({
+  selectedMethod,
+  onSelectMethod,
+}: {
+  selectedMethod: PaymentMethod;
+  onSelectMethod: (method: PaymentMethod) => void;
+}) {
+  const methods: Array<{
+    id: PaymentMethod;
+    name: string;
+    icon: React.ReactNode;
+    comingSoon?: boolean;
+  }> = [
+    { id: "card", name: "Card", icon: <CreditCard className="h-6 w-6" /> },
+    { id: "mtn-momo", name: "MTN MoMo", icon: <span className="text-lg font-bold">MoMo</span>, comingSoon: true },
+    { id: "paypal", name: "PayPal", icon: <span className="text-lg font-bold text-blue-600">PP</span>, comingSoon: true },
+    { id: "bank", name: "Bank Transfer", icon: <Building2 className="h-6 w-6" /> },
+    { id: "cash-app", name: "Cash App", icon: <DollarSign className="h-6 w-6" /> },
+    { id: "amazon-pay", name: "Amazon Pay", icon: <span className="text-lg font-bold text-orange-500">a</span> },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
+      {methods.map((method) => (
+        <button
+          key={method.id}
+          onClick={() => onSelectMethod(method.id)}
+          className={cn(
+            "relative flex flex-col items-center justify-center gap-2 rounded-lg border-2 p-4 transition-all duration-200",
+            selectedMethod === method.id
+              ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
+              : "border-border/50 bg-background/50 hover:border-border hover:bg-muted/50",
+            method.comingSoon && "opacity-70"
+          )}
+        >
+          {method.comingSoon && (
+            <div className="absolute top-1 right-1 inline-flex items-center rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-semibold text-gray-700">
+              Soon
+            </div>
+          )}
+          <div className="text-foreground">{method.icon}</div>
+          <div className="text-center">
+            <div className="text-xs sm:text-sm font-medium text-foreground">{method.name}</div>
+          </div>
+          {selectedMethod === method.id && (
+            <CheckCircle2 className="absolute top-1 left-1 h-4 w-4 text-primary" />
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function MTNMoMoForm({ amount, rwfAmount }: { amount: number; rwfAmount: number }) {
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const formatPhoneNumber = (value: string) => {
+    // Remove non-digits
+    const digits = value.replace(/\D/g, "");
+    // Format as 078X XXX XXX
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
+    return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 9)}`;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setPhoneNumber(formatted);
+  };
+
+  const handlePayment = async () => {
+    const digits = phoneNumber.replace(/\D/g, "");
+    if (digits.length !== 9) {
+      toast.error("Please enter a valid 9-digit phone number");
+      return;
+    }
+    if (!digits.startsWith("078") && !digits.startsWith("079")) {
+      toast.error("Phone number must start with 078 or 079");
+      return;
+    }
+
+    setLoading(true);
+    // Simulate sending payment request
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setLoading(false);
+    toast.error("MTN MoMo is not yet available. Please use Card payment or contact us.");
+  };
+
+  return (
+    <div className="space-y-4 rounded-lg border border-border/50 bg-muted/30 p-4">
+      <div className="flex items-center gap-2">
+        <span className="text-2xl">📱</span>
+        <h4 className="font-semibold">MTN Mobile Money</h4>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-sm">Enter your MTN number</Label>
+        <div className="flex gap-2">
+          <div className="flex items-center rounded-lg border border-border/50 bg-background/50 px-3 py-2 text-sm text-muted-foreground">
+            🇷🇼 +250
+          </div>
+          <Input
+            type="tel"
+            placeholder="078X XXX XXX"
+            value={phoneNumber}
+            onChange={handlePhoneChange}
+            maxLength="11"
+            className="flex-1"
+          />
+        </div>
+      </div>
+
+      <Button
+        onClick={handlePayment}
+        disabled={loading || phoneNumber.replace(/\D/g, "").length !== 9}
+        className="w-full"
+      >
+        {loading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Sending payment request...
+          </>
+        ) : (
+          `Pay RWF ${(Math.round(amount * 1285)).toLocaleString()} with MTN MoMo`
+        )}
+      </Button>
+
+      <div className="rounded-lg bg-blue-500/10 p-3 text-sm text-blue-700 dark:text-blue-400">
+        <p className="font-medium">ℹ️ You will receive a payment prompt on your phone.</p>
+        <p className="text-xs mt-1">Approve it to complete payment.</p>
+      </div>
+
+      <div className="rounded-lg bg-yellow-500/10 p-3 text-sm text-yellow-700 dark:text-yellow-400">
+        <p className="font-medium">⚠️ MTN MoMo coming soon!</p>
+        <p className="text-xs mt-1">Currently unavailable.</p>
+      </div>
+    </div>
+  );
+}
+
+function PayPalForm() {
+  const [loading, setLoading] = useState(false);
+
+  const handlePayment = async () => {
+    setLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setLoading(false);
+    toast.error("PayPal is not yet available. Please use Card payment.");
+  };
+
+  return (
+    <div className="space-y-4 rounded-lg border border-border/50 bg-muted/30 p-4">
+      <div className="flex items-center gap-2">
+        <span className="text-2xl">💙</span>
+        <h4 className="font-semibold">PayPal</h4>
+      </div>
+
+      <p className="text-sm text-muted-foreground">
+        Pay securely with your PayPal account or credit card.
+      </p>
+
+      <Button onClick={handlePayment} disabled={loading} className="w-full" variant="outline">
+        {loading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Processing...
+          </>
+        ) : (
+          "🔵 Pay with PayPal"
+        )}
+      </Button>
+
+      <div className="rounded-lg bg-yellow-500/10 p-3 text-sm text-yellow-700 dark:text-yellow-400">
+        <p className="font-medium">⚠️ PayPal coming soon!</p>
+        <p className="text-xs mt-1">Currently unavailable.</p>
+      </div>
+    </div>
+  );
+}
+
+function BankTransferForm({ amount }: { amount: number }) {
+  return (
+    <div className="space-y-4 rounded-lg border border-border/50 bg-muted/30 p-4">
+      <div className="flex items-center gap-2">
+        <Building2 className="h-5 w-5" />
+        <h4 className="font-semibold">Bank Transfer</h4>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Bank transfer details will be provided after you proceed. Please contact support for assistance.
+      </p>
+      <Button className="w-full" disabled>
+        Bank Transfer (Coming Soon)
+      </Button>
+    </div>
+  );
+}
+
+function CashAppForm({ amount }: { amount: number }) {
+  return (
+    <div className="space-y-4 rounded-lg border border-border/50 bg-muted/30 p-4">
+      <div className="flex items-center gap-2">
+        <DollarSign className="h-5 w-5 text-green-600" />
+        <h4 className="font-semibold">Cash App</h4>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Cash App payment details will be provided after you proceed. Please contact support for assistance.
+      </p>
+      <Button className="w-full" disabled>
+        Cash App (Coming Soon)
+      </Button>
+    </div>
+  );
+}
+
+function AmazonPayForm({ amount }: { amount: number }) {
+  return (
+    <div className="space-y-4 rounded-lg border border-border/50 bg-muted/30 p-4">
+      <div className="flex items-center gap-2">
+        <span className="text-lg font-bold text-orange-500">a</span>
+        <h4 className="font-semibold">Amazon Pay</h4>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Amazon Pay will be available soon. Please use another payment method for now.
+      </p>
+      <Button className="w-full" disabled>
+        Amazon Pay (Coming Soon)
+      </Button>
+    </div>
+  );
+}
+
 function SecureFooter() {
   return (
-    <div className="mt-5 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-      <Lock className="h-3 w-3" />
-      <span>Secured by Stripe</span>
-      <ShieldCheck className="ml-1 h-3 w-3" />
+    <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-[11px] text-muted-foreground">
+      <div className="flex items-center gap-1">
+        <Lock className="h-3 w-3" />
+        <span>256-bit SSL</span>
+      </div>
+      <span>|</span>
+      <div className="flex items-center gap-1">
+        <ShieldCheck className="h-3 w-3" />
+        <span>Secured by Stripe</span>
+      </div>
+      <span>|</span>
+      <span>✓ PCI Compliant</span>
     </div>
   );
 }

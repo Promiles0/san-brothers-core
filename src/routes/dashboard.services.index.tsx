@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ServiceApplyModal } from "@/components/dashboard/service-apply-modal";
+
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
@@ -39,7 +39,7 @@ function ServiceCatalog() {
   const [services, setServices] = useState<Service[] | null>(null);
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<(typeof CATEGORIES)[number]>("all");
-  const [applyService, setApplyService] = useState<Service | null>(null);
+
 
   useEffect(() => {
     (async () => {
@@ -66,33 +66,12 @@ function ServiceCatalog() {
       return;
     }
 
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const { data, error } = await supabase
-          .from("services")
-          .select("*")
-          .eq("slug", apply)
-          .eq("is_active", true)
-          .maybeSingle();
-        if (error) throw error;
-        if (!cancelled && data) {
-          setApplyService(data as Service);
-          void navigate({
-            to: "/dashboard/services",
-            search: {} as never,
-            replace: true,
-          } as never);
-        }
-      } catch (e) {
-        toast.error((e as Error).message);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
+    // Navigate to the new apply page
+    void navigate({
+      to: "/dashboard/services/apply/$slug",
+      params: { slug: apply },
+      replace: true,
+    } as never);
   }, [apply, navigate]);
 
   const localName = (s: Service) =>
@@ -189,7 +168,16 @@ function ServiceCatalog() {
                   <Button
                     className={`mt-auto ${interpreter ? "bg-amber-500 text-white hover:bg-amber-600" : ""}`}
                     variant={interpreter ? "default" : "default"}
-                    onClick={() => setApplyService(s)}
+                    onClick={() => {
+                      if (interpreter) {
+                        void navigate({ to: "/dashboard/interpreter", replace: true } as never);
+                      } else {
+                        void navigate({
+                          to: "/dashboard/services/apply/$slug",
+                          params: { slug: s.slug },
+                        } as never);
+                      }
+                    }}
                   >
                     {interpreter ? (
                       <>
@@ -220,15 +208,7 @@ function ServiceCatalog() {
         </div>
       )}
 
-      {applyService && (
-        <ServiceApplyModal
-          service={applyService}
-          open={!!applyService}
-          onOpenChange={(v) => {
-            if (!v) setApplyService(null);
-          }}
-        />
-      )}
+
     </div>
   );
 }
