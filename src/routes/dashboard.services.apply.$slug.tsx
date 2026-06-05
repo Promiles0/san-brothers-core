@@ -1,142 +1,72 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect, useRef, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
-import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Check, Upload, X, File, Loader2, Lock, ShieldCheck } from "lucide-react";
-import { Link } from "@tanstack/react-router";
-import { usePortal } from "@/lib/portal-context";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { StripePaymentForm } from "@/components/payments/stripe-payment-form";
-import { toast } from "sonner";
-import type { Service, ServiceCategory } from "@/lib/types/database";
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useState, useEffect, useRef } from 'react'
+import { supabase } from '@/lib/supabase'
+import { ArrowLeft, Check, Upload, X, File, Loader2, Lock, ShieldCheck } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import { usePortal } from '@/lib/portal-context'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { StripePaymentForm } from '@/components/payments/stripe-payment-form'
+import { toast } from 'sonner'
+import type { ServiceCategory } from '@/lib/types/database'
 
-export const Route = createFileRoute("/dashboard/services/apply/$slug")({
+export const Route = createFileRoute('/dashboard/services/apply/$slug')({
   component: ServiceApplyPage,
-});
+})
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const LANGUAGES = ["English", "French", "Chinese (Mandarin)", "Kinyarwanda", "Arabic", "Swahili"];
+const LANGUAGES = ['English', 'French', 'Chinese (Mandarin)', 'Kinyarwanda', 'Arabic', 'Swahili']
 
 const CAT_CAPABILITY: Record<ServiceCategory, string> = {
-  visa: "handle_visa",
-  translation: "handle_translation",
-  accounting: "handle_accounting",
-  consultancy: "handle_consultancy",
-};
-
-type ApplicantType = "individual" | "company";
-
-type UploadedDoc = {
-  name: string;
-  path: string;
-};
-
-type UploadingFile = {
-  id: string;
-  name: string;
-  progress: number;
-};
-
-type FormData = {
-  fullName: string;
-  email: string;
-  phone: string;
-  applicantType: ApplicantType;
-  nationality: string;
-  passportId: string;
-  companyName: string;
-  businessStage: string;
-  meetingFormat: string;
-  description: string;
-  destinationCountry: string;
-  travelDate: string;
-  returnDate: string;
-  purposeOfVisit: string;
-  sourceLanguage: string;
-  targetLanguage: string;
-  documentType: string;
-  urgency: string;
-  businessType: string;
-  fiscalYearEnd: string;
-  notes: string;
-};
-
-type ServiceWithDocuments = Service & {
-  required_documents?: string[];
-};
-
-interface Step1ApplicationProps {
-  service: ServiceWithDocuments;
-  formData: FormData;
-  setFormData: Dispatch<SetStateAction<FormData>>;
-  uploadedDocs: UploadedDoc[];
-  setUploadedDocs: Dispatch<SetStateAction<UploadedDoc[]>>;
-  onNext: () => void;
-}
-
-interface ServiceDetailsSectionProps {
-  service: ServiceWithDocuments;
-  formData: FormData;
-  handleInputChange: (field: keyof FormData, value: string) => void;
-}
-
-interface Step2PaymentProps {
-  service: ServiceWithDocuments;
-  formData: FormData;
-  uploadedDocs: UploadedDoc[];
-  portal?: string | null;
-  onBack: () => void;
+  visa: 'handle_visa',
+  translation: 'handle_translation',
+  accounting: 'handle_accounting',
+  consultancy: 'handle_consultancy',
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 function ServiceApplyPage() {
-  const { slug } = Route.useParams();
-  const navigate = useNavigate();
-  const { current: portal } = usePortal();
+  const { slug } = Route.useParams()
+  const navigate = useNavigate()
+  const { current: portal } = usePortal()
 
-  const [service, setService] = useState<ServiceWithDocuments | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [step, setStep] = useState<1 | 2>(1);
+  const [service, setService] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [step, setStep] = useState<1 | 2>(1)
 
   // Form state
-  const [formData, setFormData] = useState<FormData>({
-    fullName: "",
-    email: "",
-    phone: "",
-    applicantType: "individual",
-    nationality: "",
-    passportId: "",
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    applicantType: 'individual' as 'individual' | 'company',
+    nationality: '',
+    passportId: '',
     // Service-specific fields
-    companyName: "",
-    businessStage: "",
-    meetingFormat: "",
-    description: "",
-    destinationCountry: "",
-    travelDate: "",
-    returnDate: "",
-    purposeOfVisit: "",
-    sourceLanguage: "",
-    targetLanguage: "",
-    documentType: "",
-    urgency: "",
-    businessType: "",
-    fiscalYearEnd: "",
+    companyName: '',
+    businessStage: '',
+    meetingFormat: '',
+    description: '',
+    destinationCountry: '',
+    travelDate: '',
+    returnDate: '',
+    purposeOfVisit: '',
+    sourceLanguage: '',
+    targetLanguage: '',
+    documentType: '',
+    urgency: '',
+    businessType: '',
+    fiscalYearEnd: '',
     // Common
-    notes: "",
-  });
+    notes: '',
+  })
 
-  const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
+  const [uploadedDocs, setUploadedDocs] = useState<{ name: string; path: string }[]>([])
 
   // Fetch service and prefill user profile
   useEffect(() => {
@@ -144,68 +74,61 @@ function ServiceApplyPage() {
       try {
         // Fetch service
         const { data: serviceData, error: serviceError } = await supabase
-          .from("services")
-          .select("*")
-          .eq("slug", slug)
-          .single();
+          .from('services')
+          .select('*')
+          .eq('slug', slug)
+          .single()
 
         if (serviceError || !serviceData) {
-          navigate({ to: "/dashboard/services", search: {} as never });
-          return;
+          navigate({ to: '/dashboard/services' })
+          return
         }
 
-        setService(serviceData);
+        setService(serviceData)
 
         // Fetch and prefill user profile
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+        const { data: { user } } = await supabase.auth.getUser()
         if (user) {
           const { data: profile } = await supabase
-            .from("users")
-            .select("full_name, email, phone")
-            .eq("id", user.id)
-            .single();
+            .from('users')
+            .select('full_name, email, phone')
+            .eq('id', user.id)
+            .single()
 
           if (profile) {
             setFormData((prev) => ({
               ...prev,
-              fullName: profile.full_name || "",
-              email: profile.email || "",
-              phone: profile.phone || "",
-            }));
+              fullName: profile.full_name || '',
+              email: profile.email || '',
+              phone: profile.phone || '',
+            }))
           }
         }
 
-        setLoading(false);
+        setLoading(false)
       } catch (error) {
-        console.error("Error fetching data:", error);
-        navigate({ to: "/dashboard/services", search: {} as never });
+        console.error('Error fetching data:', error)
+        navigate({ to: '/dashboard/services' })
       }
-    };
+    }
 
-    fetchData();
-  }, [slug, navigate]);
+    fetchData()
+  }, [slug, navigate])
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
       </div>
-    );
+    )
   }
 
-  if (!service) return null;
-
-  const minUsd = service.price_usd_min ?? 0;
-  const maxUsd = service.price_usd_max ?? 0;
-  const minDays = service.estimated_days_min ?? 0;
-  const maxDays = service.estimated_days_max ?? 0;
+  if (!service) return null
 
   const steps = [
-    { number: 1, label: "Application" },
-    { number: 2, label: "Payment" },
-  ];
+    { number: 1, label: 'Application' },
+    { number: 2, label: 'Payment' },
+  ]
 
   return (
     <div className="min-h-screen bg-background">
@@ -214,7 +137,6 @@ function ServiceApplyPage() {
         <div className="max-w-3xl mx-auto">
           <Link
             to="/dashboard/services"
-            search={{} as never}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-3"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -228,7 +150,7 @@ function ServiceApplyPage() {
             </div>
             <div className="text-right">
               <p className="text-sm font-medium">
-                ${minUsd.toFixed(2)}–${maxUsd.toFixed(2)}
+                ${service.price_usd_min}–${service.price_usd_max}
               </p>
               <p className="text-xs text-muted-foreground">USD</p>
             </div>
@@ -241,23 +163,23 @@ function ServiceApplyPage() {
                 <div
                   className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-medium transition-all ${
                     step > s.number
-                      ? "bg-green-500 text-white"
+                      ? 'bg-green-500 text-white'
                       : step === s.number
-                        ? "bg-blue-500 text-white"
-                        : "bg-muted text-muted-foreground"
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-muted text-muted-foreground'
                   }`}
                 >
                   {step > s.number ? <Check className="h-3 w-3" /> : s.number}
                 </div>
                 <span
                   className={`text-xs hidden sm:block transition-colors ${
-                    step === s.number ? "text-foreground font-medium" : "text-muted-foreground"
+                    step === s.number ? 'text-foreground font-medium' : 'text-muted-foreground'
                   }`}
                 >
                   {s.label}
                 </span>
                 {i < steps.length - 1 && (
-                  <div className={`flex-1 h-px ${step > s.number ? "bg-green-500" : "bg-muted"}`} />
+                  <div className={`flex-1 h-px ${step > s.number ? 'bg-green-500' : 'bg-muted'}`} />
                 )}
               </div>
             ))}
@@ -288,7 +210,7 @@ function ServiceApplyPage() {
         )}
       </div>
     </div>
-  );
+  )
 }
 
 // ─── Step 1: Application Form ──────────────────────────────────────────────────
@@ -300,108 +222,110 @@ function Step1Application({
   uploadedDocs,
   setUploadedDocs,
   onNext,
-}: Step1ApplicationProps) {
-  const [uploading, setUploading] = useState(false);
-  const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+}: any) {
+  const [uploading, setUploading] = useState(false)
+  const [uploadingFiles, setUploadingFiles] = useState<any[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  const handleInputChange = (field: string, value: any) => {
+    setFormData((prev: any) => ({ ...prev, [field]: value }))
+  }
 
-  const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
-      toast.error("User not authenticated");
-      return;
+      toast.error('User not authenticated')
+      return
     }
 
-    setUploading(true);
+    setUploading(true)
 
     for (const file of Array.from(files)) {
       if (file.size > 10 * 1024 * 1024) {
-        toast.error(`${file.name} is too large (max 10 MB)`);
-        continue;
+        toast.error(`${file.name} is too large (max 10 MB)`)
+        continue
       }
 
-      const uploadId = `${Date.now()}-${Math.random()}`;
-      setUploadingFiles((prev) => [...prev, { id: uploadId, name: file.name, progress: 0 }]);
+      const uploadId = `${Date.now()}-${Math.random()}`
+      setUploadingFiles((prev) => [...prev, { id: uploadId, name: file.name, progress: 0 }])
 
       try {
         // Sanitize filename: remove special characters (only keep alphanumeric, dots, and dashes)
-        const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+        const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
         // Ensure the path uses the required clients/ prefix for Supabase storage RLS
-        const filePath = `clients/${user.id}/${Date.now()}-${safeName}`;
+        const filePath = `clients/${user.id}/${Date.now()}-${safeName}`
 
-        const { error } = await supabase.storage.from("client-documents").upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
+        const { error } = await supabase.storage
+          .from('client-documents')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false,
+            onUploadProgress: (progress) => {
+              const percent = (progress.loaded / progress.total) * 100
+              setUploadingFiles((prev) =>
+                prev.map((f) =>
+                  f.id === uploadId ? { ...f, progress: Math.round(percent) } : f
+                )
+              )
+            },
+          })
 
         if (!error) {
-          setUploadingFiles((prev) =>
-            prev.map((f) => (f.id === uploadId ? { ...f, progress: 100 } : f)),
-          );
-          setUploadedDocs((prev) => [...prev, { name: file.name, path: filePath }]);
-          toast.success(`${file.name} uploaded successfully`);
+          setUploadedDocs((prev: any) => [...prev, { name: file.name, path: filePath }])
+          toast.success(`${file.name} uploaded successfully`)
         } else {
-          toast.error(`Failed to upload ${file.name}`);
+          toast.error(`Failed to upload ${file.name}`)
         }
       } catch (error) {
-        toast.error(`Error uploading ${file.name}`);
+        toast.error(`Error uploading ${file.name}`)
       }
 
-      setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId));
+      setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId))
     }
 
-    setUploading(false);
+    setUploading(false)
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = ''
     }
-  };
+  }
 
   const handleRemoveDocument = (index: number) => {
-    setUploadedDocs((prev) => prev.filter((_, i) => i !== index));
-  };
+    setUploadedDocs((prev: any) => prev.filter((_: any, i: number) => i !== index))
+  }
 
   const validateStep1 = (): boolean => {
     if (!formData.fullName.trim()) {
-      toast.error("Full name is required");
-      return false;
+      toast.error('Full name is required')
+      return false
     }
-    if (!formData.email.trim() || !formData.email.includes("@")) {
-      toast.error("Valid email is required");
-      return false;
+    if (!formData.email.trim() || !formData.email.includes('@')) {
+      toast.error('Valid email is required')
+      return false
     }
     if (!formData.phone.trim()) {
-      toast.error("Phone number is required");
-      return false;
+      toast.error('Phone number is required')
+      return false
     }
     if (!formData.nationality.trim()) {
-      toast.error("Nationality is required");
-      return false;
+      toast.error('Nationality is required')
+      return false
     }
 
     // Category-specific validation
-    if (service.category === "consultancy" || service.category === "accounting") {
+    if (service.category === 'consultancy' || service.category === 'accounting') {
       if (!formData.description.trim()) {
-        toast.error("Description is required for this service");
-        return false;
+        toast.error('Description is required for this service')
+        return false
       }
     }
 
-    return true;
-  };
+    return true
+  }
 
-  const requiredDocs = service.required_documents ?? [];
-  const minUsd = service.price_usd_min ?? 0;
-  const minDays = service.estimated_days_min ?? 0;
-  const maxDays = service.estimated_days_max ?? 0;
+  const requiredDocs = service.required_documents || []
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -413,14 +337,14 @@ function Step1Application({
             <p className="text-sm text-muted-foreground capitalize">{service.category}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm font-medium">${minUsd.toFixed(2)} USD</p>
+            <p className="text-sm font-medium">${service.price_usd_min} USD</p>
             <p className="text-xs text-muted-foreground">
-              ≈ RWF {Math.round(minUsd * 1285).toLocaleString()}
+              ≈ RWF {(service.price_usd_min * 1285).toLocaleString()}
             </p>
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          {minDays}–{maxDays} days
+          {service.estimated_days_min}–{service.estimated_days_max} days
         </p>
       </div>
 
@@ -436,7 +360,7 @@ function Step1Application({
             </Label>
             <Input
               value={formData.fullName}
-              onChange={(e) => handleInputChange("fullName", e.target.value)}
+              onChange={(e) => handleInputChange('fullName', e.target.value)}
               placeholder="Your full name"
               className="text-sm"
             />
@@ -448,7 +372,7 @@ function Step1Application({
             <Input
               type="email"
               value={formData.email}
-              onChange={(e) => handleInputChange("email", e.target.value)}
+              onChange={(e) => handleInputChange('email', e.target.value)}
               placeholder="your@email.com"
               className="text-sm"
             />
@@ -459,17 +383,14 @@ function Step1Application({
             </Label>
             <Input
               value={formData.phone}
-              onChange={(e) => handleInputChange("phone", e.target.value)}
+              onChange={(e) => handleInputChange('phone', e.target.value)}
               placeholder="+250 7XX XXX XXX"
               className="text-sm"
             />
           </div>
           <div className="space-y-2">
             <Label className="text-sm">Applicant Type</Label>
-            <Select
-              value={formData.applicantType}
-              onValueChange={(v) => handleInputChange("applicantType", v)}
-            >
+            <Select value={formData.applicantType} onValueChange={(v) => handleInputChange('applicantType', v)}>
               <SelectTrigger className="text-sm">
                 <SelectValue />
               </SelectTrigger>
@@ -485,7 +406,7 @@ function Step1Application({
             </Label>
             <Input
               value={formData.nationality}
-              onChange={(e) => handleInputChange("nationality", e.target.value)}
+              onChange={(e) => handleInputChange('nationality', e.target.value)}
               placeholder="e.g. Rwandan, Chinese..."
               className="text-sm"
             />
@@ -494,7 +415,7 @@ function Step1Application({
             <Label className="text-sm">Passport / ID (optional)</Label>
             <Input
               value={formData.passportId}
-              onChange={(e) => handleInputChange("passportId", e.target.value)}
+              onChange={(e) => handleInputChange('passportId', e.target.value)}
               placeholder="AB1234567"
               className="text-sm"
             />
@@ -503,11 +424,7 @@ function Step1Application({
       </section>
 
       {/* Section 2: Service Details (Category-specific) */}
-      <ServiceDetailsSection
-        service={service}
-        formData={formData}
-        handleInputChange={handleInputChange}
-      />
+      <ServiceDetailsSection service={service} formData={formData} handleInputChange={handleInputChange} />
 
       {/* Section 3: Documents */}
       {requiredDocs.length > 0 && (
@@ -517,10 +434,7 @@ function Step1Application({
           </h3>
           <div className="space-y-3">
             {requiredDocs.map((doc: string, i: number) => (
-              <div
-                key={i}
-                className="flex items-center gap-2 text-sm p-2 rounded-lg bg-muted/30 border border-border/50"
-              >
+              <div key={i} className="flex items-center gap-2 text-sm p-2 rounded-lg bg-muted/30 border border-border/50">
                 <span className="text-muted-foreground">📎</span>
                 <span className="flex-1">{doc}</span>
               </div>
@@ -571,7 +485,7 @@ function Step1Application({
           {uploadedDocs.length > 0 && (
             <div className="space-y-2 border-t pt-4">
               <p className="text-xs font-medium">Uploaded ({uploadedDocs.length})</p>
-              {uploadedDocs.map((doc, i: number) => (
+              {uploadedDocs.map((doc: any, i: number) => (
                 <div
                   key={i}
                   className="flex items-center justify-between gap-2 p-2 rounded-lg bg-muted/50 border border-border/50"
@@ -602,7 +516,7 @@ function Step1Application({
           <Label className="text-sm">Any special instructions or context... (optional)</Label>
           <Textarea
             value={formData.notes}
-            onChange={(e) => handleInputChange("notes", e.target.value)}
+            onChange={(e) => handleInputChange('notes', e.target.value)}
             placeholder="Any additional information we should know..."
             className="min-h-[100px] text-sm resize-none"
           />
@@ -613,7 +527,7 @@ function Step1Application({
       <button
         onClick={() => {
           if (validateStep1()) {
-            onNext();
+            onNext()
           }
         }}
         className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-3 font-medium transition-colors"
@@ -621,15 +535,15 @@ function Step1Application({
         Continue to Payment →
       </button>
     </div>
-  );
+  )
 }
 
 // ─── Service Details Section (Category-specific) ────────────────────────────────
 
-function ServiceDetailsSection({ service, formData, handleInputChange }: ServiceDetailsSectionProps) {
-  const category = service.category;
+function ServiceDetailsSection({ service, formData, handleInputChange }: any) {
+  const category = service.category as ServiceCategory
 
-  if (category === "visa") {
+  if (category === 'visa') {
     return (
       <section className="space-y-4">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -640,7 +554,7 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
             <Label className="text-sm">Destination Country</Label>
             <Input
               value={formData.destinationCountry}
-              onChange={(e) => handleInputChange("destinationCountry", e.target.value)}
+              onChange={(e) => handleInputChange('destinationCountry', e.target.value)}
               placeholder="e.g. Rwanda, France..."
               className="text-sm"
             />
@@ -650,7 +564,7 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
             <Input
               type="date"
               value={formData.travelDate}
-              onChange={(e) => handleInputChange("travelDate", e.target.value)}
+              onChange={(e) => handleInputChange('travelDate', e.target.value)}
               className="text-sm"
             />
           </div>
@@ -659,16 +573,13 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
             <Input
               type="date"
               value={formData.returnDate}
-              onChange={(e) => handleInputChange("returnDate", e.target.value)}
+              onChange={(e) => handleInputChange('returnDate', e.target.value)}
               className="text-sm"
             />
           </div>
           <div className="space-y-2">
             <Label className="text-sm">Purpose of Visit</Label>
-            <Select
-              value={formData.purposeOfVisit}
-              onValueChange={(v) => handleInputChange("purposeOfVisit", v)}
-            >
+            <Select value={formData.purposeOfVisit} onValueChange={(v) => handleInputChange('purposeOfVisit', v)}>
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select purpose" />
               </SelectTrigger>
@@ -682,10 +593,10 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
           </div>
         </div>
       </section>
-    );
+    )
   }
 
-  if (category === "translation") {
+  if (category === 'translation') {
     return (
       <section className="space-y-4">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -694,10 +605,7 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-sm">Source Language</Label>
-            <Select
-              value={formData.sourceLanguage}
-              onValueChange={(v) => handleInputChange("sourceLanguage", v)}
-            >
+            <Select value={formData.sourceLanguage} onValueChange={(v) => handleInputChange('sourceLanguage', v)}>
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select language" />
               </SelectTrigger>
@@ -712,10 +620,7 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
           </div>
           <div className="space-y-2">
             <Label className="text-sm">Target Language</Label>
-            <Select
-              value={formData.targetLanguage}
-              onValueChange={(v) => handleInputChange("targetLanguage", v)}
-            >
+            <Select value={formData.targetLanguage} onValueChange={(v) => handleInputChange('targetLanguage', v)}>
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select language" />
               </SelectTrigger>
@@ -732,14 +637,14 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
             <Label className="text-sm">Document Type</Label>
             <Input
               value={formData.documentType}
-              onChange={(e) => handleInputChange("documentType", e.target.value)}
+              onChange={(e) => handleInputChange('documentType', e.target.value)}
               placeholder="e.g. Certificate, Contract..."
               className="text-sm"
             />
           </div>
           <div className="space-y-2">
             <Label className="text-sm">Urgency</Label>
-            <Select value={formData.urgency} onValueChange={(v) => handleInputChange("urgency", v)}>
+            <Select value={formData.urgency} onValueChange={(v) => handleInputChange('urgency', v)}>
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select urgency" />
               </SelectTrigger>
@@ -752,10 +657,10 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
           </div>
         </div>
       </section>
-    );
+    )
   }
 
-  if (category === "consultancy") {
+  if (category === 'consultancy') {
     return (
       <section className="space-y-4">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -766,17 +671,14 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
             <Label className="text-sm">Company / Project Name</Label>
             <Input
               value={formData.companyName}
-              onChange={(e) => handleInputChange("companyName", e.target.value)}
+              onChange={(e) => handleInputChange('companyName', e.target.value)}
               placeholder="Your company or project name"
               className="text-sm"
             />
           </div>
           <div className="space-y-2">
             <Label className="text-sm">Business Stage</Label>
-            <Select
-              value={formData.businessStage}
-              onValueChange={(v) => handleInputChange("businessStage", v)}
-            >
+            <Select value={formData.businessStage} onValueChange={(v) => handleInputChange('businessStage', v)}>
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select stage" />
               </SelectTrigger>
@@ -790,10 +692,7 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
           </div>
           <div className="space-y-2">
             <Label className="text-sm">Preferred Meeting Format</Label>
-            <Select
-              value={formData.meetingFormat}
-              onValueChange={(v) => handleInputChange("meetingFormat", v)}
-            >
+            <Select value={formData.meetingFormat} onValueChange={(v) => handleInputChange('meetingFormat', v)}>
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select format" />
               </SelectTrigger>
@@ -810,17 +709,17 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
             </Label>
             <Textarea
               value={formData.description}
-              onChange={(e) => handleInputChange("description", e.target.value)}
+              onChange={(e) => handleInputChange('description', e.target.value)}
               placeholder="Tell us about your business needs..."
               className="min-h-[100px] text-sm resize-none"
             />
           </div>
         </div>
       </section>
-    );
+    )
   }
 
-  if (category === "accounting") {
+  if (category === 'accounting') {
     return (
       <section className="space-y-4">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -831,17 +730,14 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
             <Label className="text-sm">Business Name</Label>
             <Input
               value={formData.companyName}
-              onChange={(e) => handleInputChange("companyName", e.target.value)}
+              onChange={(e) => handleInputChange('companyName', e.target.value)}
               placeholder="Your business name"
               className="text-sm"
             />
           </div>
           <div className="space-y-2">
             <Label className="text-sm">Business Type</Label>
-            <Select
-              value={formData.businessType}
-              onValueChange={(v) => handleInputChange("businessType", v)}
-            >
+            <Select value={formData.businessType} onValueChange={(v) => handleInputChange('businessType', v)}>
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
@@ -856,7 +752,7 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
             <Label className="text-sm">Fiscal Year End</Label>
             <Input
               value={formData.fiscalYearEnd}
-              onChange={(e) => handleInputChange("fiscalYearEnd", e.target.value)}
+              onChange={(e) => handleInputChange('fiscalYearEnd', e.target.value)}
               placeholder="e.g. December 31"
               className="text-sm"
             />
@@ -867,14 +763,14 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
             </Label>
             <Textarea
               value={formData.description}
-              onChange={(e) => handleInputChange("description", e.target.value)}
+              onChange={(e) => handleInputChange('description', e.target.value)}
               placeholder="Tell us about your accounting needs..."
               className="min-h-[100px] text-sm resize-none"
             />
           </div>
         </div>
       </section>
-    );
+    )
   }
 
   // Default for other categories
@@ -888,7 +784,7 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
           <Label className="text-sm">Company / Project Name (optional)</Label>
           <Input
             value={formData.companyName}
-            onChange={(e) => handleInputChange("companyName", e.target.value)}
+            onChange={(e) => handleInputChange('companyName', e.target.value)}
             placeholder="Your company or project name"
             className="text-sm"
           />
@@ -897,79 +793,76 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: Service
           <Label className="text-sm">Brief description of your needs</Label>
           <Textarea
             value={formData.description}
-            onChange={(e) => handleInputChange("description", e.target.value)}
+            onChange={(e) => handleInputChange('description', e.target.value)}
             placeholder="Tell us what you need..."
             className="min-h-[100px] text-sm resize-none"
           />
         </div>
       </div>
     </section>
-  );
+  )
 }
 
 // ─── Step 2: Payment ──────────────────────────────────────────────────────────
 
-function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: Step2PaymentProps) {
-  const navigate = useNavigate();
-  const [processing, setProcessing] = useState(false);
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
+function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: any) {
+  const navigate = useNavigate()
+  const [processing, setProcessing] = useState(false)
+  const [showPaymentForm, setShowPaymentForm] = useState(false)
 
-  const basePrice = service.price_usd_min ?? 0;
-  const rwfPrice = Math.round(basePrice * 1285);
+  const basePrice = service.price_usd_min ?? 0
+  const rwfPrice = Math.round(basePrice * 1285)
 
   const handlePaymentSuccess = async (paymentIntentId: string) => {
-    setProcessing(true);
+    setProcessing(true)
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        toast.error("User not authenticated");
-        setProcessing(false);
-        return;
+        toast.error('User not authenticated')
+        setProcessing(false)
+        return
       }
 
       // Pick a random staff member with the required capability
-      const capability =
-        CAT_CAPABILITY[service.category as ServiceCategory] || "handle_consultancy";
+      const capability = CAT_CAPABILITY[service.category as ServiceCategory] || 'handle_consultancy'
       const { data: staffData } = await supabase
-        .from("staff_capabilities")
-        .select("user_id")
-        .eq("capability", capability)
-        .limit(10);
+        .from('staff_capabilities')
+        .select('user_id')
+        .eq('capability', capability)
+        .limit(10)
 
       const staffId =
         staffData && staffData.length > 0
           ? staffData[Math.floor(Math.random() * staffData.length)].user_id
-          : null;
+          : null
 
       // Create service request
       const { data: requestData, error: requestError } = await supabase
-        .from("service_requests")
+        .from('service_requests')
         .insert({
           client_id: user.id,
           service_id: service.id,
           service_category: service.category,
-          status: "submitted",
+          status: 'submitted',
           progress_step: 1,
           progress_total: 5,
           assigned_staff_id: staffId,
           applicant_type: formData.applicantType,
-          priority: "normal",
+          priority: 'normal',
           notes: formData.notes || null,
           portal_source: portal,
         })
         .select()
-        .single();
+        .single()
 
-      if (requestError) throw requestError;
-      if (!requestData) throw new Error("Failed to create service request");
+      if (requestError) throw requestError
+      if (!requestData) throw new Error('Failed to create service request')
 
       // Insert uploaded documents
       if (uploadedDocs.length > 0) {
-        const documentInserts = uploadedDocs.map((doc) => {
-          const fileExt = doc.name.split(".").pop() || "unknown";
+        const documentInserts = uploadedDocs.map((doc: any) => {
+          const fileExt = doc.name.split('.').pop() || 'unknown'
           return {
             service_request_id: requestData.id,
             client_id: user.id,
@@ -978,34 +871,33 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: Step2
             file_name: doc.name,
             file_type: fileExt,
             file_size_bytes: null,
-            status: "uploaded" as const,
+            status: 'uploaded' as const,
             is_final_delivery: false,
-          };
-        });
+          }
+        })
 
-        const { error: docError } = await supabase.from("documents").insert(documentInserts);
+        const { error: docError } = await supabase.from('documents').insert(documentInserts)
 
-        if (docError) console.error("Failed to insert documents:", docError);
+        if (docError) console.error('Failed to insert documents:', docError)
       }
 
-      toast.success("Service request created successfully!");
+      toast.success('Service request created successfully!')
       navigate({
-        to: "/dashboard/confirmation/$requestId",
+        to: '/dashboard/confirmation/$requestId',
         params: { requestId: requestData.id },
-        search: {} as never,
-      });
+      })
     } catch (error) {
-      console.error("Payment finalization error:", error);
-      toast.error((error as Error).message || "Failed to process payment");
-      setProcessing(false);
+      console.error('Payment finalization error:', error)
+      toast.error((error as Error).message || 'Failed to process payment')
+      setProcessing(false)
     }
-  };
+  }
 
   const handlePaymentError = (message: string, error?: unknown) => {
-    console.error("Payment error:", error);
-    toast.error(message);
-    setProcessing(false);
-  };
+    console.error('Payment error:', error)
+    toast.error(message)
+    setProcessing(false)
+  }
 
   if (basePrice === 0) {
     return (
@@ -1016,7 +908,7 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: Step2
             This service is free to request. Click the button below to submit your application.
           </p>
           <button
-            onClick={() => handlePaymentSuccess("free")}
+            onClick={() => handlePaymentSuccess('free')}
             disabled={processing}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-3 font-medium transition-colors disabled:opacity-50"
           >
@@ -1026,7 +918,7 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: Step2
                 Submitting...
               </>
             ) : (
-              "Submit Application"
+              'Submit Application'
             )}
           </button>
         </div>
@@ -1037,7 +929,7 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: Step2
           ← Back to Application
         </button>
       </div>
-    );
+    )
   }
 
   return (
@@ -1092,5 +984,5 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: Step2
         ← Back to Application
       </button>
     </div>
-  );
+  )
 }
