@@ -84,12 +84,12 @@ function StatCounter({
   const { count, ref } = useCountUp(value);
   return (
     <div ref={ref} className="text-center group">
-      <div className="text-4xl font-black text-white md:text-5xl tracking-tight tabular-nums">
+      <div className="text-4xl font-black text-gray-900 dark:text-white md:text-5xl tracking-tight tabular-nums">
         {count}
-        <span className="text-blue-400">{suffix}</span>
+        <span className="text-blue-600 dark:text-blue-400">{suffix}</span>
       </div>
-      <div className="mt-1 text-sm font-semibold text-white/90 uppercase tracking-widest">{label}</div>
-      {sublabel && <div className="text-xs text-blue-200/70 mt-0.5">{sublabel}</div>}
+      <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-white/90 uppercase tracking-widest">{label}</div>
+      {sublabel && <div className="text-xs text-blue-600 dark:text-blue-200/70 mt-0.5">{sublabel}</div>}
     </div>
   );
 }
@@ -262,7 +262,6 @@ function Home() {
     { flag: "🇷🇼", lang: "Kinyarwanda" },
     { flag: "🇫🇷", lang: "Français" },
     { flag: "🇸🇦", lang: "العربية" },
-    { flag: "🇵🇹", lang: "Português" },
   ];
 
   return (
@@ -489,13 +488,13 @@ function Home() {
       `}</style>
 
       {/* ========== HERO ========== */}
-      <section className="relative min-h-screen w-full overflow-hidden grid-pattern" style={{ background: "#0A0F1C" }}>
-        {/* Ambient orbs */}
-        <div className="orb-1 pointer-events-none absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-60"
+      <section className="relative min-h-screen w-full overflow-hidden grid-pattern bg-white dark:bg-[#0A0F1C]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)" }}>
+        {/* Ambient orbs - only show in dark mode */}
+        <div className="orb-1 pointer-events-none absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-0 dark:opacity-60"
           style={{ background: "radial-gradient(circle at center, rgba(37,99,235,0.18) 0%, transparent 65%)", filter: "blur(80px)" }} />
-        <div className="orb-2 pointer-events-none absolute top-1/2 -right-32 h-[500px] w-[500px] rounded-full opacity-50"
+        <div className="orb-2 pointer-events-none absolute top-1/2 -right-32 h-[500px] w-[500px] rounded-full opacity-0 dark:opacity-50"
           style={{ background: "radial-gradient(circle at center, rgba(124,58,237,0.15) 0%, transparent 65%)", filter: "blur(70px)" }} />
-        <div className="orb-3 pointer-events-none absolute bottom-0 left-1/3 h-[400px] w-[400px] rounded-full opacity-40"
+        <div className="orb-3 pointer-events-none absolute bottom-0 left-1/3 h-[400px] w-[400px] rounded-full opacity-0 dark:opacity-40"
           style={{ background: "radial-gradient(circle at center, rgba(5,150,105,0.12) 0%, transparent 65%)", filter: "blur(60px)" }} />
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 md:px-6">
@@ -505,19 +504,19 @@ function Home() {
             <div className="flex flex-col justify-center space-y-8 pt-8 md:pt-0">
               {/* Trust badge */}
               <div
-                className="badge-pop inline-flex w-fit items-center gap-2.5 rounded-full px-4 py-2 text-sm font-medium text-blue-300"
+                className="badge-pop inline-flex w-fit items-center gap-2.5 rounded-full px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-300"
                 style={{ background: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)" }}
               >
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 dark:bg-blue-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500 dark:bg-blue-400" />
                 </span>
                 Trusted in 15+ Countries · Est. 2018
               </div>
 
               {/* Headline */}
               <div className="space-y-3">
-                <h1 className="font-black leading-[1.05] tracking-tight text-white" style={{ fontSize: "clamp(2.4rem, 5.5vw, 4.2rem)" }}>
+                <h1 className="font-black leading-[1.05] tracking-tight text-gray-900 dark:text-white" style={{ fontSize: "clamp(2.4rem, 5.5vw, 4.2rem)" }}>
                   <span className="animate-fade-up block">Your Trusted Partner</span>
                   <span className="animate-fade-up delay-100 block">for Global</span>
                   <span className="animate-fade-up delay-200 shimmer-text block">Professional Services</span>
@@ -525,15 +524,14 @@ function Home() {
               </div>
 
               {/* Sub */}
-              <p className="animate-fade-up delay-300 max-w-lg text-lg leading-relaxed text-gray-400">
+              <p className="animate-fade-up delay-300 max-w-lg text-lg leading-relaxed text-gray-600 dark:text-gray-400">
                 Accounting · Visa & Permits · Translation · Consultancy
                 <br />
-                <span className="text-gray-500">Built for Rwanda and the world.</span>
+                <span className="text-gray-700 dark:text-gray-500">Built for Rwanda and the world.</span>
               </p>
 
               {/* Inline stats */}
-              <div className="animate-fade-up delay-300 grid grid-cols-2 gap-4 rounded-2xl p-5 sm:grid-cols-4"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+              <div className="animate-fade-up delay-300 grid grid-cols-2 gap-4 rounded-2xl p-5 sm:grid-cols-4 bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10">
                 <StatCounter value={1000} label="Clients" sublabel="served" />
                 <StatCounter value={15} label="Languages" sublabel="supported" />
                 <StatCounter value={4} label="Services" sublabel="areas" />
@@ -549,16 +547,16 @@ function Home() {
                   </a>
                 </Button>
                 <Button size="lg" variant="outline" asChild
-                  className="h-14 rounded-xl border-white/10 bg-white/5 text-base font-semibold text-white backdrop-blur hover:bg-white/10 hover:border-white/20">
+                  className="h-14 rounded-xl border-gray-400 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white text-base font-semibold hover:bg-gray-100 dark:hover:bg-white/10 dark:hover:border-white/20">
                   <a href="/contact">Talk to an Expert</a>
                 </Button>
               </div>
 
               {/* Trust signals */}
-              <div className="animate-fade-up delay-500 flex flex-wrap gap-4 text-sm text-gray-400">
+              <div className="animate-fade-up delay-500 flex flex-wrap gap-4 text-sm text-gray-700 dark:text-gray-400">
                 {["Free consultation", "No hidden fees", "24/7 online access"].map((t) => (
                   <span key={t} className="flex items-center gap-1.5">
-                    <Check className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
+                    <Check className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400 flex-shrink-0" />
                     {t}
                   </span>
                 ))}
@@ -654,10 +652,9 @@ function Home() {
           </div>
 
           {/* Language flags strip */}
-          <div className="relative z-10 flex flex-wrap justify-center gap-3 border-t py-6" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+          <div className="relative z-10 flex flex-wrap justify-center gap-3 border-t py-6 border-gray-300 dark:border-white/10">
             {flags.map(({ flag, lang }) => (
-              <span key={lang} className="flag-pill flex items-center gap-1.5 rounded-full px-3 py-1 text-sm text-gray-400 cursor-default"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <span key={lang} className="flag-pill flex items-center gap-1.5 rounded-full px-3 py-1 text-sm text-gray-700 dark:text-gray-400 cursor-default bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10">
                 {flag} <span className="text-xs">{lang}</span>
               </span>
             ))}
@@ -665,19 +662,18 @@ function Home() {
 
           {/* Scroll indicator */}
           <div className="relative z-10 flex justify-center py-6">
-            <div className="bounce-arrow flex flex-col items-center gap-1 text-gray-600">
-              <span className="text-xs tracking-widest uppercase text-gray-600">Scroll</span>
+            <div className="bounce-arrow flex flex-col items-center gap-1 text-gray-500 dark:text-gray-600">
+              <span className="text-xs tracking-widest uppercase text-gray-600 dark:text-gray-600">Scroll</span>
               <ChevronDown className="h-5 w-5" />
             </div>
           </div>
         </div>
 
-        <div className="hero-glow-line" />
+        <div className="hero-glow-line dark:hero-glow-line" />
       </section>
 
       {/* ========== STATS BANNER ========== */}
-      <section className="relative w-full overflow-hidden py-14"
-        style={{ background: "linear-gradient(135deg, #0F1729 0%, #0D1B3E 50%, #0F1729 100%)" }}>
+      <section className="relative w-full overflow-hidden py-14 bg-gradient-to-r from-blue-50 via-white to-blue-50 dark:from-[#0F1729] dark:via-[#0D1B3E] dark:to-[#0F1729]">
         <div className="absolute inset-0 opacity-30"
           style={{
             background: "radial-gradient(ellipse at 20% 50%, rgba(37,99,235,0.2) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(124,58,237,0.15) 0%, transparent 60%)"
@@ -692,12 +688,11 @@ function Home() {
             ].map((s, i) => (
               <div key={s.label} className="stat-card-glow text-center relative">
                 {i < 3 && (
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:block w-px h-12"
-                    style={{ background: "rgba(255,255,255,0.08)" }} />
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:block w-px h-12 bg-gray-300 dark:bg-white/10" />
                 )}
-                <div className="text-4xl font-black tracking-tight text-white">{s.num}</div>
-                <div className="mt-1 text-sm font-semibold uppercase tracking-widest text-blue-300">{s.label}</div>
-                <div className="text-xs text-gray-500 mt-0.5">{s.sub}</div>
+                <div className="text-4xl font-black tracking-tight text-gray-900 dark:text-white">{s.num}</div>
+                <div className="mt-1 text-sm font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-300">{s.label}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-500 mt-0.5">{s.sub}</div>
               </div>
             ))}
           </div>
@@ -705,18 +700,18 @@ function Home() {
       </section>
 
       {/* ========== SERVICES ========== */}
-      <section className="py-24" style={{ background: "#080D1A" }}>
+      <section className="py-24 bg-white dark:bg-[#080D1A]">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="mb-16 animate-fade-up">
-            <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-blue-400 mb-4"
+            <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-4"
               style={{ background: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.25)" }}>
               What We Do
             </span>
-            <h2 className="text-4xl font-black text-white md:text-5xl lg:text-6xl leading-tight">
+            <h2 className="text-4xl font-black text-gray-900 dark:text-white md:text-5xl lg:text-6xl leading-tight">
               Services Built for<br />
               <span className="shimmer-text">Your Success</span>
             </h2>
-            <p className="mt-4 max-w-xl text-lg text-gray-500">
+            <p className="mt-4 max-w-xl text-lg text-gray-600 dark:text-gray-500">
               From visas to accounting, we handle the complexity so you can focus on what matters.
             </p>
           </div>
@@ -724,20 +719,15 @@ function Home() {
           <div className="grid gap-5 md:grid-cols-2">
             {services.map((s, idx) => (
               <div key={s.title}
-                className={`animate-fade-up delay-${(idx + 1) * 100} service-card group rounded-2xl p-7 cursor-pointer`}
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)",
-                }}
+                className={`animate-fade-up delay-${(idx + 1) * 100} service-card group rounded-2xl p-7 cursor-pointer bg-white dark:bg-white/3 border border-gray-300 dark:border-white/10`}
                 onClick={() => window.location.href = s.href}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = `0 20px 60px rgba(0,0,0,0.4)`;
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = `0 20px 60px rgba(0,0,0,0.1) dark:rgba(0,0,0,0.4)`;
                   (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(59,130,246,0.25)";
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLDivElement).style.boxShadow = "";
-                  (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.07)";
+                  (e.currentTarget as HTMLDivElement).style.borderColor = "";
                 }}
               >
                 <div className="mb-5 flex items-start justify-between">
@@ -746,11 +736,11 @@ function Home() {
                   </div>
                   <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${s.pill}`}>{s.tag}</span>
                 </div>
-                <h3 className="mb-2 text-xl font-bold text-white">{s.title}</h3>
-                <p className="mb-5 text-sm leading-relaxed text-gray-500">{s.desc}</p>
+                <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">{s.title}</h3>
+                <p className="mb-5 text-sm leading-relaxed text-gray-600 dark:text-gray-500">{s.desc}</p>
                 <div className="mb-5 space-y-2">
                   {["Expert professionals", "Fast processing", "24/7 support"].map((feature) => (
-                    <div key={feature} className="flex items-center gap-2 text-sm text-gray-400">
+                    <div key={feature} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-400">
                       <Check className={`h-4 w-4 flex-shrink-0 ${s.accent}`} />
                       {feature}
                     </div>
@@ -767,33 +757,33 @@ function Home() {
       </section>
 
       {/* ========== WHY SAN BROTHERS ========== */}
-      <section className="py-24" style={{ background: "#060B18" }}>
+      <section className="py-24 bg-gray-50 dark:bg-[#060B18]">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="grid gap-16 md:grid-cols-2 md:items-start">
             {/* Left */}
             <div className="animate-fade-up space-y-6 sticky top-24">
-              <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-emerald-400"
+              <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400"
                 style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
                 Why Choose Us
               </span>
-              <h2 className="text-4xl font-black leading-tight text-white md:text-5xl">
+              <h2 className="text-4xl font-black leading-tight text-gray-900 md:text-5xl dark:text-white">
                 Why thousands trust<br />
-                <span style={{ color: "#60A5FA" }}>San Brothers</span>
+                <span style={{ color: "#2563EB" }} className="dark:text-blue-400">San Brothers</span>
               </h2>
-              <p className="text-lg leading-relaxed text-gray-500">
+              <p className="text-lg leading-relaxed text-gray-600 dark:text-gray-500">
                 We combine international expertise with deep local knowledge to deliver professional services that exceed expectations — every time.
               </p>
-              <div className="rounded-2xl p-5 space-y-2"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="rounded-2xl p-5 space-y-2 bg-gray-100 dark:bg-white/3 border border-gray-300 dark:border-white/10"
+                style={{}}>
+                <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-500">
                   <span className="text-base">📍</span>
                   <span>Florida House, 2nd Floor, KN 70 Street, Kigali</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-500">
                   <span className="text-base">🕐</span>
                   <span>Mon–Fri 8am–6pm · Sat 9am–2pm</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-500">
                   <span className="text-base">📞</span>
                   <span>+250 700 000 000</span>
                 </div>
@@ -810,14 +800,13 @@ function Home() {
             <div className="grid gap-4">
               {why.map((w, idx) => (
                 <div key={w.title}
-                  className={`animate-fade-up delay-${(idx % 4 + 1) * 100} why-item flex gap-4 rounded-2xl p-5`}
-                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  className={`animate-fade-up delay-${(idx % 4 + 1) * 100} why-item flex gap-4 rounded-2xl p-5 bg-gray-100 dark:bg-white/3 border border-gray-300 dark:border-white/10`}>
                   <div className={`flex-shrink-0 flex h-11 w-11 items-center justify-center rounded-xl ${w.bg}`}>
                     <w.icon className={`h-5 w-5 ${w.color}`} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-white">{w.title}</h3>
-                    <p className="mt-0.5 text-sm text-gray-500">{w.desc}</p>
+                    <h3 className="font-bold text-gray-900 dark:text-white">{w.title}</h3>
+                    <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-500">{w.desc}</p>
                   </div>
                 </div>
               ))}
@@ -827,17 +816,17 @@ function Home() {
       </section>
 
       {/* ========== HOW IT WORKS ========== */}
-      <section className="py-24" style={{ background: "#080D1A" }}>
+      <section className="py-24 bg-white dark:bg-[#080D1A]">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="mb-16 animate-fade-up text-center">
-            <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-violet-400 mb-4"
+            <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-violet-600 dark:text-violet-400 mb-4"
               style={{ background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)" }}>
               The Process
             </span>
-            <h2 className="text-4xl font-black text-white md:text-5xl">
-              Get started in <span style={{ color: "#A78BFA" }}>4 simple steps</span>
+            <h2 className="text-4xl font-black text-gray-900 dark:text-white md:text-5xl">
+              Get started in <span style={{ color: "#A78BFA" }} className="dark:text-violet-300">4 simple steps</span>
             </h2>
-            <p className="mt-4 text-lg text-gray-500">
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-500">
               From registration to results — we make it effortless.
             </p>
           </div>
@@ -849,17 +838,15 @@ function Home() {
                 {i < steps.length - 1 && (
                   <div className="step-connector" />
                 )}
-                <div className="rounded-2xl p-6"
-                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <div className="rounded-2xl p-6 bg-gray-100 dark:bg-white/3 border border-gray-300 dark:border-white/10">
                   <div className="mb-4 flex items-center gap-3">
-                    <span className="text-4xl font-black" style={{ color: "rgba(139,92,246,0.2)" }}>{s.num}</span>
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl"
-                      style={{ background: "rgba(139,92,246,0.12)", border: "1px solid rgba(139,92,246,0.2)" }}>
-                      <s.icon className="h-5 w-5 text-violet-400" />
+                    <span className="text-4xl font-black text-gray-300 dark:text-white/20">{s.num}</span>
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-900/30 border border-violet-300 dark:border-violet-500/30">
+                      <s.icon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                     </div>
                   </div>
-                  <h3 className="font-bold text-white mb-2">{s.title}</h3>
-                  <p className="text-sm text-gray-500">{s.desc}</p>
+                  <h3 className="font-bold text-gray-900 dark:text-white mb-2">{s.title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-500">{s.desc}</p>
                 </div>
               </div>
             ))}
@@ -870,20 +857,19 @@ function Home() {
             {steps.map((s, i) => (
               <div key={s.title} className={`animate-fade-up delay-${(i + 1) * 100} flex gap-4`}>
                 <div className="flex flex-col items-center">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-xs font-black text-violet-400"
-                    style={{ background: "rgba(139,92,246,0.12)", border: "1px solid rgba(139,92,246,0.2)" }}>
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-xs font-black text-violet-600 dark:text-violet-400 bg-violet-100 dark:bg-violet-900/30 border border-violet-300 dark:border-violet-500/30">
                     {s.num}
                   </div>
                   {i < steps.length - 1 && (
-                    <div className="mt-2 w-px flex-1 min-h-8" style={{ background: "rgba(139,92,246,0.2)" }} />
+                    <div className="mt-2 w-px flex-1 min-h-8 bg-gray-300 dark:bg-violet-500/20" />
                   )}
                 </div>
                 <div className="pb-6">
                   <div className="flex items-center gap-2 mb-1">
-                    <s.icon className="h-4 w-4 text-violet-400" />
-                    <h3 className="font-bold text-white">{s.title}</h3>
+                    <s.icon className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                    <h3 className="font-bold text-gray-900 dark:text-white">{s.title}</h3>
                   </div>
-                  <p className="text-sm text-gray-500">{s.desc}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-500">{s.desc}</p>
                 </div>
               </div>
             ))}
@@ -892,17 +878,17 @@ function Home() {
       </section>
 
       {/* ========== TESTIMONIALS ========== */}
-      <section className="py-24 overflow-hidden" style={{ background: "#060B18" }}>
+      <section className="py-24 overflow-hidden bg-gray-50 dark:bg-[#060B18]">
         <div className="mx-auto max-w-7xl px-4 md:px-6 mb-12">
           <div className="animate-fade-up text-center">
-            <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-amber-400 mb-4"
+            <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-4"
               style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" }}>
               Client Stories
             </span>
-            <h2 className="text-4xl font-black text-white md:text-5xl">
-              What Our <span style={{ color: "#FCD34D" }}>Clients Say</span>
+            <h2 className="text-4xl font-black text-gray-900 dark:text-white md:text-5xl">
+              What Our <span style={{ color: "#D97706" }} className="dark:text-amber-300">Clients Say</span>
             </h2>
-            <p className="mt-4 text-lg text-gray-500">Real results from real people across the globe.</p>
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-500">Real results from real people across the globe.</p>
           </div>
         </div>
 
@@ -910,21 +896,20 @@ function Home() {
         <div className="carousel-wrapper hidden md:block">
           <div className="carousel-track flex gap-5" style={{ width: "max-content" }}>
             {[...testimonials, ...testimonials].map((tt, idx) => (
-              <div key={idx} className="testimonial-card flex-shrink-0 w-[360px] rounded-2xl p-6"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+              <div key={idx} className="testimonial-card flex-shrink-0 w-[360px] rounded-2xl p-6 bg-white dark:bg-white/3 border border-gray-300 dark:border-white/10">
                 <div className="mb-4 flex gap-0.5">
                   {Array.from({ length: tt.rating }).map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-                <p className="mb-5 text-sm leading-relaxed text-gray-400">"{tt.quote}"</p>
-                <div className="flex items-center gap-3 pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+                <p className="mb-5 text-sm leading-relaxed text-gray-700 dark:text-gray-400">"{tt.quote}"</p>
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-white/10">
                   <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${tt.color} text-xs font-bold text-white`}>
                     {tt.initials}
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-white">{tt.name}</div>
-                    <div className="text-xs text-gray-600">{tt.loc}</div>
+                    <div className="text-sm font-bold text-gray-900 dark:text-white">{tt.name}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-600">{tt.loc}</div>
                   </div>
                 </div>
               </div>
@@ -935,21 +920,20 @@ function Home() {
         {/* Mobile grid */}
         <div className="md:hidden mx-auto max-w-7xl px-4 grid gap-4">
           {testimonials.slice(0, 3).map((tt) => (
-            <div key={tt.name} className="rounded-2xl p-6"
-              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+            <div key={tt.name} className="rounded-2xl p-6 bg-white dark:bg-white/3 border border-gray-300 dark:border-white/10">
               <div className="mb-3 flex gap-0.5">
                 {Array.from({ length: tt.rating }).map((_, i) => (
                   <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
                 ))}
               </div>
-              <p className="mb-4 text-sm leading-relaxed text-gray-400">"{tt.quote}"</p>
-              <div className="flex items-center gap-3 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+              <p className="mb-4 text-sm leading-relaxed text-gray-700 dark:text-gray-400">"{tt.quote}"</p>
+              <div className="flex items-center gap-3 pt-3 border-t border-gray-200 dark:border-white/10">
                 <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${tt.color} text-xs font-bold text-white`}>
                   {tt.initials}
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-white">{tt.name}</div>
-                  <div className="text-xs text-gray-600">{tt.loc}</div>
+                  <div className="text-sm font-bold text-gray-900 dark:text-white">{tt.name}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-600">{tt.loc}</div>
                 </div>
               </div>
             </div>
@@ -958,24 +942,21 @@ function Home() {
       </section>
 
       {/* ========== PARTNERSHIP ========== */}
-      <section className="py-20 pt-32" style={{ background: "#080D1A" }}>
+      <section className="py-20 pt-32 bg-white dark:bg-[#080D1A]">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
-          <div className="rounded-3xl p-8 md:p-12"
-            style={{
-              background: "linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(124,58,237,0.06) 100%)",
-              border: "1px solid rgba(37,99,235,0.15)"
-            }}>
+          <div className="rounded-3xl p-8 md:p-12 bg-blue-50 dark:bg-white/5 border border-blue-200 dark:border-blue-500/20"
+            style={{ background: "linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(124,58,237,0.06) 100%)" }}>
             <div className="grid gap-10 md:grid-cols-2 md:items-center">
               <div className="animate-fade-up space-y-4">
-                <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-blue-400"
+                <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400"
                   style={{ background: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.25)" }}>
                   In Partnership With
                 </span>
-                <h3 className="text-3xl font-black text-white">Best of the Best<br />Company Ltd</h3>
-                <p className="text-gray-500 leading-relaxed">
+                <h3 className="text-3xl font-black text-gray-900 dark:text-white">Best of the Best<br />Company Ltd</h3>
+                <p className="text-gray-600 dark:text-gray-500 leading-relaxed">
                   Expanding our reach with integrated logistics, China sourcing, and scholarship opportunities for clients worldwide.
                 </p>
-                <a href="#" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors">
+                <a href="#" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
                   Learn more about our partnership <ArrowRight className="h-3.5 w-3.5" />
                 </a>
               </div>
@@ -985,11 +966,11 @@ function Home() {
                   { emoji: "🏭", title: "China Sourcing", desc: "Factory direct" },
                   { emoji: "🎓", title: "Scholarships", desc: "Study abroad" },
                 ].map((b) => (
-                  <div key={b.title} className="partnership-badge rounded-2xl p-5 text-center cursor-pointer"
-                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <div key={b.title} className="partnership-badge rounded-2xl p-5 text-center cursor-pointer bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10"
+                    style={{}}>
                     <div className="mb-2 text-3xl">{b.emoji}</div>
-                    <div className="text-xs font-bold text-white leading-tight">{b.title}</div>
-                    <div className="text-xs text-gray-600 mt-1">{b.desc}</div>
+                    <div className="text-xs font-bold text-gray-900 dark:text-white leading-tight">{b.title}</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-600 mt-1">{b.desc}</div>
                   </div>
                 ))}
               </div>
@@ -999,10 +980,7 @@ function Home() {
       </section>
 
       {/* ========== CTA BANNER ========== */}
-      <section className="relative overflow-hidden py-24 gradient-animated -mt-0.5"
-        style={{
-          background: "linear-gradient(135deg, #1D4ED8 0%, #2563EB 30%, #7C3AED 70%, #6D28D9 100%)"
-        }}>
+      <section className="relative overflow-hidden py-24 gradient-animated -mt-0.5 bg-gradient-to-r from-blue-600 via-blue-700 to-purple-700 dark:from-[#1D4ED8] dark:via-[#2563EB] dark:to-[#6D28D9]">
         {/* Noise texture overlay */}
         <div className="absolute inset-0 opacity-10"
           style={{
@@ -1011,7 +989,7 @@ function Home() {
 
         <div className="relative mx-auto max-w-4xl px-4 text-center md:px-6">
           <div className="animate-fade-up space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white/80 mb-2"
+            <div className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white/90 mb-2"
               style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)" }}>
               <Users className="h-4 w-4" />
               Join 1,000+ satisfied clients
