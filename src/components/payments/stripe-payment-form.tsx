@@ -348,7 +348,7 @@ function MTNMoMoForm({ amount, rwfAmount }: { amount: number; rwfAmount: number 
             placeholder="078X XXX XXX"
             value={phoneNumber}
             onChange={handlePhoneChange}
-            maxLength="11"
+            maxLength={11}
             className="flex-1"
           />
         </div>
