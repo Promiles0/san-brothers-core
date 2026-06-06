@@ -241,7 +241,7 @@ function SettingsPage() {
                 placeholder="+250 078X XXX XXX"
                 value={smsPhoneNumber}
                 onChange={handlePhoneChange}
-                maxLength="17"
+                maxLength={17}
                 className="flex-1"
               />
               <Button variant="outline" size="sm" onClick={handleVerifyPhone}>

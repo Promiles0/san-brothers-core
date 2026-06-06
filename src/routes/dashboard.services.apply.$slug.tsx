@@ -268,16 +268,16 @@ function Step1Application({
         // Ensure the path uses the required clients/ prefix for Supabase storage RLS
         const filePath = `clients/${user.id}/${Date.now()}-${safeName}`;
 
+        setUploadingFiles((prev) =>
+          prev.map((f) => (f.id === uploadId ? { ...f, progress: 50 } : f)),
+        );
         const { error } = await supabase.storage.from("client-documents").upload(filePath, file, {
           cacheControl: "3600",
           upsert: false,
-          onUploadProgress: (progress: { loaded: number; total: number; }) => {
-            const percent = (progress.loaded / progress.total) * 100;
-            setUploadingFiles((prev) =>
-              prev.map((f) => (f.id === uploadId ? { ...f, progress: Math.round(percent) } : f)),
-            );
-          },
         });
+        setUploadingFiles((prev) =>
+          prev.map((f) => (f.id === uploadId ? { ...f, progress: 100 } : f)),
+        );
 
         if (!error) {
           setUploadedDocs((prev: any) => [...prev, { name: file.name, path: filePath }]);
