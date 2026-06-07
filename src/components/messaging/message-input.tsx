@@ -77,13 +77,21 @@ export function MessageInput({
     }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "bin";
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { data: authData } = await supabase.auth.getUser();
+      const user = authData.user;
+      if (!user) throw new Error("Not authenticated");
+
+      // Sanitize filename
+      const safeName = file.name.replace(/[^a-zA-Z0-9.\-]/g, "_");
+      const timestamp = Date.now();
+      const filePath = `clients/${user.id}/${timestamp}-${safeName}`;
+
       const { error } = await supabase.storage
-        .from("message-attachments")
-        .upload(path, file, { upsert: false, contentType: file.type });
+        .from("client-documents")
+        .upload(filePath, file, { cacheControl: "3600", upsert: false });
       if (error) throw error;
-      const { data } = supabase.storage.from("message-attachments").getPublicUrl(path);
+
+      const { data } = supabase.storage.from("client-documents").getPublicUrl(filePath);
       await submit({ url: data.publicUrl, name: file.name, type: file.type });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Upload failed";

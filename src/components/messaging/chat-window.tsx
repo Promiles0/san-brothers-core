@@ -127,15 +127,16 @@ export function ChatWindow(props: ChatWindowProps) {
       void markAllRead();
     })();
 
+    // Realtime subscription: unique channel per conversation
     const channel = supabase
-      .channel("conv-msgs:" + conversationId)
+      .channel(`chat-${conversationId}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
           table: "messages",
-          filter: "conversation_id=eq." + conversationId,
+          filter: `conversation_id=eq.${conversationId}`,
         },
         async (payload) => {
           const m = payload.new as MessageRecord;
@@ -152,7 +153,9 @@ export function ChatWindow(props: ChatWindowProps) {
           }
           setMessages((prev) => (prev.some((p) => p.id === m.id) ? prev : [...prev, m]));
           scrollToBottom();
-          if (user && m.sender_id && m.sender_id !== user.id && !m.system_message) {
+
+          // Mark as read if we are the recipient
+          if (m.sender_id !== user?.id) {
             void supabase
               .from("messages")
               .update({ is_read: true, read_at: new Date().toISOString() })
@@ -166,18 +169,20 @@ export function ChatWindow(props: ChatWindowProps) {
           event: "UPDATE",
           schema: "public",
           table: "messages",
-          filter: "conversation_id=eq." + conversationId,
+          filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
           const m = payload.new as MessageRecord;
           setMessages((prev) => prev.map((p) => (p.id === m.id ? { ...p, ...m } : p)));
         },
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("[Chat] Realtime status:", status);
+      });
 
     return () => {
       cancelled = true;
-      void channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [conversationId, user, markAllRead, scrollToBottom]);
 
