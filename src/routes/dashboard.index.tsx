@@ -69,17 +69,27 @@ function DashboardHome() {
   const { user, profile } = useAuth();
   const { t, locale } = useI18n();
   const [active, setActive] = useState<ActiveService[] | null>(null);
-  const [counts, setCounts] = useState({ docs: 0, messages: 0, claims: 0 });
+  const [counts, setCounts] = useState<{ docs: number; messages: number; claims: number } | null>(
+    null,
+  );
   const [expiring, setExpiring] = useState<
-    { id: string; visa_expiry_date: string; services: { name_en: string } | null }[]
-  >([]);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+    | { id: string; visa_expiry_date: string; services: { name_en: string } | null }[]
+    | null
+  >(null);
+  const [notifications, setNotifications] = useState<NotificationItem[] | null>(null);
   const [hasInterpreter, setHasInterpreter] = useState(false);
   const [remindersOpen, setRemindersOpen] = useState(false);
+
+  const tpl = (key: string, vars: Record<string, string | number> = {}) =>
+    Object.entries(vars).reduce<string>(
+      (acc, [k, v]) => acc.replace(`{${k}}`, String(v)),
+      t(key),
+    );
 
   useEffect(() => {
     if (!user) return;
     (async () => {
+
       try {
         const { data, error } = await supabase
           .from("service_requests")
