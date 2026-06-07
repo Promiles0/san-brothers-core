@@ -1,16 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import {
-  Loader2,
-  Lock,
-  ShieldCheck,
-  X,
-  CreditCard,
-  Building2,
-  DollarSign,
-  CheckCircle2,
-} from "lucide-react";
+import { Loader as Loader2, Lock, ShieldCheck, CreditCard, Building2, DollarSign, CircleCheck as CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -129,7 +120,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
   return (
     <Card className="border-0 bg-linear-to-br from-background to-muted/30 shadow-xl ring-1 ring-border/60 backdrop-blur">
       <CardContent className="p-6 sm:p-7">
-        <Header {...props} />
+        <Header serviceTitle={props.serviceTitle} description={props.description} />
 
         {/* Amount Display */}
         <div className="mb-6 rounded-lg bg-primary/5 p-4 border border-primary/20">
@@ -183,26 +174,16 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
   );
 }
 
-function Header({ serviceTitle, description, amount, onCancel }: StripePaymentFormProps) {
+function Header({ serviceTitle, description }: Pick<StripePaymentFormProps, "serviceTitle" | "description">) {
   return (
-    <div className="mb-5 flex items-start justify-between gap-4">
-      <div className="min-w-0">
-        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Secure checkout
-        </div>
-        <h3 className="mt-1 truncate text-lg font-semibold">{serviceTitle}</h3>
-        {description ? (
-          <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{description}</p>
-        ) : null}
+    <div className="mb-5">
+      <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        Secure checkout
       </div>
-      <button
-        type="button"
-        onClick={onCancel}
-        aria-label="Close"
-        className="rounded-full p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-      >
-        <X className="h-4 w-4" />
-      </button>
+      <h3 className="mt-1 text-lg font-semibold">{serviceTitle}</h3>
+      {description ? (
+        <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{description}</p>
+      ) : null}
     </div>
   );
 }
@@ -551,7 +532,7 @@ function InnerForm({ amount, onSuccess, onCancel, onError }: StripePaymentFormPr
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="rounded-xl border bg-background/60 p-3">
-        <PaymentElement options={{ layout: "tabs" }} />
+        <PaymentElement options={{ layout: { type: "accordion", defaultCollapsed: false, radios: false, spacedAccordionItems: false } }} />
       </div>
 
       {error ? (
@@ -560,37 +541,26 @@ function InnerForm({ amount, onSuccess, onCancel, onError }: StripePaymentFormPr
         </div>
       ) : null}
 
-      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onCancel}
-          disabled={submitting}
-          className="sm:w-auto"
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          disabled={!stripe || submitting}
-          className={cn(
-            "sm:min-w-45 bg-linear-to-r from-primary via-primary to-indigo-500",
-            "text-primary-foreground shadow-lg shadow-primary/20 hover:opacity-95",
-          )}
-        >
-          {submitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Processing…
-            </>
-          ) : (
-            <>
-              <Lock className="mr-2 h-4 w-4" />
-              Pay ${amount.toFixed(2)}
-            </>
-          )}
-        </Button>
-      </div>
+      <Button
+        type="submit"
+        disabled={!stripe || submitting}
+        className={cn(
+          "w-full bg-linear-to-r from-primary via-primary to-indigo-500",
+          "text-primary-foreground shadow-lg shadow-primary/20 hover:opacity-95",
+        )}
+      >
+        {submitting ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Processing…
+          </>
+        ) : (
+          <>
+            <Lock className="mr-2 h-4 w-4" />
+            Pay ${amount.toFixed(2)}
+          </>
+        )}
+      </Button>
     </form>
   );
 }

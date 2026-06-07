@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Check, Upload, X, File, Loader2, Lock, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Check, Upload, X, Loader as Loader2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { usePortal } from "@/lib/portal-context";
 import { Button } from "@/components/ui/button";
@@ -123,6 +123,13 @@ function ServiceApplyPage() {
     fetchData();
   }, [slug, navigate]);
 
+  useEffect(() => {
+    if (service) {
+      document.title = `Apply for ${service.name_en} — San Brothers`;
+      return () => { document.title = "San Brothers"; };
+    }
+  }, [service]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -143,12 +150,22 @@ function ServiceApplyPage() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background border-b px-4 py-3">
         <div className="max-w-3xl mx-auto">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3">
+            <Link to="/dashboard/services" className="hover:text-foreground transition-colors">
+              Browse Services
+            </Link>
+            <span>/</span>
+            <span className="text-foreground font-medium truncate">{service.name_en}</span>
+          </nav>
+
+          {/* Back link */}
           <Link
             to="/dashboard/services"
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-3"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Services
+            Back to Browse Services
           </Link>
 
           <div className="flex items-center justify-between mb-4">
@@ -164,30 +181,38 @@ function ServiceApplyPage() {
             </div>
           </div>
 
-          {/* Progress Indicator - 2 steps */}
-          <div className="flex items-center gap-2">
+          {/* Progress Indicator */}
+          <div className="flex items-center">
             {steps.map((s, i) => (
-              <div key={s.number} className="flex items-center gap-2 flex-1">
-                <div
-                  className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-medium transition-all ${
-                    step > s.number
-                      ? "bg-green-500 text-white"
-                      : step === s.number
-                        ? "bg-blue-500 text-white"
-                        : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {step > s.number ? <Check className="h-3 w-3" /> : s.number}
+              <div key={s.number} className="flex items-center flex-1 last:flex-none">
+                {/* Circle */}
+                <div className="flex flex-col items-center gap-1">
+                  <div
+                    className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-all shadow-sm ${
+                      step > s.number
+                        ? "bg-green-500 text-white ring-2 ring-green-200 dark:ring-green-900"
+                        : step === s.number
+                          ? "bg-blue-600 text-white ring-2 ring-blue-200 dark:ring-blue-900"
+                          : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {step > s.number ? <Check className="h-4 w-4" /> : s.number}
+                  </div>
+                  <span
+                    className={`text-xs hidden sm:block transition-colors leading-none ${
+                      step === s.number
+                        ? "text-foreground font-semibold"
+                        : step > s.number
+                          ? "text-green-600 dark:text-green-400 font-medium"
+                          : "text-muted-foreground"
+                    }`}
+                  >
+                    {step > s.number ? "✓ Completed" : step === s.number ? `Step ${s.number} of ${steps.length}` : s.label}
+                  </span>
                 </div>
-                <span
-                  className={`text-xs hidden sm:block transition-colors ${
-                    step === s.number ? "text-foreground font-medium" : "text-muted-foreground"
-                  }`}
-                >
-                  {s.label}
-                </span>
+                {/* Connector line */}
                 {i < steps.length - 1 && (
-                  <div className={`flex-1 h-px ${step > s.number ? "bg-green-500" : "bg-muted"}`} />
+                  <div className={`flex-1 h-0.5 mx-3 mb-5 rounded-full transition-all ${step > s.number ? "bg-green-500" : "bg-muted"}`} />
                 )}
               </div>
             ))}
@@ -885,7 +910,6 @@ function ServiceDetailsSection({ service, formData, handleInputChange }: any) {
 function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: any) {
   const navigate = useNavigate();
   const [processing, setProcessing] = useState(false);
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
 
   const basePrice = service.price_usd_min ?? 0;
   const rwfPrice = Math.round(basePrice * 1285);
@@ -903,7 +927,6 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: any) 
         return;
       }
 
-      // Pick a random staff member with the required capability
       const capability =
         CAT_CAPABILITY[service.category as ServiceCategory] || "handle_consultancy";
       const { data: staffData } = await supabase
@@ -917,7 +940,6 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: any) 
           ? staffData[Math.floor(Math.random() * staffData.length)].user_id
           : null;
 
-      // Create service request
       const { data: requestData, error: requestError } = await supabase
         .from("service_requests")
         .insert({
@@ -939,7 +961,6 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: any) 
       if (requestError) throw requestError;
       if (!requestData) throw new Error("Failed to create service request");
 
-      // Insert uploaded documents
       if (uploadedDocs.length > 0) {
         const documentInserts = uploadedDocs.map((doc: any) => {
           const fileExt = doc.name.split(".").pop() || "unknown";
@@ -957,7 +978,6 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: any) 
         });
 
         const { error: docError } = await supabase.from("documents").insert(documentInserts);
-
         if (docError) console.error("Failed to insert documents:", docError);
       }
 
@@ -1004,9 +1024,10 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: any) 
         </div>
         <button
           onClick={onBack}
-          className="w-full border rounded-lg py-3 font-medium hover:bg-muted transition-colors"
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          ← Back to Application
+          <ArrowLeft className="h-4 w-4" />
+          Back to Application
         </button>
       </div>
     );
@@ -1014,54 +1035,38 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: any) 
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      {!showPaymentForm && (
-        <div className="rounded-lg border bg-muted/30 p-6 space-y-4">
-          <h2 className="font-semibold text-base">Payment Summary</h2>
-
-          {/* Service Summary Card */}
-          <div className="rounded-lg border border-border/50 bg-background p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm font-medium">{service.name_en}</p>
-                <p className="text-xs text-muted-foreground capitalize">{service.category}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold">${basePrice.toFixed(2)} USD</p>
-                <p className="text-xs text-muted-foreground">≈ RWF {rwfPrice.toLocaleString()}</p>
-              </div>
-            </div>
+      {/* Order Summary */}
+      <div className="rounded-lg border bg-muted/20 p-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Order Summary</h2>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-sm font-medium">{service.name_en}</p>
+            <p className="text-xs text-muted-foreground capitalize">{service.category}</p>
           </div>
-
-          <div className="border-t pt-4">
-            <p className="text-sm text-muted-foreground mb-4">
-              You will be redirected to a secure payment page to complete your payment.
-            </p>
-            <button
-              onClick={() => setShowPaymentForm(true)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-3 font-medium transition-colors"
-            >
-              Proceed to Payment
-            </button>
+          <div className="text-right">
+            <p className="text-sm font-semibold">${basePrice.toFixed(2)} USD</p>
+            <p className="text-xs text-muted-foreground">≈ RWF {rwfPrice.toLocaleString()}</p>
           </div>
         </div>
-      )}
+      </div>
 
-      {showPaymentForm && (
-        <StripePaymentForm
-          amount={basePrice}
-          serviceTitle={service.name_en}
-          onSuccess={handlePaymentSuccess}
-          onCancel={() => setShowPaymentForm(false)}
-          onError={handlePaymentError}
-        />
-      )}
+      {/* Inline payment form — no intermediate button */}
+      <StripePaymentForm
+        amount={basePrice}
+        serviceTitle={service.name_en}
+        onSuccess={handlePaymentSuccess}
+        onCancel={onBack}
+        onError={handlePaymentError}
+      />
 
+      {/* Back link */}
       <button
         onClick={onBack}
-        disabled={showPaymentForm || processing}
-        className="w-full border rounded-lg py-3 font-medium hover:bg-muted transition-colors disabled:opacity-50"
+        disabled={processing}
+        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
       >
-        ← Back to Application
+        <ArrowLeft className="h-4 w-4" />
+        Back to Application
       </button>
     </div>
   );
