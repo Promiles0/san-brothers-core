@@ -62,20 +62,19 @@ export function StepDocuments({
         const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const filePath = `clients/${user.id}/temp/${Date.now()}_${safe}`;
 
+        setUploading((prev) =>
+          prev.map((f) => (f.id === uploadId ? { ...f, progress: 50 } : f))
+        );
+
         const { error: uploadError } = await supabase.storage
           .from("client-documents")
-          .upload(filePath, file, {
-            onUploadProgress: (progress) => {
-              const percent = (progress.loaded / progress.total) * 100;
-              setUploading((prev) =>
-                prev.map((f) =>
-                  f.id === uploadId ? { ...f, progress: Math.round(percent) } : f
-                )
-              );
-            },
-          });
+          .upload(filePath, file);
 
         if (uploadError) throw uploadError;
+
+        setUploading((prev) =>
+          prev.map((f) => (f.id === uploadId ? { ...f, progress: 100 } : f))
+        );
 
         setState({
           ...state,
