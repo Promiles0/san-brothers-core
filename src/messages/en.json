@@ -139,7 +139,13 @@
     "cards": {
       "visa": {
         "desc": "End-to-end visa and permit support for travel, business, study, and work. We handle paperwork, embassy submission, and follow-up.",
-        "sub": ["Tourist Visa", "Business Visa", "Student Visa", "Work Permit", "Visa Consultation"]
+        "sub": [
+          "Tourist Visa",
+          "Business Visa",
+          "Student Visa",
+          "Work Permit",
+          "Visa Consultation"
+        ]
       },
       "accounting": {
         "desc": "Full-cycle accounting: bookkeeping, financial reporting, audit support and tax compliance for SMEs and individuals.",
@@ -215,7 +221,12 @@
       "student": {
         "title": "Student Visa",
         "desc": "End-to-end help for studies in China and beyond.",
-        "bullets": ["Admission letter", "Academic records", "Health certificate", "Financial proof"]
+        "bullets": [
+          "Admission letter",
+          "Academic records",
+          "Health certificate",
+          "Financial proof"
+        ]
       },
       "work": {
         "title": "Work Permit",
@@ -290,17 +301,32 @@
       "tax": {
         "title": "Tax Preparation",
         "desc": "Prepare and file taxes correctly and on time.",
-        "bullets": ["VAT", "PAYE", "Income tax", "Withholding tax"]
+        "bullets": [
+          "VAT",
+          "PAYE",
+          "Income tax",
+          "Withholding tax"
+        ]
       },
       "reporting": {
         "title": "Financial Reporting",
         "desc": "Clear monthly and annual reports for decision-making.",
-        "bullets": ["Income statement", "Balance sheet", "Cash flow", "Custom KPIs"]
+        "bullets": [
+          "Income statement",
+          "Balance sheet",
+          "Cash flow",
+          "Custom KPIs"
+        ]
       },
       "analysis": {
         "title": "Financial Analysis",
         "desc": "Insight into performance and profitability.",
-        "bullets": ["Trend analysis", "Ratio analysis", "Budget vs actual", "Forecasting"]
+        "bullets": [
+          "Trend analysis",
+          "Ratio analysis",
+          "Budget vs actual",
+          "Forecasting"
+        ]
       },
       "audit": {
         "title": "Audit Support",
@@ -315,7 +341,12 @@
       "compliance": {
         "title": "Tax Compliance & Advisory",
         "desc": "Stay compliant and minimize risk with ongoing advisory.",
-        "bullets": ["RRA filings", "Compliance calendar", "Advisory calls", "Penalty resolution"]
+        "bullets": [
+          "RRA filings",
+          "Compliance calendar",
+          "Advisory calls",
+          "Penalty resolution"
+        ]
       }
     },
     "docs": {
@@ -348,7 +379,12 @@
       "company": {
         "title": "Company Registration",
         "desc": "Register your company in Rwanda with confidence.",
-        "bullets": ["Name search", "RDB registration", "Tax registration", "Bank account opening"]
+        "bullets": [
+          "Name search",
+          "RDB registration",
+          "Tax registration",
+          "Bank account opening"
+        ]
       },
       "docs": {
         "title": "Document Processing",
@@ -599,7 +635,11 @@
           "name": "Tourist Visa",
           "price": "From 80,000 RWF",
           "intent": "tourist-visa",
-          "features": ["Document checklist", "Application review", "Submission support"]
+          "features": [
+            "Document checklist",
+            "Application review",
+            "Submission support"
+          ]
         },
         {
           "name": "Student Visa",
@@ -617,7 +657,11 @@
           "name": "Work Permit",
           "price": "From 200,000 RWF",
           "intent": "work-permit",
-          "features": ["End-to-end handling", "Employer coordination", "Renewal reminders"]
+          "features": [
+            "End-to-end handling",
+            "Employer coordination",
+            "Renewal reminders"
+          ]
         }
       ],
       "accounting": [
@@ -625,20 +669,32 @@
           "name": "Starter",
           "price": "From 50,000 RWF / mo",
           "intent": "bookkeeping",
-          "features": ["Up to 50 transactions", "Monthly summary", "Email support"]
+          "features": [
+            "Up to 50 transactions",
+            "Monthly summary",
+            "Email support"
+          ]
         },
         {
           "name": "Standard",
           "price": "From 120,000 RWF / mo",
           "intent": "tax-filing",
           "popular": true,
-          "features": ["Up to 200 transactions", "VAT & PAYE filing", "Quarterly reports"]
+          "features": [
+            "Up to 200 transactions",
+            "VAT & PAYE filing",
+            "Quarterly reports"
+          ]
         },
         {
           "name": "Premium",
           "price": "From 250,000 RWF / mo",
           "intent": "tax-compliance",
-          "features": ["Unlimited transactions", "Full tax compliance", "Dedicated accountant"]
+          "features": [
+            "Unlimited transactions",
+            "Full tax compliance",
+            "Dedicated accountant"
+          ]
         }
       ],
       "consultancy": [
@@ -646,20 +702,32 @@
           "name": "Company Registration",
           "price": "From 180,000 RWF",
           "intent": "company-registration",
-          "features": ["Name search & RDB filing", "Tax registration", "Bank intro"]
+          "features": [
+            "Name search & RDB filing",
+            "Tax registration",
+            "Bank intro"
+          ]
         },
         {
           "name": "Business Plan",
           "price": "From 350,000 RWF",
           "intent": "business-planning",
           "popular": true,
-          "features": ["Discovery sessions", "Financial model", "Pitch-ready document"]
+          "features": [
+            "Discovery sessions",
+            "Financial model",
+            "Pitch-ready document"
+          ]
         },
         {
           "name": "Investor Advisory",
           "price": "Custom quote",
           "intent": "trade-investment",
-          "features": ["Market entry strategy", "Licensing support", "Local partner intros"]
+          "features": [
+            "Market entry strategy",
+            "Licensing support",
+            "Local partner intros"
+          ]
         }
       ],
       "translation": [
@@ -667,20 +735,30 @@
           "name": "Document (per page)",
           "price": "From 8,000 RWF",
           "intent": "document-translation",
-          "features": ["Standard turnaround", "Certified copies on request"]
+          "features": [
+            "Standard turnaround",
+            "Certified copies on request"
+          ]
         },
         {
           "name": "Live Interpreter",
           "price": "From 1,500 RWF / min",
           "intent": "live-interpreter",
           "popular": true,
-          "features": ["Connect in minutes", "Voice or video", "Pay per minute"]
+          "features": [
+            "Connect in minutes",
+            "Voice or video",
+            "Pay per minute"
+          ]
         },
         {
           "name": "Legal Translation",
           "price": "From 12,000 RWF / page",
           "intent": "legal-translation",
-          "features": ["Court-grade quality", "Notarization available"]
+          "features": [
+            "Court-grade quality",
+            "Notarization available"
+          ]
         }
       ]
     }
@@ -866,7 +944,13 @@
       },
       "formats": {
         "heading": "File formats accepted",
-        "list": ["PDF", "Word", "JPG", "PNG", "Scanned images"]
+        "list": [
+          "PDF",
+          "Word",
+          "JPG",
+          "PNG",
+          "Scanned images"
+        ]
       }
     },
     "live": {
@@ -1118,6 +1202,52 @@
         "title": "You don't have any active services yet",
         "desc": "Browse our services to get started.",
         "cta": "Browse Services"
+      },
+      "greeting": "👋 Welcome back, {name}!",
+      "viewAll": "View all →",
+      "showAll": "Show all",
+      "hide": "Hide",
+      "stats": {
+        "active": "Active",
+        "documents": "Documents",
+        "unread": "Unread",
+        "claims": "Claims"
+      },
+      "actions": {
+        "browse": "Browse Services",
+        "upload": "Upload Document",
+        "support": "Talk to Support"
+      },
+      "sections": {
+        "activeServices": "Your Active Services",
+        "recentActivity": "Recent Activity",
+        "reminders": "Reminders"
+      },
+      "service": {
+        "stepOf": "Step {step} of {total}",
+        "updated": "Updated {date}",
+        "viewDetails": "View Details",
+        "category": "Service"
+      },
+      "status": {
+        "submitted": "Submitted",
+        "under_review": "Under Review",
+        "awaiting_client": "Awaiting You",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "free_consultation": "Free Consultation"
+      },
+      "interpreter": {
+        "title": "🎙️ Live Interpreter Available",
+        "subtitle": "First 5 minutes FREE",
+        "cta": "Start a Call"
+      },
+      "reminders": {
+        "expired": "Expired",
+        "expiresInDays": "expires in {days} days",
+        "expiresInDay": "expires in 1 day",
+        "visa": "Visa",
+        "renew": "Renew →"
       }
     },
     "services": {
@@ -1155,8 +1285,14 @@
         "dates": "Travel dates",
         "destination": "Destination country"
       },
-      "acct": { "period": "Period", "businessType": "Business type", "tin": "TIN (if company)" },
-      "consult": { "brief": "Briefly describe what you need" },
+      "acct": {
+        "period": "Period",
+        "businessType": "Business type",
+        "tin": "TIN (if company)"
+      },
+      "consult": {
+        "brief": "Briefly describe what you need"
+      },
       "translate": {
         "source": "Source language",
         "target": "Target language",
@@ -1165,7 +1301,11 @@
     },
     "myServices": {
       "title": "My Services",
-      "tab": { "active": "Active", "completed": "Completed", "cancelled": "Cancelled" },
+      "tab": {
+        "active": "Active",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
       "empty": {
         "active": "No active services. Browse to get started.",
         "completed": "No completed services yet.",
@@ -1210,7 +1350,11 @@
       "title": "Claims",
       "newCta": "Open a Claim",
       "newTitle": "Open a New Claim",
-      "tab": { "open": "Open", "resolved": "Resolved", "rejected": "Rejected" },
+      "tab": {
+        "open": "Open",
+        "resolved": "Resolved",
+        "rejected": "Rejected"
+      },
       "empty": {
         "open": "No open claims. Glad things are going smoothly!",
         "resolved": "No resolved claims yet.",
