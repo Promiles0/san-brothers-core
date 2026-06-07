@@ -186,7 +186,7 @@ function DashboardHome() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                👋 Welcome back, {firstName}!
+                {tpl("dashboard.home.greeting", { name: firstName })}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">{today}</p>
             </div>
@@ -196,27 +196,30 @@ function DashboardHome() {
             <StatCard
               to="/dashboard/my-services"
               value={active?.length ?? 0}
-              label="Active"
+              label={t("dashboard.home.stats.active")}
               accent="blue"
               loading={active === null}
             />
             <StatCard
               to="/dashboard/documents"
-              value={counts.docs}
-              label="Documents"
+              value={counts?.docs ?? 0}
+              label={t("dashboard.home.stats.documents")}
               accent="purple"
+              loading={counts === null}
             />
             <StatCard
               to="/dashboard/messages"
-              value={counts.messages}
-              label="Unread"
+              value={counts?.messages ?? 0}
+              label={t("dashboard.home.stats.unread")}
               accent="orange"
+              loading={counts === null}
             />
             <StatCard
               to="/dashboard/claims"
-              value={counts.claims}
-              label="Claims"
+              value={counts?.claims ?? 0}
+              label={t("dashboard.home.stats.claims")}
               accent="red"
+              loading={counts === null}
             />
           </div>
         </div>
@@ -227,19 +230,19 @@ function DashboardHome() {
         <QuickAction
           to="/dashboard/services"
           icon={LayoutGrid}
-          label="Browse Services"
+          label={t("dashboard.home.actions.browse")}
           gradient="from-blue-500 to-blue-600"
         />
         <QuickAction
           to="/dashboard/documents"
           icon={FolderOpen}
-          label="Upload Document"
+          label={t("dashboard.home.actions.upload")}
           gradient="from-purple-500 to-purple-600"
         />
         <QuickAction
           to="/dashboard/messages"
           icon={MessageCircle}
-          label="Talk to Support"
+          label={t("dashboard.home.actions.support")}
           gradient="from-emerald-500 to-emerald-600"
         />
       </div>
@@ -249,7 +252,7 @@ function DashboardHome() {
         <div className="space-y-4 lg:col-span-2">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">
-              Your Active Services{" "}
+              {t("dashboard.home.sections.activeServices")}{" "}
               {active && active.length > 0 && (
                 <span className="text-muted-foreground">({active.length})</span>
               )}
@@ -259,15 +262,17 @@ function DashboardHome() {
                 to="/dashboard/my-services"
                 className="text-sm font-medium text-primary hover:underline"
               >
-                View all →
+                {t("dashboard.home.viewAll")}
               </Link>
             )}
           </div>
 
           {active === null ? (
             <div className="grid gap-4 md:grid-cols-2">
-              <Skeleton className="h-44" />
-              <Skeleton className="h-44" />
+              <ServiceCardSkeleton />
+              <ServiceCardSkeleton />
+              <ServiceCardSkeleton />
+              <ServiceCardSkeleton />
             </div>
           ) : active.length === 0 ? (
             <Card>
@@ -294,6 +299,8 @@ function DashboardHome() {
                   service={s}
                   name={localizedName(s.services)}
                   delayMs={i * 50}
+                  t={t}
+                  tpl={tpl}
                 />
               ))}
             </div>
@@ -311,11 +318,11 @@ function DashboardHome() {
                   <Mic className="h-6 w-6" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-base font-semibold">🎙️ Live Interpreter Available</div>
-                  <div className="text-sm text-white/80">First 5 minutes FREE</div>
+                  <div className="text-base font-semibold">{t("dashboard.home.interpreter.title")}</div>
+                  <div className="text-sm text-white/80">{t("dashboard.home.interpreter.subtitle")}</div>
                 </div>
                 <div className="hidden items-center gap-1 rounded-full bg-white px-4 py-2 text-sm font-semibold text-blue-700 group-hover:bg-white/95 sm:flex">
-                  Start a Call <ArrowRight className="h-4 w-4" />
+                  {t("dashboard.home.interpreter.cta")} <ArrowRight className="h-4 w-4" />
                 </div>
               </div>
             </Link>
@@ -323,16 +330,24 @@ function DashboardHome() {
         </div>
 
         {/* NOTIFICATIONS */}
-        {notifications.length > 0 && (
+        {(notifications === null || notifications.length > 0) && (
           <div className="space-y-3">
             <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <Bell className="h-4 w-4 text-primary" /> Recent Activity
+              <Bell className="h-4 w-4 text-primary" /> {t("dashboard.home.sections.recentActivity")}
             </h2>
             <Card>
               <CardContent className="divide-y divide-border p-0">
-                {notifications.map((n, i) => (
-                  <NotificationRow key={n.id} n={n} delayMs={i * 50} />
-                ))}
+                {notifications === null ? (
+                  <>
+                    <NotificationRowSkeleton />
+                    <NotificationRowSkeleton />
+                    <NotificationRowSkeleton />
+                  </>
+                ) : (
+                  notifications.map((n, i) => (
+                    <NotificationRow key={n.id} n={n} delayMs={i * 50} />
+                  ))
+                )}
               </CardContent>
             </Card>
           </div>
@@ -340,11 +355,19 @@ function DashboardHome() {
       </div>
 
       {/* REMINDERS */}
-      {expiring.length > 0 && (
+      {expiring === null ? (
+        <div className="rounded-xl border border-border bg-card p-4">
+          <Skeleton className="mb-3 h-5 w-32" />
+          <div className="space-y-2">
+            <Skeleton className="h-11" />
+            <Skeleton className="h-11" />
+          </div>
+        </div>
+      ) : expiring.length > 0 ? (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 animate-fade-in">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-base font-semibold text-amber-700 dark:text-amber-300">
-              <AlertTriangle className="h-4 w-4" /> Reminders ({expiring.length})
+              <AlertTriangle className="h-4 w-4" /> {t("dashboard.home.sections.reminders")} ({expiring.length})
             </h2>
             {expiring.length > 3 && (
               <Button
@@ -355,11 +378,11 @@ function DashboardHome() {
               >
                 {remindersOpen ? (
                   <>
-                    Hide <ChevronUp className="ml-1 h-3 w-3" />
+                    {t("dashboard.home.hide")} <ChevronUp className="ml-1 h-3 w-3" />
                   </>
                 ) : (
                   <>
-                    Show all <ChevronDown className="ml-1 h-3 w-3" />
+                    {t("dashboard.home.showAll")} <ChevronDown className="ml-1 h-3 w-3" />
                   </>
                 )}
               </Button>
@@ -371,6 +394,12 @@ function DashboardHome() {
                 (new Date(e.visa_expiry_date).getTime() - Date.now()) / 86400000,
               );
               const urgent = days < 30;
+              const statusText =
+                days <= 0
+                  ? t("dashboard.home.reminders.expired")
+                  : days === 1
+                  ? t("dashboard.home.reminders.expiresInDay")
+                  : tpl("dashboard.home.reminders.expiresInDays", { days });
               return (
                 <div
                   key={e.id}
@@ -385,22 +414,21 @@ function DashboardHome() {
                     <span className={urgent ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"}>
                       {urgent ? "🔴" : "🟠"}
                     </span>
-                    <span className="font-semibold">{e.services?.name_en ?? "Visa"}</span>
-                    <span className="text-muted-foreground">
-                      {days <= 0
-                        ? "Expired"
-                        : `expires in ${days} day${days === 1 ? "" : "s"}`}
+                    <span className="font-semibold">
+                      {e.services?.name_en ?? t("dashboard.home.reminders.visa")}
                     </span>
+                    <span className="text-muted-foreground">{statusText}</span>
                   </div>
                   <Button size="sm" variant="outline" asChild>
-                    <Link to="/dashboard/services">Renew →</Link>
+                    <Link to="/dashboard/services">{t("dashboard.home.reminders.renew")}</Link>
                   </Button>
                 </div>
               );
             })}
           </div>
         </div>
-      )}
+      ) : null}
+
     </div>
   );
 }
