@@ -73,23 +73,18 @@ function DashboardHome() {
     null,
   );
   const [expiring, setExpiring] = useState<
-    | { id: string; visa_expiry_date: string; services: { name_en: string } | null }[]
-    | null
+    { id: string; visa_expiry_date: string; services: { name_en: string } | null }[] | null
   >(null);
   const [notifications, setNotifications] = useState<NotificationItem[] | null>(null);
   const [hasInterpreter, setHasInterpreter] = useState(false);
   const [remindersOpen, setRemindersOpen] = useState(false);
 
   const tpl = (key: string, vars: Record<string, string | number> = {}) =>
-    Object.entries(vars).reduce<string>(
-      (acc, [k, v]) => acc.replace(`{${k}}`, String(v)),
-      t(key),
-    );
+    Object.entries(vars).reduce<string>((acc, [k, v]) => acc.replace(`{${k}}`, String(v)), t(key));
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-
       try {
         const { data, error } = await supabase
           .from("service_requests")
@@ -163,7 +158,6 @@ function DashboardHome() {
       } catch {
         setExpiring([]);
       }
-
     })();
   }, [user]);
 
@@ -318,8 +312,12 @@ function DashboardHome() {
                   <Mic className="h-6 w-6" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-base font-semibold">{t("dashboard.home.interpreter.title")}</div>
-                  <div className="text-sm text-white/80">{t("dashboard.home.interpreter.subtitle")}</div>
+                  <div className="text-base font-semibold">
+                    {t("dashboard.home.interpreter.title")}
+                  </div>
+                  <div className="text-sm text-white/80">
+                    {t("dashboard.home.interpreter.subtitle")}
+                  </div>
                 </div>
                 <div className="hidden items-center gap-1 rounded-full bg-white px-4 py-2 text-sm font-semibold text-blue-700 group-hover:bg-white/95 sm:flex">
                   {t("dashboard.home.interpreter.cta")} <ArrowRight className="h-4 w-4" />
@@ -333,7 +331,8 @@ function DashboardHome() {
         {(notifications === null || notifications.length > 0) && (
           <div className="space-y-3">
             <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <Bell className="h-4 w-4 text-primary" /> {t("dashboard.home.sections.recentActivity")}
+              <Bell className="h-4 w-4 text-primary" />{" "}
+              {t("dashboard.home.sections.recentActivity")}
             </h2>
             <Card>
               <CardContent className="divide-y divide-border p-0">
@@ -344,9 +343,7 @@ function DashboardHome() {
                     <NotificationRowSkeleton />
                   </>
                 ) : (
-                  notifications.map((n, i) => (
-                    <NotificationRow key={n.id} n={n} delayMs={i * 50} />
-                  ))
+                  notifications.map((n, i) => <NotificationRow key={n.id} n={n} delayMs={i * 50} />)
                 )}
               </CardContent>
             </Card>
@@ -367,7 +364,8 @@ function DashboardHome() {
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 animate-fade-in">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-base font-semibold text-amber-700 dark:text-amber-300">
-              <AlertTriangle className="h-4 w-4" /> {t("dashboard.home.sections.reminders")} ({expiring.length})
+              <AlertTriangle className="h-4 w-4" /> {t("dashboard.home.sections.reminders")} (
+              {expiring.length})
             </h2>
             {expiring.length > 3 && (
               <Button
@@ -398,8 +396,8 @@ function DashboardHome() {
                 days <= 0
                   ? t("dashboard.home.reminders.expired")
                   : days === 1
-                  ? t("dashboard.home.reminders.expiresInDay")
-                  : tpl("dashboard.home.reminders.expiresInDays", { days });
+                    ? t("dashboard.home.reminders.expiresInDay")
+                    : tpl("dashboard.home.reminders.expiresInDays", { days });
               return (
                 <div
                   key={e.id}
@@ -411,7 +409,13 @@ function DashboardHome() {
                   )}
                 >
                   <div className="flex items-center gap-2">
-                    <span className={urgent ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"}>
+                    <span
+                      className={
+                        urgent
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-amber-600 dark:text-amber-400"
+                      }
+                    >
                       {urgent ? "🔴" : "🟠"}
                     </span>
                     <span className="font-semibold">
@@ -428,7 +432,6 @@ function DashboardHome() {
           </div>
         </div>
       ) : null}
-
     </div>
   );
 }
@@ -502,9 +505,7 @@ function StatCard({
         a.glow,
       )}
     >
-      <div className={cn("text-2xl font-bold md:text-3xl", a.text)}>
-        {loading ? "—" : display}
-      </div>
+      <div className={cn("text-2xl font-bold md:text-3xl", a.text)}>{loading ? "—" : display}</div>
       <div className="mt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </div>
@@ -527,7 +528,7 @@ function QuickAction({
     <Link
       to={to}
       className={cn(
-        "group flex items-center justify-between gap-3 rounded-xl bg-gradient-to-r p-4 text-white shadow-sm transition-transform hover:scale-[1.02] hover:shadow-md",
+        "group flex items-center justify-between gap-3 rounded-xl bg-linear-to-r p-4 text-white shadow-sm transition-transform hover:scale-[1.02] hover:shadow-md",
         gradient,
       )}
     >
@@ -557,20 +558,56 @@ type Tpl = (key: string, vars?: Record<string, string | number>) => string;
 const statusStyle = (status: string, t: T) => {
   switch (status) {
     case "submitted":
-      return { label: t("dashboard.home.status.submitted"), color: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30", bar: "bg-blue-500", dot: "bg-blue-500" };
+      return {
+        label: t("dashboard.home.status.submitted"),
+        color: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30",
+        bar: "bg-blue-500",
+        dot: "bg-blue-500",
+      };
     case "under_review":
-      return { label: t("dashboard.home.status.under_review"), color: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30", bar: "bg-amber-500", dot: "bg-amber-500" };
+      return {
+        label: t("dashboard.home.status.under_review"),
+        color: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
+        bar: "bg-amber-500",
+        dot: "bg-amber-500",
+      };
     case "awaiting_client":
-      return { label: t("dashboard.home.status.awaiting_client"), color: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30", bar: "bg-orange-500", dot: "bg-orange-500", pulse: true };
+      return {
+        label: t("dashboard.home.status.awaiting_client"),
+        color: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30",
+        bar: "bg-orange-500",
+        dot: "bg-orange-500",
+        pulse: true,
+      };
     case "verified":
     case "completed":
-      return { label: t("dashboard.home.status.approved"), color: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30", bar: "bg-emerald-500", dot: "bg-emerald-500" };
+      return {
+        label: t("dashboard.home.status.approved"),
+        color: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
+        bar: "bg-emerald-500",
+        dot: "bg-emerald-500",
+      };
     case "rejected":
-      return { label: t("dashboard.home.status.rejected"), color: "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30", bar: "bg-red-500", dot: "bg-red-500" };
+      return {
+        label: t("dashboard.home.status.rejected"),
+        color: "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30",
+        bar: "bg-red-500",
+        dot: "bg-red-500",
+      };
     case "free_consultation":
-      return { label: t("dashboard.home.status.free_consultation"), color: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30", bar: "bg-purple-500", dot: "bg-purple-500" };
+      return {
+        label: t("dashboard.home.status.free_consultation"),
+        color: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30",
+        bar: "bg-purple-500",
+        dot: "bg-purple-500",
+      };
     default:
-      return { label: status.replace(/_/g, " "), color: "bg-muted text-muted-foreground border-border", bar: "bg-primary", dot: "bg-muted-foreground" };
+      return {
+        label: status.replace(/_/g, " "),
+        color: "bg-muted text-muted-foreground border-border",
+        bar: "bg-primary",
+        dot: "bg-muted-foreground",
+      };
   }
 };
 
@@ -691,7 +728,6 @@ function NotificationRowSkeleton() {
     </div>
   );
 }
-
 
 function NotificationRow({ n, delayMs }: { n: NotificationItem; delayMs: number }) {
   const Icon = (() => {

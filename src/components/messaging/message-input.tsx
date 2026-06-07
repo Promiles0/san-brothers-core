@@ -82,7 +82,7 @@ export function MessageInput({
       if (!user) throw new Error("Not authenticated");
 
       // Sanitize filename
-      const safeName = file.name.replace(/[^a-zA-Z0-9.\-]/g, "_");
+      const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
       const timestamp = Date.now();
       const filePath = `clients/${user.id}/${timestamp}-${safeName}`;
 
@@ -133,7 +133,10 @@ export function MessageInput({
             <Lock className="h-3.5 w-3.5" /> Internal note
           </Button>
           {quickReplies && quickReplies.length > 0 && (
-            <QuickReplies items={quickReplies} onPick={(t) => setText((p) => (p ? p + " " + t : t))} />
+            <QuickReplies
+              items={quickReplies}
+              onPick={(t) => setText((p) => (p ? p + " " + t : t))}
+            />
           )}
         </div>
       )}
@@ -168,6 +171,7 @@ export function MessageInput({
           type="file"
           className="hidden"
           accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+          aria-label="Attach file"
           onChange={(e) => {
             const f = e.target.files?.[0];
             if (f) void handleFile(f);
@@ -197,6 +201,7 @@ export function MessageInput({
               void submit();
             }
           }}
+          aria-label="Message body"
           placeholder={
             internalNoteMode ? "Add internal note (only staff can see)" : "Type a message…"
           }
@@ -252,11 +257,3 @@ function QuickReplies({ items, onPick }: { items: string[]; onPick: (t: string) 
   );
 }
 
-export const STAFF_QUICK_REPLIES = [
-  "Your documents have been received ✓",
-  "We need more information from you",
-  "Your case is under review",
-  "Please schedule a call with us",
-  "Your application has been approved ✓",
-  "Additional documents required",
-];

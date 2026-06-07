@@ -50,7 +50,7 @@ export function CtaBanner({
       void navigate(destination as never);
     } else if (href.startsWith("/signup")) {
       if (user) {
-        void navigate({ to: "/dashboard/services" });
+        void navigate({ to: "/dashboard/services", search: {} as never });
       } else {
         void navigate({ to: "/signup", search: { intent: "service" } as never });
       }

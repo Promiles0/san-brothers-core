@@ -116,7 +116,7 @@ function ServiceApplyPage() {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
-        navigate({ to: "/dashboard/services" });
+        navigate({ to: "/dashboard/services", search: {} });
       }
     };
 
@@ -223,6 +223,49 @@ function ServiceApplyPage() {
 
 // ─── Step 1: Application Form ──────────────────────────────────────────────────
 
+type Step1FormData = {
+  fullName: string;
+  email: string;
+  phone: string;
+  applicantType: "individual" | "company";
+  nationality: string;
+  passportId: string;
+  companyName: string;
+  businessStage: string;
+  meetingFormat: string;
+  description: string;
+  destinationCountry: string;
+  travelDate: string;
+  returnDate: string;
+  purposeOfVisit: string;
+  sourceLanguage: string;
+  targetLanguage: string;
+  documentType: string;
+  urgency: string;
+  businessType: string;
+  fiscalYearEnd: string;
+  notes: string;
+};
+
+type UploadedDocument = { name: string; path: string };
+type UploadingFile = { id: string; name: string; progress: number };
+
+interface Step1ApplicationProps {
+  service: {
+    category: string;
+    required_documents?: string[];
+    name_en: string;
+    price_usd_min: number;
+    estimated_days_min: number;
+    estimated_days_max: number;
+  };
+  formData: Step1FormData;
+  setFormData: React.Dispatch<React.SetStateAction<Step1FormData>>;
+  uploadedDocs: UploadedDocument[];
+  setUploadedDocs: React.Dispatch<React.SetStateAction<UploadedDocument[]>>;
+  onNext: () => void;
+}
+
 function Step1Application({
   service,
   formData,
@@ -230,13 +273,13 @@ function Step1Application({
   uploadedDocs,
   setUploadedDocs,
   onNext,
-}: any) {
+}: Step1ApplicationProps) {
   const [uploading, setUploading] = useState(false);
-  const [uploadingFiles, setUploadingFiles] = useState<any[]>([]);
+  const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev: any) => ({ ...prev, [field]: value }));
+  const handleInputChange = (field: keyof Step1FormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

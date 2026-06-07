@@ -10,7 +10,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { createNotification } from "@/lib/notifications";
 import { MessageBubble, type MessageRecord } from "./message-bubble";
-import { MessageInput, STAFF_QUICK_REPLIES, type ReplyTarget } from "./message-input";
+import { MessageInput, type ReplyTarget } from "./message-input";
 import { TypingIndicator } from "./typing-indicator";
 import { AvatarBubble } from "./avatar-bubble";
 import { dateSeparator, sameLocalDay } from "./utils";
@@ -30,6 +30,15 @@ export interface ChatWindowProps {
   autoReplyText?: string | null;
   notifyLink?: string;
 }
+
+const STAFF_QUICK_REPLIES = [
+  "Your documents have been received ✓",
+  "We need more information from you",
+  "Your case is under review",
+  "Please schedule a call with us",
+  "Your application has been approved ✓",
+  "Additional documents required",
+];
 
 export function ChatWindow(props: ChatWindowProps) {
   const {
