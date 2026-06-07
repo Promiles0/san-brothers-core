@@ -69,17 +69,27 @@ function DashboardHome() {
   const { user, profile } = useAuth();
   const { t, locale } = useI18n();
   const [active, setActive] = useState<ActiveService[] | null>(null);
-  const [counts, setCounts] = useState({ docs: 0, messages: 0, claims: 0 });
+  const [counts, setCounts] = useState<{ docs: number; messages: number; claims: number } | null>(
+    null,
+  );
   const [expiring, setExpiring] = useState<
-    { id: string; visa_expiry_date: string; services: { name_en: string } | null }[]
-  >([]);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+    | { id: string; visa_expiry_date: string; services: { name_en: string } | null }[]
+    | null
+  >(null);
+  const [notifications, setNotifications] = useState<NotificationItem[] | null>(null);
   const [hasInterpreter, setHasInterpreter] = useState(false);
   const [remindersOpen, setRemindersOpen] = useState(false);
+
+  const tpl = (key: string, vars: Record<string, string | number> = {}) =>
+    Object.entries(vars).reduce<string>(
+      (acc, [k, v]) => acc.replace(`{${k}}`, String(v)),
+      t(key),
+    );
 
   useEffect(() => {
     if (!user) return;
     (async () => {
+
       try {
         const { data, error } = await supabase
           .from("service_requests")
@@ -149,10 +159,11 @@ function DashboardHome() {
           .not("visa_expiry_date", "is", null)
           .lte("visa_expiry_date", horizon.toISOString().slice(0, 10))
           .order("visa_expiry_date", { ascending: true });
-        setExpiring((exp ?? []) as unknown as typeof expiring);
+        setExpiring((exp ?? []) as unknown as NonNullable<typeof expiring>);
       } catch {
         setExpiring([]);
       }
+
     })();
   }, [user]);
 
@@ -175,7 +186,7 @@ function DashboardHome() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                👋 Welcome back, {firstName}!
+                {tpl("dashboard.home.greeting", { name: firstName })}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">{today}</p>
             </div>
@@ -185,27 +196,30 @@ function DashboardHome() {
             <StatCard
               to="/dashboard/my-services"
               value={active?.length ?? 0}
-              label="Active"
+              label={t("dashboard.home.stats.active")}
               accent="blue"
               loading={active === null}
             />
             <StatCard
               to="/dashboard/documents"
-              value={counts.docs}
-              label="Documents"
+              value={counts?.docs ?? 0}
+              label={t("dashboard.home.stats.documents")}
               accent="purple"
+              loading={counts === null}
             />
             <StatCard
               to="/dashboard/messages"
-              value={counts.messages}
-              label="Unread"
+              value={counts?.messages ?? 0}
+              label={t("dashboard.home.stats.unread")}
               accent="orange"
+              loading={counts === null}
             />
             <StatCard
               to="/dashboard/claims"
-              value={counts.claims}
-              label="Claims"
+              value={counts?.claims ?? 0}
+              label={t("dashboard.home.stats.claims")}
               accent="red"
+              loading={counts === null}
             />
           </div>
         </div>
@@ -216,19 +230,19 @@ function DashboardHome() {
         <QuickAction
           to="/dashboard/services"
           icon={LayoutGrid}
-          label="Browse Services"
+          label={t("dashboard.home.actions.browse")}
           gradient="from-blue-500 to-blue-600"
         />
         <QuickAction
           to="/dashboard/documents"
           icon={FolderOpen}
-          label="Upload Document"
+          label={t("dashboard.home.actions.upload")}
           gradient="from-purple-500 to-purple-600"
         />
         <QuickAction
           to="/dashboard/messages"
           icon={MessageCircle}
-          label="Talk to Support"
+          label={t("dashboard.home.actions.support")}
           gradient="from-emerald-500 to-emerald-600"
         />
       </div>
@@ -238,7 +252,7 @@ function DashboardHome() {
         <div className="space-y-4 lg:col-span-2">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">
-              Your Active Services{" "}
+              {t("dashboard.home.sections.activeServices")}{" "}
               {active && active.length > 0 && (
                 <span className="text-muted-foreground">({active.length})</span>
               )}
@@ -248,15 +262,17 @@ function DashboardHome() {
                 to="/dashboard/my-services"
                 className="text-sm font-medium text-primary hover:underline"
               >
-                View all →
+                {t("dashboard.home.viewAll")}
               </Link>
             )}
           </div>
 
           {active === null ? (
             <div className="grid gap-4 md:grid-cols-2">
-              <Skeleton className="h-44" />
-              <Skeleton className="h-44" />
+              <ServiceCardSkeleton />
+              <ServiceCardSkeleton />
+              <ServiceCardSkeleton />
+              <ServiceCardSkeleton />
             </div>
           ) : active.length === 0 ? (
             <Card>
@@ -283,6 +299,8 @@ function DashboardHome() {
                   service={s}
                   name={localizedName(s.services)}
                   delayMs={i * 50}
+                  t={t}
+                  tpl={tpl}
                 />
               ))}
             </div>
@@ -300,11 +318,11 @@ function DashboardHome() {
                   <Mic className="h-6 w-6" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-base font-semibold">🎙️ Live Interpreter Available</div>
-                  <div className="text-sm text-white/80">First 5 minutes FREE</div>
+                  <div className="text-base font-semibold">{t("dashboard.home.interpreter.title")}</div>
+                  <div className="text-sm text-white/80">{t("dashboard.home.interpreter.subtitle")}</div>
                 </div>
                 <div className="hidden items-center gap-1 rounded-full bg-white px-4 py-2 text-sm font-semibold text-blue-700 group-hover:bg-white/95 sm:flex">
-                  Start a Call <ArrowRight className="h-4 w-4" />
+                  {t("dashboard.home.interpreter.cta")} <ArrowRight className="h-4 w-4" />
                 </div>
               </div>
             </Link>
@@ -312,16 +330,24 @@ function DashboardHome() {
         </div>
 
         {/* NOTIFICATIONS */}
-        {notifications.length > 0 && (
+        {(notifications === null || notifications.length > 0) && (
           <div className="space-y-3">
             <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <Bell className="h-4 w-4 text-primary" /> Recent Activity
+              <Bell className="h-4 w-4 text-primary" /> {t("dashboard.home.sections.recentActivity")}
             </h2>
             <Card>
               <CardContent className="divide-y divide-border p-0">
-                {notifications.map((n, i) => (
-                  <NotificationRow key={n.id} n={n} delayMs={i * 50} />
-                ))}
+                {notifications === null ? (
+                  <>
+                    <NotificationRowSkeleton />
+                    <NotificationRowSkeleton />
+                    <NotificationRowSkeleton />
+                  </>
+                ) : (
+                  notifications.map((n, i) => (
+                    <NotificationRow key={n.id} n={n} delayMs={i * 50} />
+                  ))
+                )}
               </CardContent>
             </Card>
           </div>
@@ -329,11 +355,19 @@ function DashboardHome() {
       </div>
 
       {/* REMINDERS */}
-      {expiring.length > 0 && (
+      {expiring === null ? (
+        <div className="rounded-xl border border-border bg-card p-4">
+          <Skeleton className="mb-3 h-5 w-32" />
+          <div className="space-y-2">
+            <Skeleton className="h-11" />
+            <Skeleton className="h-11" />
+          </div>
+        </div>
+      ) : expiring.length > 0 ? (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 animate-fade-in">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-base font-semibold text-amber-700 dark:text-amber-300">
-              <AlertTriangle className="h-4 w-4" /> Reminders ({expiring.length})
+              <AlertTriangle className="h-4 w-4" /> {t("dashboard.home.sections.reminders")} ({expiring.length})
             </h2>
             {expiring.length > 3 && (
               <Button
@@ -344,11 +378,11 @@ function DashboardHome() {
               >
                 {remindersOpen ? (
                   <>
-                    Hide <ChevronUp className="ml-1 h-3 w-3" />
+                    {t("dashboard.home.hide")} <ChevronUp className="ml-1 h-3 w-3" />
                   </>
                 ) : (
                   <>
-                    Show all <ChevronDown className="ml-1 h-3 w-3" />
+                    {t("dashboard.home.showAll")} <ChevronDown className="ml-1 h-3 w-3" />
                   </>
                 )}
               </Button>
@@ -360,6 +394,12 @@ function DashboardHome() {
                 (new Date(e.visa_expiry_date).getTime() - Date.now()) / 86400000,
               );
               const urgent = days < 30;
+              const statusText =
+                days <= 0
+                  ? t("dashboard.home.reminders.expired")
+                  : days === 1
+                  ? t("dashboard.home.reminders.expiresInDay")
+                  : tpl("dashboard.home.reminders.expiresInDays", { days });
               return (
                 <div
                   key={e.id}
@@ -374,22 +414,21 @@ function DashboardHome() {
                     <span className={urgent ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"}>
                       {urgent ? "🔴" : "🟠"}
                     </span>
-                    <span className="font-semibold">{e.services?.name_en ?? "Visa"}</span>
-                    <span className="text-muted-foreground">
-                      {days <= 0
-                        ? "Expired"
-                        : `expires in ${days} day${days === 1 ? "" : "s"}`}
+                    <span className="font-semibold">
+                      {e.services?.name_en ?? t("dashboard.home.reminders.visa")}
                     </span>
+                    <span className="text-muted-foreground">{statusText}</span>
                   </div>
                   <Button size="sm" variant="outline" asChild>
-                    <Link to="/dashboard/services">Renew →</Link>
+                    <Link to="/dashboard/services">{t("dashboard.home.reminders.renew")}</Link>
                   </Button>
                 </div>
               );
             })}
           </div>
         </div>
-      )}
+      ) : null}
+
     </div>
   );
 }
@@ -512,21 +551,24 @@ const categoryIcon = (cat?: string | null) => {
   return Sparkles;
 };
 
-const statusStyle = (status: string) => {
+type T = (key: string) => string;
+type Tpl = (key: string, vars?: Record<string, string | number>) => string;
+
+const statusStyle = (status: string, t: T) => {
   switch (status) {
     case "submitted":
-      return { label: "Submitted", color: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30", bar: "bg-blue-500", dot: "bg-blue-500" };
+      return { label: t("dashboard.home.status.submitted"), color: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30", bar: "bg-blue-500", dot: "bg-blue-500" };
     case "under_review":
-      return { label: "Under Review", color: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30", bar: "bg-amber-500", dot: "bg-amber-500" };
+      return { label: t("dashboard.home.status.under_review"), color: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30", bar: "bg-amber-500", dot: "bg-amber-500" };
     case "awaiting_client":
-      return { label: "Awaiting You", color: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30", bar: "bg-orange-500", dot: "bg-orange-500", pulse: true };
+      return { label: t("dashboard.home.status.awaiting_client"), color: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30", bar: "bg-orange-500", dot: "bg-orange-500", pulse: true };
     case "verified":
     case "completed":
-      return { label: "Approved", color: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30", bar: "bg-emerald-500", dot: "bg-emerald-500" };
+      return { label: t("dashboard.home.status.approved"), color: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30", bar: "bg-emerald-500", dot: "bg-emerald-500" };
     case "rejected":
-      return { label: "Rejected", color: "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30", bar: "bg-red-500", dot: "bg-red-500" };
+      return { label: t("dashboard.home.status.rejected"), color: "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30", bar: "bg-red-500", dot: "bg-red-500" };
     case "free_consultation":
-      return { label: "Free Consultation", color: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30", bar: "bg-purple-500", dot: "bg-purple-500" };
+      return { label: t("dashboard.home.status.free_consultation"), color: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30", bar: "bg-purple-500", dot: "bg-purple-500" };
     default:
       return { label: status.replace(/_/g, " "), color: "bg-muted text-muted-foreground border-border", bar: "bg-primary", dot: "bg-muted-foreground" };
   }
@@ -536,13 +578,17 @@ function ServiceCard({
   service,
   name,
   delayMs,
+  t,
+  tpl,
 }: {
   service: ActiveService;
   name: string;
   delayMs: number;
+  t: T;
+  tpl: Tpl;
 }) {
   const Icon = categoryIcon(service.services?.category);
-  const st = statusStyle(service.status);
+  const st = statusStyle(service.status, t);
   const pct = Math.round((service.progress_step / Math.max(service.progress_total, 1)) * 100);
   return (
     <Card
@@ -561,7 +607,7 @@ function ServiceCard({
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold">{name}</div>
               <div className="text-xs text-muted-foreground capitalize">
-                {service.services?.category ?? "Service"}
+                {service.services?.category ?? t("dashboard.home.service.category")}
               </div>
             </div>
           </div>
@@ -574,7 +620,10 @@ function ServiceCard({
         <div className="mt-4 space-y-1.5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
-              Step {service.progress_step} of {service.progress_total}
+              {tpl("dashboard.home.service.stepOf", {
+                step: service.progress_step,
+                total: service.progress_total,
+              })}
             </span>
             <span className="font-medium">{pct}%</span>
           </div>
@@ -583,20 +632,66 @@ function ServiceCard({
 
         <div className="mt-3 flex items-center justify-between">
           <span className="text-xs text-muted-foreground">
-            Updated {new Date(service.updated_at).toLocaleDateString()}
+            {tpl("dashboard.home.service.updated", {
+              date: new Date(service.updated_at).toLocaleDateString(),
+            })}
           </span>
           <Link
             to="/dashboard/my-services/$id"
             params={{ id: service.id }}
             className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
           >
-            View Details <ArrowRight className="h-3 w-3" />
+            {t("dashboard.home.service.viewDetails")} <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
       </CardContent>
     </Card>
   );
 }
+
+function ServiceCardSkeleton() {
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <Skeleton className="h-9 w-9 rounded-lg" />
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-3 w-1/3" />
+            </div>
+          </div>
+          <Skeleton className="h-6 w-24 rounded-full" />
+        </div>
+        <div className="mt-4 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-3 w-8" />
+          </div>
+          <Skeleton className="h-2 w-full" />
+        </div>
+        <div className="mt-3 flex items-center justify-between">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-3 w-20" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function NotificationRowSkeleton() {
+  return (
+    <div className="flex items-start gap-3 p-3">
+      <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+      <div className="flex-1 space-y-1.5">
+        <Skeleton className="h-3.5 w-3/4" />
+        <Skeleton className="h-3 w-1/2" />
+        <Skeleton className="h-2.5 w-16" />
+      </div>
+    </div>
+  );
+}
+
 
 function NotificationRow({ n, delayMs }: { n: NotificationItem; delayMs: number }) {
   const Icon = (() => {

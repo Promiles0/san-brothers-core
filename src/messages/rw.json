@@ -301,7 +301,12 @@
       "tax": {
         "title": "Gutegura imisoro",
         "desc": "Gutegura no gutanga imisoro neza kandi ku gihe.",
-        "bullets": ["VAT", "PAYE", "Umusoro ku nyungu", "Withholding tax"]
+        "bullets": [
+          "VAT",
+          "PAYE",
+          "Umusoro ku nyungu",
+          "Withholding tax"
+        ]
       },
       "reporting": {
         "title": "Raporo z'imari",
@@ -630,7 +635,11 @@
           "name": "Viza y'ubukerarugendo",
           "price": "Uhereye 80,000 RWF",
           "intent": "tourist-visa",
-          "features": ["Urutonde rw'inyandiko", "Isuzuma rya dosiye", "Inkunga yo gutanga"]
+          "features": [
+            "Urutonde rw'inyandiko",
+            "Isuzuma rya dosiye",
+            "Inkunga yo gutanga"
+          ]
         },
         {
           "name": "Viza yo kwiga",
@@ -648,7 +657,11 @@
           "name": "Uburenganzira bwo gukora",
           "price": "Uhereye 200,000 RWF",
           "intent": "work-permit",
-          "features": ["Gucunga byose", "Guhuza n'umukoresha", "Kwibutsa kwongera igihe"]
+          "features": [
+            "Gucunga byose",
+            "Guhuza n'umukoresha",
+            "Kwibutsa kwongera igihe"
+          ]
         }
       ],
       "accounting": [
@@ -656,14 +669,22 @@
           "name": "Starter",
           "price": "Uhereye 50,000 RWF / ukwezi",
           "intent": "bookkeeping",
-          "features": ["Ibikorwa kugeza 50", "Inshamake y'ukwezi", "Ubufasha kuri imeri"]
+          "features": [
+            "Ibikorwa kugeza 50",
+            "Inshamake y'ukwezi",
+            "Ubufasha kuri imeri"
+          ]
         },
         {
           "name": "Standard",
           "price": "Uhereye 120,000 RWF / ukwezi",
           "intent": "tax-filing",
           "popular": true,
-          "features": ["Ibikorwa kugeza 200", "Gutanga VAT & PAYE", "Raporo z'igihembwe"]
+          "features": [
+            "Ibikorwa kugeza 200",
+            "Gutanga VAT & PAYE",
+            "Raporo z'igihembwe"
+          ]
         },
         {
           "name": "Premium",
@@ -692,7 +713,11 @@
           "price": "Uhereye 350,000 RWF",
           "intent": "business-planning",
           "popular": true,
-          "features": ["Ibiganiro by'isuzuma", "Financial model", "Inyandiko ya pitch"]
+          "features": [
+            "Ibiganiro by'isuzuma",
+            "Financial model",
+            "Inyandiko ya pitch"
+          ]
         },
         {
           "name": "Inama z'ishoramari",
@@ -710,20 +735,30 @@
           "name": "Inyandiko (kuri buri rupapuro)",
           "price": "Uhereye 8,000 RWF",
           "intent": "document-translation",
-          "features": ["Igihe gisanzwe", "Kopi zemejwe iyo bisabwe"]
+          "features": [
+            "Igihe gisanzwe",
+            "Kopi zemejwe iyo bisabwe"
+          ]
         },
         {
           "name": "Umusemuzi mu kanya",
           "price": "Uhereye 1,500 RWF / umunota",
           "intent": "live-interpreter",
           "popular": true,
-          "features": ["Kuvugana mu minota mike", "Ijwi cyangwa video", "Wishyura kuri buri munota"]
+          "features": [
+            "Kuvugana mu minota mike",
+            "Ijwi cyangwa video",
+            "Wishyura kuri buri munota"
+          ]
         },
         {
           "name": "Ubusemuzi bw'amategeko",
           "price": "Uhereye 12,000 RWF / urupapuro",
           "intent": "legal-translation",
-          "features": ["Ubwiza bukoreshwa mu nkiko", "Notarization irahari"]
+          "features": [
+            "Ubwiza bukoreshwa mu nkiko",
+            "Notarization irahari"
+          ]
         }
       ]
     }
@@ -909,7 +944,13 @@
       },
       "formats": {
         "heading": "Imiterere ya dosiye yemewe",
-        "list": ["PDF", "Word", "JPG", "PNG", "Inyandiko zafotowe"]
+        "list": [
+          "PDF",
+          "Word",
+          "JPG",
+          "PNG",
+          "Inyandiko zafotowe"
+        ]
       }
     },
     "live": {
@@ -1161,6 +1202,52 @@
         "title": "Ntabwo ufite serivisi zigenda",
         "desc": "Reba serivisi zacu kugira ngo utangire.",
         "cta": "Reba Serivisi"
+      },
+      "greeting": "👋 Murakaza neza, {name}!",
+      "viewAll": "Reba byose →",
+      "showAll": "Erekana byose",
+      "hide": "Hisha",
+      "stats": {
+        "active": "Bigenda",
+        "documents": "Inyandiko",
+        "unread": "Ntizisomwe",
+        "claims": "Ibirego"
+      },
+      "actions": {
+        "browse": "Reba Serivisi",
+        "upload": "Ohereza Inyandiko",
+        "support": "Vugana n'Ubufasha"
+      },
+      "sections": {
+        "activeServices": "Serivisi Zawe Zigenda",
+        "recentActivity": "Ibikorwa Bishya",
+        "reminders": "Kwibutsa"
+      },
+      "service": {
+        "stepOf": "Intambwe ya {step} kuri {total}",
+        "updated": "Byavuguruwe {date}",
+        "viewDetails": "Reba Birenzeho",
+        "category": "Serivisi"
+      },
+      "status": {
+        "submitted": "Byoherejwe",
+        "under_review": "Birasuzumwa",
+        "awaiting_client": "Birategereje Wowe",
+        "approved": "Byemejwe",
+        "rejected": "Byanze",
+        "free_consultation": "Inama Y'Ubuntu"
+      },
+      "interpreter": {
+        "title": "🎙️ Umusemuzi Aboneka",
+        "subtitle": "Iminota 5 ya mbere ni UBUNTU",
+        "cta": "Tangira Guhamagara"
+      },
+      "reminders": {
+        "expired": "Byarengeje",
+        "expiresInDays": "birangira mu minsi {days}",
+        "expiresInDay": "birangira mu munsi 1",
+        "visa": "Viza",
+        "renew": "Vugurura →"
       }
     },
     "services": {
@@ -1203,7 +1290,9 @@
         "businessType": "Ubwoko bw'ubucuruzi",
         "tin": "TIN (niba ari sosiyete)"
       },
-      "consult": { "brief": "Sobanura muri make icyo ukeneye" },
+      "consult": {
+        "brief": "Sobanura muri make icyo ukeneye"
+      },
       "translate": {
         "source": "Ururimi rwo guhereraho",
         "target": "Ururimi rugamijwe",
@@ -1212,7 +1301,11 @@
     },
     "myServices": {
       "title": "Serivisi Zanjye",
-      "tab": { "active": "Zigenda", "completed": "Zarangiye", "cancelled": "Zakuweho" },
+      "tab": {
+        "active": "Zigenda",
+        "completed": "Zarangiye",
+        "cancelled": "Zakuweho"
+      },
       "empty": {
         "active": "Nta serivisi zigenda. Reba kugira ngo utangire.",
         "completed": "Nta serivisi zarangiye.",
@@ -1257,7 +1350,11 @@
       "title": "Ibibazo",
       "newCta": "Tanga Ikibazo",
       "newTitle": "Tanga Ikibazo Gishya",
-      "tab": { "open": "Birakurikiranwa", "resolved": "Byakemutse", "rejected": "Byanzwe" },
+      "tab": {
+        "open": "Birakurikiranwa",
+        "resolved": "Byakemutse",
+        "rejected": "Byanzwe"
+      },
       "empty": {
         "open": "Nta bibazo birimo gukurikiranwa.",
         "resolved": "Nta bibazo byakemutse.",
