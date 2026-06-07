@@ -551,21 +551,24 @@ const categoryIcon = (cat?: string | null) => {
   return Sparkles;
 };
 
-const statusStyle = (status: string) => {
+type T = (key: string) => string;
+type Tpl = (key: string, vars?: Record<string, string | number>) => string;
+
+const statusStyle = (status: string, t: T) => {
   switch (status) {
     case "submitted":
-      return { label: "Submitted", color: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30", bar: "bg-blue-500", dot: "bg-blue-500" };
+      return { label: t("dashboard.home.status.submitted"), color: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30", bar: "bg-blue-500", dot: "bg-blue-500" };
     case "under_review":
-      return { label: "Under Review", color: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30", bar: "bg-amber-500", dot: "bg-amber-500" };
+      return { label: t("dashboard.home.status.under_review"), color: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30", bar: "bg-amber-500", dot: "bg-amber-500" };
     case "awaiting_client":
-      return { label: "Awaiting You", color: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30", bar: "bg-orange-500", dot: "bg-orange-500", pulse: true };
+      return { label: t("dashboard.home.status.awaiting_client"), color: "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30", bar: "bg-orange-500", dot: "bg-orange-500", pulse: true };
     case "verified":
     case "completed":
-      return { label: "Approved", color: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30", bar: "bg-emerald-500", dot: "bg-emerald-500" };
+      return { label: t("dashboard.home.status.approved"), color: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30", bar: "bg-emerald-500", dot: "bg-emerald-500" };
     case "rejected":
-      return { label: "Rejected", color: "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30", bar: "bg-red-500", dot: "bg-red-500" };
+      return { label: t("dashboard.home.status.rejected"), color: "bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30", bar: "bg-red-500", dot: "bg-red-500" };
     case "free_consultation":
-      return { label: "Free Consultation", color: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30", bar: "bg-purple-500", dot: "bg-purple-500" };
+      return { label: t("dashboard.home.status.free_consultation"), color: "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30", bar: "bg-purple-500", dot: "bg-purple-500" };
     default:
       return { label: status.replace(/_/g, " "), color: "bg-muted text-muted-foreground border-border", bar: "bg-primary", dot: "bg-muted-foreground" };
   }
@@ -575,13 +578,17 @@ function ServiceCard({
   service,
   name,
   delayMs,
+  t,
+  tpl,
 }: {
   service: ActiveService;
   name: string;
   delayMs: number;
+  t: T;
+  tpl: Tpl;
 }) {
   const Icon = categoryIcon(service.services?.category);
-  const st = statusStyle(service.status);
+  const st = statusStyle(service.status, t);
   const pct = Math.round((service.progress_step / Math.max(service.progress_total, 1)) * 100);
   return (
     <Card
@@ -600,7 +607,7 @@ function ServiceCard({
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold">{name}</div>
               <div className="text-xs text-muted-foreground capitalize">
-                {service.services?.category ?? "Service"}
+                {service.services?.category ?? t("dashboard.home.service.category")}
               </div>
             </div>
           </div>
@@ -613,7 +620,10 @@ function ServiceCard({
         <div className="mt-4 space-y-1.5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
-              Step {service.progress_step} of {service.progress_total}
+              {tpl("dashboard.home.service.stepOf", {
+                step: service.progress_step,
+                total: service.progress_total,
+              })}
             </span>
             <span className="font-medium">{pct}%</span>
           </div>
@@ -622,20 +632,66 @@ function ServiceCard({
 
         <div className="mt-3 flex items-center justify-between">
           <span className="text-xs text-muted-foreground">
-            Updated {new Date(service.updated_at).toLocaleDateString()}
+            {tpl("dashboard.home.service.updated", {
+              date: new Date(service.updated_at).toLocaleDateString(),
+            })}
           </span>
           <Link
             to="/dashboard/my-services/$id"
             params={{ id: service.id }}
             className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
           >
-            View Details <ArrowRight className="h-3 w-3" />
+            {t("dashboard.home.service.viewDetails")} <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
       </CardContent>
     </Card>
   );
 }
+
+function ServiceCardSkeleton() {
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <Skeleton className="h-9 w-9 rounded-lg" />
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-3 w-1/3" />
+            </div>
+          </div>
+          <Skeleton className="h-6 w-24 rounded-full" />
+        </div>
+        <div className="mt-4 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-3 w-8" />
+          </div>
+          <Skeleton className="h-2 w-full" />
+        </div>
+        <div className="mt-3 flex items-center justify-between">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-3 w-20" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function NotificationRowSkeleton() {
+  return (
+    <div className="flex items-start gap-3 p-3">
+      <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+      <div className="flex-1 space-y-1.5">
+        <Skeleton className="h-3.5 w-3/4" />
+        <Skeleton className="h-3 w-1/2" />
+        <Skeleton className="h-2.5 w-16" />
+      </div>
+    </div>
+  );
+}
+
 
 function NotificationRow({ n, delayMs }: { n: NotificationItem; delayMs: number }) {
   const Icon = (() => {
