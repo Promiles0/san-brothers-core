@@ -159,10 +159,11 @@ function DashboardHome() {
           .not("visa_expiry_date", "is", null)
           .lte("visa_expiry_date", horizon.toISOString().slice(0, 10))
           .order("visa_expiry_date", { ascending: true });
-        setExpiring((exp ?? []) as unknown as typeof expiring);
+        setExpiring((exp ?? []) as NonNullable<typeof expiring>);
       } catch {
         setExpiring([]);
       }
+
     })();
   }, [user]);
 
