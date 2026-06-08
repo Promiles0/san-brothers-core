@@ -587,7 +587,7 @@ function Home() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 dark:bg-blue-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500 dark:bg-blue-400" />
                 </span>
-                Trusted in 15+ Countries · Est. 2018
+                Trusted in 15+ Countries · Est. 2020
               </div>
 
               {/* Headline */}
@@ -614,12 +614,12 @@ function Home() {
               </p>
 
               {/* Inline stats */}
-              <div className="animate-fade-up delay-300 grid grid-cols-2 gap-4 rounded-2xl p-5 sm:grid-cols-4 bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10">
+              {/* <div className="animate-fade-up delay-300 grid grid-cols-2 gap-4 rounded-2xl p-5 sm:grid-cols-4 bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10">
                 <StatCounter value={1000} label="Clients" sublabel="served" />
                 <StatCounter value={15} label="Languages" sublabel="supported" />
                 <StatCounter value={4} label="Services" sublabel="areas" />
                 <StatCounter value={98} suffix="%" label="Success" sublabel="rate" />
-              </div>
+              </div> */}
 
               {/* CTAs */}
               <div className="animate-fade-up delay-400 flex flex-col gap-3 sm:flex-row">
@@ -818,7 +818,7 @@ function Home() {
       </section>
 
       {/* ========== STATS BANNER ========== */}
-      <section className="relative w-full overflow-hidden py-14 bg-gradient-to-r from-blue-50 via-white to-blue-50 dark:from-[#0F1729] dark:via-[#0D1B3E] dark:to-[#0F1729]">
+      <section className="relative w-full overflow-hidden py-14 bg-linear-to-r from-blue-50 via-white to-blue-50 dark:from-[#0F1729] dark:via-[#0D1B3E] dark:to-[#0F1729]">
         <div
           className="absolute inset-0 opacity-30"
           style={{
@@ -963,7 +963,7 @@ function Home() {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-500">
                   <span className="text-base">🕐</span>
-                  <span>Mon–Fri 8am–6pm · Sat 9am–2pm</span>
+                  <span>24/7</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-500">
                   <span className="text-base">📞</span>
