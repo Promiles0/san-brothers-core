@@ -1,6 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Plane, Calculator, Briefcase, Languages, ShieldCheck, Clock, Globe, UserPlus, LayoutGrid, Upload, CircleCheck as CheckCircle, Star, ChevronDown, Check, ArrowRight, Zap, Award, Users, TrendingUp } from "lucide-react";
+import {
+  Plane,
+  Calculator,
+  Briefcase,
+  Languages,
+  ShieldCheck,
+  Clock,
+  Globe,
+  UserPlus,
+  LayoutGrid,
+  Upload,
+  CircleCheck as CheckCircle,
+  Star,
+  ChevronDown,
+  Check,
+  ArrowRight,
+  Zap,
+  Award,
+  Users,
+  TrendingUp,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { CtaBanner } from "@/components/marketing/page-sections";
@@ -32,7 +52,7 @@ function useIntersectionObserver() {
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
     document.querySelectorAll(".animate-fade-up").forEach((el) => observer.observe(el));
     return () => observer.disconnect();
@@ -61,7 +81,7 @@ function useCountUp(target: number, duration = 2000) {
           observer.unobserve(entries[0].target);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
@@ -88,8 +108,12 @@ function StatCounter({
         {count}
         <span className="text-blue-600 dark:text-blue-400">{suffix}</span>
       </div>
-      <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-white/90 uppercase tracking-widest">{label}</div>
-      {sublabel && <div className="text-xs text-blue-600 dark:text-blue-200/70 mt-0.5">{sublabel}</div>}
+      <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-white/90 uppercase tracking-widest">
+        {label}
+      </div>
+      {sublabel && (
+        <div className="text-xs text-blue-600 dark:text-blue-200/70 mt-0.5">{sublabel}</div>
+      )}
     </div>
   );
 }
@@ -199,15 +223,36 @@ function Home() {
   ];
 
   const steps = [
-    { icon: UserPlus, title: t("home.steps.register.title"), desc: t("home.steps.register.desc"), num: "01" },
-    { icon: LayoutGrid, title: t("home.steps.choose.title"), desc: t("home.steps.choose.desc"), num: "02" },
-    { icon: Upload, title: t("home.steps.upload.title"), desc: t("home.steps.upload.desc"), num: "03" },
-    { icon: CheckCircle, title: t("home.steps.track.title"), desc: t("home.steps.track.desc"), num: "04" },
+    {
+      icon: UserPlus,
+      title: t("home.steps.register.title"),
+      desc: t("home.steps.register.desc"),
+      num: "01",
+    },
+    {
+      icon: LayoutGrid,
+      title: t("home.steps.choose.title"),
+      desc: t("home.steps.choose.desc"),
+      num: "02",
+    },
+    {
+      icon: Upload,
+      title: t("home.steps.upload.title"),
+      desc: t("home.steps.upload.desc"),
+      num: "03",
+    },
+    {
+      icon: CheckCircle,
+      title: t("home.steps.track.title"),
+      desc: t("home.steps.track.desc"),
+      num: "04",
+    },
   ];
 
   const testimonials = [
     {
-      quote: "San Brothers handled my student visa to China end to end. I never had to chase them for an update.",
+      quote:
+        "San Brothers handled my student visa to China end to end. I never had to chase them for an update.",
       name: "Aline M.",
       loc: "Kigali, Rwanda",
       rating: 5,
@@ -215,7 +260,8 @@ function Home() {
       color: "from-blue-500 to-cyan-500",
     },
     {
-      quote: "Their accounting team filed our taxes faster than our previous firm. Worth every franc.",
+      quote:
+        "Their accounting team filed our taxes faster than our previous firm. Worth every franc.",
       name: "Jean Paul K.",
       loc: "Kigali, Rwanda",
       rating: 5,
@@ -223,7 +269,8 @@ function Home() {
       color: "from-emerald-500 to-teal-500",
     },
     {
-      quote: "Got a Chinese-to-Kinyarwanda translator within minutes. The platform is a lifesaver for tourists.",
+      quote:
+        "Got a Chinese-to-Kinyarwanda translator within minutes. The platform is a lifesaver for tourists.",
       name: "Wang Wei",
       loc: "Beijing, China",
       rating: 5,
@@ -231,7 +278,8 @@ function Home() {
       color: "from-violet-500 to-purple-500",
     },
     {
-      quote: "Company registration done in 2 weeks. Professional and transparent throughout the process.",
+      quote:
+        "Company registration done in 2 weeks. Professional and transparent throughout the process.",
       name: "Marie C.",
       loc: "Paris, France",
       rating: 5,
@@ -239,7 +287,8 @@ function Home() {
       color: "from-amber-500 to-orange-500",
     },
     {
-      quote: "Best business consultancy in Kigali. They know Rwanda's market inside out and deliver results.",
+      quote:
+        "Best business consultancy in Kigali. They know Rwanda's market inside out and deliver results.",
       name: "David O.",
       loc: "Lagos, Nigeria",
       rating: 5,
@@ -247,7 +296,8 @@ function Home() {
       color: "from-rose-500 to-pink-500",
     },
     {
-      quote: "Translation service is incredibly fast. Certified documents ready in 24 hours — truly exceptional.",
+      quote:
+        "Translation service is incredibly fast. Certified documents ready in 24 hours — truly exceptional.",
       name: "Li Fang",
       loc: "Shanghai, China",
       rating: 5,
@@ -488,24 +538,50 @@ function Home() {
       `}</style>
 
       {/* ========== HERO ========== */}
-      <section className="relative min-h-screen w-full overflow-hidden grid-pattern bg-white dark:bg-[#0A0F1C]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)" }}>
+      <section
+        className="relative min-h-screen w-full overflow-hidden grid-pattern bg-white dark:bg-[#0A0F1C]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+        }}
+      >
         {/* Ambient orbs - only show in dark mode */}
-        <div className="orb-1 pointer-events-none absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-0 dark:opacity-60"
-          style={{ background: "radial-gradient(circle at center, rgba(37,99,235,0.18) 0%, transparent 65%)", filter: "blur(80px)" }} />
-        <div className="orb-2 pointer-events-none absolute top-1/2 -right-32 h-[500px] w-[500px] rounded-full opacity-0 dark:opacity-50"
-          style={{ background: "radial-gradient(circle at center, rgba(124,58,237,0.15) 0%, transparent 65%)", filter: "blur(70px)" }} />
-        <div className="orb-3 pointer-events-none absolute bottom-0 left-1/3 h-[400px] w-[400px] rounded-full opacity-0 dark:opacity-40"
-          style={{ background: "radial-gradient(circle at center, rgba(5,150,105,0.12) 0%, transparent 65%)", filter: "blur(60px)" }} />
+        <div
+          className="orb-1 pointer-events-none absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-0 dark:opacity-60"
+          style={{
+            background:
+              "radial-gradient(circle at center, rgba(37,99,235,0.18) 0%, transparent 65%)",
+            filter: "blur(80px)",
+          }}
+        />
+        <div
+          className="orb-2 pointer-events-none absolute top-1/2 -right-32 h-[500px] w-[500px] rounded-full opacity-0 dark:opacity-50"
+          style={{
+            background:
+              "radial-gradient(circle at center, rgba(124,58,237,0.15) 0%, transparent 65%)",
+            filter: "blur(70px)",
+          }}
+        />
+        <div
+          className="orb-3 pointer-events-none absolute bottom-0 left-1/3 h-[400px] w-[400px] rounded-full opacity-0 dark:opacity-40"
+          style={{
+            background:
+              "radial-gradient(circle at center, rgba(5,150,105,0.12) 0%, transparent 65%)",
+            filter: "blur(60px)",
+          }}
+        />
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 md:px-6">
           <div className="grid min-h-screen gap-8 md:grid-cols-2 md:items-center md:py-24 py-20">
-
             {/* Left — headline & CTAs */}
             <div className="flex flex-col justify-center space-y-8 pt-8 md:pt-0">
               {/* Trust badge */}
               <div
                 className="badge-pop inline-flex w-fit items-center gap-2.5 rounded-full px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-300"
-                style={{ background: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.3)" }}
+                style={{
+                  background: "rgba(37,99,235,0.12)",
+                  border: "1px solid rgba(37,99,235,0.3)",
+                }}
               >
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 dark:bg-blue-400 opacity-75" />
@@ -516,10 +592,15 @@ function Home() {
 
               {/* Headline */}
               <div className="space-y-3">
-                <h1 className="font-black leading-[1.05] tracking-tight text-gray-900 dark:text-white" style={{ fontSize: "clamp(2.4rem, 5.5vw, 4.2rem)" }}>
+                <h1
+                  className="font-black leading-[1.05] tracking-tight text-gray-900 dark:text-white"
+                  style={{ fontSize: "clamp(2.4rem, 5.5vw, 4.2rem)" }}
+                >
                   <span className="animate-fade-up block">Your Trusted Partner</span>
                   <span className="animate-fade-up delay-100 block">for Global</span>
-                  <span className="animate-fade-up delay-200 shimmer-text block">Professional Services</span>
+                  <span className="animate-fade-up delay-200 shimmer-text block">
+                    Professional Services
+                  </span>
                 </h1>
               </div>
 
@@ -527,7 +608,9 @@ function Home() {
               <p className="animate-fade-up delay-300 max-w-lg text-lg leading-relaxed text-gray-600 dark:text-gray-400">
                 Accounting · Visa & Permits · Translation · Consultancy
                 <br />
-                <span className="text-gray-700 dark:text-gray-500">Built for Rwanda and the world.</span>
+                <span className="text-gray-700 dark:text-gray-500">
+                  Built for Rwanda and the world.
+                </span>
               </p>
 
               {/* Inline stats */}
@@ -540,14 +623,21 @@ function Home() {
 
               {/* CTAs */}
               <div className="animate-fade-up delay-400 flex flex-col gap-3 sm:flex-row">
-                <Button size="lg" asChild
-                  className="glow-btn h-14 bg-gradient-to-r from-blue-600 to-blue-700 text-base font-semibold text-white hover:from-blue-500 hover:to-blue-600 border-0 rounded-xl">
+                <Button
+                  size="lg"
+                  asChild
+                  className="glow-btn h-14 bg-gradient-to-r from-blue-600 to-blue-700 text-base font-semibold text-white hover:from-blue-500 hover:to-blue-600 border-0 rounded-xl"
+                >
                   <a href="/services" className="flex items-center gap-2">
                     Get Started Free <ArrowRight className="h-4 w-4" />
                   </a>
                 </Button>
-                <Button size="lg" variant="outline" asChild
-                  className="h-14 rounded-xl border-gray-400 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white text-base font-semibold hover:bg-gray-100 dark:hover:bg-white/10 dark:hover:border-white/20">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  asChild
+                  className="h-14 rounded-xl border-gray-400 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white text-base font-semibold hover:bg-gray-100 dark:hover:bg-white/10 dark:hover:border-white/20"
+                >
                   <a href="/contact">Talk to an Expert</a>
                 </Button>
               </div>
@@ -567,16 +657,32 @@ function Home() {
             <div className="relative hidden min-h-[580px] md:block">
               <div className="absolute inset-0">
                 {/* Center decoration ring */}
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-48 w-48 rounded-full opacity-10"
-                  style={{ border: "1px dashed rgba(59,130,246,0.5)", animation: "spin-slow 40s linear infinite" }} />
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-72 w-72 rounded-full opacity-5"
-                  style={{ border: "1px solid rgba(59,130,246,0.4)", animation: "spin-slow 60s linear infinite reverse" }} />
+                <div
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-48 w-48 rounded-full opacity-10"
+                  style={{
+                    border: "1px dashed rgba(59,130,246,0.5)",
+                    animation: "spin-slow 40s linear infinite",
+                  }}
+                />
+                <div
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-72 w-72 rounded-full opacity-5"
+                  style={{
+                    border: "1px solid rgba(59,130,246,0.4)",
+                    animation: "spin-slow 60s linear infinite reverse",
+                  }}
+                />
 
                 {/* Visa Approved */}
                 <div className="float-card-1 absolute top-8 left-0 w-60">
-                  <div className="glass-card-light rounded-2xl p-5" style={{ border: "1px solid rgba(34,197,94,0.25)" }}>
+                  <div
+                    className="glass-card-light rounded-2xl p-5"
+                    style={{ border: "1px solid rgba(34,197,94,0.25)" }}
+                  >
                     <div className="mb-3 flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full" style={{ background: "rgba(34,197,94,0.15)" }}>
+                      <div
+                        className="flex h-9 w-9 items-center justify-center rounded-full"
+                        style={{ background: "rgba(34,197,94,0.15)" }}
+                      >
                         <span className="text-lg">🛂</span>
                       </div>
                       <div>
@@ -584,18 +690,29 @@ function Home() {
                         <div className="text-sm font-bold text-white">Visa Approved</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 rounded-lg px-3 py-1.5" style={{ background: "rgba(34,197,94,0.1)" }}>
+                    <div
+                      className="flex items-center gap-2 rounded-lg px-3 py-1.5"
+                      style={{ background: "rgba(34,197,94,0.1)" }}
+                    >
                       <CheckCircle className="h-4 w-4 text-emerald-400" />
-                      <span className="text-xs font-semibold text-emerald-300">Processing Complete</span>
+                      <span className="text-xs font-semibold text-emerald-300">
+                        Processing Complete
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Tax Filed */}
                 <div className="float-card-2 absolute top-28 right-0 w-60">
-                  <div className="glass-card-light rounded-2xl p-5" style={{ border: "1px solid rgba(59,130,246,0.25)" }}>
+                  <div
+                    className="glass-card-light rounded-2xl p-5"
+                    style={{ border: "1px solid rgba(59,130,246,0.25)" }}
+                  >
                     <div className="mb-3 flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full" style={{ background: "rgba(59,130,246,0.15)" }}>
+                      <div
+                        className="flex h-9 w-9 items-center justify-center rounded-full"
+                        style={{ background: "rgba(59,130,246,0.15)" }}
+                      >
                         <span className="text-lg">📊</span>
                       </div>
                       <div>
@@ -603,7 +720,10 @@ function Home() {
                         <div className="text-sm font-bold text-white">Tax Filed</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 rounded-lg px-3 py-1.5" style={{ background: "rgba(59,130,246,0.1)" }}>
+                    <div
+                      className="flex items-center gap-2 rounded-lg px-3 py-1.5"
+                      style={{ background: "rgba(59,130,246,0.1)" }}
+                    >
                       <Zap className="h-4 w-4 text-blue-400" />
                       <span className="text-xs font-semibold text-blue-300">Submitted on time</span>
                     </div>
@@ -612,9 +732,15 @@ function Home() {
 
                 {/* Translated */}
                 <div className="float-card-3 absolute bottom-28 left-10 w-60">
-                  <div className="glass-card-light rounded-2xl p-5" style={{ border: "1px solid rgba(139,92,246,0.25)" }}>
+                  <div
+                    className="glass-card-light rounded-2xl p-5"
+                    style={{ border: "1px solid rgba(139,92,246,0.25)" }}
+                  >
                     <div className="mb-3 flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full" style={{ background: "rgba(139,92,246,0.15)" }}>
+                      <div
+                        className="flex h-9 w-9 items-center justify-center rounded-full"
+                        style={{ background: "rgba(139,92,246,0.15)" }}
+                      >
                         <span className="text-lg">🌐</span>
                       </div>
                       <div>
@@ -622,7 +748,10 @@ function Home() {
                         <div className="text-sm font-bold text-white">Done in 3 min</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 rounded-lg px-3 py-1.5" style={{ background: "rgba(139,92,246,0.1)" }}>
+                    <div
+                      className="flex items-center gap-2 rounded-lg px-3 py-1.5"
+                      style={{ background: "rgba(139,92,246,0.1)" }}
+                    >
                       <Clock className="h-4 w-4 text-violet-400" />
                       <span className="text-xs font-semibold text-violet-300">Lightning fast</span>
                     </div>
@@ -631,9 +760,15 @@ function Home() {
 
                 {/* Company Registered */}
                 <div className="float-card-4 absolute bottom-6 right-6 w-60">
-                  <div className="glass-card-light rounded-2xl p-5" style={{ border: "1px solid rgba(245,158,11,0.25)" }}>
+                  <div
+                    className="glass-card-light rounded-2xl p-5"
+                    style={{ border: "1px solid rgba(245,158,11,0.25)" }}
+                  >
                     <div className="mb-3 flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full" style={{ background: "rgba(245,158,11,0.15)" }}>
+                      <div
+                        className="flex h-9 w-9 items-center justify-center rounded-full"
+                        style={{ background: "rgba(245,158,11,0.15)" }}
+                      >
                         <span className="text-lg">🏢</span>
                       </div>
                       <div>
@@ -641,9 +776,14 @@ function Home() {
                         <div className="text-sm font-bold text-white">Company Registered</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 rounded-lg px-3 py-1.5" style={{ background: "rgba(245,158,11,0.1)" }}>
+                    <div
+                      className="flex items-center gap-2 rounded-lg px-3 py-1.5"
+                      style={{ background: "rgba(245,158,11,0.1)" }}
+                    >
                       <Award className="h-4 w-4 text-amber-400" />
-                      <span className="text-xs font-semibold text-amber-300">2 weeks · official</span>
+                      <span className="text-xs font-semibold text-amber-300">
+                        2 weeks · official
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -654,7 +794,10 @@ function Home() {
           {/* Language flags strip */}
           <div className="relative z-10 flex flex-wrap justify-center gap-3 border-t py-6 border-gray-300 dark:border-white/10">
             {flags.map(({ flag, lang }) => (
-              <span key={lang} className="flag-pill flex items-center gap-1.5 rounded-full px-3 py-1 text-sm text-gray-700 dark:text-gray-400 cursor-default bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10">
+              <span
+                key={lang}
+                className="flag-pill flex items-center gap-1.5 rounded-full px-3 py-1 text-sm text-gray-700 dark:text-gray-400 cursor-default bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10"
+              >
                 {flag} <span className="text-xs">{lang}</span>
               </span>
             ))}
@@ -663,7 +806,9 @@ function Home() {
           {/* Scroll indicator */}
           <div className="relative z-10 flex justify-center py-6">
             <div className="bounce-arrow flex flex-col items-center gap-1 text-gray-500 dark:text-gray-600">
-              <span className="text-xs tracking-widest uppercase text-gray-600 dark:text-gray-600">Scroll</span>
+              <span className="text-xs tracking-widest uppercase text-gray-600 dark:text-gray-600">
+                Scroll
+              </span>
               <ChevronDown className="h-5 w-5" />
             </div>
           </div>
@@ -674,10 +819,13 @@ function Home() {
 
       {/* ========== STATS BANNER ========== */}
       <section className="relative w-full overflow-hidden py-14 bg-gradient-to-r from-blue-50 via-white to-blue-50 dark:from-[#0F1729] dark:via-[#0D1B3E] dark:to-[#0F1729]">
-        <div className="absolute inset-0 opacity-30"
+        <div
+          className="absolute inset-0 opacity-30"
           style={{
-            background: "radial-gradient(ellipse at 20% 50%, rgba(37,99,235,0.2) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(124,58,237,0.15) 0%, transparent 60%)"
-          }} />
+            background:
+              "radial-gradient(ellipse at 20% 50%, rgba(37,99,235,0.2) 0%, transparent 60%), radial-gradient(ellipse at 80% 50%, rgba(124,58,237,0.15) 0%, transparent 60%)",
+          }}
+        />
         <div className="relative mx-auto max-w-6xl px-4 md:px-6">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             {[
@@ -690,8 +838,12 @@ function Home() {
                 {i < 3 && (
                   <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:block w-px h-12 bg-gray-300 dark:bg-white/10" />
                 )}
-                <div className="text-4xl font-black tracking-tight text-gray-900 dark:text-white">{s.num}</div>
-                <div className="mt-1 text-sm font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-300">{s.label}</div>
+                <div className="text-4xl font-black tracking-tight text-gray-900 dark:text-white">
+                  {s.num}
+                </div>
+                <div className="mt-1 text-sm font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-300">
+                  {s.label}
+                </div>
                 <div className="text-xs text-gray-600 dark:text-gray-500 mt-0.5">{s.sub}</div>
               </div>
             ))}
@@ -703,12 +855,18 @@ function Home() {
       <section className="py-24 bg-white dark:bg-[#080D1A]">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="mb-16 animate-fade-up">
-            <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-4"
-              style={{ background: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.25)" }}>
+            <span
+              className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-4"
+              style={{
+                background: "rgba(37,99,235,0.12)",
+                border: "1px solid rgba(37,99,235,0.25)",
+              }}
+            >
               What We Do
             </span>
             <h2 className="text-4xl font-black text-gray-900 dark:text-white md:text-5xl lg:text-6xl leading-tight">
-              Services Built for<br />
+              Services Built for
+              <br />
               <span className="shimmer-text">Your Success</span>
             </h2>
             <p className="mt-4 max-w-xl text-lg text-gray-600 dark:text-gray-500">
@@ -718,11 +876,13 @@ function Home() {
 
           <div className="grid gap-5 md:grid-cols-2">
             {services.map((s, idx) => (
-              <div key={s.title}
+              <div
+                key={s.title}
                 className={`animate-fade-up delay-${(idx + 1) * 100} service-card group rounded-2xl p-7 cursor-pointer bg-white dark:bg-white/3 border border-gray-300 dark:border-white/10`}
-                onClick={() => window.location.href = s.href}
+                onClick={() => (window.location.href = s.href)}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = `0 20px 60px rgba(0,0,0,0.1) dark:rgba(0,0,0,0.4)`;
+                  (e.currentTarget as HTMLDivElement).style.boxShadow =
+                    `0 20px 60px rgba(0,0,0,0.1) dark:rgba(0,0,0,0.4)`;
                   (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(59,130,246,0.25)";
                 }}
                 onMouseLeave={(e) => {
@@ -731,23 +891,34 @@ function Home() {
                 }}
               >
                 <div className="mb-5 flex items-start justify-between">
-                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${s.gradient}`}>
+                  <div
+                    className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${s.gradient}`}
+                  >
                     <s.icon className="h-7 w-7 text-white" />
                   </div>
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${s.pill}`}>{s.tag}</span>
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${s.pill}`}>
+                    {s.tag}
+                  </span>
                 </div>
                 <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">{s.title}</h3>
-                <p className="mb-5 text-sm leading-relaxed text-gray-600 dark:text-gray-500">{s.desc}</p>
+                <p className="mb-5 text-sm leading-relaxed text-gray-600 dark:text-gray-500">
+                  {s.desc}
+                </p>
                 <div className="mb-5 space-y-2">
                   {["Expert professionals", "Fast processing", "24/7 support"].map((feature) => (
-                    <div key={feature} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-400">
+                    <div
+                      key={feature}
+                      className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-400"
+                    >
                       <Check className={`h-4 w-4 flex-shrink-0 ${s.accent}`} />
                       {feature}
                     </div>
                   ))}
                 </div>
-                <a href={s.href}
-                  className={`inline-flex items-center gap-1.5 text-sm font-semibold ${s.accent} hover:gap-3 transition-all`}>
+                <a
+                  href={s.href}
+                  className={`inline-flex items-center gap-1.5 text-sm font-semibold ${s.accent} hover:gap-3 transition-all`}
+                >
                   Learn more <ArrowRight className="h-3.5 w-3.5" />
                 </a>
               </div>
@@ -762,19 +933,30 @@ function Home() {
           <div className="grid gap-16 md:grid-cols-2 md:items-start">
             {/* Left */}
             <div className="animate-fade-up space-y-6 sticky top-24">
-              <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400"
-                style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
+              <span
+                className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400"
+                style={{
+                  background: "rgba(16,185,129,0.1)",
+                  border: "1px solid rgba(16,185,129,0.2)",
+                }}
+              >
                 Why Choose Us
               </span>
               <h2 className="text-4xl font-black leading-tight text-gray-900 md:text-5xl dark:text-white">
-                Why thousands trust<br />
-                <span style={{ color: "#2563EB" }} className="dark:text-blue-400">San Brothers</span>
+                Why thousands trust
+                <br />
+                <span style={{ color: "#2563EB" }} className="dark:text-blue-400">
+                  San Brothers
+                </span>
               </h2>
               <p className="text-lg leading-relaxed text-gray-600 dark:text-gray-500">
-                We combine international expertise with deep local knowledge to deliver professional services that exceed expectations — every time.
+                We combine international expertise with deep local knowledge to deliver professional
+                services that exceed expectations — every time.
               </p>
-              <div className="rounded-2xl p-5 space-y-2 bg-gray-100 dark:bg-white/3 border border-gray-300 dark:border-white/10"
-                style={{}}>
+              <div
+                className="rounded-2xl p-5 space-y-2 bg-gray-100 dark:bg-white/3 border border-gray-300 dark:border-white/10"
+                style={{}}
+              >
                 <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-500">
                   <span className="text-base">📍</span>
                   <span>Florida House, 2nd Floor, KN 70 Street, Kigali</span>
@@ -788,8 +970,11 @@ function Home() {
                   <span>+250 700 000 000</span>
                 </div>
               </div>
-              <Button size="lg" asChild
-                className="h-12 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 font-semibold text-white hover:from-blue-500 hover:to-blue-600 border-0">
+              <Button
+                size="lg"
+                asChild
+                className="h-12 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 font-semibold text-white hover:from-blue-500 hover:to-blue-600 border-0"
+              >
                 <a href="/about" className="flex items-center gap-2">
                   Learn Our Story <ArrowRight className="h-4 w-4" />
                 </a>
@@ -799,9 +984,13 @@ function Home() {
             {/* Right */}
             <div className="grid gap-4">
               {why.map((w, idx) => (
-                <div key={w.title}
-                  className={`animate-fade-up delay-${(idx % 4 + 1) * 100} why-item flex gap-4 rounded-2xl p-5 bg-gray-100 dark:bg-white/3 border border-gray-300 dark:border-white/10`}>
-                  <div className={`flex-shrink-0 flex h-11 w-11 items-center justify-center rounded-xl ${w.bg}`}>
+                <div
+                  key={w.title}
+                  className={`animate-fade-up delay-${((idx % 4) + 1) * 100} why-item flex gap-4 rounded-2xl p-5 bg-gray-100 dark:bg-white/3 border border-gray-300 dark:border-white/10`}
+                >
+                  <div
+                    className={`flex-shrink-0 flex h-11 w-11 items-center justify-center rounded-xl ${w.bg}`}
+                  >
                     <w.icon className={`h-5 w-5 ${w.color}`} />
                   </div>
                   <div>
@@ -819,12 +1008,20 @@ function Home() {
       <section className="py-24 bg-white dark:bg-[#080D1A]">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="mb-16 animate-fade-up text-center">
-            <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-violet-600 dark:text-violet-400 mb-4"
-              style={{ background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)" }}>
+            <span
+              className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-violet-600 dark:text-violet-400 mb-4"
+              style={{
+                background: "rgba(139,92,246,0.1)",
+                border: "1px solid rgba(139,92,246,0.2)",
+              }}
+            >
               The Process
             </span>
             <h2 className="text-4xl font-black text-gray-900 dark:text-white md:text-5xl">
-              Get started in <span style={{ color: "#A78BFA" }} className="dark:text-violet-300">4 simple steps</span>
+              Get started in{" "}
+              <span style={{ color: "#A78BFA" }} className="dark:text-violet-300">
+                4 simple steps
+              </span>
             </h2>
             <p className="mt-4 text-lg text-gray-600 dark:text-gray-500">
               From registration to results — we make it effortless.
@@ -835,12 +1032,12 @@ function Home() {
           <div className="hidden md:grid md:grid-cols-4 gap-6">
             {steps.map((s, i) => (
               <div key={s.title} className={`animate-fade-up delay-${(i + 1) * 100} relative`}>
-                {i < steps.length - 1 && (
-                  <div className="step-connector" />
-                )}
+                {i < steps.length - 1 && <div className="step-connector" />}
                 <div className="rounded-2xl p-6 bg-gray-100 dark:bg-white/3 border border-gray-300 dark:border-white/10">
                   <div className="mb-4 flex items-center gap-3">
-                    <span className="text-4xl font-black text-gray-300 dark:text-white/20">{s.num}</span>
+                    <span className="text-4xl font-black text-gray-300 dark:text-white/20">
+                      {s.num}
+                    </span>
                     <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-900/30 border border-violet-300 dark:border-violet-500/30">
                       <s.icon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                     </div>
@@ -881,14 +1078,24 @@ function Home() {
       <section className="py-24 overflow-hidden bg-gray-50 dark:bg-[#060B18]">
         <div className="mx-auto max-w-7xl px-4 md:px-6 mb-12">
           <div className="animate-fade-up text-center">
-            <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-4"
-              style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" }}>
+            <span
+              className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-4"
+              style={{
+                background: "rgba(245,158,11,0.1)",
+                border: "1px solid rgba(245,158,11,0.2)",
+              }}
+            >
               Client Stories
             </span>
             <h2 className="text-4xl font-black text-gray-900 dark:text-white md:text-5xl">
-              What Our <span style={{ color: "#D97706" }} className="dark:text-amber-300">Clients Say</span>
+              What Our{" "}
+              <span style={{ color: "#D97706" }} className="dark:text-amber-300">
+                Clients Say
+              </span>
             </h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-500">Real results from real people across the globe.</p>
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-500">
+              Real results from real people across the globe.
+            </p>
           </div>
         </div>
 
@@ -896,15 +1103,22 @@ function Home() {
         <div className="carousel-wrapper hidden md:block">
           <div className="carousel-track flex gap-5" style={{ width: "max-content" }}>
             {[...testimonials, ...testimonials].map((tt, idx) => (
-              <div key={idx} className="testimonial-card flex-shrink-0 w-[360px] rounded-2xl p-6 bg-white dark:bg-white/3 border border-gray-300 dark:border-white/10">
+              <div
+                key={idx}
+                className="testimonial-card flex-shrink-0 w-[360px] rounded-2xl p-6 bg-white dark:bg-white/3 border border-gray-300 dark:border-white/10"
+              >
                 <div className="mb-4 flex gap-0.5">
                   {Array.from({ length: tt.rating }).map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-                <p className="mb-5 text-sm leading-relaxed text-gray-700 dark:text-gray-400">"{tt.quote}"</p>
+                <p className="mb-5 text-sm leading-relaxed text-gray-700 dark:text-gray-400">
+                  "{tt.quote}"
+                </p>
                 <div className="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-white/10">
-                  <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${tt.color} text-xs font-bold text-white`}>
+                  <div
+                    className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${tt.color} text-xs font-bold text-white`}
+                  >
                     {tt.initials}
                   </div>
                   <div>
@@ -920,15 +1134,22 @@ function Home() {
         {/* Mobile grid */}
         <div className="md:hidden mx-auto max-w-7xl px-4 grid gap-4">
           {testimonials.slice(0, 3).map((tt) => (
-            <div key={tt.name} className="rounded-2xl p-6 bg-white dark:bg-white/3 border border-gray-300 dark:border-white/10">
+            <div
+              key={tt.name}
+              className="rounded-2xl p-6 bg-white dark:bg-white/3 border border-gray-300 dark:border-white/10"
+            >
               <div className="mb-3 flex gap-0.5">
                 {Array.from({ length: tt.rating }).map((_, i) => (
                   <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
                 ))}
               </div>
-              <p className="mb-4 text-sm leading-relaxed text-gray-700 dark:text-gray-400">"{tt.quote}"</p>
+              <p className="mb-4 text-sm leading-relaxed text-gray-700 dark:text-gray-400">
+                "{tt.quote}"
+              </p>
               <div className="flex items-center gap-3 pt-3 border-t border-gray-200 dark:border-white/10">
-                <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${tt.color} text-xs font-bold text-white`}>
+                <div
+                  className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${tt.color} text-xs font-bold text-white`}
+                >
                   {tt.initials}
                 </div>
                 <div>
@@ -944,19 +1165,37 @@ function Home() {
       {/* ========== PARTNERSHIP ========== */}
       <section className="py-20 pt-32 bg-white dark:bg-[#080D1A]">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
-          <div className="rounded-3xl p-8 md:p-12 bg-blue-50 dark:bg-white/5 border border-blue-200 dark:border-blue-500/20"
-            style={{ background: "linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(124,58,237,0.06) 100%)" }}>
+          <div
+            className="rounded-3xl p-8 md:p-12 bg-blue-50 dark:bg-white/5 border border-blue-200 dark:border-blue-500/20"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(124,58,237,0.06) 100%)",
+            }}
+          >
             <div className="grid gap-10 md:grid-cols-2 md:items-center">
               <div className="animate-fade-up space-y-4">
-                <span className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400"
-                  style={{ background: "rgba(37,99,235,0.12)", border: "1px solid rgba(37,99,235,0.25)" }}>
+                <span
+                  className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400"
+                  style={{
+                    background: "rgba(37,99,235,0.12)",
+                    border: "1px solid rgba(37,99,235,0.25)",
+                  }}
+                >
                   In Partnership With
                 </span>
-                <h3 className="text-3xl font-black text-gray-900 dark:text-white">Best of the Best<br />Company Ltd</h3>
+                <h3 className="text-3xl font-black text-gray-900 dark:text-white">
+                  Best of the Best
+                  <br />
+                  Company Ltd
+                </h3>
                 <p className="text-gray-600 dark:text-gray-500 leading-relaxed">
-                  Expanding our reach with integrated logistics, China sourcing, and scholarship opportunities for clients worldwide.
+                  Expanding our reach with integrated logistics, China sourcing, and scholarship
+                  opportunities for clients worldwide.
                 </p>
-                <a href="#" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                <a
+                  href="#"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                >
                   Learn more about our partnership <ArrowRight className="h-3.5 w-3.5" />
                 </a>
               </div>
@@ -966,10 +1205,15 @@ function Home() {
                   { emoji: "🏭", title: "China Sourcing", desc: "Factory direct" },
                   { emoji: "🎓", title: "Scholarships", desc: "Study abroad" },
                 ].map((b) => (
-                  <div key={b.title} className="partnership-badge rounded-2xl p-5 text-center cursor-pointer bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10"
-                    style={{}}>
+                  <div
+                    key={b.title}
+                    className="partnership-badge rounded-2xl p-5 text-center cursor-pointer bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10"
+                    style={{}}
+                  >
                     <div className="mb-2 text-3xl">{b.emoji}</div>
-                    <div className="text-xs font-bold text-gray-900 dark:text-white leading-tight">{b.title}</div>
+                    <div className="text-xs font-bold text-gray-900 dark:text-white leading-tight">
+                      {b.title}
+                    </div>
                     <div className="text-xs text-gray-600 dark:text-gray-600 mt-1">{b.desc}</div>
                   </div>
                 ))}
@@ -982,33 +1226,46 @@ function Home() {
       {/* ========== CTA BANNER ========== */}
       <section className="relative overflow-hidden py-24 gradient-animated -mt-0.5 bg-gradient-to-r from-blue-600 via-blue-700 to-purple-700 dark:from-[#1D4ED8] dark:via-[#2563EB] dark:to-[#6D28D9]">
         {/* Noise texture overlay */}
-        <div className="absolute inset-0 opacity-10"
+        <div
+          className="absolute inset-0 opacity-10"
           style={{
-            backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E\")"
-          }} />
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E\")",
+          }}
+        />
 
         <div className="relative mx-auto max-w-4xl px-4 text-center md:px-6">
           <div className="animate-fade-up space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white/90 mb-2"
-              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)" }}>
+            <div
+              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white/90 mb-2"
+              style={{
+                background: "rgba(255,255,255,0.15)",
+                border: "1px solid rgba(255,255,255,0.2)",
+              }}
+            >
               <Users className="h-4 w-4" />
               Join 1,000+ satisfied clients
             </div>
             <h2 className="text-4xl font-black text-white md:text-6xl leading-tight">
               Ready to get started?
             </h2>
-            <p className="text-xl text-white/75">
-              Create your free account in under 2 minutes.
-            </p>
+            <p className="text-xl text-white/75">Create your free account in under 2 minutes.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button size="lg" asChild
-                className="h-14 rounded-xl bg-white text-blue-700 hover:bg-gray-100 text-base font-bold px-8 border-0">
+              <Button
+                size="lg"
+                asChild
+                className="h-14 rounded-xl bg-white text-blue-700 hover:bg-gray-100 text-base font-bold px-8 border-0"
+              >
                 <a href="/services" className="flex items-center gap-2">
                   Get Started Free <ArrowRight className="h-4 w-4" />
                 </a>
               </Button>
-              <Button size="lg" variant="outline" asChild
-                className="h-14 rounded-xl border-white/25 bg-white/10 text-white backdrop-blur hover:bg-white/20 text-base font-semibold px-8">
+              <Button
+                size="lg"
+                variant="outline"
+                asChild
+                className="h-14 rounded-xl border-white/25 bg-white/10 text-white backdrop-blur hover:bg-white/20 text-base font-semibold px-8"
+              >
                 <a href="/contact">Talk to Us</a>
               </Button>
             </div>
