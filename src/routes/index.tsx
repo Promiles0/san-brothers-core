@@ -547,7 +547,7 @@ function Home() {
       >
         {/* Ambient orbs - only show in dark mode */}
         <div
-          className="orb-1 pointer-events-none absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-0 dark:opacity-60"
+          className="orb-1 pointer-events-none absolute -top-40 -left-40 h-150 w-150 rounded-full opacity-0 dark:opacity-60"
           style={{
             background:
               "radial-gradient(circle at center, rgba(37,99,235,0.18) 0%, transparent 65%)",
@@ -555,7 +555,7 @@ function Home() {
           }}
         />
         <div
-          className="orb-2 pointer-events-none absolute top-1/2 -right-32 h-[500px] w-[500px] rounded-full opacity-0 dark:opacity-50"
+          className="orb-2 pointer-events-none absolute top-1/2 -right-32 h-125 w-125 rounded-full opacity-0 dark:opacity-50"
           style={{
             background:
               "radial-gradient(circle at center, rgba(124,58,237,0.15) 0%, transparent 65%)",
@@ -563,7 +563,7 @@ function Home() {
           }}
         />
         <div
-          className="orb-3 pointer-events-none absolute bottom-0 left-1/3 h-[400px] w-[400px] rounded-full opacity-0 dark:opacity-40"
+          className="orb-3 pointer-events-none absolute bottom-0 left-1/3 h-100 w-100 rounded-full opacity-0 dark:opacity-40"
           style={{
             background:
               "radial-gradient(circle at center, rgba(5,150,105,0.12) 0%, transparent 65%)",
@@ -626,7 +626,7 @@ function Home() {
                 <Button
                   size="lg"
                   asChild
-                  className="glow-btn h-14 bg-gradient-to-r from-blue-600 to-blue-700 text-base font-semibold text-white hover:from-blue-500 hover:to-blue-600 border-0 rounded-xl"
+                  className="glow-btn h-14 bg-linear-to-r from-blue-600 to-blue-700 text-base font-semibold text-white hover:from-blue-500 hover:to-blue-600 border-0 rounded-xl"
                 >
                   <a href="/services" className="flex items-center gap-2">
                     Get Started Free <ArrowRight className="h-4 w-4" />
@@ -646,7 +646,7 @@ function Home() {
               <div className="animate-fade-up delay-500 flex flex-wrap gap-4 text-sm text-gray-700 dark:text-gray-400">
                 {["Free consultation", "No hidden fees", "24/7 online access"].map((t) => (
                   <span key={t} className="flex items-center gap-1.5">
-                    <Check className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400 flex-shrink-0" />
+                    <Check className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
                     {t}
                   </span>
                 ))}
@@ -654,7 +654,7 @@ function Home() {
             </div>
 
             {/* Right — floating cards */}
-            <div className="relative hidden min-h-[580px] md:block">
+            <div className="relative hidden min-h-145 md:block">
               <div className="absolute inset-0">
                 {/* Center decoration ring */}
                 <div
@@ -892,7 +892,7 @@ function Home() {
               >
                 <div className="mb-5 flex items-start justify-between">
                   <div
-                    className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${s.gradient}`}
+                    className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br ${s.gradient}`}
                   >
                     <s.icon className="h-7 w-7 text-white" />
                   </div>
@@ -910,7 +910,7 @@ function Home() {
                       key={feature}
                       className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-400"
                     >
-                      <Check className={`h-4 w-4 flex-shrink-0 ${s.accent}`} />
+                      <Check className={`h-4 w-4 shrink-0 ${s.accent}`} />
                       {feature}
                     </div>
                   ))}
@@ -973,7 +973,7 @@ function Home() {
               <Button
                 size="lg"
                 asChild
-                className="h-12 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 font-semibold text-white hover:from-blue-500 hover:to-blue-600 border-0"
+                className="h-12 rounded-xl bg-linear-to-r from-blue-600 to-blue-700 font-semibold text-white hover:from-blue-500 hover:to-blue-600 border-0"
               >
                 <a href="/about" className="flex items-center gap-2">
                   Learn Our Story <ArrowRight className="h-4 w-4" />
@@ -1117,7 +1117,7 @@ function Home() {
                 </p>
                 <div className="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-white/10">
                   <div
-                    className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${tt.color} text-xs font-bold text-white`}
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br ${tt.color} text-xs font-bold text-white`}
                   >
                     {tt.initials}
                   </div>
