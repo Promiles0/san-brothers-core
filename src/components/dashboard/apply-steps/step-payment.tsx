@@ -200,20 +200,22 @@ export function StepPayment({
       )}
 
       {showPaymentForm && (
-        <StripePaymentForm
-          amount={basePrice}
-          serviceTitle={`Service Application: ${service.name_en}`}
-          description={`Complete your application for ${service.name_en}`}
-          metadata={{
-            serviceId: service.id,
-            serviceSlug: service.slug,
-            notes: state.notes,
-            documentCount: state.uploadedDocuments.length.toString(),
-          }}
-          onSuccess={handlePaymentSuccess}
-          onCancel={() => setShowPaymentForm(false)}
-          onError={handlePaymentError}
-        />
+        <div className="w-full max-w-xl mx-auto">
+          <StripePaymentForm
+            amount={basePrice}
+            serviceTitle={`Service Application: ${service.name_en}`}
+            description={`Complete your application for ${service.name_en}`}
+            metadata={{
+              serviceId: service.id,
+              serviceSlug: service.slug,
+              notes: state.notes,
+              documentCount: state.uploadedDocuments.length.toString(),
+            }}
+            onSuccess={handlePaymentSuccess}
+            onCancel={() => setShowPaymentForm(false)}
+            onError={handlePaymentError}
+          />
+        </div>
       )}
 
       <div className="flex gap-3 justify-between">

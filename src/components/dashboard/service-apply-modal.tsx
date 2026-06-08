@@ -747,7 +747,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
 
         {showingPayment && payIntent ? (
           <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto bg-linear-to-br from-muted/40 via-background to-primary/5 p-4 sm:p-6">
-            <div className="w-full max-w-lg space-y-4">
+            <div className="w-full max-w-xl space-y-4">
               {stripeError ? (
                 <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />

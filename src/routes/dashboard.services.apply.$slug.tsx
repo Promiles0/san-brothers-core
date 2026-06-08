@@ -1051,13 +1051,15 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: any) 
       </div>
 
       {/* Inline payment form — no intermediate button */}
-      <StripePaymentForm
-        amount={basePrice}
-        serviceTitle={service.name_en}
-        onSuccess={handlePaymentSuccess}
-        onCancel={onBack}
-        onError={handlePaymentError}
-      />
+      <div className="w-full max-w-xl mx-auto">
+        <StripePaymentForm
+          amount={basePrice}
+          serviceTitle={service.name_en}
+          onSuccess={handlePaymentSuccess}
+          onCancel={onBack}
+          onError={handlePaymentError}
+        />
+      </div>
 
       {/* Back link */}
       <button

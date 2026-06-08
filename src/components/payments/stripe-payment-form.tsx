@@ -27,22 +27,28 @@ export interface StripePaymentFormProps {
   onSuccess: (paymentIntentId: string) => void | Promise<void>;
   onCancel: () => void;
   onError?: (message: string, error?: unknown) => void;
+  clientSecret?: string | null; // Added prop
 }
 
 type PaymentMethod = "card" | "mtn-momo" | "paypal" | "bank" | "cash-app" | "amazon-pay";
 
 export function StripePaymentForm(props: StripePaymentFormProps) {
-  const { amount, serviceTitle, onError } = props;
+  const { amount, serviceTitle, onError, clientSecret: propClientSecret } = props;
   const onErrorRef = useRef(onError);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [internalClientSecret, setInternalClientSecret] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>("card");
+
+  const clientSecret = propClientSecret || internalClientSecret;
 
   useEffect(() => {
     onErrorRef.current = onError;
   }, [onError]);
 
+  // Only fetch internally if clientSecret is not provided as a prop
   useEffect(() => {
+    if (propClientSecret) return;
+
     let cancelled = false;
     if (!PUBLISHABLE_KEY) {
       const message = "Stripe publishable key is not configured.";
@@ -52,7 +58,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
       return;
     }
     setInitError(null);
-    setClientSecret(null);
+    setInternalClientSecret(null);
     async function preparePaymentIntent() {
       const response = await fetch("/api/stripe/payment-intent", {
         method: "POST",
@@ -82,7 +88,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
     preparePaymentIntent()
       .then((secret) => {
         if (cancelled) return;
-        setClientSecret(secret);
+        setInternalClientSecret(secret);
       })
       .catch((e: Error) => {
         if (!cancelled) {
@@ -95,7 +101,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
     return () => {
       cancelled = true;
     };
-  }, [amount, serviceTitle]);
+  }, [amount, serviceTitle, propClientSecret]);
 
   const options = useMemo(
     () =>
@@ -118,7 +124,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
   const rwfAmount = Math.round(amount * 1285);
 
   return (
-    <Card className="border-0 bg-linear-to-br from-background to-muted/30 shadow-xl ring-1 ring-border/60 backdrop-blur">
+    <Card className="border-0 bg-linear-to-br from-background to-muted/30 shadow-xl ring-1 ring-border/60 backdrop-blur w-full max-w-xl mx-auto">
       <CardContent className="w-full p-4 sm:p-6 lg:p-7">
         <Header serviceTitle={props.serviceTitle} description={props.description} />
 
@@ -244,10 +250,11 @@ function PaymentMethodGrid({
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
       {methods.map((method) => (
         <button
           key={method.id}
+          type="button"
           onClick={() => onSelectMethod(method.id)}
           className={cn(
             "relative flex min-h-[80px] flex-col items-center justify-center gap-2 rounded-lg border-2 p-3 sm:p-4 transition-all duration-200",
@@ -262,7 +269,7 @@ function PaymentMethodGrid({
               Soon
             </div>
           )}
-          <div className="text-foreground">{method.icon}</div>
+          <div className="text-foreground flex items-center justify-center">{method.icon}</div>
           <div className="text-center">
             <div className="text-xs sm:text-sm font-medium text-foreground">{method.name}</div>
           </div>
@@ -280,9 +287,7 @@ function MTNMoMoForm({ amount, rwfAmount }: { amount: number; rwfAmount: number 
   const [loading, setLoading] = useState(false);
 
   const formatPhoneNumber = (value: string) => {
-    // Remove non-digits
     const digits = value.replace(/\D/g, "");
-    // Format as 078X XXX XXX
     if (digits.length <= 3) return digits;
     if (digits.length <= 6) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
     return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 9)}`;
@@ -305,7 +310,6 @@ function MTNMoMoForm({ amount, rwfAmount }: { amount: number; rwfAmount: number 
     }
 
     setLoading(true);
-    // Simulate sending payment request
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setLoading(false);
     toast.error("MTN MoMo is not yet available. Please use Card payment or contact us.");
@@ -425,12 +429,11 @@ function CashAppForm({ amount }: { amount: number }) {
   return (
     <div className="space-y-4 rounded-lg border border-border/50 bg-muted/30 p-4">
       <div className="flex items-center gap-2">
-        <DollarSign className="h-5 w-5 text-green-600" />
+        <DollarSign className="h-5 w-5" />
         <h4 className="font-semibold">Cash App</h4>
       </div>
       <p className="text-sm text-muted-foreground">
-        Cash App payment details will be provided after you proceed. Please contact support for
-        assistance.
+        Cash App payments will be available soon. Please use another payment method for now.
       </p>
       <Button className="w-full" disabled>
         Cash App (Coming Soon)

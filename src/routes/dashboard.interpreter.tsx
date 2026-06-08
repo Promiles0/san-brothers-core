@@ -202,6 +202,8 @@ function InterpreterLandingPage() {
 
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [payPkg, setPayPkg] = useState<MinutePackage | null>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [isPreparingPayment, setIsPreparingPayment] = useState(false);
 
   const [preferredInterp, setPreferredInterp] = useState<PreferredInterpreter | null>(null);
   const [preferredInterpLoading, setPreferredInterpLoading] = useState(false);
@@ -341,7 +343,41 @@ function InterpreterLandingPage() {
     }
   };
 
-  const handlePurchase = (pkg: MinutePackage) => { if (!user) return; setPayPkg(pkg); };
+  const handlePurchase = async (pkg: MinutePackage) => {
+    if (!user) return;
+    setPayPkg(pkg);
+    setIsPreparingPayment(true);
+    setClientSecret(null);
+
+    try {
+      const response = await fetch('/api/stripe/payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: pkg.price_usd,
+          metadata: {
+            type: 'minute_package',
+            client_id: user.id,
+            package_id: pkg.id,
+            minutes: String(pkg.minutes)
+          }
+        }),
+      });
+      const data = await response.json();
+      if (data.clientSecret) {
+        setClientSecret(data.clientSecret);
+      } else {
+        toast.error("Failed to prepare payment. Please try again.");
+        setPayPkg(null);
+      }
+    } catch (err) {
+      console.error("Payment preparation error:", err);
+      toast.error("Failed to prepare payment. Please try again.");
+      setPayPkg(null);
+    } finally {
+      setIsPreparingPayment(false);
+    }
+  };
 
   const finalizePurchase = async (pkg: MinutePackage, intentId: string) => {
     if (!user) return;
@@ -722,20 +758,30 @@ function InterpreterLandingPage() {
       </div>
 
       {/* Payment dialog */}
-      <Dialog open={!!payPkg} onOpenChange={(o: boolean) => { if (!o) setPayPkg(null); }}>
-        <DialogContent className="w-full max-w-xl border-0 bg-transparent p-0 shadow-none sm:max-w-lg">
+      <Dialog open={!!payPkg} onOpenChange={(o: boolean) => { if (!o) { setPayPkg(null); setClientSecret(null); } }}>
+        <DialogContent className="w-full max-w-xl border-0 bg-transparent p-0 shadow-none sm:max-w-xl">
           <DialogHeader className="sr-only">
             <DialogTitle>Buy minutes</DialogTitle>
           </DialogHeader>
           {payPkg && (
-            <StripePaymentForm
-              amount={payPkg.price_usd}
-              serviceTitle={`Interpreter Minutes — ${payPkg.label}`}
-              description={`${payPkg.minutes} minutes`}
-              metadata={{ client_id: user?.id ?? "", package_id: payPkg.id, minutes: String(payPkg.minutes) }}
-              onSuccess={(intentId: string) => finalizePurchase(payPkg, intentId)}
-              onCancel={() => setPayPkg(null)}
-            />
+            <div className="relative min-h-[400px]">
+              {isPreparingPayment ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/80 backdrop-blur-sm rounded-xl border">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <p className="text-sm font-medium">Preparing secure checkout...</p>
+                </div>
+              ) : clientSecret ? (
+                <StripePaymentForm
+                  amount={payPkg.price_usd}
+                  clientSecret={clientSecret}
+                  serviceTitle={`Interpreter Minutes — ${payPkg.label}`}
+                  description={`${payPkg.minutes} minutes`}
+                  metadata={{ client_id: user?.id ?? "", package_id: payPkg.id, minutes: String(payPkg.minutes) }}
+                  onSuccess={(intentId: string) => finalizePurchase(payPkg, intentId)}
+                  onCancel={() => { setPayPkg(null); setClientSecret(null); }}
+                />
+              ) : null}
+            </div>
           )}
         </DialogContent>
       </Dialog>
