@@ -11,7 +11,8 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build:client": "tanstack start build --client"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
@@ -67,6 +68,7 @@
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.71.2",
     "react-resizable-panels": "^4.6.5",
+    "react-router-dom": "^7.17.0",
     "recharts": "^2.15.4",
     "sonner": "^2.0.7",
     "stripe": "^22.2.0",
@@ -82,8 +84,9 @@
     "@lovable.dev/vite-tanstack-config": "2.3.1",
     "@types/file-saver": "^2.0.7",
     "@types/node": "^22.16.5",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0",
+    "@types/react": "^19.2.16",
+    "@types/react-dom": "^19.2.3",
+    "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^5.0.4",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
