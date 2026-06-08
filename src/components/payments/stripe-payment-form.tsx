@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
-import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { Elements, CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { Loader as Loader2, Lock, ShieldCheck, CreditCard, Building2, DollarSign, CircleCheck as CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -59,7 +59,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount,
-          metadata: { serviceTitle },
+          metadata: { serviceTitle, ...props.metadata },
         }),
       });
 
@@ -119,17 +119,17 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
 
   return (
     <Card className="border-0 bg-linear-to-br from-background to-muted/30 shadow-xl ring-1 ring-border/60 backdrop-blur">
-      <CardContent className="p-6 sm:p-7">
+      <CardContent className="w-full p-4 sm:p-6 lg:p-7">
         <Header serviceTitle={props.serviceTitle} description={props.description} />
 
         {/* Amount Display */}
-        <div className="mb-6 rounded-lg bg-primary/5 p-4 border border-primary/20">
+        <div className="mb-6 rounded-lg bg-primary/5 p-3 sm:p-4 border border-primary/20">
           <div className="text-center">
             <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">
               Total Amount
             </div>
-            <div className="text-3xl font-bold text-primary">${amount.toFixed(2)} USD</div>
-            <div className="text-sm text-muted-foreground mt-2">
+            <div className="text-2xl sm:text-3xl font-bold text-primary">${amount.toFixed(2)} USD</div>
+            <div className="text-xs sm:text-sm text-muted-foreground mt-2">
               ≈ RWF {rwfAmount.toLocaleString()}
             </div>
           </div>
@@ -154,7 +154,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
             <div className="mb-6">
               {selectedMethod === "card" && (
                 <Elements stripe={getStripe()} options={options}>
-                  <InnerForm {...props} />
+                  <InnerForm {...props} selectedMethod={selectedMethod} />
                 </Elements>
               )}
               {selectedMethod === "mtn-momo" && (
@@ -244,13 +244,13 @@ function PaymentMethodGrid({
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
       {methods.map((method) => (
         <button
           key={method.id}
           onClick={() => onSelectMethod(method.id)}
           className={cn(
-            "relative flex flex-col items-center justify-center gap-2 rounded-lg border-2 p-4 transition-all duration-200",
+            "relative flex min-h-[80px] flex-col items-center justify-center gap-2 rounded-lg border-2 p-3 sm:p-4 transition-all duration-200",
             selectedMethod === method.id
               ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
               : "border-border/50 bg-background/50 hover:border-border hover:bg-muted/50",
@@ -474,7 +474,7 @@ function SecureFooter() {
   );
 }
 
-function InnerForm({ amount, onSuccess, onCancel, onError }: StripePaymentFormProps) {
+function InnerForm({ amount, onSuccess, onCancel, onError, selectedMethod }: StripePaymentFormProps & { selectedMethod?: PaymentMethod }) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -531,8 +531,22 @@ function InnerForm({ amount, onSuccess, onCancel, onError }: StripePaymentFormPr
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="rounded-xl border bg-background/60 p-3">
-        <PaymentElement options={{ layout: { type: "accordion", defaultCollapsed: false, radios: "auto", spacedAccordionItems: false } }} />
+      <div className="w-full rounded-xl border bg-background/60 p-3 sm:p-4">
+        <CardElement options={{
+          style: {
+            base: {
+              fontSize: '14px',
+              color: '#424770',
+              '::placeholder': {
+                color: '#aab7c4',
+              },
+            },
+            invalid: {
+              color: '#fa755a',
+            },
+          },
+          hidePostalCode: true,
+        }} />
       </div>
 
       {error ? (
