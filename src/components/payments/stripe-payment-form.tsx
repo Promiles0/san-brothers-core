@@ -532,7 +532,7 @@ function InnerForm({ amount, onSuccess, onCancel, onError }: StripePaymentFormPr
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="rounded-xl border bg-background/60 p-3">
-        <PaymentElement options={{ layout: { type: "accordion", defaultCollapsed: false, radios: false, spacedAccordionItems: false } }} />
+        <PaymentElement options={{ layout: { type: "accordion", defaultCollapsed: false, radios: "auto", spacedAccordionItems: false } }} />
       </div>
 
       {error ? (
