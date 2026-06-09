@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import {
   Plane,
   Calculator,
@@ -538,284 +538,11 @@ function Home() {
       `}</style>
 
       {/* ========== HERO ========== */}
-      <section
-        className="relative min-h-screen w-full overflow-hidden grid-pattern bg-white dark:bg-[#0A0F1C]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
-        }}
-      >
-        {/* Ambient orbs - only show in dark mode */}
-        <div
-          className="orb-1 pointer-events-none absolute -top-40 -left-40 h-150 w-150 rounded-full opacity-0 dark:opacity-60"
-          style={{
-            background:
-              "radial-gradient(circle at center, rgba(37,99,235,0.18) 0%, transparent 65%)",
-            filter: "blur(80px)",
-          }}
-        />
-        <div
-          className="orb-2 pointer-events-none absolute top-1/2 -right-32 h-125 w-125 rounded-full opacity-0 dark:opacity-50"
-          style={{
-            background:
-              "radial-gradient(circle at center, rgba(124,58,237,0.15) 0%, transparent 65%)",
-            filter: "blur(70px)",
-          }}
-        />
-        <div
-          className="orb-3 pointer-events-none absolute bottom-0 left-1/3 h-100 w-100 rounded-full opacity-0 dark:opacity-40"
-          style={{
-            background:
-              "radial-gradient(circle at center, rgba(5,150,105,0.12) 0%, transparent 65%)",
-            filter: "blur(60px)",
-          }}
-        />
-
-        <div className="relative z-10 mx-auto max-w-7xl px-4 md:px-6">
-          <div className="grid min-h-screen gap-8 md:grid-cols-2 md:items-center md:py-24 py-20">
-            {/* Left — headline & CTAs */}
-            <div className="flex flex-col justify-center space-y-8 pt-8 md:pt-0">
-              {/* Trust badge */}
-              <div
-                className="badge-pop inline-flex w-fit items-center gap-2.5 rounded-full px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-300"
-                style={{
-                  background: "rgba(37,99,235,0.12)",
-                  border: "1px solid rgba(37,99,235,0.3)",
-                }}
-              >
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 dark:bg-blue-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500 dark:bg-blue-400" />
-                </span>
-                Trusted in 15+ Countries · Est. 2020
-              </div>
-
-              {/* Headline */}
-              <div className="space-y-3">
-                <h1
-                  className="font-black leading-[1.05] tracking-tight text-gray-900 dark:text-white"
-                  style={{ fontSize: "clamp(2.4rem, 5.5vw, 4.2rem)" }}
-                >
-                  <span className="animate-fade-up block">Your Trusted Partner</span>
-                  <span className="animate-fade-up delay-100 block">for Global</span>
-                  <span className="animate-fade-up delay-200 shimmer-text block">
-                    Professional Services
-                  </span>
-                </h1>
-              </div>
-
-              {/* Sub */}
-              <p className="animate-fade-up delay-300 max-w-lg text-lg leading-relaxed text-gray-600 dark:text-gray-400">
-                Accounting · Visa & Permits · Translation · Consultancy
-                <br />
-                <span className="text-gray-700 dark:text-gray-500">
-                  Built for Rwanda and the world.
-                </span>
-              </p>
-
-              {/* Inline stats */}
-              {/* <div className="animate-fade-up delay-300 grid grid-cols-2 gap-4 rounded-2xl p-5 sm:grid-cols-4 bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10">
-                <StatCounter value={1000} label="Clients" sublabel="served" />
-                <StatCounter value={15} label="Languages" sublabel="supported" />
-                <StatCounter value={4} label="Services" sublabel="areas" />
-                <StatCounter value={98} suffix="%" label="Success" sublabel="rate" />
-              </div> */}
-
-              {/* CTAs */}
-              <div className="animate-fade-up delay-400 flex flex-col gap-3 sm:flex-row">
-                <Button
-                  size="lg"
-                  asChild
-                  className="glow-btn h-14 bg-linear-to-r from-blue-600 to-blue-700 text-base font-semibold text-white hover:from-blue-500 hover:to-blue-600 border-0 rounded-xl"
-                >
-                  <a href="/services" className="flex items-center gap-2">
-                    Get Started Free <ArrowRight className="h-4 w-4" />
-                  </a>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  asChild
-                  className="h-14 rounded-xl border-gray-400 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white text-base font-semibold hover:bg-gray-100 dark:hover:bg-white/10 dark:hover:border-white/20"
-                >
-                  <a href="/contact">Talk to an Expert</a>
-                </Button>
-              </div>
-
-              {/* Trust signals */}
-              <div className="animate-fade-up delay-500 flex flex-wrap gap-4 text-sm text-gray-700 dark:text-gray-400">
-                {["Free consultation", "No hidden fees", "24/7 online access"].map((t) => (
-                  <span key={t} className="flex items-center gap-1.5">
-                    <Check className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Right — floating cards */}
-            <div className="relative hidden min-h-145 md:block">
-              <div className="absolute inset-0">
-                {/* Center decoration ring */}
-                <div
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-48 w-48 rounded-full opacity-10"
-                  style={{
-                    border: "1px dashed rgba(59,130,246,0.5)",
-                    animation: "spin-slow 40s linear infinite",
-                  }}
-                />
-                <div
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-72 w-72 rounded-full opacity-5"
-                  style={{
-                    border: "1px solid rgba(59,130,246,0.4)",
-                    animation: "spin-slow 60s linear infinite reverse",
-                  }}
-                />
-
-                {/* Visa Approved */}
-                <div className="float-card-1 absolute top-8 left-0 w-60">
-                  <div
-                    className="glass-card-light rounded-2xl p-5"
-                    style={{ border: "1px solid rgba(34,197,94,0.25)" }}
-                  >
-                    <div className="mb-3 flex items-center gap-3">
-                      <div
-                        className="flex h-9 w-9 items-center justify-center rounded-full"
-                        style={{ background: "rgba(34,197,94,0.15)" }}
-                      >
-                        <span className="text-lg">🛂</span>
-                      </div>
-                      <div>
-                        <div className="text-xs font-medium text-gray-400">Status Update</div>
-                        <div className="text-sm font-bold text-white">Visa Approved</div>
-                      </div>
-                    </div>
-                    <div
-                      className="flex items-center gap-2 rounded-lg px-3 py-1.5"
-                      style={{ background: "rgba(34,197,94,0.1)" }}
-                    >
-                      <CheckCircle className="h-4 w-4 text-emerald-400" />
-                      <span className="text-xs font-semibold text-emerald-300">
-                        Processing Complete
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tax Filed */}
-                <div className="float-card-2 absolute top-28 right-0 w-60">
-                  <div
-                    className="glass-card-light rounded-2xl p-5"
-                    style={{ border: "1px solid rgba(59,130,246,0.25)" }}
-                  >
-                    <div className="mb-3 flex items-center gap-3">
-                      <div
-                        className="flex h-9 w-9 items-center justify-center rounded-full"
-                        style={{ background: "rgba(59,130,246,0.15)" }}
-                      >
-                        <span className="text-lg">📊</span>
-                      </div>
-                      <div>
-                        <div className="text-xs font-medium text-gray-400">Accounting</div>
-                        <div className="text-sm font-bold text-white">Tax Filed</div>
-                      </div>
-                    </div>
-                    <div
-                      className="flex items-center gap-2 rounded-lg px-3 py-1.5"
-                      style={{ background: "rgba(59,130,246,0.1)" }}
-                    >
-                      <Zap className="h-4 w-4 text-blue-400" />
-                      <span className="text-xs font-semibold text-blue-300">Submitted on time</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Translated */}
-                <div className="float-card-3 absolute bottom-28 left-10 w-60">
-                  <div
-                    className="glass-card-light rounded-2xl p-5"
-                    style={{ border: "1px solid rgba(139,92,246,0.25)" }}
-                  >
-                    <div className="mb-3 flex items-center gap-3">
-                      <div
-                        className="flex h-9 w-9 items-center justify-center rounded-full"
-                        style={{ background: "rgba(139,92,246,0.15)" }}
-                      >
-                        <span className="text-lg">🌐</span>
-                      </div>
-                      <div>
-                        <div className="text-xs font-medium text-gray-400">Translation</div>
-                        <div className="text-sm font-bold text-white">Done in 3 min</div>
-                      </div>
-                    </div>
-                    <div
-                      className="flex items-center gap-2 rounded-lg px-3 py-1.5"
-                      style={{ background: "rgba(139,92,246,0.1)" }}
-                    >
-                      <Clock className="h-4 w-4 text-violet-400" />
-                      <span className="text-xs font-semibold text-violet-300">Lightning fast</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Company Registered */}
-                <div className="float-card-4 absolute bottom-6 right-6 w-60">
-                  <div
-                    className="glass-card-light rounded-2xl p-5"
-                    style={{ border: "1px solid rgba(245,158,11,0.25)" }}
-                  >
-                    <div className="mb-3 flex items-center gap-3">
-                      <div
-                        className="flex h-9 w-9 items-center justify-center rounded-full"
-                        style={{ background: "rgba(245,158,11,0.15)" }}
-                      >
-                        <span className="text-lg">🏢</span>
-                      </div>
-                      <div>
-                        <div className="text-xs font-medium text-gray-400">Consultancy</div>
-                        <div className="text-sm font-bold text-white">Company Registered</div>
-                      </div>
-                    </div>
-                    <div
-                      className="flex items-center gap-2 rounded-lg px-3 py-1.5"
-                      style={{ background: "rgba(245,158,11,0.1)" }}
-                    >
-                      <Award className="h-4 w-4 text-amber-400" />
-                      <span className="text-xs font-semibold text-amber-300">
-                        2 weeks · official
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Language flags strip */}
-          <div className="relative z-10 flex flex-wrap justify-center gap-3 border-t py-6 border-gray-300 dark:border-white/10">
-            {flags.map(({ flag, lang }) => (
-              <span
-                key={lang}
-                className="flag-pill flex items-center gap-1.5 rounded-full px-3 py-1 text-sm text-gray-700 dark:text-gray-400 cursor-default bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10"
-              >
-                {flag} <span className="text-xs">{lang}</span>
-              </span>
-            ))}
-          </div>
-
-          {/* Scroll indicator */}
-          <div className="relative z-10 flex justify-center py-6">
-            <div className="bounce-arrow flex flex-col items-center gap-1 text-gray-500 dark:text-gray-600">
-              <span className="text-xs tracking-widest uppercase text-gray-600 dark:text-gray-600">
-                Scroll
-              </span>
-              <ChevronDown className="h-5 w-5" />
-            </div>
-          </div>
-        </div>
-
-        <div className="hero-glow-line dark:hero-glow-line" />
-      </section>
+      {/* Syne font for headline */}
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap" rel="stylesheet" />
+      <HeroSection />
 
       {/* ========== STATS BANNER ========== */}
       <section className="relative w-full overflow-hidden py-14 bg-linear-to-r from-blue-50 via-white to-blue-50 dark:from-[#0F1729] dark:via-[#0D1B3E] dark:to-[#0F1729]">
@@ -1276,5 +1003,509 @@ function Home() {
         </div>
       </section>
     </PublicLayout>
+  );
+}
+
+// ─── HeroSection ──────────────────────────────────────────────────────────────
+
+const SLIDES = [
+  {
+    pre: "Your Trusted Partner for",
+    highlight: "Global Professional Services",
+    subtitle: "Accounting, visas, translation & consultancy — built for Rwanda and the world.",
+    activeCard: 0, // visa
+  },
+  {
+    pre: "Expert Visa & Permit Support —",
+    highlight: "Fast & Reliable",
+    subtitle: "Tourist, business, student visas and work permits handled end to end.",
+    activeCard: 0,
+  },
+  {
+    pre: "Professional Accounting for",
+    highlight: "Growing Businesses",
+    subtitle: "Bookkeeping, tax filing and financial reporting for SMEs and individuals.",
+    activeCard: 1,
+  },
+  {
+    pre: "Certified Translation &",
+    highlight: "Multilingual Interpretation",
+    subtitle: "Document translation and live interpreters in 5+ languages, available 24/7.",
+    activeCard: 2,
+  },
+];
+
+const FLOAT_CARDS = [
+  {
+    emoji: "✈️",
+    title: "Visa",
+    label: "Visa Approved",
+    badge: "Processing Complete",
+    dotColor: "#22c55e",
+    glowColor: "rgba(34,197,94,0.35)",
+    borderColor: "rgba(34,197,94,0.3)",
+    badgeBg: "rgba(34,197,94,0.12)",
+    badgeText: "#86efac",
+    animClass: "sb-float-a",
+    animDuration: "5s",
+    pos: { top: "18%", left: "3%" },
+    entranceDelay: "0.6s",
+  },
+  {
+    emoji: "🧮",
+    title: "Accounting",
+    label: "Tax Filed",
+    badge: "Submitted on time",
+    dotColor: "#3b82f6",
+    glowColor: "rgba(59,130,246,0.35)",
+    borderColor: "rgba(59,130,246,0.3)",
+    badgeBg: "rgba(59,130,246,0.12)",
+    badgeText: "#93c5fd",
+    animClass: "sb-float-b",
+    animDuration: "6s",
+    pos: { top: "12%", right: "-2%" },
+    entranceDelay: "0.75s",
+  },
+  {
+    emoji: "🌐",
+    title: "Translation",
+    label: "Done in 3 min",
+    badge: "Lightning fast",
+    dotColor: "#a855f7",
+    glowColor: "rgba(168,85,247,0.35)",
+    borderColor: "rgba(168,85,247,0.3)",
+    badgeBg: "rgba(168,85,247,0.12)",
+    badgeText: "#d8b4fe",
+    animClass: "sb-float-c",
+    animDuration: "7s",
+    pos: { top: "56%", left: "6%" },
+    entranceDelay: "0.9s",
+  },
+  {
+    emoji: "💼",
+    title: "Consultancy",
+    label: "Company Registered",
+    badge: "2 weeks · official",
+    dotColor: "#f59e0b",
+    glowColor: "rgba(245,158,11,0.35)",
+    borderColor: "rgba(245,158,11,0.3)",
+    badgeBg: "rgba(245,158,11,0.12)",
+    badgeText: "#fcd34d",
+    animClass: "sb-float-d",
+    animDuration: "4s",
+    pos: { top: "62%", right: "3%" },
+    entranceDelay: "1.05s",
+  },
+];
+
+function FloatCard({
+  card,
+  isActive,
+  index,
+}: {
+  card: (typeof FLOAT_CARDS)[0];
+  isActive: boolean;
+  index: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / (rect.width / 2);
+    const dy = (e.clientY - cy) / (rect.height / 2);
+    el.style.transform = `perspective(600px) rotateX(${-dy * 8}deg) rotateY(${dx * 8}deg) translateY(-4px)`;
+    el.style.boxShadow = `0 16px 40px ${card.glowColor}`;
+  }, [card.glowColor]);
+
+  const handleMouseLeave = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.transform = "";
+    el.style.boxShadow = "";
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`sb-card-entrance sb-card-${index} ${card.animClass}`}
+      style={{
+        position: "absolute",
+        width: "220px",
+        ...card.pos,
+        animationDuration: card.animClass === "sb-card-entrance" ? card.entranceDelay : card.animDuration,
+        "--entrance-delay": card.entranceDelay,
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        background: "rgba(15, 23, 42, 0.7)",
+        border: `1px solid ${isActive ? card.borderColor.replace("0.3", "0.8") : card.borderColor}`,
+        borderRadius: "16px",
+        padding: "16px",
+        cursor: "default",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.4s ease",
+        boxShadow: isActive ? `0 0 20px 2px ${card.glowColor}` : "0 4px 24px rgba(0,0,0,0.3)",
+        zIndex: 10,
+      } as React.CSSProperties}
+    >
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+        <div
+          style={{
+            width: "36px",
+            height: "36px",
+            borderRadius: "10px",
+            background: card.badgeBg,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "18px",
+            flexShrink: 0,
+          }}
+        >
+          {card.emoji}
+        </div>
+        <div>
+          <div style={{ fontSize: "10px", color: "rgba(148,163,184,1)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            {card.title}
+          </div>
+          <div style={{ fontSize: "13px", fontWeight: 700, color: "rgba(248,250,252,1)", lineHeight: 1.2 }}>
+            {card.label}
+          </div>
+        </div>
+      </div>
+      {/* Badge */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "7px",
+          background: card.badgeBg,
+          borderRadius: "8px",
+          padding: "6px 10px",
+        }}
+      >
+        <span
+          className="sb-pulse-dot"
+          style={{
+            "--pulse-color": card.dotColor,
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            background: card.dotColor,
+            display: "inline-block",
+            flexShrink: 0,
+          } as React.CSSProperties}
+        />
+        <span style={{ fontSize: "11px", fontWeight: 600, color: card.badgeText }}>
+          {card.badge}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function HeroSection() {
+  const [slide, setSlide] = useState(0);
+  const [animating, setAnimating] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const goToSlide = useCallback((idx: number) => {
+    if (animating) return;
+    setAnimating(true);
+    setTimeout(() => {
+      setSlide(idx);
+      setAnimating(false);
+    }, 300);
+  }, [animating]);
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setAnimating(true);
+      setTimeout(() => {
+        setSlide((s) => (s + 1) % SLIDES.length);
+        setAnimating(false);
+      }, 300);
+    }, 4000);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  const current = SLIDES[slide];
+
+  return (
+    <>
+      {/* Inject keyframes + Syne font */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap');
+
+        @keyframes sb-float-a {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        @keyframes sb-float-b {
+          0%, 100% { transform: translateY(-6px); }
+          50% { transform: translateY(6px); }
+        }
+        @keyframes sb-float-c {
+          0%, 100% { transform: translateY(-4px); }
+          50% { transform: translateY(-14px); }
+        }
+        @keyframes sb-float-d {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+
+        .sb-float-a { animation: sb-float-a 5s ease-in-out infinite; }
+        .sb-float-b { animation: sb-float-b 6s ease-in-out infinite; }
+        .sb-float-c { animation: sb-float-c 7s ease-in-out infinite; }
+        .sb-float-d { animation: sb-float-d 4s ease-in-out infinite; }
+
+        @keyframes sb-entrance {
+          from { opacity: 0; transform: translateY(30px) scale(0.95); }
+          to   { opacity: 1; transform: translateY(0px) scale(1); }
+        }
+
+        .sb-card-0 { animation: sb-entrance 0.6s cubic-bezier(0.22,1,0.36,1) 0.6s both, sb-float-a 5s ease-in-out 1.2s infinite; }
+        .sb-card-1 { animation: sb-entrance 0.6s cubic-bezier(0.22,1,0.36,1) 0.75s both, sb-float-b 6s ease-in-out 1.35s infinite; }
+        .sb-card-2 { animation: sb-entrance 0.6s cubic-bezier(0.22,1,0.36,1) 0.9s both, sb-float-c 7s ease-in-out 1.5s infinite; }
+        .sb-card-3 { animation: sb-entrance 0.6s cubic-bezier(0.22,1,0.36,1) 1.05s both, sb-float-d 4s ease-in-out 1.65s infinite; }
+
+        @keyframes sb-pulse-dot {
+          0%, 100% { box-shadow: 0 0 0 0 var(--pulse-color); }
+          50% { box-shadow: 0 0 0 4px transparent; }
+        }
+        .sb-pulse-dot {
+          animation: sb-pulse-dot 1.8s ease-in-out infinite;
+        }
+
+        @keyframes sb-fade-up {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .sb-reveal-1 { animation: sb-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both; }
+        .sb-reveal-2 { animation: sb-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) 0.25s both; }
+        .sb-reveal-3 { animation: sb-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) 0.4s both; }
+        .sb-reveal-4 { animation: sb-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) 0.55s both; }
+
+        @keyframes sb-headline {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .sb-headline-in  { animation: sb-headline 0.3s ease-out forwards; }
+        .sb-headline-out { opacity: 0; transform: translateY(-12px); transition: opacity 0.25s ease, transform 0.25s ease; }
+
+        @keyframes sb-dot-grid {
+          from { background-position: 0 0; }
+          to   { background-position: 20px 20px; }
+        }
+      `}</style>
+
+      <section
+        className="relative min-h-screen w-full overflow-hidden bg-background"
+      >
+        {/* Radial glow behind cards side */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: "radial-gradient(ellipse at 70% 50%, hsl(var(--primary) / 0.08), transparent 60%)",
+          }}
+        />
+
+        {/* Dot grid — left side only */}
+        <div
+          className="pointer-events-none absolute inset-y-0 left-0 w-1/2"
+          style={{
+            backgroundImage: "radial-gradient(circle, hsl(var(--foreground) / 0.06) 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+            maskImage: "linear-gradient(to right, transparent, hsl(var(--background)) 90%)",
+            WebkitMaskImage: "linear-gradient(to right, transparent, hsl(var(--background)) 90%)",
+          }}
+        />
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 md:px-6">
+          <div className="grid min-h-screen gap-12 md:grid-cols-2 md:items-center py-20 md:py-0">
+
+            {/* ── LEFT ── */}
+            <div className="flex flex-col justify-center space-y-7">
+
+              {/* Eyebrow badge */}
+              <div className="sb-reveal-1">
+                <span
+                  className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wider"
+                  style={{
+                    background: "hsl(var(--primary) / 0.1)",
+                    border: "1px solid hsl(var(--primary) / 0.3)",
+                    color: "hsl(var(--primary))",
+                  }}
+                >
+                  <span className="relative flex h-2 w-2">
+                    <span
+                      className="absolute inline-flex h-full w-full rounded-full opacity-75"
+                      style={{
+                        background: "hsl(var(--primary))",
+                        animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite",
+                      }}
+                    />
+                    <span
+                      className="relative inline-flex h-2 w-2 rounded-full"
+                      style={{ background: "hsl(var(--primary))" }}
+                    />
+                  </span>
+                  Trusted in 15+ Countries · Est. 2020
+                </span>
+              </div>
+
+              {/* Animated headline */}
+              <div className="sb-reveal-2 min-h-[160px] md:min-h-[200px]">
+                <h1
+                  className={animating ? "sb-headline-out" : "sb-headline-in"}
+                  style={{
+                    fontFamily: "'Syne', sans-serif",
+                    fontWeight: 800,
+                    fontSize: "clamp(2.2rem, 4.5vw, 3.8rem)",
+                    lineHeight: 1.05,
+                    letterSpacing: "-0.02em",
+                    color: "hsl(var(--foreground))",
+                  }}
+                >
+                  <span style={{ display: "block", color: "hsl(var(--foreground))" }}>
+                    {current.pre}
+                  </span>
+                  <span
+                    style={{
+                      display: "block",
+                      color: "hsl(var(--primary))",
+                    }}
+                  >
+                    {current.highlight}
+                  </span>
+                </h1>
+              </div>
+
+              {/* Subtitle */}
+              <p
+                className={`sb-reveal-3 max-w-lg text-base leading-relaxed ${animating ? "opacity-0" : "opacity-100"}`}
+                style={{
+                  color: "hsl(var(--muted-foreground))",
+                  transition: "opacity 0.25s ease",
+                }}
+              >
+                {current.subtitle}
+              </p>
+
+              {/* Progress dots */}
+              <div className="sb-reveal-3 flex items-center gap-2">
+                {SLIDES.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => goToSlide(i)}
+                    aria-label={`Go to slide ${i + 1}`}
+                    style={{
+                      width: slide === i ? "24px" : "8px",
+                      height: "8px",
+                      borderRadius: "4px",
+                      background: slide === i ? "hsl(var(--primary))" : "hsl(var(--muted-foreground) / 0.4)",
+                      border: "none",
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                      padding: 0,
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* CTAs */}
+              <div className="sb-reveal-4 flex flex-col gap-3 sm:flex-row">
+                <Button
+                  size="lg"
+                  asChild
+                  className="h-12 gap-2 rounded-xl text-sm font-semibold px-7"
+                >
+                  <a href="/services">
+                    Get Started Free <ArrowRight className="h-4 w-4" />
+                  </a>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  asChild
+                  className="h-12 rounded-xl text-sm font-semibold px-7"
+                  style={{
+                    border: "1px solid hsl(var(--border))",
+                  }}
+                >
+                  <a href="/contact">Talk to an Expert</a>
+                </Button>
+              </div>
+
+              {/* Trust strip */}
+              <div className="sb-reveal-4 flex flex-wrap gap-4 text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
+                {["Free consultation", "No hidden fees", "24/7 online access"].map((t) => (
+                  <span key={t} className="flex items-center gap-1.5">
+                    <Check
+                      className="h-3.5 w-3.5 shrink-0"
+                      style={{ color: "hsl(var(--success))" }}
+                    />
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* ── RIGHT — Floating cards ── */}
+            <div className="relative hidden min-h-[580px] md:block">
+              {FLOAT_CARDS.map((card, i) => (
+                <FloatCard
+                  key={i}
+                  card={card}
+                  index={i}
+                  isActive={current.activeCard === i}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Language flags strip */}
+          <div
+            className="relative z-10 flex flex-wrap justify-center gap-3 border-t py-6"
+            style={{ borderColor: "hsl(var(--border))" }}
+          >
+            {[
+              { flag: "🇬🇧", lang: "English" },
+              { flag: "🇨🇳", lang: "中文" },
+              { flag: "🇷🇼", lang: "Kinyarwanda" },
+              { flag: "🇫🇷", lang: "Français" },
+              { flag: "🇸🇦", lang: "العربية" },
+            ].map(({ flag, lang }) => (
+              <span
+                key={lang}
+                className="flex items-center gap-1.5 rounded-full px-3 py-1 text-sm"
+                style={{
+                  background: "hsl(var(--muted))",
+                  border: "1px solid hsl(var(--border))",
+                  color: "hsl(var(--muted-foreground))",
+                }}
+              >
+                {flag} <span className="text-xs">{lang}</span>
+              </span>
+            ))}
+          </div>
+
+          {/* Scroll indicator */}
+          <div className="relative z-10 flex justify-center py-5">
+            <div className="flex flex-col items-center gap-1" style={{ color: "hsl(var(--muted-foreground))" }}>
+              <span className="text-xs tracking-widest uppercase">Scroll</span>
+              <ChevronDown className="h-4 w-4 animate-bounce" />
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
