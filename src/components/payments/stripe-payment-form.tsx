@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
+import { loadStripe, type Stripe as StripeJs, type StripeCardElement } from "@stripe/stripe-js";
 import { Elements, CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { Loader as Loader2, Lock, ShieldCheck, CreditCard, Building2, DollarSign, CircleCheck as CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -160,7 +160,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
             <div className="mb-6">
               {selectedMethod === "card" && (
                 <Elements stripe={getStripe()} options={options}>
-                  <InnerForm {...props} selectedMethod={selectedMethod} />
+                  <InnerForm {...props} clientSecret={clientSecret} selectedMethod={selectedMethod} />
                 </Elements>
               )}
               {selectedMethod === "mtn-momo" && (
@@ -477,15 +477,38 @@ function SecureFooter() {
   );
 }
 
-function InnerForm({ amount, onSuccess, onCancel, onError, selectedMethod }: StripePaymentFormProps & { selectedMethod?: PaymentMethod }) {
+function InnerForm({ amount, onSuccess, onCancel, onError, selectedMethod, clientSecret }: StripePaymentFormProps & { selectedMethod?: PaymentMethod }) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    return () => {
+      if (!elements) return;
+      const cardElement = elements.getElement(CardElement) as StripeCardElement | null;
+      if (cardElement?.unmount) {
+        try {
+          cardElement.unmount();
+        } catch (err) {
+          console.warn("Failed to unmount Stripe CardElement", err);
+        }
+      }
+    };
+  }, [elements]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!stripe || !elements) return;
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      const message = "Card input is not ready. Please refresh and try again.";
+      console.error(message);
+      setError(message);
+      onError?.(message);
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
 
@@ -499,9 +522,19 @@ function InnerForm({ amount, onSuccess, onCancel, onError, selectedMethod }: Str
       return;
     }
 
-    const { error: payErr, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      redirect: "if_required",
+    if (!clientSecret) {
+      const message = "Payment session is not available. Please try again.";
+      console.error(message);
+      setError(message);
+      onError?.(message);
+      setSubmitting(false);
+      return;
+    }
+
+    const { error: payErr, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: cardElement,
+      },
     });
 
     if (payErr) {
