@@ -110,10 +110,10 @@ export function DashboardLayout({
 
           {/* Breadcrumbs */}
           <nav className="flex min-w-0 flex-1 items-center gap-1 text-sm text-muted-foreground">
-            {breadcrumbs.map((b, i) => (
+            {computedCrumbs.map((b, i) => (
               <span key={i} className="flex items-center gap-1">
                 {i > 0 && <ChevronRight className="h-3 w-3" />}
-                <span className={i === breadcrumbs.length - 1 ? "text-foreground" : ""}>{b}</span>
+                <span className={i === computedCrumbs.length - 1 ? "text-foreground capitalize" : "capitalize"}>{b}</span>
               </span>
             ))}
           </nav>
