@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from "react";
+import { useState, useMemo, type ReactNode } from "react";
+import { useLocation } from "@tanstack/react-router";
 import { Menu, ChevronRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePortal, getParentLink } from "@/lib/portal-context";
@@ -30,11 +31,46 @@ interface DashboardLayoutProps {
 export function DashboardLayout({
   role,
   children,
-  breadcrumbs = [role, "Home"],
+  breadcrumbs,
   hiddenNavKeys,
 }: DashboardLayoutProps) {
   const { t } = useI18n();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+  const computedCrumbs = useMemo<string[]>(() => {
+    if (breadcrumbs) return breadcrumbs;
+    const segs = location.pathname.split("/").filter(Boolean);
+    // segs[0] = role section (dashboard/staff/admin), rest = pages
+    const labels: Record<string, string> = {
+      dashboard: role,
+      staff: role,
+      admin: role,
+      messages: "Messages",
+      payments: "Payments",
+      documents: "Documents",
+      claims: "Claims",
+      profile: "Profile",
+      settings: "Settings",
+      "my-services": "My Services",
+      services: "Services",
+      interpreter: "Interpreter",
+      new: "New",
+      apply: "Apply",
+      confirmation: "Confirmation",
+    };
+    const out: string[] = [];
+    segs.forEach((s, i) => {
+      if (i === 0) {
+        out.push(role);
+        return;
+      }
+      // skip params (uuid-like, or digits)
+      if (/^[0-9a-f-]{8,}$/i.test(s) || /^\d+$/.test(s)) return;
+      out.push(labels[s] ?? s.replace(/-/g, " "));
+    });
+    if (out.length === 1) out.push("Home");
+    return out;
+  }, [breadcrumbs, location.pathname, role]);
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
@@ -74,10 +110,10 @@ export function DashboardLayout({
 
           {/* Breadcrumbs */}
           <nav className="flex min-w-0 flex-1 items-center gap-1 text-sm text-muted-foreground">
-            {breadcrumbs.map((b, i) => (
+            {computedCrumbs.map((b, i) => (
               <span key={i} className="flex items-center gap-1">
                 {i > 0 && <ChevronRight className="h-3 w-3" />}
-                <span className={i === breadcrumbs.length - 1 ? "text-foreground" : ""}>{b}</span>
+                <span className={i === computedCrumbs.length - 1 ? "text-foreground capitalize" : "capitalize"}>{b}</span>
               </span>
             ))}
           </nav>
