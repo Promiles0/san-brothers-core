@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadStripe, type Stripe as StripeJs, type StripeCardElement } from "@stripe/stripe-js";
 import { Elements, CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { Loader as Loader2, Lock, ShieldCheck, CreditCard, Building2, DollarSign, CircleCheck as CheckCircle2 } from "lucide-react";
+import {
+  Loader as Loader2,
+  Lock,
+  ShieldCheck,
+  CreditCard,
+  Building2,
+  DollarSign,
+  CircleCheck as CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -134,7 +142,9 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
             <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">
               Total Amount
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-primary">${amount.toFixed(2)} USD</div>
+            <div className="text-2xl sm:text-3xl font-bold text-primary">
+              ${amount.toFixed(2)} USD
+            </div>
             <div className="text-xs sm:text-sm text-muted-foreground mt-2">
               ≈ RWF {rwfAmount.toLocaleString()}
             </div>
@@ -160,7 +170,11 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
             <div className="mb-6">
               {selectedMethod === "card" && (
                 <Elements stripe={getStripe()} options={options}>
-                  <InnerForm {...props} clientSecret={clientSecret} selectedMethod={selectedMethod} />
+                  <InnerForm
+                    {...props}
+                    clientSecret={clientSecret}
+                    selectedMethod={selectedMethod}
+                  />
                 </Elements>
               )}
               {selectedMethod === "mtn-momo" && (
@@ -180,7 +194,10 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
   );
 }
 
-function Header({ serviceTitle, description }: Pick<StripePaymentFormProps, "serviceTitle" | "description">) {
+function Header({
+  serviceTitle,
+  description,
+}: Pick<StripePaymentFormProps, "serviceTitle" | "description">) {
   return (
     <div className="mb-5">
       <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -477,7 +494,14 @@ function SecureFooter() {
   );
 }
 
-function InnerForm({ amount, onSuccess, onCancel, onError, selectedMethod, clientSecret }: StripePaymentFormProps & { selectedMethod?: PaymentMethod }) {
+function InnerForm({
+  amount,
+  onSuccess,
+  onCancel,
+  onError,
+  selectedMethod,
+  clientSecret,
+}: StripePaymentFormProps & { selectedMethod?: PaymentMethod }) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -568,21 +592,23 @@ function InnerForm({ amount, onSuccess, onCancel, onError, selectedMethod, clien
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="w-full rounded-xl border bg-background/60 p-3 sm:p-4">
-        <CardElement options={{
-          style: {
-            base: {
-              fontSize: '14px',
-              color: '#424770',
-              '::placeholder': {
-                color: '#aab7c4',
+        <CardElement
+          options={{
+            style: {
+              base: {
+                fontSize: "14px",
+                color: "#424770",
+                "::placeholder": {
+                  color: "#aab7c4",
+                },
+              },
+              invalid: {
+                color: "#fa755a",
               },
             },
-            invalid: {
-              color: '#fa755a',
-            },
-          },
-          hidePostalCode: true,
-        }} />
+            hidePostalCode: true,
+          }}
+        />
       </div>
 
       {error ? (
