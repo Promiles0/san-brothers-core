@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from "react";
+import { useState, useMemo, type ReactNode } from "react";
+import { useLocation } from "@tanstack/react-router";
 import { Menu, ChevronRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePortal, getParentLink } from "@/lib/portal-context";
