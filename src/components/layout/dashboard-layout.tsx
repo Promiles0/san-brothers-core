@@ -31,11 +31,46 @@ interface DashboardLayoutProps {
 export function DashboardLayout({
   role,
   children,
-  breadcrumbs = [role, "Home"],
+  breadcrumbs,
   hiddenNavKeys,
 }: DashboardLayoutProps) {
   const { t } = useI18n();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+  const computedCrumbs = useMemo<string[]>(() => {
+    if (breadcrumbs) return breadcrumbs;
+    const segs = location.pathname.split("/").filter(Boolean);
+    // segs[0] = role section (dashboard/staff/admin), rest = pages
+    const labels: Record<string, string> = {
+      dashboard: role,
+      staff: role,
+      admin: role,
+      messages: "Messages",
+      payments: "Payments",
+      documents: "Documents",
+      claims: "Claims",
+      profile: "Profile",
+      settings: "Settings",
+      "my-services": "My Services",
+      services: "Services",
+      interpreter: "Interpreter",
+      new: "New",
+      apply: "Apply",
+      confirmation: "Confirmation",
+    };
+    const out: string[] = [];
+    segs.forEach((s, i) => {
+      if (i === 0) {
+        out.push(role);
+        return;
+      }
+      // skip params (uuid-like, or digits)
+      if (/^[0-9a-f-]{8,}$/i.test(s) || /^\d+$/.test(s)) return;
+      out.push(labels[s] ?? s.replace(/-/g, " "));
+    });
+    if (out.length === 1) out.push("Home");
+    return out;
+  }, [breadcrumbs, location.pathname, role]);
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
