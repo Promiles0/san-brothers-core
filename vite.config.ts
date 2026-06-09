@@ -16,6 +16,15 @@ export default defineConfig({
     optimizeDeps: {
       force: false,
     },
+    build: {
+      rollupOptions: {
+        output: {
+          entryFileNames: "assets/[name].js",
+          chunkFileNames: "assets/[name]-[hash].js",
+          assetFileNames: "assets/[name]-[hash][extname]",
+        },
+      },
+    },
     resolve: {
       alias: {
         "#tanstack-router-entry": "@tanstack/react-start/server-entry",
