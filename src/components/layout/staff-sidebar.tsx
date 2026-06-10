@@ -105,14 +105,20 @@ function useStaffCounts() {
                 .select("id", { count: "exact", head: true })
                 .eq("role", "client")
             : allowedCategories.length > 0
-              ? supabase
-                  .from("users")
-                  .select("id", { count: "exact", head: true })
-                  .eq("role", "client")
-                  .in(
-                    "service_requests.services.category",
-                    allowedCategories,
-                  )
+              ? (async () => {
+                  const { data: srData } = await supabase
+                    .from("service_requests")
+                    .select("client_id")
+                    .in("service_category", allowedCategories);
+                  const clientIds = [...new Set((srData ?? []).map((r) => r.client_id))];
+                  if (clientIds.length === 0) return { count: 0 };
+                  const { count } = await supabase
+                    .from("users")
+                    .select("id", { count: "exact", head: true })
+                    .eq("role", "client")
+                    .in("id", clientIds);
+                  return { count: count ?? 0 };
+                })()
               : Promise.resolve({ count: 0 }),
         ]);
         let unread = 0;

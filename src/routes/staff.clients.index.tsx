@@ -113,28 +113,38 @@ function Page() {
         if (cancelled) return;
         list = (data ?? []) as Client[];
       } else {
-        // Filtered: only clients who have service_requests in allowed categories
-        let q = supabase
-          .from("users")
-          .select(
-            "id,full_name,email,phone,tin_number,is_walk_in,created_by_staff_id,created_at,service_requests!inner(id,services!inner(category))",
-          )
-          .eq("role", "client")
-          .in("service_requests.services.category", allowedCategories)
-          .order("created_at", { ascending: false })
-          .limit(200);
-        if (filter === "walkin") q = q.or("is_walk_in.eq.true,email.ilike.%+walkin%");
-        if (filter === "online")
-          q = q.not("email", "ilike", "%+walkin%").or("is_walk_in.is.null,is_walk_in.eq.false");
-        if (search.trim()) {
-          const s = `%${search.trim()}%`;
-          q = q.or(`full_name.ilike.${s},email.ilike.${s},phone.ilike.${s},tin_number.ilike.${s}`);
+        // Step 1: get distinct client IDs from service_requests in allowed categories
+        const { data: srData } = await supabase
+          .from("service_requests")
+          .select("client_id")
+          .in("service_category", allowedCategories);
+        const clientIds = [...new Set((srData ?? []).map((r) => r.client_id))];
+        if (clientIds.length === 0) {
+          list = [];
+        } else {
+          // Step 2: fetch those clients
+          let q = supabase
+            .from("users")
+            .select("id,full_name,email,phone,tin_number,is_walk_in,created_by_staff_id,created_at")
+            .eq("role", "client")
+            .in("id", clientIds)
+            .order("created_at", { ascending: false })
+            .limit(200);
+          if (filter === "walkin") q = q.or("is_walk_in.eq.true,email.ilike.%+walkin%");
+          if (filter === "online")
+            q = q
+              .not("email", "ilike", "%+walkin%")
+              .or("is_walk_in.is.null,is_walk_in.eq.false");
+          if (search.trim()) {
+            const s = `%${search.trim()}%`;
+            q = q.or(
+              `full_name.ilike.${s},email.ilike.${s},phone.ilike.${s},tin_number.ilike.${s}`,
+            );
+          }
+          const { data } = await q;
+          if (cancelled) return;
+          list = (data ?? []) as Client[];
         }
-        const { data } = await q;
-        if (cancelled) return;
-        // Deduplicate — client may appear multiple times with multiple matching requests
-        const raw = (data ?? []) as Client[];
-        list = [...new Map(raw.map((c) => [c.id, c])).values()];
       }
 
       setRows(list);
