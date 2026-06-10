@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Eye, EyeOff, Upload, Download } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Upload, Download, ShieldCheck } from "lucide-react";
 import { supabase, uploadToStorage } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useCapabilities } from "@/lib/staff/capability-context";
+import { useAllowedCategories, getCategoryLabel } from "@/lib/staff/capability-filters";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -58,10 +59,12 @@ function Page() {
   const { id } = Route.useParams();
   const { user } = useAuth();
   const { hasCapability, isLoading: capLoading } = useCapabilities();
+  const allowedCategories = useAllowedCategories();
   const navigate = useNavigate();
   useEffect(() => {
-    if (!capLoading && !hasCapability("register_clients_manually")) navigate({ to: "/staff" });
-  }, [capLoading, hasCapability, navigate]);
+    if (!capLoading && allowedCategories !== null && allowedCategories.length === 0)
+      navigate({ to: "/staff" });
+  }, [capLoading, allowedCategories, navigate]);
 
   const [client, setClient] = useState<Client | null>(null);
   const [requests, setRequests] = useState<SR[]>([]);
@@ -85,7 +88,7 @@ function Page() {
       supabase.from("users").select("*").eq("id", id).single(),
       supabase
         .from("service_requests")
-        .select("id,status,service_category,created_at,service:services(name_en)")
+        .select("id,status,service_category,created_at,service:services(name_en,category)")
         .eq("client_id", id)
         .order("created_at", { ascending: false }),
       supabase
@@ -95,8 +98,21 @@ function Page() {
         .order("uploaded_at", { ascending: false }),
     ]);
     setClient((c.data ?? null) as Client | null);
-    setRequests((r.data ?? []) as unknown as SR[]);
-    setDocs((d.data ?? []) as Doc[]);
+    let allRequests = (r.data ?? []) as unknown as SR[];
+    // Filter service requests by allowed categories
+    if (allowedCategories !== null) {
+      const catSet = new Set(allowedCategories);
+      allRequests = allRequests.filter(
+        (sr) => sr.service && catSet.has((sr.service as unknown as { category: string }).category),
+      );
+    }
+    setRequests(allRequests);
+    // Only show docs for visible service requests
+    const visibleSrIds = new Set(allRequests.map((sr) => sr.id));
+    const filteredDocs = ((d.data ?? []) as Doc[]).filter((doc) =>
+      visibleSrIds.has(doc.service_request_id),
+    );
+    setDocs(filteredDocs);
     setLoading(false);
     if (c.data)
       setEdit({
@@ -214,6 +230,16 @@ function Page() {
         </Link>
       </Button>
       <h1 className="text-2xl font-bold">{client.full_name}</h1>
+
+      {allowedCategories !== null && allowedCategories.length > 0 && (
+        <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5 text-sm">
+          <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
+          <span className="text-muted-foreground">Showing services you can handle:</span>
+          <span className="font-medium">
+            {allowedCategories.map(getCategoryLabel).join(" · ")}
+          </span>
+        </div>
+      )}
 
       <Tabs defaultValue="profile">
         <TabsList>

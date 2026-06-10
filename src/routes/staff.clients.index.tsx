@@ -12,12 +12,14 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useCapabilities } from "@/lib/staff/capability-context";
+import { useAllowedCategories, getCategoryLabel } from "@/lib/staff/capability-filters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ShieldCheck } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -69,12 +71,14 @@ function avatarColor(seed: string) {
 
 function Page() {
   const { hasCapability, isLoading: capLoading } = useCapabilities();
+  const allowedCategories = useAllowedCategories();
   const navigate = useNavigate();
   const { t } = useI18n();
 
   useEffect(() => {
-    if (!capLoading && !hasCapability("register_clients_manually")) navigate({ to: "/staff" });
-  }, [capLoading, hasCapability, navigate]);
+    if (!capLoading && allowedCategories !== null && allowedCategories.length === 0)
+      navigate({ to: "/staff" });
+  }, [capLoading, allowedCategories, navigate]);
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "walkin" | "online">("all");
@@ -87,22 +91,52 @@ function Page() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      let q = supabase
-        .from("users")
-        .select("id,full_name,email,phone,tin_number,is_walk_in,created_by_staff_id,created_at")
-        .eq("role", "client")
-        .order("created_at", { ascending: false })
-        .limit(200);
-      if (filter === "walkin") q = q.or("is_walk_in.eq.true,email.ilike.%+walkin%");
-      if (filter === "online")
-        q = q.not("email", "ilike", "%+walkin%").or("is_walk_in.is.null,is_walk_in.eq.false");
-      if (search.trim()) {
-        const s = `%${search.trim()}%`;
-        q = q.or(`full_name.ilike.${s},email.ilike.${s},phone.ilike.${s},tin_number.ilike.${s}`);
+
+      let list: Client[] = [];
+
+      if (allowedCategories === null) {
+        // Admin: fetch all clients
+        let q = supabase
+          .from("users")
+          .select("id,full_name,email,phone,tin_number,is_walk_in,created_by_staff_id,created_at")
+          .eq("role", "client")
+          .order("created_at", { ascending: false })
+          .limit(200);
+        if (filter === "walkin") q = q.or("is_walk_in.eq.true,email.ilike.%+walkin%");
+        if (filter === "online")
+          q = q.not("email", "ilike", "%+walkin%").or("is_walk_in.is.null,is_walk_in.eq.false");
+        if (search.trim()) {
+          const s = `%${search.trim()}%`;
+          q = q.or(`full_name.ilike.${s},email.ilike.${s},phone.ilike.${s},tin_number.ilike.${s}`);
+        }
+        const { data } = await q;
+        if (cancelled) return;
+        list = (data ?? []) as Client[];
+      } else {
+        // Filtered: only clients who have service_requests in allowed categories
+        let q = supabase
+          .from("users")
+          .select(
+            "id,full_name,email,phone,tin_number,is_walk_in,created_by_staff_id,created_at,service_requests!inner(id,services!inner(category))",
+          )
+          .eq("role", "client")
+          .in("service_requests.services.category", allowedCategories)
+          .order("created_at", { ascending: false })
+          .limit(200);
+        if (filter === "walkin") q = q.or("is_walk_in.eq.true,email.ilike.%+walkin%");
+        if (filter === "online")
+          q = q.not("email", "ilike", "%+walkin%").or("is_walk_in.is.null,is_walk_in.eq.false");
+        if (search.trim()) {
+          const s = `%${search.trim()}%`;
+          q = q.or(`full_name.ilike.${s},email.ilike.${s},phone.ilike.${s},tin_number.ilike.${s}`);
+        }
+        const { data } = await q;
+        if (cancelled) return;
+        // Deduplicate — client may appear multiple times with multiple matching requests
+        const raw = (data ?? []) as Client[];
+        list = [...new Map(raw.map((c) => [c.id, c])).values()];
       }
-      const { data } = await q;
-      if (cancelled) return;
-      const list = (data ?? []) as Client[];
+
       setRows(list);
       setLoading(false);
 
@@ -132,7 +166,7 @@ function Page() {
     return () => {
       cancelled = true;
     };
-  }, [search, filter]);
+  }, [search, filter, allowedCategories]);
 
   const isWalkIn = (c: Client) => c.is_walk_in === true || c.email.includes("+walkin");
 
@@ -163,6 +197,16 @@ function Page() {
           </Link>
         </Button>
       </div>
+
+      {allowedCategories !== null && allowedCategories.length > 0 && (
+        <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5 text-sm">
+          <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
+          <span className="text-muted-foreground">Showing clients based on your capabilities:</span>
+          <span className="font-medium">
+            {allowedCategories.map(getCategoryLabel).join(" · ")}
+          </span>
+        </div>
+      )}
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>

@@ -1,22 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import {
-  Star,
-  ClipboardList,
-  Clock,
-  CheckCircle2,
-  MessageSquare,
-  Zap,
-  FolderOpen,
-  Calendar as CalendarIcon,
-  Phone,
-  Plus,
-  UserPlus,
-  ArrowRight,
-} from "lucide-react";
+import { Star, ClipboardList, Clock, CircleCheck as CheckCircle2, MessageSquare, Zap, FolderOpen, Calendar as CalendarIcon, Phone, Plus, UserPlus, ArrowRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useCapabilities } from "@/lib/staff/capability-context";
+import { useAllowedCategories } from "@/lib/staff/capability-filters";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -148,6 +136,7 @@ function StatCard({
 function StaffHome() {
   const { user, profile } = useAuth();
   const { capabilities, hasCapability } = useCapabilities();
+  const allowedCategories = useAllowedCategories();
   const { t } = useI18n();
   const canHandleCalls = hasCapability("handle_live_calls");
 
@@ -161,10 +150,10 @@ function StaffHome() {
   const [unreadMsgs, setUnreadMsgs] = useState(0);
   const [awaitingClient, setAwaitingClient] = useState(0);
 
-  const myCats = useMemo(
-    () => capabilities.filter((c) => CAP_TO_CAT[c]).map((c) => CAP_TO_CAT[c]),
-    [capabilities],
-  );
+  const myCats = useMemo(() => {
+    if (allowedCategories === null) return null; // admin: no filter
+    return allowedCategories;
+  }, [allowedCategories]);
 
   useEffect(() => {
     if (!user) return;
@@ -186,9 +175,10 @@ function StaffHome() {
         const sel =
           "id,status,created_at,updated_at,assigned_staff_id,service_category,progress_step,progress_total,client:users(full_name),service:services(name_en)";
 
+        const catFilter = myCats !== null && myCats.length > 0 ? myCats : null;
         const orParts: string[] = [`assigned_staff_id.eq.${user.id}`];
-        if (myCats.length > 0) {
-          orParts.push(`and(assigned_staff_id.is.null,service_category.in.(${myCats.join(",")}))`);
+        if (catFilter) {
+          orParts.push(`and(assigned_staff_id.is.null,service_category.in.(${catFilter.join(",")}))`);
         }
         const [todayQ, pendingQ, weekQ, recentQ, doneQ, msgQ, awaitQ] = await Promise.all([
           supabase
@@ -202,26 +192,26 @@ function StaffHome() {
           supabase
             .from("service_requests")
             .select(sel)
-            .eq("assigned_staff_id", user.id)
+            .or(catFilter ? orParts.join(",") : `assigned_staff_id.eq.${user.id}`)
             .in("status", ["awaiting_client", "under_review"])
             .order("updated_at", { ascending: false })
             .limit(20),
           supabase
             .from("service_requests")
             .select(sel)
-            .eq("assigned_staff_id", user.id)
+            .or(catFilter ? orParts.join(",") : `assigned_staff_id.eq.${user.id}`)
             .gte("updated_at", startOfWeek.toISOString())
             .lt("updated_at", endOfWeek.toISOString()),
           supabase
             .from("service_requests")
             .select(sel)
-            .eq("assigned_staff_id", user.id)
+            .or(catFilter ? orParts.join(",") : `assigned_staff_id.eq.${user.id}`)
             .order("updated_at", { ascending: false })
             .limit(5),
           supabase
             .from("service_requests")
             .select("id", { count: "exact", head: true })
-            .eq("assigned_staff_id", user.id)
+            .or(catFilter ? orParts.join(",") : `assigned_staff_id.eq.${user.id}`)
             .eq("status", "completed")
             .gte("updated_at", `${todayStr}T00:00:00`),
           supabase
@@ -232,7 +222,7 @@ function StaffHome() {
           supabase
             .from("service_requests")
             .select("id", { count: "exact", head: true })
-            .eq("assigned_staff_id", user.id)
+            .or(catFilter ? orParts.join(",") : `assigned_staff_id.eq.${user.id}`)
             .eq("status", "awaiting_client"),
         ]);
 

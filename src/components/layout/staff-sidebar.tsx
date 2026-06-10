@@ -21,13 +21,14 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { useCapabilities, type Capability } from "@/lib/staff/capability-context";
+import { useAllowedCategories } from "@/lib/staff/capability-filters";
 
 interface Item {
   label: string;
   icon: LucideIcon;
   to?: string;
   cap?: Capability;
-  badgeKey?: "unassignedVisa" | "unassignedAccounting" | "openClaims" | "unreadMessages";
+  badgeKey?: "unassignedVisa" | "unassignedAccounting" | "openClaims" | "unreadMessages" | "filteredClients";
   action?: "logout";
   intent?: "destructive";
 }
@@ -51,7 +52,7 @@ const items: Item[] = [
   { label: "Consultancy", icon: Briefcase, to: "/staff/consultancy", cap: "handle_consultancy" },
   { label: "Translation", icon: Languages, to: "/staff/translation", cap: "handle_translation" },
   { label: "Live Calls", icon: Headphones, to: "/staff/interpreter", cap: "handle_live_calls" },
-  { label: "Clients", icon: Users, to: "/staff/clients", cap: "register_clients_manually" },
+  { label: "Clients", icon: Users, to: "/staff/clients", badgeKey: "filteredClients" },
   {
     label: "Claims",
     icon: ShieldAlert,
@@ -69,17 +70,19 @@ const items: Item[] = [
 
 function useStaffCounts() {
   const { user } = useAuth();
+  const allowedCategories = useAllowedCategories();
   const [counts, setCounts] = useState({
     unassignedVisa: 0,
     unassignedAccounting: 0,
     openClaims: 0,
     unreadMessages: 0,
+    filteredClients: 0,
   });
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [visa, acc, claims] = await Promise.all([
+        const [visa, acc, claims, clients] = await Promise.all([
           supabase
             .from("service_requests")
             .select("id", { count: "exact", head: true })
@@ -96,6 +99,21 @@ function useStaffCounts() {
             .from("claims")
             .select("id", { count: "exact", head: true })
             .in("status", ["open", "under_review"]),
+          allowedCategories === null
+            ? supabase
+                .from("users")
+                .select("id", { count: "exact", head: true })
+                .eq("role", "client")
+            : allowedCategories.length > 0
+              ? supabase
+                  .from("users")
+                  .select("id", { count: "exact", head: true })
+                  .eq("role", "client")
+                  .in(
+                    "service_requests.services.category",
+                    allowedCategories,
+                  )
+              : Promise.resolve({ count: 0 }),
         ]);
         let unread = 0;
         if (user) {
@@ -112,6 +130,7 @@ function useStaffCounts() {
           unassignedAccounting: acc.count ?? 0,
           openClaims: claims.count ?? 0,
           unreadMessages: unread,
+          filteredClients: clients.count ?? 0,
         });
       } catch {
         /* ignore */
@@ -120,7 +139,7 @@ function useStaffCounts() {
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [user, allowedCategories]);
   return counts;
 }
 
