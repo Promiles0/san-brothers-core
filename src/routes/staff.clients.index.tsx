@@ -1,5 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Search,
+  Plus,
+  MessageSquare,
+  LayoutGrid,
+  Table2,
+  Inbox,
+  Mail,
+  Phone,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useCapabilities } from "@/lib/staff/capability-context";
 import { Button } from "@/components/ui/button";
@@ -16,6 +26,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useI18n } from "@/lib/providers/i18n-provider";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/staff/clients/")({ component: Page });
 
@@ -30,17 +42,46 @@ interface Client {
   created_at: string;
 }
 
+const AVATAR_COLORS = [
+  "bg-blue-500/15 text-blue-700 dark:text-blue-300",
+  "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+  "bg-violet-500/15 text-violet-700 dark:text-violet-300",
+  "bg-rose-500/15 text-rose-700 dark:text-rose-300",
+  "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300",
+];
+
+const initials = (name?: string | null) =>
+  !name
+    ? "?"
+    : name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((p) => p[0]?.toUpperCase())
+        .join("");
+
+function avatarColor(seed: string) {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
+}
+
 function Page() {
   const { hasCapability, isLoading: capLoading } = useCapabilities();
   const navigate = useNavigate();
+  const { t } = useI18n();
+
   useEffect(() => {
     if (!capLoading && !hasCapability("register_clients_manually")) navigate({ to: "/staff" });
   }, [capLoading, hasCapability, navigate]);
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "walkin" | "online">("all");
+  const [view, setView] = useState<"cards" | "table">("cards");
   const [rows, setRows] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
+  const [counts, setCounts] = useState<Record<string, { services: number; docs: number }>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -52,7 +93,6 @@ function Page() {
         .eq("role", "client")
         .order("created_at", { ascending: false })
         .limit(200);
-      // Fall back to email pattern for walk-ins where is_walk_in wasn't set in the DB.
       if (filter === "walkin") q = q.or("is_walk_in.eq.true,email.ilike.%+walkin%");
       if (filter === "online")
         q = q.not("email", "ilike", "%+walkin%").or("is_walk_in.is.null,is_walk_in.eq.false");
@@ -61,9 +101,32 @@ function Page() {
         q = q.or(`full_name.ilike.${s},email.ilike.${s},phone.ilike.${s},tin_number.ilike.${s}`);
       }
       const { data } = await q;
-      if (!cancelled) {
-        setRows((data ?? []) as Client[]);
-        setLoading(false);
+      if (cancelled) return;
+      const list = (data ?? []) as Client[];
+      setRows(list);
+      setLoading(false);
+
+      // Fetch counts in parallel (best-effort)
+      const ids = list.map((c) => c.id);
+      if (ids.length > 0) {
+        const [svc, docs] = await Promise.all([
+          supabase
+            .from("service_requests")
+            .select("client_id")
+            .in("client_id", ids)
+            .not("status", "in", "(completed,rejected,cancelled)"),
+          supabase.from("documents").select("client_id").in("client_id", ids),
+        ]);
+        if (cancelled) return;
+        const map: Record<string, { services: number; docs: number }> = {};
+        ids.forEach((id) => (map[id] = { services: 0, docs: 0 }));
+        ((svc.data ?? []) as { client_id: string }[]).forEach((r) => {
+          if (map[r.client_id]) map[r.client_id].services++;
+        });
+        ((docs.data ?? []) as { client_id: string }[]).forEach((r) => {
+          if (map[r.client_id]) map[r.client_id].docs++;
+        });
+        setCounts(map);
       }
     })();
     return () => {
@@ -71,50 +134,196 @@ function Page() {
     };
   }, [search, filter]);
 
+  const isWalkIn = (c: Client) => c.is_walk_in === true || c.email.includes("+walkin");
+
+  const stats = useMemo(() => {
+    return {
+      total: rows.length,
+      walkin: rows.filter(isWalkIn).length,
+      online: rows.filter((c) => !isWalkIn(c)).length,
+    };
+  }, [rows]);
+
   return (
-    <div className="space-y-4">
+    <div className="mx-auto w-full max-w-7xl space-y-5 animate-in fade-in duration-300">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Clients</h1>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {t("staff.clients.title")}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {stats.total} {t("staff.clients.total")} · {stats.online} {t("staff.clients.online")} ·{" "}
+            {stats.walkin} {t("staff.clients.walkin")}
+          </p>
+        </div>
         <Button asChild>
-          <Link to="/staff/clients/new">+ Register New Client</Link>
+          <Link to="/staff/clients/new">
+            <Plus className="mr-1 h-4 w-4" />
+            {t("staff.clients.register")}
+          </Link>
         </Button>
       </div>
-      <div className="flex flex-wrap gap-3">
+
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
           <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="walkin">Walk-in</TabsTrigger>
-            <TabsTrigger value="online">Online</TabsTrigger>
+            <TabsTrigger value="all">{t("staff.cases.all")}</TabsTrigger>
+            <TabsTrigger value="walkin">{t("staff.clients.walkin")}</TabsTrigger>
+            <TabsTrigger value="online">{t("staff.clients.online")}</TabsTrigger>
           </TabsList>
         </Tabs>
-        <Input
-          className="max-w-sm"
-          placeholder="Search name, email, phone, TIN…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              className="w-72 pl-8"
+              placeholder={t("staff.clients.searchPlaceholder")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="flex rounded-md border p-0.5">
+            <button
+              onClick={() => setView("cards")}
+              className={cn(
+                "flex items-center gap-1 rounded px-2 py-1 text-xs",
+                view === "cards" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+              )}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              {t("staff.clients.cards")}
+            </button>
+            <button
+              onClick={() => setView("table")}
+              className={cn(
+                "flex items-center gap-1 rounded px-2 py-1 text-xs",
+                view === "table" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+              )}
+            >
+              <Table2 className="h-3.5 w-3.5" />
+              {t("staff.clients.table")}
+            </button>
+          </div>
+        </div>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          {loading ? (
-            <div className="space-y-2 p-4">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-10 w-full" />
-              ))}
-            </div>
-          ) : rows.length === 0 ? (
-            <p className="py-12 text-center text-muted-foreground">No clients found.</p>
-          ) : (
+      {loading ? (
+        view === "cards" ? (
+          <div className="grid gap-3 md:grid-cols-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-40 w-full" />
+            ))}
+          </div>
+        ) : (
+          <Skeleton className="h-64 w-full" />
+        )
+      ) : rows.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-2 py-16 text-center">
+            <Inbox className="h-10 w-10 text-muted-foreground/60" />
+            <p className="font-medium">{t("staff.clients.empty")}</p>
+          </CardContent>
+        </Card>
+      ) : view === "cards" ? (
+        <div className="grid gap-3 md:grid-cols-2">
+          {rows.map((c) => {
+            const walkIn = isWalkIn(c);
+            const cc = counts[c.id];
+            return (
+              <Card
+                key={c.id}
+                className="transition hover:shadow-md hover:-translate-y-0.5"
+              >
+                <CardContent className="space-y-3 p-4">
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={cn(
+                        "relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-base font-semibold",
+                        avatarColor(c.email),
+                      )}
+                    >
+                      {initials(c.full_name)}
+                      <span
+                        className={cn(
+                          "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background",
+                          walkIn ? "bg-muted-foreground/50" : "bg-emerald-500",
+                        )}
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate font-semibold">{c.full_name ?? "—"}</p>
+                        {walkIn ? (
+                          <Badge
+                            variant="outline"
+                            className="bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30"
+                          >
+                            {t("staff.clients.walkin")}
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30"
+                          >
+                            {t("staff.clients.online")}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
+                        <Mail className="h-3 w-3 shrink-0" />
+                        {c.email}
+                      </p>
+                      {c.phone && (
+                        <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
+                          <Phone className="h-3 w-3 shrink-0" />
+                          {c.phone}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-2 text-xs text-muted-foreground">
+                    <span>
+                      {t("staff.clients.since")}{" "}
+                      {new Date(c.created_at).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+                    <span>
+                      {cc?.services ?? 0} {t("staff.clients.services")} · {cc?.docs ?? 0}{" "}
+                      {t("staff.clients.docs")}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button asChild size="sm" className="flex-1">
+                      <Link to="/staff/clients/$id" params={{ id: c.id }}>
+                        {t("staff.clients.viewProfile")} →
+                      </Link>
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/staff/messages">
+                        <MessageSquare className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      ) : (
+        <Card>
+          <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
+                  <TableHead>{t("staff.clients.name")}</TableHead>
+                  <TableHead>{t("staff.clients.email")}</TableHead>
+                  <TableHead>{t("staff.clients.phone")}</TableHead>
                   <TableHead>TIN</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Created</TableHead>
+                  <TableHead>{t("staff.clients.type")}</TableHead>
+                  <TableHead>{t("staff.clients.created")}</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
@@ -130,19 +339,19 @@ function Page() {
                     <TableCell>{c.phone ?? "—"}</TableCell>
                     <TableCell>{c.tin_number ?? "—"}</TableCell>
                     <TableCell>
-                      {c.is_walk_in === true || c.email.includes("+walkin") ? (
+                      {isWalkIn(c) ? (
                         <Badge
                           className="bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30"
                           variant="outline"
                         >
-                          Walk-in
+                          {t("staff.clients.walkin")}
                         </Badge>
                       ) : (
                         <Badge
                           className="bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30"
                           variant="outline"
                         >
-                          Online
+                          {t("staff.clients.online")}
                         </Badge>
                       )}
                     </TableCell>
@@ -155,16 +364,16 @@ function Page() {
                         params={{ id: c.id }}
                         className="text-primary hover:underline text-sm"
                       >
-                        View →
+                        {t("staff.clients.view")} →
                       </Link>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
