@@ -1139,7 +1139,7 @@ function FloatCard({
         width: "220px",
         ...card.pos,
         animationDuration: card.animClass === "sb-card-entrance" ? card.entranceDelay : card.animDuration,
-        "--entrance-delay": card.entranceDelay,
+        ["--entrance-delay" as string]: card.entranceDelay,
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
         background: "rgba(15, 23, 42, 0.7)",
