@@ -1108,31 +1108,104 @@ function FloatCard({
   index: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
+
+  // Trigger badge pulse when card becomes active
+  useEffect(() => {
+    if (isActive && badgeRef.current) {
+      badgeRef.current.style.animation = 'none';
+      // Trigger reflow to restart animation
+      void badgeRef.current.offsetHeight;
+      badgeRef.current.style.animation = 'sb-badge-pulse 0.4s ease-out';
+    }
+  }, [isActive]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const el = ref.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const dx = (e.clientX - cx) / (rect.width / 2);
-    const dy = (e.clientY - cy) / (rect.height / 2);
-    el.style.transform = `perspective(600px) rotateX(${-dy * 8}deg) rotateY(${dx * 8}deg) translateY(-4px)`;
-    el.style.boxShadow = `0 16px 40px ${card.glowColor}`;
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Calculate 3D magnetic tilt (±15deg max)
+    const rotateY = ((e.clientX - centerX) / rect.width) * 20;
+    const rotateX = ((e.clientY - centerY) / rect.height) * -20;
+    
+    // Floating glow that follows cursor
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    el.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.04)`;
+    el.style.background = `radial-gradient(circle at ${x}% ${y}%, hsl(var(--primary)/0.15), transparent 60%), rgba(15, 23, 42, 0.7)`;
+    el.style.boxShadow = `0 0 24px ${card.glowColor}`;
   }, [card.glowColor]);
 
   const handleMouseLeave = useCallback(() => {
     const el = ref.current;
     if (!el) return;
-    el.style.transform = "";
-    el.style.boxShadow = "";
+    el.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), background 0.6s ease, box-shadow 0.6s ease';
+    el.style.transform = 'perspective(800px) rotateX(0) rotateY(0) scale(1)';
+    el.style.background = 'rgba(15, 23, 42, 0.7)';
+    el.style.boxShadow = isActive ? `0 0 28px ${card.glowColor}, 0 0 0 1px ${card.borderColor.replace("0.3", "0.6")}` : "0 4px 24px rgba(0,0,0,0.3)";
+    setTimeout(() => {
+      el.style.transition = 'all 0.4s ease';
+    }, 600);
+  }, [isActive, card.glowColor, card.borderColor]);
+
+  // Handle parallax depth on mouse move
+  const handleParallaxMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Calculate parallax offsets for different layers
+    const offsetX = (e.clientX - centerX) / rect.width;
+    const offsetY = (e.clientY - centerY) / rect.height;
+    
+    // Icon moves +8px
+    const icon = el.querySelector('.sb-parallax-icon') as HTMLElement;
+    if (icon) icon.style.transform = `translate(${offsetX * 8}px, ${offsetY * 8}px)`;
+    
+    // Text moves +4px
+    const texts = el.querySelectorAll('.sb-parallax-text') as NodeListOf<HTMLElement>;
+    texts.forEach(text => {
+      text.style.transform = `translate(${offsetX * 4}px, ${offsetY * 4}px)`;
+    });
+    
+    // Badge moves +2px
+    const badge = el.querySelector('.sb-parallax-badge') as HTMLElement;
+    if (badge) badge.style.transform = `translate(${offsetX * 2}px, ${offsetY * 2}px)`;
+  }, []);
+
+  const handleParallaxLeave = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    
+    const icon = el.querySelector('.sb-parallax-icon') as HTMLElement;
+    if (icon) icon.style.transform = 'translate(0, 0)';
+    
+    const texts = el.querySelectorAll('.sb-parallax-text') as NodeListOf<HTMLElement>;
+    texts.forEach(text => {
+      text.style.transform = 'translate(0, 0)';
+    });
+    
+    const badge = el.querySelector('.sb-parallax-badge') as HTMLElement;
+    if (badge) badge.style.transform = 'translate(0, 0)';
   }, []);
 
   return (
     <div
       ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={(e) => {
+        handleMouseMove(e);
+        handleParallaxMove(e);
+      }}
+      onMouseLeave={() => {
+        handleMouseLeave();
+        handleParallaxLeave();
+      }}
       className={`sb-card-entrance sb-card-${index} ${card.animClass}`}
       style={{
         position: "absolute",
@@ -1147,13 +1220,15 @@ function FloatCard({
         borderRadius: "16px",
         padding: "16px",
         cursor: "default",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.4s ease",
-        boxShadow: isActive ? `0 0 20px 2px ${card.glowColor}` : "0 4px 24px rgba(0,0,0,0.3)",
+        transition: "all 0.4s ease",
+        boxShadow: isActive ? `0 0 28px ${card.glowColor}, 0 0 0 1px ${card.borderColor.replace("0.3", "0.6")}` : "0 4px 24px rgba(0,0,0,0.3)",
+        opacity: isActive ? 1 : 0.5,
+        transform: isActive ? "scale(1.04)" : "scale(1)",
         zIndex: 10,
       } as React.CSSProperties}
     >
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+      {/* Header with parallax depth */}
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px", transition: "transform 0.2s ease" }} className="sb-parallax-icon">
         <div
           style={{
             width: "36px",
@@ -1165,21 +1240,23 @@ function FloatCard({
             justifyContent: "center",
             fontSize: "18px",
             flexShrink: 0,
+            transition: "transform 0.2s ease",
           }}
         >
           {card.emoji}
         </div>
         <div>
-          <div style={{ fontSize: "10px", color: "rgba(148,163,184,1)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <div style={{ fontSize: "10px", color: "rgba(148,163,184,1)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", transition: "transform 0.2s ease" }} className="sb-parallax-text">
             {card.title}
           </div>
-          <div style={{ fontSize: "13px", fontWeight: 700, color: "rgba(248,250,252,1)", lineHeight: 1.2 }}>
+          <div style={{ fontSize: "13px", fontWeight: 700, color: "rgba(248,250,252,1)", lineHeight: 1.2, transition: "transform 0.2s ease" }} className="sb-parallax-text">
             {card.label}
           </div>
         </div>
       </div>
-      {/* Badge */}
+      {/* Badge with parallax depth */}
       <div
+        ref={badgeRef}
         style={{
           display: "flex",
           alignItems: "center",
@@ -1187,7 +1264,9 @@ function FloatCard({
           background: card.badgeBg,
           borderRadius: "8px",
           padding: "6px 10px",
+          transition: "transform 0.2s ease",
         }}
+        className="sb-parallax-badge"
       >
         <span
           className="sb-pulse-dot"
@@ -1211,25 +1290,27 @@ function FloatCard({
 
 function HeroSection() {
   const [slide, setSlide] = useState(0);
-  const [animating, setAnimating] = useState(false);
+  const [animState, setAnimState] = useState<'idle' | 'out' | 'in'>('idle');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const goToSlide = useCallback((idx: number) => {
-    if (animating) return;
-    setAnimating(true);
+    if (animState !== 'idle') return;
+    setAnimState('out');
     setTimeout(() => {
       setSlide(idx);
-      setAnimating(false);
-    }, 300);
-  }, [animating]);
+      setAnimState('in');
+      setTimeout(() => setAnimState('idle'), 500);
+    }, 350);
+  }, [animState]);
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
-      setAnimating(true);
+      setAnimState('out');
       setTimeout(() => {
         setSlide((s) => (s + 1) % SLIDES.length);
-        setAnimating(false);
-      }, 300);
+        setAnimState('in');
+        setTimeout(() => setAnimState('idle'), 500);
+      }, 350);
     }, 4000);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -1261,10 +1342,10 @@ function HeroSection() {
           50% { transform: translateY(-8px); }
         }
 
-        .sb-float-a { animation: sb-float-a 5s ease-in-out infinite; }
-        .sb-float-b { animation: sb-float-b 6s ease-in-out infinite; }
-        .sb-float-c { animation: sb-float-c 7s ease-in-out infinite; }
-        .sb-float-d { animation: sb-float-d 4s ease-in-out infinite; }
+        .sb-float-a { animation: sb-float-a 5s ease-in-out infinite !important; }
+        .sb-float-b { animation: sb-float-b 6s ease-in-out infinite !important; }
+        .sb-float-c { animation: sb-float-c 7s ease-in-out infinite !important; }
+        .sb-float-d { animation: sb-float-d 4s ease-in-out infinite !important; }
 
         @keyframes sb-entrance {
           from { opacity: 0; transform: translateY(30px) scale(0.95); }
@@ -1283,6 +1364,12 @@ function HeroSection() {
         .sb-pulse-dot {
           animation: sb-pulse-dot 1.8s ease-in-out infinite;
         }
+        
+        @keyframes sb-badge-pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.18); }
+          100% { transform: scale(1); }
+        }
 
         @keyframes sb-fade-up {
           from { opacity: 0; transform: translateY(20px); }
@@ -1297,8 +1384,28 @@ function HeroSection() {
           from { opacity: 0; transform: translateY(16px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        .sb-headline-in  { animation: sb-headline 0.3s ease-out forwards; }
-        .sb-headline-out { opacity: 0; transform: translateY(-12px); transition: opacity 0.25s ease, transform 0.25s ease; }
+        @keyframes slideOut {
+          from { opacity: 1; transform: translateY(0); }
+          to   { opacity: 0; transform: translateY(-16px); }
+        }
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .sb-headline-idle  { opacity: 1; transform: translateY(0); transition: none; }
+        .sb-headline-out { animation: slideOut 0.35s ease-in forwards; }
+        .sb-headline-in  { animation: slideIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        
+        .sb-subtitle-idle { opacity: 1; transform: translateY(0); transition: none; }
+        .sb-subtitle-out { animation: slideOut 0.35s ease-in forwards; }
+        .sb-subtitle-in { animation: slideIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards 0.08s; }
+        
+        @keyframes dotPulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.18); }
+          100% { transform: scale(1); }
+        }
+        .sb-dot-pulse { animation: dotPulse 0.4s ease-out; }
 
         @keyframes sb-dot-grid {
           from { background-position: 0 0; }
@@ -1364,7 +1471,7 @@ function HeroSection() {
               {/* Animated headline */}
               <div className="sb-reveal-2 min-h-[160px] md:min-h-[200px]">
                 <h1
-                  className={animating ? "sb-headline-out" : "sb-headline-in"}
+                  className={`sb-headline-${animState}`}
                   style={{
                     fontFamily: "'Syne', sans-serif",
                     fontWeight: 800,
@@ -1390,10 +1497,9 @@ function HeroSection() {
 
               {/* Subtitle */}
               <p
-                className={`sb-reveal-3 max-w-lg text-base leading-relaxed ${animating ? "opacity-0" : "opacity-100"}`}
+                className={`sb-reveal-3 max-w-lg text-base leading-relaxed sb-subtitle-${animState}`}
                 style={{
                   color: "hsl(var(--muted-foreground))",
-                  transition: "opacity 0.25s ease",
                 }}
               >
                 {current.subtitle}
@@ -1407,10 +1513,10 @@ function HeroSection() {
                     onClick={() => goToSlide(i)}
                     aria-label={`Go to slide ${i + 1}`}
                     style={{
-                      width: slide === i ? "24px" : "8px",
-                      height: "8px",
-                      borderRadius: "4px",
-                      background: slide === i ? "hsl(var(--primary))" : "hsl(var(--muted-foreground) / 0.4)",
+                      height: "6px",
+                      width: slide === i ? "24px" : "6px",
+                      borderRadius: "3px",
+                      background: slide === i ? "hsl(var(--primary))" : "hsl(var(--muted-foreground) / 0.3)",
                       border: "none",
                       cursor: "pointer",
                       transition: "all 0.3s ease",
