@@ -152,3 +152,18 @@
   0% { transform: translateX(-100%); }
   100% { transform: translateX(200%); }
 }
+@keyframes cta-beam-pulse {
+  0%, 100% { box-shadow: 0 0 12px #cc0000; }
+  50% { box-shadow: 0 0 20px #cc0000, 0 0 40px #cc000055; }
+}
+.cta-beam::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #cc0000;
+  box-shadow: 0 0 12px #cc0000;
+  animation: cta-beam-pulse 2s ease-in-out infinite;
+}

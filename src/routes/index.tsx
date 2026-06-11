@@ -541,7 +541,10 @@ function Home() {
       {/* Syne font for headline */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap" rel="stylesheet" />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap"
+        rel="stylesheet"
+      />
       <HeroSection />
 
       {/* ========== STATS BANNER ========== */}
@@ -781,7 +784,7 @@ function Home() {
             {steps.map((s, i) => (
               <div key={s.title} className={`animate-fade-up delay-${(i + 1) * 100} flex gap-4`}>
                 <div className="flex flex-col items-center">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-xs font-black text-violet-600 dark:text-violet-400 bg-violet-100 dark:bg-violet-900/30 border border-violet-300 dark:border-violet-500/30">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-black text-violet-600 dark:text-violet-400 bg-violet-100 dark:bg-violet-900/30 border border-violet-300 dark:border-violet-500/30">
                     {s.num}
                   </div>
                   {i < steps.length - 1 && (
@@ -816,7 +819,7 @@ function Home() {
             </span>
             <h2 className="text-4xl font-black text-gray-900 dark:text-white md:text-5xl">
               What Our{" "}
-              <span style={{ color: "#D97706" }} className="dark:text-amber-300">
+              <span style={{ color: "#313863" }} className="dark:text-amber-300">
                 Clients Say
               </span>
             </h2>
@@ -890,7 +893,7 @@ function Home() {
       </section>
 
       {/* ========== PARTNERSHIP ========== */}
-      <section className="py-20 pt-32 bg-white dark:bg-[#080D1A]">
+      <section className="py-20 pt-32 bg-white dark:bg-[#e9e9e9]">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div
             className="rounded-3xl p-8 md:p-12 bg-blue-50 dark:bg-white/5 border border-blue-200 dark:border-blue-500/20"
@@ -950,55 +953,155 @@ function Home() {
         </div>
       </section>
 
-      {/* ========== CTA BANNER ========== */}
-      <section className="relative overflow-hidden py-24 gradient-animated -mt-0.5 bg-gradient-to-r from-blue-600 via-blue-700 to-purple-700 dark:from-[#1D4ED8] dark:via-[#2563EB] dark:to-[#6D28D9]">
-        {/* Noise texture overlay */}
+      {/* ========== CTA BANNER — V5 Spotlight ========== */}
+      <section
+        className="relative overflow-hidden text-center"
+        style={{ background: "#050508", padding: "100px 40px" }}
+      >
+        {/* Red spotlight glow from above */}
         <div
-          className="absolute inset-0 opacity-10"
+          className="pointer-events-none absolute"
           style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E\")",
+            top: "-100px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "600px",
+            height: "600px",
+            background:
+              "radial-gradient(ellipse, rgba(160,0,0,0.22) 0%, rgba(80,0,0,0.10) 40%, transparent 70%)",
           }}
         />
 
-        <div className="relative mx-auto max-w-4xl px-4 text-center md:px-6">
-          <div className="animate-fade-up space-y-6">
-            <div
-              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white/90 mb-2"
+        {/* Vertical beam + glowing dot — dot styled via .cta-beam::after in <style> above */}
+        <div
+          className="cta-beam absolute"
+          style={{
+            top: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "1px",
+            height: "60px",
+            background: "linear-gradient(to bottom, transparent, #cc0000)",
+          }}
+        />
+
+        {/* Content */}
+        <div className="relative mx-auto" style={{ maxWidth: "720px" }}>
+          {/* Brand overline */}
+          <span
+            className="block"
+            style={{
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "0.25em",
+              textTransform: "uppercase",
+              color: "#cc0000",
+              marginBottom: "24px",
+            }}
+          >
+            San Brothers Consulting
+          </span>
+
+          {/* Main headline — gradient text */}
+          <h2
+            style={{
+              fontFamily: "'Syne', sans-serif",
+              fontWeight: 800,
+              fontSize: "clamp(36px, 5.5vw, 72px)",
+              lineHeight: 1,
+              marginBottom: "20px",
+            }}
+          >
+            <span
               style={{
-                background: "rgba(255,255,255,0.15)",
-                border: "1px solid rgba(255,255,255,0.2)",
+                display: "block",
+                background: "linear-gradient(90deg, #fff 0%, #aaa 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
               }}
             >
-              <Users className="h-4 w-4" />
-              Join 1,000+ satisfied clients
-            </div>
-            <h2 className="text-4xl font-black text-white md:text-6xl leading-tight">
-              Ready to get started?
-            </h2>
-            <p className="text-xl text-white/75">Create your free account in under 2 minutes.</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button
-                size="lg"
-                asChild
-                className="h-14 rounded-xl bg-white text-blue-700 hover:bg-gray-100 text-base font-bold px-8 border-0"
-              >
-                <a href="/services" className="flex items-center gap-2">
-                  Get Started Free <ArrowRight className="h-4 w-4" />
-                </a>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                asChild
-                className="h-14 rounded-xl border-white/25 bg-white/10 text-white backdrop-blur hover:bg-white/20 text-base font-semibold px-8"
-              >
-                <a href="/contact">Talk to Us</a>
-              </Button>
-            </div>
-            <p className="text-sm text-white/50 pt-2">
-              No credit card required · Free consultation · Cancel anytime
+              Ready to get
+            </span>
+            <span
+              style={{
+                display: "block",
+                background: "linear-gradient(90deg, #fff 0%, #aaa 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              started?
+            </span>
+          </h2>
+
+          {/* Subtext */}
+          <p style={{ color: "#555", fontSize: "17px", marginBottom: "48px", lineHeight: 1.6 }}>
+            Create your free account in under 2 minutes.
+            <br />
+            No credit card. No commitment.
+          </p>
+
+          {/* Primary CTA */}
+          <div style={{ marginBottom: "48px" }}>
+            <Button
+              size="lg"
+              asChild
+              style={{
+                background: "linear-gradient(135deg, #cc0000 0%, #800000 100%)",
+                border: "none",
+                borderRadius: "10px",
+                padding: "18px 52px",
+                fontSize: "16px",
+                fontWeight: 700,
+                letterSpacing: "0.03em",
+                boxShadow: "0 0 40px rgba(180,0,0,0.40), 0 2px 0 rgba(255,255,255,0.10) inset",
+                height: "auto",
+              }}
+            >
+              <a href="/services" className="flex items-center gap-2">
+                Get Started Free <ArrowRight className="h-4 w-4" />
+              </a>
+            </Button>
+            <p style={{ color: "#333", fontSize: "13px", marginTop: "16px" }}>
+              or{" "}
+              <a href="/contact" style={{ color: "#666", textDecoration: "underline" }}>
+                Talk to Us directly
+              </a>
             </p>
+          </div>
+
+          {/* Divider */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "20px",
+              margin: "0 auto 32px",
+              maxWidth: "400px",
+            }}
+          >
+            <div style={{ flex: 1, height: "1px", background: "#1a1a24" }} />
+            <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#333" }} />
+            <div style={{ flex: 1, height: "1px", background: "#1a1a24" }} />
+          </div>
+
+          {/* Trust meta row */}
+          <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
+            {["Free consultation", "1,000+ clients", "Cancel anytime"].map((item, i, arr) => (
+              <span
+                key={item}
+                style={{
+                  padding: "0 20px",
+                  color: "#444",
+                  fontSize: "12px",
+                  borderRight: i < arr.length - 1 ? "1px solid #1a1a24" : "none",
+                }}
+              >
+                {item}
+              </span>
+            ))}
           </div>
         </div>
       </section>
@@ -1113,42 +1216,48 @@ function FloatCard({
   // Trigger badge pulse when card becomes active
   useEffect(() => {
     if (isActive && badgeRef.current) {
-      badgeRef.current.style.animation = 'none';
+      badgeRef.current.style.animation = "none";
       // Trigger reflow to restart animation
       void badgeRef.current.offsetHeight;
-      badgeRef.current.style.animation = 'sb-badge-pulse 0.4s ease-out';
+      badgeRef.current.style.animation = "sb-badge-pulse 0.4s ease-out";
     }
   }, [isActive]);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    
-    // Calculate 3D magnetic tilt (±15deg max)
-    const rotateY = ((e.clientX - centerX) / rect.width) * 20;
-    const rotateX = ((e.clientY - centerY) / rect.height) * -20;
-    
-    // Floating glow that follows cursor
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
-    el.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.04)`;
-    el.style.background = `radial-gradient(circle at ${x}% ${y}%, hsl(var(--primary)/0.15), transparent 60%), rgba(15, 23, 42, 0.7)`;
-    el.style.boxShadow = `0 0 24px ${card.glowColor}`;
-  }, [card.glowColor]);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const el = ref.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      // Calculate 3D magnetic tilt (±15deg max)
+      const rotateY = ((e.clientX - centerX) / rect.width) * 20;
+      const rotateX = ((e.clientY - centerY) / rect.height) * -20;
+
+      // Floating glow that follows cursor
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+      el.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.04)`;
+      el.style.background = `radial-gradient(circle at ${x}% ${y}%, hsl(var(--primary)/0.15), transparent 60%), rgba(15, 23, 42, 0.7)`;
+      el.style.boxShadow = `0 0 24px ${card.glowColor}`;
+    },
+    [card.glowColor],
+  );
 
   const handleMouseLeave = useCallback(() => {
     const el = ref.current;
     if (!el) return;
-    el.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), background 0.6s ease, box-shadow 0.6s ease';
-    el.style.transform = 'perspective(800px) rotateX(0) rotateY(0) scale(1)';
-    el.style.background = 'rgba(15, 23, 42, 0.7)';
-    el.style.boxShadow = isActive ? `0 0 28px ${card.glowColor}, 0 0 0 1px ${card.borderColor.replace("0.3", "0.6")}` : "0 4px 24px rgba(0,0,0,0.3)";
+    el.style.transition =
+      "transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), background 0.6s ease, box-shadow 0.6s ease";
+    el.style.transform = "perspective(800px) rotateX(0) rotateY(0) scale(1)";
+    el.style.background = "rgba(15, 23, 42, 0.7)";
+    el.style.boxShadow = isActive
+      ? `0 0 28px ${card.glowColor}, 0 0 0 1px ${card.borderColor.replace("0.3", "0.6")}`
+      : "0 4px 24px rgba(0,0,0,0.3)";
     setTimeout(() => {
-      el.style.transition = 'all 0.4s ease';
+      el.style.transition = "all 0.4s ease";
     }, 600);
   }, [isActive, card.glowColor, card.borderColor]);
 
@@ -1159,40 +1268,40 @@ function FloatCard({
     const rect = el.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    
+
     // Calculate parallax offsets for different layers
     const offsetX = (e.clientX - centerX) / rect.width;
     const offsetY = (e.clientY - centerY) / rect.height;
-    
+
     // Icon moves +8px
-    const icon = el.querySelector('.sb-parallax-icon') as HTMLElement;
+    const icon = el.querySelector(".sb-parallax-icon") as HTMLElement;
     if (icon) icon.style.transform = `translate(${offsetX * 8}px, ${offsetY * 8}px)`;
-    
+
     // Text moves +4px
-    const texts = el.querySelectorAll('.sb-parallax-text') as NodeListOf<HTMLElement>;
-    texts.forEach(text => {
+    const texts = el.querySelectorAll(".sb-parallax-text") as NodeListOf<HTMLElement>;
+    texts.forEach((text) => {
       text.style.transform = `translate(${offsetX * 4}px, ${offsetY * 4}px)`;
     });
-    
+
     // Badge moves +2px
-    const badge = el.querySelector('.sb-parallax-badge') as HTMLElement;
+    const badge = el.querySelector(".sb-parallax-badge") as HTMLElement;
     if (badge) badge.style.transform = `translate(${offsetX * 2}px, ${offsetY * 2}px)`;
   }, []);
 
   const handleParallaxLeave = useCallback(() => {
     const el = ref.current;
     if (!el) return;
-    
-    const icon = el.querySelector('.sb-parallax-icon') as HTMLElement;
-    if (icon) icon.style.transform = 'translate(0, 0)';
-    
-    const texts = el.querySelectorAll('.sb-parallax-text') as NodeListOf<HTMLElement>;
-    texts.forEach(text => {
-      text.style.transform = 'translate(0, 0)';
+
+    const icon = el.querySelector(".sb-parallax-icon") as HTMLElement;
+    if (icon) icon.style.transform = "translate(0, 0)";
+
+    const texts = el.querySelectorAll(".sb-parallax-text") as NodeListOf<HTMLElement>;
+    texts.forEach((text) => {
+      text.style.transform = "translate(0, 0)";
     });
-    
-    const badge = el.querySelector('.sb-parallax-badge') as HTMLElement;
-    if (badge) badge.style.transform = 'translate(0, 0)';
+
+    const badge = el.querySelector(".sb-parallax-badge") as HTMLElement;
+    if (badge) badge.style.transform = "translate(0, 0)";
   }, []);
 
   return (
@@ -1207,28 +1316,42 @@ function FloatCard({
         handleParallaxLeave();
       }}
       className={`sb-card-entrance sb-card-${index} ${card.animClass}`}
-      style={{
-        position: "absolute",
-        width: "220px",
-        ...card.pos,
-        animationDuration: card.animClass === "sb-card-entrance" ? card.entranceDelay : card.animDuration,
-        ...({ "--entrance-delay": card.entranceDelay } as React.CSSProperties),
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        background: "rgba(15, 23, 42, 0.7)",
-        border: `1px solid ${isActive ? card.borderColor.replace("0.3", "0.8") : card.borderColor}`,
-        borderRadius: "16px",
-        padding: "16px",
-        cursor: "default",
-        transition: "all 0.4s ease",
-        boxShadow: isActive ? `0 0 28px ${card.glowColor}, 0 0 0 1px ${card.borderColor.replace("0.3", "0.6")}` : "0 4px 24px rgba(0,0,0,0.3)",
-        opacity: isActive ? 1 : 0.5,
-        transform: isActive ? "scale(1.04)" : "scale(1)",
-        zIndex: 10,
-      } as React.CSSProperties}
+      style={
+        {
+          position: "absolute",
+          width: "220px",
+          ...card.pos,
+          animationDuration:
+            card.animClass === "sb-card-entrance" ? card.entranceDelay : card.animDuration,
+          ...({ "--entrance-delay": card.entranceDelay } as React.CSSProperties),
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          background: "rgba(15, 23, 42, 0.7)",
+          border: `1px solid ${isActive ? card.borderColor.replace("0.3", "0.8") : card.borderColor}`,
+          borderRadius: "16px",
+          padding: "16px",
+          cursor: "default",
+          transition: "all 0.4s ease",
+          boxShadow: isActive
+            ? `0 0 28px ${card.glowColor}, 0 0 0 1px ${card.borderColor.replace("0.3", "0.6")}`
+            : "0 4px 24px rgba(0,0,0,0.3)",
+          opacity: isActive ? 1 : 0.5,
+          transform: isActive ? "scale(1.04)" : "scale(1)",
+          zIndex: 10,
+        } as React.CSSProperties
+      }
     >
       {/* Header with parallax depth */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px", transition: "transform 0.2s ease" }} className="sb-parallax-icon">
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          marginBottom: "10px",
+          transition: "transform 0.2s ease",
+        }}
+        className="sb-parallax-icon"
+      >
         <div
           style={{
             width: "36px",
@@ -1246,10 +1369,29 @@ function FloatCard({
           {card.emoji}
         </div>
         <div>
-          <div style={{ fontSize: "10px", color: "rgba(148,163,184,1)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", transition: "transform 0.2s ease" }} className="sb-parallax-text">
+          <div
+            style={{
+              fontSize: "10px",
+              color: "rgba(148,163,184,1)",
+              fontWeight: 500,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              transition: "transform 0.2s ease",
+            }}
+            className="sb-parallax-text"
+          >
             {card.title}
           </div>
-          <div style={{ fontSize: "13px", fontWeight: 700, color: "rgba(248,250,252,1)", lineHeight: 1.2, transition: "transform 0.2s ease" }} className="sb-parallax-text">
+          <div
+            style={{
+              fontSize: "13px",
+              fontWeight: 700,
+              color: "rgba(248,250,252,1)",
+              lineHeight: 1.2,
+              transition: "transform 0.2s ease",
+            }}
+            className="sb-parallax-text"
+          >
             {card.label}
           </div>
         </div>
@@ -1270,15 +1412,17 @@ function FloatCard({
       >
         <span
           className="sb-pulse-dot"
-          style={{
-            "--pulse-color": card.dotColor,
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            background: card.dotColor,
-            display: "inline-block",
-            flexShrink: 0,
-          } as React.CSSProperties}
+          style={
+            {
+              "--pulse-color": card.dotColor,
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              background: card.dotColor,
+              display: "inline-block",
+              flexShrink: 0,
+            } as React.CSSProperties
+          }
         />
         <span style={{ fontSize: "11px", fontWeight: 600, color: card.badgeText }}>
           {card.badge}
@@ -1290,26 +1434,29 @@ function FloatCard({
 
 function HeroSection() {
   const [slide, setSlide] = useState(0);
-  const [animState, setAnimState] = useState<'idle' | 'out' | 'in'>('idle');
+  const [animState, setAnimState] = useState<"idle" | "out" | "in">("idle");
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const goToSlide = useCallback((idx: number) => {
-    if (animState !== 'idle') return;
-    setAnimState('out');
-    setTimeout(() => {
-      setSlide(idx);
-      setAnimState('in');
-      setTimeout(() => setAnimState('idle'), 500);
-    }, 350);
-  }, [animState]);
+  const goToSlide = useCallback(
+    (idx: number) => {
+      if (animState !== "idle") return;
+      setAnimState("out");
+      setTimeout(() => {
+        setSlide(idx);
+        setAnimState("in");
+        setTimeout(() => setAnimState("idle"), 500);
+      }, 350);
+    },
+    [animState],
+  );
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
-      setAnimState('out');
+      setAnimState("out");
       setTimeout(() => {
         setSlide((s) => (s + 1) % SLIDES.length);
-        setAnimState('in');
-        setTimeout(() => setAnimState('idle'), 500);
+        setAnimState("in");
+        setTimeout(() => setAnimState("idle"), 500);
       }, 350);
     }, 4000);
     return () => {
@@ -1413,14 +1560,13 @@ function HeroSection() {
         }
       `}</style>
 
-      <section
-        className="relative min-h-screen w-full overflow-hidden bg-background"
-      >
+      <section className="relative min-h-screen w-full overflow-hidden bg-background">
         {/* Radial glow behind cards side */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
-            background: "radial-gradient(ellipse at 70% 50%, hsl(var(--primary) / 0.08), transparent 60%)",
+            background:
+              "radial-gradient(ellipse at 70% 50%, hsl(var(--primary) / 0.08), transparent 60%)",
           }}
         />
 
@@ -1428,7 +1574,8 @@ function HeroSection() {
         <div
           className="pointer-events-none absolute inset-y-0 left-0 w-1/2"
           style={{
-            backgroundImage: "radial-gradient(circle, hsl(var(--foreground) / 0.06) 1px, transparent 1px)",
+            backgroundImage:
+              "radial-gradient(circle, hsl(var(--foreground) / 0.06) 1px, transparent 1px)",
             backgroundSize: "20px 20px",
             maskImage: "linear-gradient(to right, transparent, hsl(var(--background)) 90%)",
             WebkitMaskImage: "linear-gradient(to right, transparent, hsl(var(--background)) 90%)",
@@ -1437,10 +1584,8 @@ function HeroSection() {
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 md:px-6">
           <div className="grid min-h-screen gap-12 md:grid-cols-2 md:items-center py-20 md:py-0">
-
             {/* ── LEFT ── */}
             <div className="flex flex-col justify-center space-y-7">
-
               {/* Eyebrow badge */}
               <div className="sb-reveal-1">
                 <span
@@ -1516,7 +1661,8 @@ function HeroSection() {
                       height: "6px",
                       width: slide === i ? "24px" : "6px",
                       borderRadius: "3px",
-                      background: slide === i ? "hsl(var(--primary))" : "hsl(var(--muted-foreground) / 0.3)",
+                      background:
+                        slide === i ? "hsl(var(--primary))" : "hsl(var(--muted-foreground) / 0.3)",
                       border: "none",
                       cursor: "pointer",
                       transition: "all 0.3s ease",
@@ -1551,7 +1697,10 @@ function HeroSection() {
               </div>
 
               {/* Trust strip */}
-              <div className="sb-reveal-4 flex flex-wrap gap-4 text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
+              <div
+                className="sb-reveal-4 flex flex-wrap gap-4 text-sm"
+                style={{ color: "hsl(var(--muted-foreground))" }}
+              >
                 {["Free consultation", "No hidden fees", "24/7 online access"].map((t) => (
                   <span key={t} className="flex items-center gap-1.5">
                     <Check
@@ -1567,12 +1716,7 @@ function HeroSection() {
             {/* ── RIGHT — Floating cards ── */}
             <div className="relative hidden min-h-[580px] md:block">
               {FLOAT_CARDS.map((card, i) => (
-                <FloatCard
-                  key={i}
-                  card={card}
-                  index={i}
-                  isActive={current.activeCard === i}
-                />
+                <FloatCard key={i} card={card} index={i} isActive={current.activeCard === i} />
               ))}
             </div>
           </div>
@@ -1605,7 +1749,10 @@ function HeroSection() {
 
           {/* Scroll indicator */}
           <div className="relative z-10 flex justify-center py-5">
-            <div className="flex flex-col items-center gap-1" style={{ color: "hsl(var(--muted-foreground))" }}>
+            <div
+              className="flex flex-col items-center gap-1"
+              style={{ color: "hsl(var(--muted-foreground))" }}
+            >
               <span className="text-xs tracking-widest uppercase">Scroll</span>
               <ChevronDown className="h-4 w-4 animate-bounce" />
             </div>
