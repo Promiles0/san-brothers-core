@@ -45,10 +45,8 @@ export function TranslateNavbar() {
       </div>
       <header className="sticky top-0 z-40 w-full border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 md:px-6">
-          <Link to="/translate" className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-md bg-primary font-bold text-primary-foreground">
-              SB
-            </div>
+          <Link to="/" className="flex items-center gap-2.5">
+            <img src="/sanlogo-Photoroom.png" alt="San Brothers" className="h-9 w-9 object-contain" />
             <span className="hidden text-sm font-semibold italic tracking-tight text-foreground sm:inline">
               {t("translate.brand.wordmark")}
             </span>

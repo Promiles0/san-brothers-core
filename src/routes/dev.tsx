@@ -19,9 +19,9 @@ function DevPreview() {
         <ThemeToggle />
       </header>
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-6 px-4 py-16 text-center">
-        <div className="grid h-14 w-14 place-items-center rounded-xl bg-primary text-xl font-bold text-primary-foreground shadow-lg">
-          SB
-        </div>
+        <a href="/" className="inline-flex">
+          <img src="/sanlogo-Photoroom.png" alt="San Brothers" className="h-14 w-14 object-contain shadow-lg rounded-xl" />
+        </a>
         <h1 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">Dev Preview</h1>
         <p className="text-balance text-lg text-muted-foreground">Open a dashboard as any role.</p>
         <div className="mt-4 w-full rounded-xl border border-border bg-card p-6 shadow-sm">

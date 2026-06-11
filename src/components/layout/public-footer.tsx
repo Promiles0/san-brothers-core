@@ -54,9 +54,9 @@ export function PublicFooter() {
           {/* Column 1: Brand */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <div className="grid h-10 w-10 place-items-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 text-xs font-black text-white">
-                SB
-              </div>
+              <a href="/" className="flex items-center gap-2">
+                <img src="/sanlogo-Photoroom.png" alt="San Brothers" className="h-10 w-10 object-contain" />
+              </a>
               <div>
                 <div className="text-sm font-bold text-gray-900 dark:text-white">San Brothers</div>
                 <div className="text-xs text-gray-600 dark:text-gray-600">Global Services</div>

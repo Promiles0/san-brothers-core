@@ -15,9 +15,7 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
     <div className="relative flex min-h-screen flex-col bg-linear-to-br from-background via-background to-primary/10">
       <header className="flex items-center justify-between px-4 py-4 md:px-6">
         <Link to="/" className="flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-md bg-primary font-bold text-primary-foreground">
-            SB
-          </div>
+          <img src="/sanlogo-Photoroom.png" alt="San Brothers" className="h-9 w-9 object-contain" />
           <span className="text-sm font-semibold">San Brothers</span>
         </Link>
         <div className="flex items-center gap-1">

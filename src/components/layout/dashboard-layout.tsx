@@ -77,10 +77,10 @@ export function DashboardLayout({
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto border-r border-sidebar-border bg-sidebar md:flex">
         <div className="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border px-4">
-          <div className="grid h-8 w-8 place-items-center rounded-md bg-primary font-bold text-primary-foreground">
-            SB
-          </div>
-          <span className="text-sm font-semibold text-sidebar-foreground">San Brothers</span>
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/sanlogo-Photoroom.png" alt="San Brothers" className="h-8 w-8 object-contain" />
+            <span className="text-sm font-semibold text-sidebar-foreground">San Brothers</span>
+          </Link>
         </div>
         <div className="flex-1 overflow-y-auto">
           <Sidebar role={role} hiddenNavKeys={hiddenNavKeys} />

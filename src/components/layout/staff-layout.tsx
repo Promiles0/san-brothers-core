@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, type ReactNode } from "react";
 import { Menu, ChevronRight, AlertTriangle, Phone, PhoneOff, Volume2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -607,10 +608,10 @@ export function StaffLayout({
     <div className="flex min-h-screen w-full bg-background">
       <aside className="hidden w-64 shrink-0 border-r border-sidebar-border bg-sidebar md:flex md:flex-col">
         <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4">
-          <div className="grid h-8 w-8 place-items-center rounded-md bg-primary font-bold text-primary-foreground">
-            {sidebarBadge}
-          </div>
-          <span className="text-sm font-semibold text-sidebar-foreground">{sidebarLabel}</span>
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/sanlogo-Photoroom.png" alt="San Brothers" className="h-8 w-8 object-contain" />
+            <span className="text-sm font-semibold text-sidebar-foreground">{sidebarLabel}</span>
+          </Link>
         </div>
         <div className="flex-1 overflow-y-auto">
           <StaffSidebar />
