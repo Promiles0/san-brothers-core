@@ -968,7 +968,7 @@ function Home() {
             width: "600px",
             height: "600px",
             background:
-              "radial-gradient(ellipse, rgba(160,0,0,0.22) 0%, rgba(80,0,0,0.10) 40%, transparent 70%)",
+              "radial-gradient(ellipse, rgba(9,47,181,0.22) 0%, rgba(10,50,180,0.10) 40%, transparent 70%)",
           }}
         />
 
@@ -981,7 +981,7 @@ function Home() {
             transform: "translateX(-50%)",
             width: "1px",
             height: "60px",
-            background: "linear-gradient(to bottom, transparent, #cc0000)",
+            background: "linear-gradient(to bottom, transparent, #0327A6)",
           }}
         />
 
@@ -995,7 +995,7 @@ function Home() {
               fontWeight: 700,
               letterSpacing: "0.25em",
               textTransform: "uppercase",
-              color: "#cc0000",
+              color: "#0A0CE3",
               marginBottom: "24px",
             }}
           >
@@ -1049,14 +1049,14 @@ function Home() {
               size="lg"
               asChild
               style={{
-                background: "linear-gradient(135deg, #cc0000 0%, #800000 100%)",
+                background: "linear-gradient(135deg, #01034F 0%, #000B57 100%)",
                 border: "none",
                 borderRadius: "10px",
                 padding: "18px 52px",
                 fontSize: "16px",
                 fontWeight: 700,
                 letterSpacing: "0.03em",
-                boxShadow: "0 0 40px rgba(180,0,0,0.40), 0 2px 0 rgba(255,255,255,0.10) inset",
+                boxShadow: "0 0 40px rgba(1,3,79,0.40), 0 2px 0 rgba(255,255,255,0.10) inset",
                 height: "auto",
               }}
             >
