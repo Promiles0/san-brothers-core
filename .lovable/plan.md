@@ -1,186 +1,67 @@
 ## Goal
 
-Build multi-portal infrastructure so San Brothers, Translate, and Consultancy share one backend/auth/dashboard but render distinct public sites. Add the full Consultancy portal from scratch and make signup/login/dashboard/support portal-aware.
+Turn `src/routes/index.tsx` (1,764 lines, duplicated hero, invisible sections, fake testimonials, generic blue/violet gradient look) into a clean, friendly, professional landing page that loads fast, paints correctly on mobile, and feels distinct from default AI templates.
 
----
+## What gets removed
 
-## Part 1 — Database migrations (one batch)
+1. **Duplicate hero block** at lines ~1344–1761 (dead/second-hero code).
+2. `**useIntersectionObserver` + `.animate-fade-up { opacity: 0 }**` — replaced with CSS-only entrance animations that don't hide content if JS hasn't run.
+3. **~350 lines of inline `<style>**` keyframes — only the few still in use move to `src/styles.css`; the rest deleted.
+4. **Fake testimonials** (Wang Wei, Li Fang, Marie C., David O., etc.) and **unverified stats** (1,000+ clients, 98% success rate).
+5. Floating orbs, glow-pulse buttons, shimmer headline, glass-card decorations, hardcoded hex backgrounds like `dark:bg-[#080D1A]`.
 
-Migration file applied via Supabase:
+## What gets added / restructured
 
-1. `users.source_portals TEXT[] DEFAULT ARRAY['san-brothers']`
-2. `service_requests.portal_source TEXT DEFAULT 'san-brothers'`
-3. `support_messages.portal_source TEXT DEFAULT 'san-brothers'`
-4. New `portal_configurations` table (portal_slug PK, name, display_name, tagline, services_available TEXT[], support_enabled, timestamps)
-5. Seed three rows: `san-brothers`, `translate`, `consultancy` (services_available matches spec)
-6. Grants: `GRANT SELECT ON portal_configurations TO anon, authenticated; GRANT ALL TO service_role`
-7. RLS: enable + `FOR SELECT USING (true)` public read policy
+### File split (under `src/components/marketing/home/`)
 
----
+- `hero.tsx` — single, focused hero with headline, subhead, primary + secondary CTA, language strip.
+- `services-grid.tsx` — 4 service cards using semantic tokens, outcome-focused copy.
+- `why-us.tsx` — 3–4 reasons with icons, no glow.
+- `process.tsx` — 4-step "How it works" timeline.
+- `social-proof.tsx` — empty-state-friendly slot for real client logos, named testimonials, and stats (renders nothing if data is empty; placeholder copy clearly marked).
+- `cta-section.tsx` — final "Talk to an expert" band.
+- `sticky-contact.tsx` — mobile sticky WhatsApp / Call CTA.
 
-## Part 2 — Portal context (`src/lib/portal-context.ts`)
+`src/routes/index.tsx` becomes a thin composition (~80 lines) wiring those components inside `PublicLayout` with the existing `head()` meta intact.
 
-- `Portal = 'san-brothers' | 'translate' | 'consultancy'`
-- Static `PORTAL_CONFIG` map with displayName, tagline, servicesAvailable, hostname, isChild flag
-- `detectPortal()` reads `window.location.hostname`; SSR → `'san-brothers'`
-- `usePortal()` hook returns `{ current, config, isSanBrothers, isChild, displayName, tagline, servicesAvailable }`
-- `getParentLink()` returns parent san-brothers URL
+### Visual direction (Modern & friendly)
 
----
+- **Palette**: warm neutrals + a single friendly accent. Defined as semantic tokens in `src/styles.css` (`--background`, `--foreground`, `--primary`, `--accent`, `--muted`) so dark mode and theming keep working. No more `text-white`, `bg-[#080D1A]`, or `from-blue-500 to-violet-500` in components.
+- **Typography**: distinctive heading pair (e.g. a friendly geometric display) + clean body, loaded via existing font setup. No Inter/Poppins defaults.
+- **Shape language**: generous radii (`rounded-2xl`), soft shadows, no neon glows.
+- **Motion**: subtle CSS `@keyframes fade-in-up` applied unconditionally (no observer gating), `prefers-reduced-motion` respected.
 
-## Part 3 — Consultancy public portal
+### Content changes
 
-Mirror `src/routes/translate/` structure:
+- Hero subhead rewritten to be outcome-focused, not feature list.
+- Service cards: each gets a one-line outcome ("Student visa to China — handled end to end") instead of generic descriptors.
+- Real-data slots for stats/logos/testimonials — when empty, section either hides or shows a neutral "Trusted by clients across Rwanda & beyond" line. You can drop in real numbers + logos later.
+- Trust strip: payment methods + supported languages, no invented certifications.
 
-- `src/routes/consultancy.tsx` — layout with Outlet, navbar (lang switcher EN/中文/RW/FR/AR + "Back to San Brothers"), footer
-- `src/routes/consultancy/index.tsx` — hero "Expert Business Solutions", 3-step "How it works", service cards (Company Registration, Document Processing, Trade & Investment, Business Planning, Administrative Support), CTA buttons use `handleConsultancyApply(slug)`
-- `src/routes/consultancy/how-it-works.tsx` — 3 steps (Choose consultation → Meet expert → Get solution)
-- `src/routes/consultancy/about.tsx` — company/team/why us
-- `src/routes/consultancy/pricing.tsx` — service pricing + monthly packages + custom quote CTA
+### Performance & SEO
 
-`handleConsultancyApply(slug)`:
+- Remove opacity-based hiding so content is in the initial HTML for crawlers and slow phones.
+- Keep existing `head()` meta, add `og:image` placeholder slot for a real share image you provide.
+- `loading="lazy"` on any below-the-fold imagery.
 
-- If session → `navigate({ to: '/dashboard/services', search: { apply: slug } })`
-- Else → set `sessionStorage` keys + `navigate({ to: '/signup', search: { intent: slug, portal: 'consultancy' } })`
+## Technical notes
 
-Reuse `src/components/marketing/` primitives where possible. Match Translate's design tone.
-
----
-
-## Part 4 — Auth wiring (portal tracking)
-
-`**src/routes/signup.tsx**`
-
-- Extend `validateSearch` with `portal?: string`
-- On successful signup, set `users.source_portals = [targetPortal]`
-- Persist `signup_intent` + `signup_portal` in sessionStorage
-
-`**src/routes/login.tsx**`
-
-- Extend `validateSearch` with `portal?: string`
-- After successful login: read `source_portals`, append current portal if missing, update
-
-Both use `usePortal()` + the explicit `portal` search param (param wins for cross-portal redirects).
-
----
-
-## Part 5 — Dashboard portal awareness
-
-`**src/routes/dashboard.services.index.tsx**`
-
-- Fetch `portal_configurations` row for current portal
-- Filter services list by `services_available`
-- Honor existing `?apply=` intent flow
-
-`**src/components/layout/dashboard-layout.tsx**`
-
-- When `isChild`, render banner above main: "You're on: {displayName}" + "← Back to San Brothers" link via `getParentLink()`
-
-**Service request creation** (`service-apply-modal.tsx`): include `portal_source: currentPortal` on insert.
-
----
-
-## Part 6 — Support form portal awareness
-
-`src/components/support/support-form.tsx` (or current contact form):
-
-- San Brothers → full subject dropdown
-- Translate child → locked "Translation & Interpretation Services"
-- Consultancy child → locked "Business Consultancy"
-- Always insert `portal_source: currentPortal`
-
-If no existing support-form component, edit `src/routes/contact.tsx` similarly.
-
----
-
-## Part 7 — Staff capabilities
-
-Add to existing staff capability options (in admin staff management UI + capability-context):
-
-- `handle_consultancy`
-- `approve_consultancy`
-- `manage_consultancy_cases`
-
-Consultancy staff routes already exist (`staff.consultancy.*`); ensure capability gate uses `handle_consultancy` (already does per `staff.consultancy.index.tsx`). Verify sidebar (`sidebar-menus.ts`) hides consultancy nav when capability missing.
-
----
-
-## Files touched
-
-**New**
-
-- `src/lib/portal-context.ts`
-- `src/routes/consultancy.tsx`
-- `src/routes/consultancy/index.tsx`
-- `src/routes/consultancy/how-it-works.tsx`
-- `src/routes/consultancy/about.tsx`
-- `src/routes/consultancy/pricing.tsx`
-- One SQL migration
-
-**Edited**
-
-- `src/routes/signup.tsx`
-- `src/routes/login.tsx`
-- `src/routes/dashboard.services.index.tsx`
-- `src/components/layout/dashboard-layout.tsx`
-- `src/components/dashboard/service-apply-modal.tsx` (add `portal_source`)
-- Support/contact form
-- Admin staff capabilities UI + `src/lib/staff/capability-context.tsx` (add new capability keys)
-
-No changes to: payment logic, existing translate portal, RLS on user data, server functions.
-
----
+- All color, gradient, shadow values live in `src/styles.css` as semantic tokens; components only use class names like `bg-background`, `text-foreground`, `bg-primary`, `text-accent`.
+- New components are presentation-only — no data fetching, no Supabase calls added.
+- Keep `PublicLayout`, existing nav/footer, and `useI18n` translation keys. New copy that needs translation gets added to `src/messages/en.json`, `zh.json`, `rw.json` under a `home.*` namespace; existing keys stay.
+- Mobile sticky CTA respects safe-area-inset.
+- No new npm packages. Icons stay on `lucide-react`.  
+aslo add those   
+1. 
+  Add i18n translations for all new staff dashboard labels, status/filter names, and button text across en/zh/rw.  
+  2. and must supporrt well our all theme modes (dark and light) must math well 
 
 ## Out of scope
 
-- Subdomain DNS / hosting config (must be set up separately on Cloudflare; code uses hostname detection only)
-- Migrating existing rows (defaults handle new rows; backfill not requested)
-- Email templates per portal
-- Per-portal branding theming (uses same design tokens; only copy/labels differ)  
-  
-## Clarifications & Missing Details
-  ### Service Slugs Verification
-  Before building, verify these 5 service slugs exist in Supabase `services` table:
-  - 'company-registration'
-  - 'document-processing'
-  - 'trade-investment'
-  - 'business-planning'
-  - 'administrative-support'
-  If any are missing, create them first in services table with:
-  - name: (human-readable)
-  - slug: (above)
-  - description: (brief)
-  - category: 'consultancy'
-  - price_min/price_max: (use reasonable values)
-  ### Navbar Implementation
-  - Language switcher: **Reuse existing component from `src/routes/translate/` navbar** — same EN/中文/RW/FR/AR flags
-  - "Back to San Brothers" link: **Place in navbar top-right**, near language switcher, as text link with arrow icon (← style), links to `getParentLink()`
-  - Consultancy navbar component: Create `src/components/consultancy-navbar.tsx` or conditionally render in shared navbar based on `usePortal()`
-  ### Consultancy Footer
-  - Reuse footer from `src/routes/translate/` 
-  - Keep same company info, contact details
-  - No per-portal branding changes needed
-  ### Staff Routes & Dashboard
-  - **No new consultancy staff routes** `/staff/consultancy` does NOT need to exist)
-  - Consultancy staff use shared `/staff` dashboard
-  - Capability gate: existing `useCapabilities()` hook + `hasCapability('handle_consultancy')` check in sidebar
-  - Sidebar already hides consultancy nav items when user lacks `handle_consultancy` capability
-  ### Service Request Creation
-  - **File:** `src/components/dashboard/service-apply-modal.tsx`
-  - **Location:** In handleSubmit function, when inserting to `service_requests` table
-  - **Add this field:** `portal_source: usePortal().current`
-  - Ensure import: `import { usePortal } from '@/lib/portal-context'`
-  ### Optional: Consultancy Pricing Defaults
-  If pricing page needs sample data, use (adjust as needed):
-  - Company Registration: $150–$300
-  - Document Processing: $50–$150
-  - Trade & Investment: $200–$500
-  - Business Planning: $300–$1000
-  - Administrative Support: $75–$200
-  ### Testing Order
-  1. Create consultancy services in DB (if missing)
-  2. Deploy portal context + auth updates
-  3. Deploy consultancy routes
-  4. Test signup flow: /consultancy → not logged in → /signup?portal=consultancy → create account → /dashboard/services with modal open
-  5. Test existing user: logged in on San Brothers → visit /consultancy → add consultancy to source_portals → access services
-  6. Test support: fill form on /consultancy/contact → auto-subject + portal_source = 'consultancy'
+- No backend / Supabase / auth changes.
+- Other routes (`/services/*`, `/dashboard/*`, `/staff/*`) untouched.
+- Real testimonial text, client logos, share image — you'll provide; I'll wire the slots.
+
+## Deliverable
+
+A faster, cleaner home page that paints correctly on first load, uses your design tokens consistently, drops the AI-template look, and is broken into small files you can maintain. Approve and I'll build it.
