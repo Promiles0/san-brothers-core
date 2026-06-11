@@ -1,6 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Star, ClipboardList, Clock, CircleCheck as CheckCircle2, MessageSquare, Zap, FolderOpen, Calendar as CalendarIcon, Phone, Plus, UserPlus, ArrowRight } from "lucide-react";
+import {
+  Star,
+  ClipboardList,
+  Clock,
+  CircleCheck as CheckCircle2,
+  MessageSquare,
+  Zap,
+  FolderOpen,
+  Calendar as CalendarIcon,
+  Phone,
+  Plus,
+  UserPlus,
+  ArrowRight,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useCapabilities } from "@/lib/staff/capability-context";
@@ -178,7 +191,9 @@ function StaffHome() {
         const catFilter = myCats !== null && myCats.length > 0 ? myCats : null;
         const orParts: string[] = [`assigned_staff_id.eq.${user.id}`];
         if (catFilter) {
-          orParts.push(`and(assigned_staff_id.is.null,service_category.in.(${catFilter.join(",")}))`);
+          orParts.push(
+            `and(assigned_staff_id.is.null,service_category.in.(${catFilter.join(",")}))`,
+          );
         }
         const [todayQ, pendingQ, weekQ, recentQ, doneQ, msgQ, awaitQ] = await Promise.all([
           supabase
@@ -382,9 +397,7 @@ function StaffHome() {
                         {initials(r.client?.full_name)}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">
-                          {r.client?.full_name ?? "—"}
-                        </p>
+                        <p className="truncate text-sm font-medium">{r.client?.full_name ?? "—"}</p>
                         <p className="truncate text-xs text-muted-foreground">
                           {r.service?.name_en}
                         </p>
@@ -519,9 +532,7 @@ function StaffHome() {
               <div className="grid grid-cols-7 gap-1">
                 {week.map((d) => {
                   const key = d.toISOString().slice(0, 10);
-                  const dayRows = weekRows.filter(
-                    (r) => (r.updated_at ?? "").slice(0, 10) === key,
-                  );
+                  const dayRows = weekRows.filter((r) => (r.updated_at ?? "").slice(0, 10) === key);
                   const isToday = key === todayKey;
                   return (
                     <div

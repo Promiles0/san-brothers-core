@@ -49,9 +49,11 @@ const ALL_CAPABILITIES: Capability[] = [
   "handle_live_calls",
   "register_clients_manually",
   "approve_visa",
-  "approve_accounting",
-  "approve_consultancy",
-  "manage_consultancy_cases",
+  // "approve_accounting",
+  // ✂️ DELETE THIS LINE:
+  // "approve_consultancy",
+  // ✂️ DELETE THIS LINE:
+  // "manage_consultancy_cases",
   "view_financial_reports",
   "manage_staff",
   "manage_pricing",
@@ -107,9 +109,15 @@ function AdminStaff() {
   const [selectedCaps, setSelectedCaps] = useState<Set<Capability>>(new Set());
   const [capsSaving, setCapsSaving] = useState(false);
   const [lastActive, setLastActive] = useState<Record<string, string | null>>({});
-  const [caseCounts, setCaseCounts] = useState<Record<string, { active: number; completed: number }>>({});
+  const [caseCounts, setCaseCounts] = useState<
+    Record<string, { active: number; completed: number }>
+  >({});
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [inviteForm, setInviteForm] = useState({ full_name: "", email: "", role: "secretary" as StaffRole });
+  const [inviteForm, setInviteForm] = useState({
+    full_name: "",
+    email: "",
+    role: "secretary" as StaffRole,
+  });
   const [inviting, setInviting] = useState(false);
 
   const fetchStaff = useCallback(async () => {
@@ -182,7 +190,11 @@ function AdminStaff() {
       action: "role_changed",
       target_type: "user",
       target_id: editingUser.id,
-      metadata: { name: editingUser.full_name ?? editingUser.email, from: editingUser.role, to: editRole },
+      metadata: {
+        name: editingUser.full_name ?? editingUser.email,
+        from: editingUser.role,
+        to: editRole,
+      },
     });
     setEditingUser(null);
     fetchStaff();
@@ -245,7 +257,8 @@ function AdminStaff() {
   };
 
   const handleInvite = async () => {
-    if (!inviteForm.email.trim() || !inviteForm.full_name.trim()) return toast.error("Name and email required");
+    if (!inviteForm.email.trim() || !inviteForm.full_name.trim())
+      return toast.error("Name and email required");
     setInviting(true);
     const { error } = await supabase.from("users").insert({
       email: inviteForm.email,
@@ -267,7 +280,9 @@ function AdminStaff() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Staff</h1>
-          <p className="text-sm text-muted-foreground">Manage staff accounts, roles, and capabilities.</p>
+          <p className="text-sm text-muted-foreground">
+            Manage staff accounts, roles, and capabilities.
+          </p>
         </div>
         <Button onClick={() => setInviteOpen(true)}>
           <UserPlus className="mr-1.5 h-4 w-4" /> Invite staff
@@ -307,12 +322,21 @@ function AdminStaff() {
                       <p className="text-xs text-muted-foreground">{u.email}</p>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="capitalize">{u.role}</Badge>
+                      <Badge variant="secondary" className="capitalize">
+                        {u.role}
+                      </Badge>
                     </TableCell>
-                    <TableCell className="text-center tabular-nums">{caseCounts[u.id]?.active ?? 0}</TableCell>
-                    <TableCell className="text-center tabular-nums">{caseCounts[u.id]?.completed ?? 0}</TableCell>
+                    <TableCell className="text-center tabular-nums">
+                      {caseCounts[u.id]?.active ?? 0}
+                    </TableCell>
+                    <TableCell className="text-center tabular-nums">
+                      {caseCounts[u.id]?.completed ?? 0}
+                    </TableCell>
                     <TableCell>
-                      <Switch checked={u.status === "active"} onCheckedChange={() => toggleStatus(u)} />
+                      <Switch
+                        checked={u.status === "active"}
+                        onCheckedChange={() => toggleStatus(u)}
+                      />
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {lastActive[u.id] ? timeAgo(lastActive[u.id]!) : "—"}
@@ -469,30 +493,48 @@ function AdminStaff() {
 
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Invite staff member</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Invite staff member</DialogTitle>
+          </DialogHeader>
           <div className="space-y-3">
             <div>
               <Label>Full name</Label>
-              <Input value={inviteForm.full_name} onChange={(e) => setInviteForm({ ...inviteForm, full_name: e.target.value })} />
+              <Input
+                value={inviteForm.full_name}
+                onChange={(e) => setInviteForm({ ...inviteForm, full_name: e.target.value })}
+              />
             </div>
             <div>
               <Label>Email</Label>
-              <Input type="email" value={inviteForm.email} onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })} />
+              <Input
+                type="email"
+                value={inviteForm.email}
+                onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+              />
             </div>
             <div>
               <Label>Role</Label>
-              <Select value={inviteForm.role} onValueChange={(v) => setInviteForm({ ...inviteForm, role: v as StaffRole })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+              <Select
+                value={inviteForm.role}
+                onValueChange={(v) => setInviteForm({ ...inviteForm, role: v as StaffRole })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   {STAFF_ROLES.map((r) => (
-                    <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>
+                    <SelectItem key={r} value={r} className="capitalize">
+                      {r}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setInviteOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setInviteOpen(false)}>
+              Cancel
+            </Button>
             <Button onClick={handleInvite} disabled={inviting}>
               {inviting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Send invite

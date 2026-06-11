@@ -1,6 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Inbox, MessageCircle, Forward, LogOut, CheckCircle2, Pause, Play, Flag } from "lucide-react";
+import {
+  Inbox,
+  MessageCircle,
+  Forward,
+  LogOut,
+  CheckCircle2,
+  Pause,
+  Play,
+  Flag,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/card";
@@ -133,17 +142,17 @@ function StaffMessagesPage() {
         unread: c.unread ?? 0,
         status: c.status,
         priority: c.priority,
-        meta: c.claimed_by && c.claimed_by !== user?.id
-          ? `Handled by ${c.claimer?.full_name ?? c.claimer?.email ?? "staff"}`
-          : null,
+        meta:
+          c.claimed_by && c.claimed_by !== user?.id
+            ? `Handled by ${c.claimer?.full_name ?? c.claimer?.email ?? "staff"}`
+            : null,
       })),
     [filteredRows, user],
   );
 
   const selected = useMemo(() => rows.find((r) => r.id === selectedId), [rows, selectedId]);
   const selectedDep = selected ? getDepartment(selected.department) : null;
-  const canReply =
-    !!selected && selected.claimed_by === user?.id && selected.status !== "closed";
+  const canReply = !!selected && selected.claimed_by === user?.id && selected.status !== "closed";
 
   const insertSystem = async (conversationId: string, content: string) => {
     if (!user) return;
@@ -202,10 +211,7 @@ function StaffMessagesPage() {
 
   const togglePriority = async (id: string, current: string | null) => {
     const next = current === "urgent" ? "normal" : "urgent";
-    const { error } = await supabase
-      .from("conversations")
-      .update({ priority: next })
-      .eq("id", id);
+    const { error } = await supabase.from("conversations").update({ priority: next }).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success(next === "urgent" ? "Marked urgent" : "Priority cleared");
     await load();
@@ -302,7 +308,9 @@ function StaffMessagesPage() {
                     </Badge>
                   )}
                 </TabsTrigger>
-                <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
+                <TabsTrigger value="all" className="text-xs">
+                  All
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -325,10 +333,7 @@ function StaffMessagesPage() {
 
         {/* Chat */}
         <div
-          className={cn(
-            "flex min-h-0 flex-col",
-            mobileView === "list" ? "hidden md:flex" : "flex",
-          )}
+          className={cn("flex min-h-0 flex-col", mobileView === "list" ? "hidden md:flex" : "flex")}
         >
           {selected && selectedDep ? (
             <ChatWindow
@@ -353,10 +358,7 @@ function StaffMessagesPage() {
                   <Button
                     size="icon"
                     variant="ghost"
-                    className={cn(
-                      "h-8 w-8",
-                      selected.priority === "urgent" && "text-destructive",
-                    )}
+                    className={cn("h-8 w-8", selected.priority === "urgent" && "text-destructive")}
                     onClick={() => void togglePriority(selected.id, selected.priority)}
                     title="Priority"
                   >
@@ -421,7 +423,9 @@ function StaffActionBar({
   return (
     <div className="flex flex-wrap items-center gap-1.5 border-b bg-muted/30 px-3 py-2">
       {!selected.claimed_by ? (
-        <Button size="sm" onClick={onClaim}>Claim</Button>
+        <Button size="sm" onClick={onClaim}>
+          Claim
+        </Button>
       ) : (
         <>
           {canReply && (
@@ -447,9 +451,7 @@ function StaffActionBar({
                 ))}
             </>
           )}
-          {selected.status === "closed" && (
-            <Badge variant="secondary">Closed</Badge>
-          )}
+          {selected.status === "closed" && <Badge variant="secondary">Closed</Badge>}
         </>
       )}
       {selected.hold_start && (

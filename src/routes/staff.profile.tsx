@@ -1,14 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import {
-  Upload,
-  Loader2,
-  AlertTriangle,
-  Plus,
-  Trash2,
-  CheckCircle,
-  KeyRound,
-} from "lucide-react";
+import { Upload, Loader2, AlertTriangle, Plus, Trash2, CheckCircle, KeyRound } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -256,8 +248,7 @@ function StaffProfilePage() {
     setPairs((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const pairsValid =
-    pairs.length > 0 && pairs.every((p) => p.from && p.to && p.from !== p.to);
+  const pairsValid = pairs.length > 0 && pairs.every((p) => p.from && p.to && p.from !== p.to);
 
   const initial = (profile.full_name?.[0] ?? profile.email[0]).toUpperCase();
 
@@ -318,11 +309,19 @@ function StaffProfilePage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>Full name</Label>
-              <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your name" />
+              <Input
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Your name"
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Phone</Label>
-              <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+250 ..." />
+              <Input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+250 ..."
+              />
             </div>
             <div className="space-y-1.5">
               <Label>City</Label>
@@ -330,7 +329,11 @@ function StaffProfilePage() {
             </div>
             <div className="space-y-1.5">
               <Label>Country</Label>
-              <Input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Rwanda" />
+              <Input
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                placeholder="Rwanda"
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Email</Label>
@@ -339,7 +342,11 @@ function StaffProfilePage() {
             </div>
             <div className="space-y-1.5">
               <Label>Role</Label>
-              <Input value={profile.role} readOnly className="bg-muted/40 cursor-default capitalize" />
+              <Input
+                value={profile.role}
+                readOnly
+                className="bg-muted/40 cursor-default capitalize"
+              />
             </div>
           </div>
 
@@ -452,8 +459,8 @@ function StaffProfilePage() {
             <div className="flex items-start gap-2.5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/60 dark:text-amber-200">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
-                <strong>Complete your interpreter profile</strong> — add your language pairs
-                and save to start receiving live calls.
+                <strong>Complete your interpreter profile</strong> — add your language pairs and
+                save to start receiving live calls.
               </span>
             </div>
           )}
@@ -477,10 +484,7 @@ function StaffProfilePage() {
                   {pairs.map((pair, i) => (
                     <div key={i} className="flex items-center gap-2">
                       {/* From */}
-                      <Select
-                        value={pair.from}
-                        onValueChange={(v) => updatePair(i, "from", v)}
-                      >
+                      <Select value={pair.from} onValueChange={(v) => updatePair(i, "from", v)}>
                         <SelectTrigger className="flex-1">
                           <SelectValue placeholder="From" />
                         </SelectTrigger>
@@ -500,10 +504,7 @@ function StaffProfilePage() {
                       <span className="shrink-0 text-xs text-muted-foreground">→</span>
 
                       {/* To */}
-                      <Select
-                        value={pair.to}
-                        onValueChange={(v) => updatePair(i, "to", v)}
-                      >
+                      <Select value={pair.to} onValueChange={(v) => updatePair(i, "to", v)}>
                         <SelectTrigger className="flex-1">
                           <SelectValue placeholder="To" />
                         </SelectTrigger>

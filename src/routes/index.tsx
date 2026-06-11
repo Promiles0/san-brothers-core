@@ -606,9 +606,7 @@ function SectionHeader({
       <h2 className="mt-4 text-balance text-3xl font-black tracking-tight text-foreground sm:text-4xl md:text-5xl">
         {title}
       </h2>
-      {subtitle && (
-        <p className="mt-4 text-base text-muted-foreground sm:text-lg">{subtitle}</p>
-      )}
+      {subtitle && <p className="mt-4 text-base text-muted-foreground sm:text-lg">{subtitle}</p>}
     </div>
   );
 }

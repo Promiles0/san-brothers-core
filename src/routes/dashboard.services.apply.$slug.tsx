@@ -126,7 +126,9 @@ function ServiceApplyPage() {
   useEffect(() => {
     if (service) {
       document.title = `Apply for ${service.name_en} — San Brothers`;
-      return () => { document.title = "San Brothers"; };
+      return () => {
+        document.title = "San Brothers";
+      };
     }
   }, [service]);
 
@@ -207,12 +209,18 @@ function ServiceApplyPage() {
                           : "text-muted-foreground"
                     }`}
                   >
-                    {step > s.number ? "✓ Completed" : step === s.number ? `Step ${s.number} of ${steps.length}` : s.label}
+                    {step > s.number
+                      ? "✓ Completed"
+                      : step === s.number
+                        ? `Step ${s.number} of ${steps.length}`
+                        : s.label}
                   </span>
                 </div>
                 {/* Connector line */}
                 {i < steps.length - 1 && (
-                  <div className={`flex-1 h-0.5 mx-3 mb-5 rounded-full transition-all ${step > s.number ? "bg-green-500" : "bg-muted"}`} />
+                  <div
+                    className={`flex-1 h-0.5 mx-3 mb-5 rounded-full transition-all ${step > s.number ? "bg-green-500" : "bg-muted"}`}
+                  />
                 )}
               </div>
             ))}
@@ -1037,7 +1045,9 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: any) 
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Order Summary */}
       <div className="rounded-lg border bg-muted/20 p-4">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Order Summary</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+          Order Summary
+        </h2>
         <div className="flex items-start justify-between">
           <div>
             <p className="text-sm font-medium">{service.name_en}</p>

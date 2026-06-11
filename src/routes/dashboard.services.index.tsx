@@ -1,6 +1,18 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Clock, CirclePlus as PlusCircle, Search, Zap, Plane, Calculator, Languages, Briefcase, Check, X, Radio } from "lucide-react";
+import {
+  Clock,
+  CirclePlus as PlusCircle,
+  Search,
+  Zap,
+  Plane,
+  Calculator,
+  Languages,
+  Briefcase,
+  Check,
+  X,
+  Radio,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,16 +32,19 @@ export const Route = createFileRoute("/dashboard/services/")({
 const CATEGORIES = ["all", "visa", "accounting", "consultancy", "translation"] as const;
 type Category = (typeof CATEGORIES)[number];
 
-const CATEGORY_CONFIG: Record<string, {
-  icon: React.ElementType;
-  color: string;
-  bg: string;
-  text: string;
-  border: string;
-  shadow: string;
-  btnHover: string;
-  label: string;
-}> = {
+const CATEGORY_CONFIG: Record<
+  string,
+  {
+    icon: React.ElementType;
+    color: string;
+    bg: string;
+    text: string;
+    border: string;
+    shadow: string;
+    btnHover: string;
+    label: string;
+  }
+> = {
   visa: {
     icon: Plane,
     color: "#3B82F6",
@@ -72,24 +87,45 @@ const CATEGORY_CONFIG: Record<string, {
   },
 };
 
-const POPULAR_SLUGS = new Set(["tourist-visa", "document-translation", "live-interpreter", "company-registration"]);
+const POPULAR_SLUGS = new Set([
+  "tourist-visa",
+  "document-translation",
+  "live-interpreter",
+  "company-registration",
+]);
 
 function isInterpreterSlug(slug: string) {
-  return slug.includes("live-interpret") || slug.includes("live-interp") || slug === "live-interpretation";
+  return (
+    slug.includes("live-interpret") ||
+    slug.includes("live-interp") ||
+    slug === "live-interpretation"
+  );
 }
 
 function getCatConfig(cat: string) {
   return CATEGORY_CONFIG[cat] ?? CATEGORY_CONFIG.visa;
 }
 
-function ServiceCard({ s, onRequest, locale }: { s: Service; onRequest: () => void; locale: string }) {
+function ServiceCard({
+  s,
+  onRequest,
+  locale,
+}: {
+  s: Service;
+  onRequest: () => void;
+  locale: string;
+}) {
   const cfg = getCatConfig(s.category);
   const Icon = cfg.icon;
   const interpreter = isInterpreterSlug(s.slug);
   const popular = POPULAR_SLUGS.has(s.slug);
 
   const name = (locale === "zh" && s.name_zh) || (locale === "rw" && s.name_rw) || s.name_en;
-  const desc = (locale === "zh" && s.description_zh) || (locale === "rw" && s.description_rw) || s.description_en || "";
+  const desc =
+    (locale === "zh" && s.description_zh) ||
+    (locale === "rw" && s.description_rw) ||
+    s.description_en ||
+    "";
 
   const priceUSD = (() => {
     const min = s.price_usd_min;
@@ -132,20 +168,26 @@ function ServiceCard({ s, onRequest, locale }: { s: Service; onRequest: () => vo
       <div className="flex flex-1 flex-col p-5">
         {/* Icon + category */}
         <div className="mb-4 flex items-center gap-3">
-          <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${cfg.bg}`}>
+          <div
+            className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${cfg.bg}`}
+          >
             {interpreter ? (
               <Radio className={`h-6 w-6 ${cfg.text}`} />
             ) : (
               <Icon className={`h-6 w-6 ${cfg.text}`} />
             )}
           </div>
-          <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${cfg.bg} ${cfg.text}`}>
+          <span
+            className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${cfg.bg} ${cfg.text}`}
+          >
             {cfg.label}
           </span>
         </div>
 
         {/* Name */}
-        <h3 className="mb-1.5 font-bold text-gray-900 dark:text-white leading-tight pr-16">{name}</h3>
+        <h3 className="mb-1.5 font-bold text-gray-900 dark:text-white leading-tight pr-16">
+          {name}
+        </h3>
 
         {/* Description */}
         <p className="mb-4 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">{desc}</p>
@@ -162,7 +204,9 @@ function ServiceCard({ s, onRequest, locale }: { s: Service; onRequest: () => vo
         {s.estimated_days_min != null && s.estimated_days_max != null && (
           <div className="mb-4 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
             <Clock className="h-3.5 w-3.5" />
-            <span>{s.estimated_days_min}–{s.estimated_days_max} days</span>
+            <span>
+              {s.estimated_days_min}–{s.estimated_days_max} days
+            </span>
           </div>
         )}
 
@@ -171,8 +215,11 @@ function ServiceCard({ s, onRequest, locale }: { s: Service; onRequest: () => vo
           {(interpreter
             ? ["Live professional interpreters", "First 5 minutes FREE", "Available in 5 languages"]
             : ["Expert professionals", "Fast processing", "24/7 support"]
-          ).map(f => (
-            <div key={f} className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+          ).map((f) => (
+            <div
+              key={f}
+              className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300"
+            >
               <Check className={`h-3.5 w-3.5 flex-shrink-0 ${cfg.text}`} />
               {f}
             </div>
@@ -182,7 +229,9 @@ function ServiceCard({ s, onRequest, locale }: { s: Service; onRequest: () => vo
         {/* Interpreter FREE badge */}
         {interpreter && (
           <div className="mb-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-3 py-1.5 text-center">
-            <span className="text-xs font-bold text-green-700 dark:text-green-400">First 5 min FREE — Try it now!</span>
+            <span className="text-xs font-bold text-green-700 dark:text-green-400">
+              First 5 min FREE — Try it now!
+            </span>
           </div>
         )}
 
@@ -192,7 +241,9 @@ function ServiceCard({ s, onRequest, locale }: { s: Service; onRequest: () => vo
           className={`mt-auto w-full transition-all duration-200 ${interpreter ? "bg-amber-500 hover:bg-amber-600 text-white border-0" : `bg-white dark:bg-transparent border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white ${cfg.btnHover}`}`}
         >
           {interpreter ? (
-            <><Zap className="mr-1.5 h-3.5 w-3.5" /> Book / Free Trial</>
+            <>
+              <Zap className="mr-1.5 h-3.5 w-3.5" /> Book / Free Trial
+            </>
           ) : (
             <>Request Now →</>
           )}
@@ -234,27 +285,34 @@ function ServiceCatalog() {
       void navigate({ to: "/dashboard/interpreter", replace: true } as never);
       return;
     }
-    void navigate({ to: "/dashboard/services/apply/$slug", params: { slug: apply }, replace: true } as never);
+    void navigate({
+      to: "/dashboard/services/apply/$slug",
+      params: { slug: apply },
+      replace: true,
+    } as never);
   }, [apply, navigate]);
 
   const filtered = useMemo(() => {
     if (!services) return null;
-    const localName = (s: Service) => (locale === "zh" && s.name_zh) || (locale === "rw" && s.name_rw) || s.name_en;
-    return services.filter(s => {
+    const localName = (s: Service) =>
+      (locale === "zh" && s.name_zh) || (locale === "rw" && s.name_rw) || s.name_en;
+    return services.filter((s) => {
       const inPortal = servicesAvailable.includes(s.slug);
       const matchesCat = cat === "all" || s.category === cat;
       const matchesQ = !query || localName(s).toLowerCase().includes(query.toLowerCase());
       return inPortal && matchesCat && matchesQ;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [services, cat, query, locale, servicesAvailable]);
 
   const catCounts = useMemo(() => {
     if (!services) return {} as Record<string, number>;
-    return services.reduce((acc, s) => {
-      if (servicesAvailable.includes(s.slug)) acc[s.category] = (acc[s.category] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    return services.reduce(
+      (acc, s) => {
+        if (servicesAvailable.includes(s.slug)) acc[s.category] = (acc[s.category] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }, [services, servicesAvailable]);
 
   return (
@@ -273,9 +331,12 @@ function ServiceCatalog() {
       <div className="flex flex-col gap-3">
         {/* Category tabs */}
         <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide">
-          {CATEGORIES.map(c => {
+          {CATEGORIES.map((c) => {
             const cfg = c === "all" ? null : getCatConfig(c);
-            const count = c === "all" ? (services?.filter(s => servicesAvailable.includes(s.slug)).length ?? 0) : (catCounts[c] ?? 0);
+            const count =
+              c === "all"
+                ? (services?.filter((s) => servicesAvailable.includes(s.slug)).length ?? 0)
+                : (catCounts[c] ?? 0);
             return (
               <button
                 key={c}
@@ -287,10 +348,16 @@ function ServiceCatalog() {
                       : `border-transparent text-white`
                     : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
                 }`}
-                style={cat === c && c !== "all" && cfg ? { background: cfg.color, borderColor: cfg.color } : {}}
+                style={
+                  cat === c && c !== "all" && cfg
+                    ? { background: cfg.color, borderColor: cfg.color }
+                    : {}
+                }
               >
                 {c === "all" ? "All" : cfg?.label}
-                <span className={`rounded-full px-1.5 text-[10px] font-bold py-px ${cat === c ? "bg-white/25" : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"}`}>
+                <span
+                  className={`rounded-full px-1.5 text-[10px] font-bold py-px ${cat === c ? "bg-white/25" : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"}`}
+                >
                   {count}
                 </span>
               </button>
@@ -303,7 +370,7 @@ function ServiceCatalog() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder={t("dashboard.services.searchPlaceholder")}
             className="pl-9 pr-9"
           />
@@ -335,7 +402,9 @@ function ServiceCatalog() {
             {query && <p className="text-sm text-gray-500">Try a different search term.</p>}
           </div>
           {query && (
-            <Button variant="outline" size="sm" onClick={() => setQuery("")}>Clear Search</Button>
+            <Button variant="outline" size="sm" onClick={() => setQuery("")}>
+              Clear Search
+            </Button>
           )}
         </div>
       ) : (
@@ -343,7 +412,11 @@ function ServiceCatalog() {
           {filtered.map((s, i) => (
             <div
               key={s.id}
-              style={{ animationDelay: `${i * 50}ms`, opacity: 0, animation: `fadeInUp 0.3s ease ${i * 50}ms forwards` }}
+              style={{
+                animationDelay: `${i * 50}ms`,
+                opacity: 0,
+                animation: `fadeInUp 0.3s ease ${i * 50}ms forwards`,
+              }}
             >
               <ServiceCard
                 s={s}
@@ -352,7 +425,10 @@ function ServiceCatalog() {
                   if (isInterpreterSlug(s.slug)) {
                     void navigate({ to: "/dashboard/interpreter", replace: true } as never);
                   } else {
-                    void navigate({ to: "/dashboard/services/apply/$slug", params: { slug: s.slug } } as never);
+                    void navigate({
+                      to: "/dashboard/services/apply/$slug",
+                      params: { slug: s.slug },
+                    } as never);
                   }
                 }}
               />

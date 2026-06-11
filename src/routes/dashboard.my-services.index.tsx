@@ -50,19 +50,65 @@ const STATUS_CONFIG: Record<string, { label: string; dot: string; pulse: boolean
   free_consultation: { label: "Free Consultation", dot: "bg-purple-400", pulse: false },
 };
 
-const CATEGORY_CONFIG: Record<string, { icon: React.ElementType; color: string; bg: string; border: string; text: string; label: string }> = {
-  visa: { icon: Plane, color: "#3B82F6", bg: "bg-blue-500/10", border: "border-l-blue-500", text: "text-blue-600 dark:text-blue-400", label: "Visa" },
-  accounting: { icon: Calculator, color: "#10B981", bg: "bg-emerald-500/10", border: "border-l-emerald-500", text: "text-emerald-600 dark:text-emerald-400", label: "Accounting" },
-  translation: { icon: Languages, color: "#8B5CF6", bg: "bg-violet-500/10", border: "border-l-violet-500", text: "text-violet-600 dark:text-violet-400", label: "Translation" },
-  consultancy: { icon: Briefcase, color: "#F59E0B", bg: "bg-amber-500/10", border: "border-l-amber-500", text: "text-amber-600 dark:text-amber-400", label: "Consultancy" },
+const CATEGORY_CONFIG: Record<
+  string,
+  {
+    icon: React.ElementType;
+    color: string;
+    bg: string;
+    border: string;
+    text: string;
+    label: string;
+  }
+> = {
+  visa: {
+    icon: Plane,
+    color: "#3B82F6",
+    bg: "bg-blue-500/10",
+    border: "border-l-blue-500",
+    text: "text-blue-600 dark:text-blue-400",
+    label: "Visa",
+  },
+  accounting: {
+    icon: Calculator,
+    color: "#10B981",
+    bg: "bg-emerald-500/10",
+    border: "border-l-emerald-500",
+    text: "text-emerald-600 dark:text-emerald-400",
+    label: "Accounting",
+  },
+  translation: {
+    icon: Languages,
+    color: "#8B5CF6",
+    bg: "bg-violet-500/10",
+    border: "border-l-violet-500",
+    text: "text-violet-600 dark:text-violet-400",
+    label: "Translation",
+  },
+  consultancy: {
+    icon: Briefcase,
+    color: "#F59E0B",
+    bg: "bg-amber-500/10",
+    border: "border-l-amber-500",
+    text: "text-amber-600 dark:text-amber-400",
+    label: "Consultancy",
+  },
 };
 
-const ACTIVE_STATUSES = ["submitted", "under_review", "awaiting_client", "verified", "submitted_to_authority"];
+const ACTIVE_STATUSES = [
+  "submitted",
+  "under_review",
+  "awaiting_client",
+  "verified",
+  "submitted_to_authority",
+];
 const COMPLETED_STATUSES = ["completed"];
 const CANCELLED_STATUSES = ["cancelled", "rejected"];
 
 function getStatusConfig(status: string) {
-  return STATUS_CONFIG[status] ?? { label: status.replace(/_/g, " "), dot: "bg-gray-400", pulse: false };
+  return (
+    STATUS_CONFIG[status] ?? { label: status.replace(/_/g, " "), dot: "bg-gray-400", pulse: false }
+  );
 }
 
 function getCatConfig(cat: string) {
@@ -70,7 +116,11 @@ function getCatConfig(cat: string) {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function timeAgo(iso: string) {
@@ -89,9 +139,14 @@ function ServiceCard({ row, locale }: { row: Row; locale: string }) {
   const catKey = row.service_category || "visa";
   const cat = getCatConfig(catKey);
   const status = getStatusConfig(row.status);
-  const pct = row.progress_total > 0 ? Math.round((row.progress_step / row.progress_total) * 100) : 0;
+  const pct =
+    row.progress_total > 0 ? Math.round((row.progress_step / row.progress_total) * 100) : 0;
   const isAwaiting = row.status === "awaiting_client";
-  const name = !row.services ? "Service" : (locale === "zh" && row.services.name_zh) || (locale === "rw" && row.services.name_rw) || row.services.name_en;
+  const name = !row.services
+    ? "Service"
+    : (locale === "zh" && row.services.name_zh) ||
+      (locale === "rw" && row.services.name_rw) ||
+      row.services.name_en;
   const Icon = cat.icon;
 
   return (
@@ -109,16 +164,22 @@ function ServiceCard({ row, locale }: { row: Row; locale: string }) {
         {/* Header */}
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${cat.bg}`}>
+            <div
+              className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${cat.bg}`}
+            >
               <Icon className={`h-5 w-5 ${cat.text}`} />
             </div>
             <div>
-              <div className="font-semibold text-gray-900 dark:text-white leading-tight">{name}</div>
+              <div className="font-semibold text-gray-900 dark:text-white leading-tight">
+                {name}
+              </div>
               <div className={`text-xs font-medium ${cat.text}`}>{cat.label}</div>
             </div>
           </div>
           <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200">
-            <span className={`h-1.5 w-1.5 rounded-full ${status.dot} ${status.pulse ? "animate-pulse" : ""} flex-shrink-0`} />
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${status.dot} ${status.pulse ? "animate-pulse" : ""} flex-shrink-0`}
+            />
             {status.label}
           </span>
         </div>
@@ -126,7 +187,9 @@ function ServiceCard({ row, locale }: { row: Row; locale: string }) {
         {/* Progress */}
         <div className="mb-3">
           <div className="mb-1 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-            <span>Step {row.progress_step} of {row.progress_total}</span>
+            <span>
+              Step {row.progress_step} of {row.progress_total}
+            </span>
             <span className="font-semibold">{pct}%</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
@@ -175,7 +238,10 @@ function CalendarView({ rows, locale }: { rows: Row[]; locale: string }) {
   const [month, setMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  const monthName = new Date(year, month, 1).toLocaleString("en-US", { month: "long", year: "numeric" });
+  const monthName = new Date(year, month, 1).toLocaleString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -194,14 +260,22 @@ function CalendarView({ rows, locale }: { rows: Row[]; locale: string }) {
   }, [rows]);
 
   const prevMonth = () => {
-    if (month === 0) { setMonth(11); setYear(y => y - 1); }
-    else setMonth(m => m - 1);
+    if (month === 0) {
+      setMonth(11);
+      setYear((y) => y - 1);
+    } else setMonth((m) => m - 1);
   };
   const nextMonth = () => {
-    if (month === 11) { setMonth(0); setYear(y => y + 1); }
-    else setMonth(m => m + 1);
+    if (month === 11) {
+      setMonth(0);
+      setYear((y) => y + 1);
+    } else setMonth((m) => m + 1);
   };
-  const goToday = () => { setYear(today.getFullYear()); setMonth(today.getMonth()); setSelectedDate(null); };
+  const goToday = () => {
+    setYear(today.getFullYear());
+    setMonth(today.getMonth());
+    setSelectedDate(null);
+  };
 
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
@@ -218,16 +292,25 @@ function CalendarView({ rows, locale }: { rows: Row[]; locale: string }) {
     <div className="space-y-4">
       {/* Calendar header */}
       <div className="flex items-center justify-between rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
-        <button onClick={prevMonth} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <button
+          onClick={prevMonth}
+          className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        >
           <ChevronLeft className="h-4 w-4" />
         </button>
         <div className="flex items-center gap-3">
           <span className="font-bold text-gray-900 dark:text-white">{monthName}</span>
-          <button onClick={goToday} className="rounded-md border border-gray-200 dark:border-gray-700 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+          <button
+            onClick={goToday}
+            className="rounded-md border border-gray-200 dark:border-gray-700 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
             Today
           </button>
         </div>
-        <button onClick={nextMonth} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <button
+          onClick={nextMonth}
+          className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        >
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>
@@ -237,7 +320,10 @@ function CalendarView({ rows, locale }: { rows: Row[]; locale: string }) {
         {/* Day headers */}
         <div className="grid grid-cols-7 border-b border-gray-100 dark:border-gray-800">
           {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((d) => (
-            <div key={d} className="py-2 text-center text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+            <div
+              key={d}
+              className="py-2 text-center text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+            >
               {d}
             </div>
           ))}
@@ -247,7 +333,12 @@ function CalendarView({ rows, locale }: { rows: Row[]; locale: string }) {
         <div className="grid grid-cols-7">
           {cells.map((day, i) => {
             if (day === null) {
-              return <div key={`empty-${i}`} className="min-h-[60px] border-b border-r border-gray-50 dark:border-gray-800/60 last:border-r-0" />;
+              return (
+                <div
+                  key={`empty-${i}`}
+                  className="min-h-[60px] border-b border-r border-gray-50 dark:border-gray-800/60 last:border-r-0"
+                />
+              );
             }
             const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
             const dayRows = dateMap[dateStr] ?? [];
@@ -264,19 +355,28 @@ function CalendarView({ rows, locale }: { rows: Row[]; locale: string }) {
                   ${isSelected ? "bg-blue-50 dark:bg-blue-900/20" : "hover:bg-gray-50 dark:hover:bg-gray-800/40"}
                 `}
               >
-                <span className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium transition-colors
-                  ${isToday ? "bg-blue-600 text-white" : isSelected ? "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200" : "text-gray-700 dark:text-gray-300"}`
-                }>
+                <span
+                  className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium transition-colors
+                  ${isToday ? "bg-blue-600 text-white" : isSelected ? "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200" : "text-gray-700 dark:text-gray-300"}`}
+                >
                   {day}
                 </span>
                 {hasServices && (
                   <div className="flex flex-wrap justify-center gap-0.5 pb-1">
                     {dayRows.slice(0, 3).map((r, idx) => {
                       const cat = getCatConfig(r.service_category || "visa");
-                      return <span key={idx} className={`h-1.5 w-1.5 rounded-full`} style={{ background: cat.color }} />;
+                      return (
+                        <span
+                          key={idx}
+                          className={`h-1.5 w-1.5 rounded-full`}
+                          style={{ background: cat.color }}
+                        />
+                      );
                     })}
                     {dayRows.length > 3 && (
-                      <span className="text-[9px] font-bold text-gray-400">+{dayRows.length - 3}</span>
+                      <span className="text-[9px] font-bold text-gray-400">
+                        +{dayRows.length - 3}
+                      </span>
                     )}
                   </div>
                 )}
@@ -291,29 +391,47 @@ function CalendarView({ rows, locale }: { rows: Row[]; locale: string }) {
         <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
           <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 px-4 py-3">
             <span className="font-semibold text-gray-900 dark:text-white">
-              {new Date(selectedDate + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+              {new Date(selectedDate + "T12:00:00").toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
             </span>
-            <button onClick={() => setSelectedDate(null)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            <button
+              onClick={() => setSelectedDate(null)}
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            >
               <X className="h-4 w-4" />
             </button>
           </div>
           {selectedRows.length === 0 ? (
-            <div className="px-4 py-6 text-center text-sm text-gray-400">No services on this date.</div>
+            <div className="px-4 py-6 text-center text-sm text-gray-400">
+              No services on this date.
+            </div>
           ) : (
             <div className="divide-y divide-gray-100 dark:divide-gray-800">
               {selectedRows.map((r) => {
                 const cat = getCatConfig(r.service_category || "visa");
                 const status = getStatusConfig(r.status);
-                const name = !r.services ? "Service" : (locale === "zh" && r.services.name_zh) || (locale === "rw" && r.services.name_rw) || r.services.name_en;
+                const name = !r.services
+                  ? "Service"
+                  : (locale === "zh" && r.services.name_zh) ||
+                    (locale === "rw" && r.services.name_rw) ||
+                    r.services.name_en;
                 const Icon = cat.icon;
                 return (
                   <div key={r.id} className="flex items-center justify-between gap-3 px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${cat.bg}`}>
+                      <div
+                        className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${cat.bg}`}
+                      >
                         <Icon className={`h-4 w-4 ${cat.text}`} />
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">{name}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                          {name}
+                        </div>
                         <div className="flex items-center gap-1 text-xs text-gray-500">
                           <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
                           {status.label}
@@ -321,7 +439,9 @@ function CalendarView({ rows, locale }: { rows: Row[]; locale: string }) {
                       </div>
                     </div>
                     <Button size="sm" variant="outline" className="text-xs shrink-0" asChild>
-                      <Link to="/dashboard/my-services/$id" params={{ id: r.id }}>View →</Link>
+                      <Link to="/dashboard/my-services/$id" params={{ id: r.id }}>
+                        View →
+                      </Link>
                     </Button>
                   </div>
                 );
@@ -349,7 +469,10 @@ function SkeletonCards() {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 space-y-3">
+        <div
+          key={i}
+          className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 space-y-3"
+        >
           <div className="flex gap-3">
             <div className="h-10 w-10 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
             <div className="flex-1 space-y-2">
@@ -385,7 +508,9 @@ function MyServicesList() {
       try {
         const { data, error } = await supabase
           .from("service_requests")
-          .select("id,status,service_category,progress_step,progress_total,created_at,updated_at,services(name_en,name_zh,name_rw)")
+          .select(
+            "id,status,service_category,progress_step,progress_total,created_at,updated_at,services(name_en,name_zh,name_rw)",
+          )
           .eq("client_id", user.id)
           .order("updated_at", { ascending: false });
         if (error) throw error;
@@ -398,21 +523,34 @@ function MyServicesList() {
   }, [user]);
 
   const counts = useMemo(() => {
-    if (!rows) return { active: 0, completed: 0, cancelled: 0, submitted: 0, under_review: 0, awaiting_client: 0 };
+    if (!rows)
+      return {
+        active: 0,
+        completed: 0,
+        cancelled: 0,
+        submitted: 0,
+        under_review: 0,
+        awaiting_client: 0,
+      };
     return {
-      active: rows.filter(r => ACTIVE_STATUSES.includes(r.status)).length,
-      completed: rows.filter(r => COMPLETED_STATUSES.includes(r.status)).length,
-      cancelled: rows.filter(r => CANCELLED_STATUSES.includes(r.status)).length,
-      submitted: rows.filter(r => r.status === "submitted").length,
-      under_review: rows.filter(r => r.status === "under_review").length,
-      awaiting_client: rows.filter(r => r.status === "awaiting_client").length,
+      active: rows.filter((r) => ACTIVE_STATUSES.includes(r.status)).length,
+      completed: rows.filter((r) => COMPLETED_STATUSES.includes(r.status)).length,
+      cancelled: rows.filter((r) => CANCELLED_STATUSES.includes(r.status)).length,
+      submitted: rows.filter((r) => r.status === "submitted").length,
+      under_review: rows.filter((r) => r.status === "under_review").length,
+      awaiting_client: rows.filter((r) => r.status === "awaiting_client").length,
     };
   }, [rows]);
 
   const filtered = useMemo(() => {
     if (!rows) return null;
-    const name = (r: Row) => !r.services ? "" : (locale === "zh" && r.services.name_zh) || (locale === "rw" && r.services.name_rw) || r.services.name_en;
-    return rows.filter(r => {
+    const name = (r: Row) =>
+      !r.services
+        ? ""
+        : (locale === "zh" && r.services.name_zh) ||
+          (locale === "rw" && r.services.name_rw) ||
+          r.services.name_en;
+    return rows.filter((r) => {
       if (catFilter !== "all" && r.service_category !== catFilter) return false;
       if (statusFilter && r.status !== statusFilter) return false;
       if (search && !name(r).toLowerCase().includes(search.toLowerCase())) return false;
@@ -422,10 +560,13 @@ function MyServicesList() {
 
   const catCounts = useMemo(() => {
     if (!rows) return {} as Record<string, number>;
-    return rows.reduce((acc, r) => {
-      acc[r.service_category] = (acc[r.service_category] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    return rows.reduce(
+      (acc, r) => {
+        acc[r.service_category] = (acc[r.service_category] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }, [rows]);
 
   return (
@@ -441,7 +582,9 @@ function MyServicesList() {
       {/* ── Page Header ── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">My Services</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+            My Services
+          </h1>
           {rows && (
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               {counts.active} active · {counts.completed} completed · {counts.cancelled} cancelled
@@ -469,11 +612,39 @@ function MyServicesList() {
       {rows && rows.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {[
-            { key: "submitted", label: "Submitted", color: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700", dot: "bg-blue-500", count: counts.submitted },
-            { key: "under_review", label: "Under Review", color: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700", dot: "bg-yellow-500", count: counts.under_review },
-            { key: "awaiting_client", label: "Awaiting You", color: "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700", dot: "bg-orange-500", count: counts.awaiting_client },
-            { key: "completed", label: "Completed", color: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700", dot: "bg-green-500", count: counts.completed },
-          ].map(s => (
+            {
+              key: "submitted",
+              label: "Submitted",
+              color:
+                "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700",
+              dot: "bg-blue-500",
+              count: counts.submitted,
+            },
+            {
+              key: "under_review",
+              label: "Under Review",
+              color:
+                "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700",
+              dot: "bg-yellow-500",
+              count: counts.under_review,
+            },
+            {
+              key: "awaiting_client",
+              label: "Awaiting You",
+              color:
+                "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700",
+              dot: "bg-orange-500",
+              count: counts.awaiting_client,
+            },
+            {
+              key: "completed",
+              label: "Completed",
+              color:
+                "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700",
+              dot: "bg-green-500",
+              count: counts.completed,
+            },
+          ].map((s) => (
             <button
               key={s.key}
               onClick={() => setStatusFilter(statusFilter === s.key ? null : s.key)}
@@ -509,7 +680,9 @@ function MyServicesList() {
                   className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${catFilter === c ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900" : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"}`}
                 >
                   {c === "all" ? "All" : cfg?.label}
-                  <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${catFilter === c ? "bg-white/20 dark:bg-black/20" : "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"}`}>
+                  <span
+                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${catFilter === c ? "bg-white/20 dark:bg-black/20" : "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"}`}
+                  >
                     {count}
                   </span>
                 </button>
@@ -522,12 +695,15 @@ function MyServicesList() {
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
             <input
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Search services..."
               className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-2 pl-9 pr-8 text-xs text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
             />
             {search && (
-              <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
                 <X className="h-3.5 w-3.5" />
               </button>
             )}
@@ -546,7 +722,15 @@ function MyServicesList() {
             <>
               <Search className="h-8 w-8 text-gray-300 dark:text-gray-600" />
               <p className="text-sm text-gray-500">No services match your filters.</p>
-              <Button variant="outline" size="sm" onClick={() => { setSearch(""); setCatFilter("all"); setStatusFilter(null); }}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSearch("");
+                  setCatFilter("all");
+                  setStatusFilter(null);
+                }}
+              >
                 Clear Filters
               </Button>
             </>
