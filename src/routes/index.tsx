@@ -274,7 +274,7 @@ function ServicesGrid() {
       desc: t("home.serviceDesc.translation"),
       outcome: "Certified translation in 24 hours",
       // href: "/services/translation",
-      href: "/translation",
+      href: "/translate",
     },
     {
       icon: Briefcase,
