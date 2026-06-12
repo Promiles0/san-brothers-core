@@ -160,9 +160,7 @@ function ProfilePage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 animate-in fade-in duration-300">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          {t("dashboard.profile.title")}
-        </h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t("dashboard.profile.title")}</h1>
         <p className="text-sm text-muted-foreground">
           Keep your information up to date for faster service
         </p>
@@ -189,7 +187,13 @@ function ProfilePage() {
                 </Badge>
               </div>
               <label className="w-full cursor-pointer">
-                <Button asChild variant="outline" size="sm" className="w-full" disabled={avatarUploading}>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  disabled={avatarUploading}
+                >
                   <span>
                     {avatarUploading ? (
                       <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
@@ -199,12 +203,7 @@ function ProfilePage() {
                     {t("dashboard.profile.changePicture")}
                   </span>
                 </Button>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={uploadAvatar}
-                />
+                <Input type="file" accept="image/*" className="hidden" onChange={uploadAvatar} />
               </label>
             </CardContent>
           </Card>
@@ -234,9 +233,7 @@ function ProfilePage() {
                     ) : (
                       <Circle className="h-3.5 w-3.5 text-muted-foreground" />
                     )}
-                    <span
-                      className={cn(c.ok ? "text-muted-foreground line-through" : "")}
-                    >
+                    <span className={cn(c.ok ? "text-muted-foreground line-through" : "")}>
                       {c.label}
                     </span>
                   </div>
@@ -272,10 +269,7 @@ function ProfilePage() {
           <Section icon={Briefcase} title="Business Information" subtitle="Optional">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Company Name">
-                <Input
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                />
+                <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
               </Field>
               <Field label={t("dashboard.profile.tin")}>
                 <Input value={tin} onChange={(e) => setTin(e.target.value)} />
@@ -355,7 +349,11 @@ function ProfilePage() {
                 </div>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="border-destructive/40 text-destructive hover:bg-destructive/10">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-destructive/40 text-destructive hover:bg-destructive/10"
+                    >
                       <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
                     </Button>
                   </DialogTrigger>
@@ -416,9 +414,7 @@ function Section({
           <Icon className="h-4 w-4 text-primary" />
           {title}
           {subtitle && (
-            <span className="ml-1 text-xs font-normal text-muted-foreground">
-              ({subtitle})
-            </span>
+            <span className="ml-1 text-xs font-normal text-muted-foreground">({subtitle})</span>
           )}
         </CardTitle>
       </CardHeader>
@@ -438,9 +434,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-        {label}
-      </Label>
+      <Label className="text-xs uppercase tracking-wide text-muted-foreground">{label}</Label>
       {children}
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>

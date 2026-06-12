@@ -122,9 +122,7 @@ function AdminOverview() {
       (weekCases ?? []).forEach((r: { service_category: string }) => {
         if (r.service_category in catMap) catMap[r.service_category]++;
       });
-      setCasesByCat(
-        Object.entries(catMap).map(([category, count]) => ({ category, count })),
-      );
+      setCasesByCat(Object.entries(catMap).map(([category, count]) => ({ category, count })));
 
       // --- Revenue trend buckets ---
       const buckets: Record<string, number> = {};

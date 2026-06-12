@@ -119,7 +119,7 @@ function Hero() {
 
             <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row md:justify-start">
               <Button asChild size="lg" className="h-12 gap-2 px-7 text-base">
-                <Link to="/signup">
+                <Link to="/signup" search={undefined}>
                   Get started free
                   <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -273,14 +273,15 @@ function ServicesGrid() {
       title: t("services.translation"),
       desc: t("home.serviceDesc.translation"),
       outcome: "Certified translation in 24 hours",
-      href: "/services/translation",
+      // href: "/services/translation",
+      href: "/translation",
     },
     {
       icon: Briefcase,
       title: t("services.consultancy"),
       desc: t("home.serviceDesc.consultancy"),
       outcome: "Company registration & advisory",
-      href: "/services/consultancy",
+      href: "/consultancy",
     },
   ];
 
@@ -538,7 +539,7 @@ function CtaSection() {
         </p>
         <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row">
           <Button asChild size="lg" variant="secondary" className="h-12 gap-2 px-7 text-base">
-            <Link to="/signup">
+            <Link to="/signup" search={undefined}>
               Create free account
               <ArrowRight className="h-4 w-4" />
             </Link>
