@@ -180,43 +180,44 @@ function AdminServices() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Category</TableHead>
-                  <TableHead>Min RWF</TableHead>
-                  <TableHead>Max RWF</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead>Active</TableHead>
                   <TableHead className="text-right">Edit</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {services.map((s) => (
-                  <TableRow key={s.id}>
-                    <TableCell className="font-medium">{s.name_en}</TableCell>
-                    <TableCell className="capitalize text-muted-foreground">{s.category}</TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        defaultValue={s.price_min_rwf ?? 0}
-                        onBlur={(e) => updatePrice(s, "price_min_rwf", Number(e.target.value))}
-                        className="h-8 w-28 text-right tabular-nums"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        defaultValue={s.price_max_rwf ?? 0}
-                        onBlur={(e) => updatePrice(s, "price_max_rwf", Number(e.target.value))}
-                        className="h-8 w-28 text-right tabular-nums"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Switch checked={s.is_active} onCheckedChange={() => toggleActive(s)} />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button size="sm" variant="ghost" onClick={() => setEditing(s)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {services.map((s) => {
+                  const isLiveCalls =
+                    s.slug?.includes("live") ||
+                    s.slug?.includes("interpreter") ||
+                    s.name_en?.toLowerCase().includes("live call") ||
+                    s.name_en?.toLowerCase().includes("interpreter");
+                  return (
+                    <TableRow key={s.id}>
+                      <TableCell className="font-medium">{s.name_en}</TableCell>
+                      <TableCell className="capitalize text-muted-foreground">{s.category}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                            isLiveCalls
+                              ? "bg-blue-500/15 text-blue-700 dark:text-blue-300"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {isLiveCalls ? "Live Calls" : "Standard"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Switch checked={s.is_active} onCheckedChange={() => toggleActive(s)} />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button size="sm" variant="ghost" onClick={() => setEditing(s)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}

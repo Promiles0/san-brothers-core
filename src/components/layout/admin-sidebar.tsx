@@ -11,6 +11,7 @@ import {
   FolderOpen,
   ScrollText,
   Wrench,
+  DollarSign,
   Settings,
   LogOut,
   type LucideIcon,
@@ -63,6 +64,7 @@ const groups: Group[] = [
     title: "Configuration",
     items: [
       { label: "Services", icon: Wrench, to: "/admin/services" },
+      { label: "Pricing", icon: DollarSign, to: "/admin/pricing" },
       { label: "Settings", icon: Settings, to: "/admin/settings" },
     ],
   },
