@@ -51,10 +51,12 @@ Turn `src/routes/index.tsx` (1,764 lines, duplicated hero, invisible sections, f
 - Keep `PublicLayout`, existing nav/footer, and `useI18n` translation keys. New copy that needs translation gets added to `src/messages/en.json`, `zh.json`, `rw.json` under a `home.*` namespace; existing keys stay.
 - Mobile sticky CTA respects safe-area-inset.
 - No new npm packages. Icons stay on `lucide-react`.  
-aslo add those   
-1. 
+aslo add those
+
+1.
+
   Add i18n translations for all new staff dashboard labels, status/filter names, and button text across en/zh/rw.  
-  2. and must supporrt well our all theme modes (dark and light) must math well 
+  2. and must supporrt well our all theme modes (dark and light) must math well
 
 ## Out of scope
 
