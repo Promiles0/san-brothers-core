@@ -1,195 +1,45 @@
 import { useEffect, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, ChevronDown, Clock, Globe2, LockKeyhole, Mail, MapPin, MessageCircle, Phone, Send, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { PublicLayout } from "@/components/layout/public-layout";
-import { PageHero } from "@/components/marketing/page-sections";
+import { CtaBanner } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { usePortal } from "@/lib/portal-context";
 import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
-    meta: [
-      { title: "Contact — San Brothers" },
-      {
-        name: "description",
-        content: "Get in touch with San Brothers. We respond within one business day.",
-      },
-    ],
-  }),
+  head: () => ({ meta: [{ title: "Contact San Brothers — Kigali" }, { name: "description", content: "Contact San Brothers in Kigali for visas, accounting, translation, and consultancy." }] }),
   component: Contact,
 });
+
 function Contact() {
   const { t } = useI18n();
   const portal = usePortal();
-  const lockedSubject =
-    portal.current === "translate"
-      ? "translation"
-      : portal.current === "consultancy"
-        ? "consultancy"
-        : "";
+  const lockedSubject = portal.current === "translate" ? "translation" : portal.current === "consultancy" ? "consultancy" : "";
   const [subject, setSubject] = useState(lockedSubject);
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (lockedSubject) setSubject(lockedSubject);
-  }, [lockedSubject]);
-
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const fd = new FormData(form);
-    setSubmitting(true);
-    try {
-      const { error } = await supabase.from("support_messages").insert({
-        name: String(fd.get("name") ?? ""),
-        email: String(fd.get("email") ?? ""),
-        phone: String(fd.get("phone") ?? ""),
-        subject: subject || "other",
-        message: String(fd.get("message") ?? ""),
-        portal_source: portal.current,
-      });
-      if (error) console.warn("support_messages insert failed:", error.message);
-      toast.success(t("contact.toast"));
-      form.reset();
-      setSubject(lockedSubject);
-    } catch (err) {
-      console.error(err);
-      toast.success(t("contact.toast"));
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
+  const [messageLength, setMessageLength] = useState(0);
+  useEffect(() => { if (lockedSubject) setSubject(lockedSubject); }, [lockedSubject]);
+  const onSubmit = async (e: React.FormEvent) => { e.preventDefault(); const form = e.target as HTMLFormElement; const fd = new FormData(form); setSubmitting(true); try { const { error } = await supabase.from("support_messages").insert({ name: String(fd.get("name") ?? ""), email: String(fd.get("email") ?? ""), phone: String(fd.get("phone") ?? ""), subject: subject || "other", message: String(fd.get("message") ?? ""), portal_source: portal.current }); if (error) console.warn("support_messages insert failed:", error.message); toast.success(t("contact.toast")); form.reset(); setMessageLength(0); setSubject(lockedSubject); } catch (err) { console.error(err); toast.success(t("contact.toast")); } finally { setSubmitting(false); } };
   return (
     <PublicLayout>
       <Toaster richColors position="top-right" />
-      <PageHero title={t("contact.heroTitle")} subtitle={t("contact.heroSubtitle")} />
-
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
-        <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
-          <Card>
-            <CardContent className="p-6 md:p-8">
-              <p className="mb-4 rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-                {t("contact.haveAccount")}{" "}
-                <a href="/login" className="font-medium text-primary hover:underline">
-                  {t("contact.logInLink")}
-                </a>{" "}
-                {t("contact.haveAccountTail")}
-              </p>
-              <h2 className="text-xl font-semibold">{t("contact.formHeading")}</h2>
-              <form onSubmit={onSubmit} className="mt-6 grid gap-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name">{t("contact.labels.name")}</Label>
-                    <Input id="name" required placeholder={t("contact.placeholders.name")} />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">{t("contact.labels.email")}</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      required
-                      placeholder={t("contact.placeholders.email")}
-                    />
-                  </div>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="phone">{t("contact.labels.phone")}</Label>
-                  <Input id="phone" type="tel" placeholder={t("contact.placeholders.phone")} />
-                </div>
-                <div className="grid gap-2">
-                  <Label>{t("contact.labels.subject")}</Label>
-                  <Select
-                    value={subject}
-                    onValueChange={setSubject}
-                    disabled={Boolean(lockedSubject)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("contact.placeholders.subject")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="visa">{t("contact.subjects.visa")}</SelectItem>
-                      <SelectItem value="accounting">{t("contact.subjects.accounting")}</SelectItem>
-                      <SelectItem value="consultancy">
-                        {t("contact.subjects.consultancy")}
-                      </SelectItem>
-                      <SelectItem value="translation">
-                        {t("contact.subjects.translation")}
-                      </SelectItem>
-                      <SelectItem value="other">{t("contact.subjects.other")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {lockedSubject ? (
-                    <p className="text-xs text-muted-foreground">
-                      Subject is set automatically for the {portal.displayName} portal.
-                    </p>
-                  ) : null}
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="message">{t("contact.labels.message")}</Label>
-                  <Textarea
-                    id="message"
-                    rows={5}
-                    required
-                    placeholder={t("contact.placeholders.message")}
-                  />
-                </div>
-                <Button type="submit" size="lg" className="justify-self-start" disabled={submitting}>
-                  {submitting ? "Sending…" : t("contact.send")}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="flex flex-col gap-6 p-6 md:p-8">
-              <h2 className="text-xl font-semibold">{t("contact.infoHeading")}</h2>
-              <div className="flex gap-3">
-                <MapPin className="h-5 w-5 shrink-0 text-primary" />
-                <div className="text-sm">
-                  <div className="font-medium">{t("contact.address1")}</div>
-                  <div className="text-muted-foreground">{t("contact.address2")}</div>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <Phone className="h-5 w-5 shrink-0 text-primary" />
-                <div className="text-sm">
-                  <div>Rwanda: +250 788 687 288</div>
-                  <div>Rwanda: +250 788 453 192</div>
-                  <div>China: +86 155 7739 0044</div>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <Mail className="h-5 w-5 shrink-0 text-primary" />
-                <div className="text-sm">sanbrothersgroup@gmail.com</div>
-              </div>
-              <div className="flex gap-3">
-                <Clock className="h-5 w-5 shrink-0 text-primary" />
-                <div className="text-sm">{t("contact.hours")}</div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="mt-10 grid h-64 place-items-center rounded-xl border border-dashed border-border bg-muted text-sm text-muted-foreground">
-          {t("contact.mapLabel")}
-        </div>
-      </section>
+      <section className="border-b border-border bg-linear-to-br from-primary/10 via-background to-visa/10"><div className="mx-auto max-w-7xl px-4 py-20 text-center md:px-6"><p className="text-xs font-bold uppercase tracking-[0.22em] text-primary">Contact San Brothers</p><h1 className="mt-4 text-5xl font-black tracking-tight md:text-6xl">Let's Talk</h1><p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">Whether you need a visa, accounting help, translation, or business support — we're one message away.</p><div className="mt-8 flex flex-wrap justify-center gap-3">{[[Zap, "Responds in <24h"], [Globe2, "5 Languages"], [LockKeyhole, "Private & Secure"]].map(([Icon, label]) => <span key={String(label)} className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium shadow-sm"><Icon className="h-4 w-4 text-primary" />{String(label)}</span>)}</div></div></section>
+      <section className="mx-auto max-w-7xl px-4 py-16 md:px-6"><div className="grid gap-8 lg:grid-cols-[1.35fr_.85fr]">
+        <Card className="rounded-2xl shadow-sm"><CardContent className="p-6 md:p-8"><p className="mb-6 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">{t("contact.haveAccount")} <Link to="/login" className="font-semibold text-primary hover:underline">{t("contact.logInLink")}</Link> {t("contact.haveAccountTail")}</p><h2 className="text-2xl font-bold">Send Us a Message</h2><form onSubmit={onSubmit} className="mt-7 grid gap-5"><div className="grid gap-5 sm:grid-cols-2"><div className="grid gap-2"><Label htmlFor="name">{t("contact.labels.name")}</Label><Input id="name" name="name" required className="h-11 rounded-lg focus-visible:ring-primary" placeholder={t("contact.placeholders.name")} /></div><div className="grid gap-2"><Label htmlFor="email">{t("contact.labels.email")}</Label><Input id="email" name="email" type="email" required className="h-11 rounded-lg focus-visible:ring-primary" placeholder={t("contact.placeholders.email")} /></div></div><div className="grid gap-2"><Label htmlFor="phone">{t("contact.labels.phone")}</Label><Input id="phone" name="phone" type="tel" className="h-11 rounded-lg focus-visible:ring-primary" placeholder={t("contact.placeholders.phone")} /></div><div className="grid gap-2"><Label>{t("contact.labels.subject")}</Label><Select value={subject} onValueChange={setSubject} disabled={Boolean(lockedSubject)}><SelectTrigger className="h-11 rounded-lg"><SelectValue placeholder={t("contact.placeholders.subject")} /></SelectTrigger><SelectContent><SelectItem value="visa">Visa & Permits Inquiry</SelectItem><SelectItem value="accounting">Accounting Services</SelectItem><SelectItem value="translation">Translation Request</SelectItem><SelectItem value="consultancy">Business Consultancy</SelectItem><SelectItem value="interpreter">Live Interpreter Booking</SelectItem><SelectItem value="other">General Inquiry</SelectItem><SelectItem value="partnership">Partnership</SelectItem></SelectContent></Select>{lockedSubject ? <p className="text-xs text-muted-foreground">Subject is set automatically for the {portal.displayName} portal.</p> : null}</div><div className="grid gap-2"><div className="flex items-center justify-between"><Label htmlFor="message">{t("contact.labels.message")}</Label><span className="text-xs text-muted-foreground">{messageLength} / 500</span></div><Textarea id="message" name="message" rows={6} maxLength={500} required className="rounded-lg focus-visible:ring-primary" placeholder={t("contact.placeholders.message")} onChange={(e) => setMessageLength(e.target.value.length)} /></div><Button type="submit" size="lg" className="w-full" disabled={submitting}><Send /> {submitting ? "Sending…" : "Send Message"}</Button><p className="text-center text-xs text-muted-foreground">We typically respond within one business day.</p></form></CardContent></Card>
+        <Card className="rounded-2xl shadow-sm"><CardContent className="p-6 md:p-8"><h2 className="text-2xl font-bold">Contact Information</h2><div className="mt-7 space-y-5 text-sm">{[[MapPin, "Florida House, 2nd Floor, KN 70 Street, Kigali, Rwanda"], [Phone, "+250 788 687 288 (Rwanda)"], [Phone, "+250 788 453 192 (Rwanda)"], [Phone, "+86 155 7739 0044 (China)"], [Mail, "sanbrothersgroup@gmail.com"], [Clock, "Mon–Fri, 8:00 AM – 6:00 PM CAT"]].map(([Icon, text]) => <div key={String(text)} className="flex items-start gap-3"><div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="h-4 w-4" /></div><span className="pt-2">{String(text)}</span></div>)}</div><div className="my-7 border-t border-border" /><h3 className="font-semibold">Prefer a faster reply?</h3><div className="mt-4 grid gap-3"><Button className="bg-success text-success-foreground hover:bg-success/90" asChild><a href="https://wa.me/250788687288" target="_blank" rel="noreferrer"><MessageCircle /> +250 788 687 288</a></Button><Button variant="outline" asChild><a href="mailto:sanbrothersgroup@gmail.com"><Mail /> Email San Brothers</a></Button></div><p className="mt-7 text-sm text-muted-foreground">We respond in: 🇷🇼 RW · 🇬🇧 EN · 🇨🇳 中文 · 🇫🇷 FR · 🇸🇦 AR</p></CardContent></Card>
+      </div></section>
+      <section className="bg-muted/45 py-16"><div className="mx-auto max-w-7xl px-4 md:px-6"><div className="mb-7"><p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Our office</p><h2 className="mt-2 text-3xl font-bold">Find Us in Kigali</h2></div><Card className="overflow-hidden"><CardContent className="p-0"><iframe src="https://maps.google.com/maps?q=KN+70+Street+Kigali+Rwanda&output=embed" width="100%" height="300" className="border-0" allowFullScreen loading="lazy" title="San Brothers Office Location" /><div className="grid gap-3 p-6 sm:grid-cols-[1fr_auto] sm:items-center"><div><p className="font-semibold">Florida House, 2nd Floor</p><p className="text-sm text-muted-foreground">KN 70 Street, Kigali, Rwanda</p></div><Button variant="outline" asChild><a href="https://maps.google.com/?q=KN+70+Street+Kigali+Rwanda" target="_blank" rel="noreferrer">Get Directions <ArrowRight /></a></Button></div></CardContent></Card></div></section>
+      <section className="mx-auto max-w-4xl px-4 py-20 md:px-6"><div className="text-center"><h2 className="text-3xl font-bold">Have more questions?</h2><p className="mt-3 text-muted-foreground">A few quick answers before you get in touch.</p></div><div className="mt-8 divide-y divide-border rounded-2xl border border-border bg-card px-6">{[["How quickly can you process a visa application?", "Most tourist visas take 3–7 business days. We keep you updated at every step."], ["Do I need to visit your office?", "No. Everything can be handled digitally through our platform."], ["Which languages do you work in?", "English, Chinese (Mandarin), Kinyarwanda, French, and Arabic."]].map(([question, answer]) => <details key={question} className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">{question}<ChevronDown className="h-5 w-5 shrink-0 transition group-open:rotate-180" /></summary><p className="mt-3 pr-8 text-sm leading-6 text-muted-foreground">{answer}</p></details>)}</div><div className="mt-6 text-center"><Link to="/faq" className="inline-flex items-center gap-1 font-semibold text-primary hover:underline">See all FAQs <ArrowRight className="h-4 w-4" /></Link></div></section>
+      <CtaBanner title="Ready to get started instead?" subtitle="Create a free account and apply for any service in minutes." label="Get Started Free" />
     </PublicLayout>
   );
 }
