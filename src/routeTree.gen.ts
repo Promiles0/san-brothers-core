@@ -26,6 +26,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TranslateIndexRouteImport } from './routes/translate/index'
 import { Route as StaffIndexRouteImport } from './routes/staff.index'
+import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as ConsultancyIndexRouteImport } from './routes/consultancy/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -189,6 +190,11 @@ const StaffIndexRoute = StaffIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => StaffRoute,
+} as any)
+const ServicesIndexRoute = ServicesIndexRouteImport.update({
+  id: '/services/',
+  path: '/services/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
@@ -648,6 +654,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/consultancy/': typeof ConsultancyIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/services/': typeof ServicesIndexRoute
   '/staff/': typeof StaffIndexRoute
   '/translate/': typeof TranslateIndexRoute
   '/admin/clients/$id': typeof AdminClientsIdRoute
@@ -734,6 +741,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/consultancy': typeof ConsultancyIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/services': typeof ServicesIndexRoute
   '/staff': typeof StaffIndexRoute
   '/translate': typeof TranslateIndexRoute
   '/admin/clients/$id': typeof AdminClientsIdRoute
@@ -832,6 +840,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/consultancy/': typeof ConsultancyIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/services/': typeof ServicesIndexRoute
   '/staff/': typeof StaffIndexRoute
   '/translate/': typeof TranslateIndexRoute
   '/admin/clients/$id': typeof AdminClientsIdRoute
@@ -931,6 +940,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/consultancy/'
     | '/dashboard/'
+    | '/services/'
     | '/staff/'
     | '/translate/'
     | '/admin/clients/$id'
@@ -1017,6 +1027,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/consultancy'
     | '/dashboard'
+    | '/services'
     | '/staff'
     | '/translate'
     | '/admin/clients/$id'
@@ -1114,6 +1125,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/consultancy/'
     | '/dashboard/'
+    | '/services/'
     | '/staff/'
     | '/translate/'
     | '/admin/clients/$id'
@@ -1177,6 +1189,7 @@ export interface RootRouteChildren {
   TranslateLanguagesRoute: typeof TranslateLanguagesRoute
   TranslateLiveRoute: typeof TranslateLiveRouteWithChildren
   TranslatePricingRoute: typeof TranslatePricingRoute
+  ServicesIndexRoute: typeof ServicesIndexRoute
   TranslateIndexRoute: typeof TranslateIndexRoute
 }
 
@@ -1300,6 +1313,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/staff/'
       preLoaderRoute: typeof StaffIndexRouteImport
       parentRoute: typeof StaffRoute
+    }
+    '/services/': {
+      id: '/services/'
+      path: '/services'
+      fullPath: '/services/'
+      preLoaderRoute: typeof ServicesIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
       id: '/dashboard/'
@@ -2165,6 +2185,7 @@ const rootRouteChildren: RootRouteChildren = {
   TranslateLanguagesRoute: TranslateLanguagesRoute,
   TranslateLiveRoute: TranslateLiveRouteWithChildren,
   TranslatePricingRoute: TranslatePricingRoute,
+  ServicesIndexRoute: ServicesIndexRoute,
   TranslateIndexRoute: TranslateIndexRoute,
 }
 export const routeTree = rootRouteImport
