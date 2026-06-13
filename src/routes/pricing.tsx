@@ -1,8 +1,7 @@
-cat > src/routes/pricing.tsx << 'ENDOFFILE'
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Check, ArrowRight, Clock, FileText } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PublicLayout } from "@/components/layout/public-layout";
@@ -13,7 +12,7 @@ import { resolveServiceIntentDestination } from "@/lib/navigation/service-intent
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Pricing - San Brothers" },
+      { title: "Pricing — San Brothers" },
       {
         name: "description",
         content: "Transparent pricing for visa, accounting, consultancy, and translation services.",
@@ -22,19 +21,12 @@ export const Route = createFileRoute("/pricing")({
   }),
   component: Pricing,
 });
-
 interface Plan {
   name: string;
   price: string;
-  minRwf: number;
-  maxRwf: number;
-  minUsd: number;
-  maxUsd: number;
   intent: string;
   popular?: boolean;
   features: string[];
-  timeline?: string;
-  documents?: string;
 }
 
 const TAB_KEYS = ["visa", "accounting", "consultancy", "translation"] as const;
@@ -55,18 +47,10 @@ function Pricing() {
       </PageHero>
 
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
-        <div className="mb-12 rounded-lg bg-blue-500/10 border border-blue-500/20 p-4">
-          <p className="text-sm text-foreground">
-            <span className="font-semibold">Pricing Note:</span> Prices below are starting rates.
-            Final quotes depend on complexity, documents required, and timeline.{" "}
-            <span className="text-primary font-medium">Get a personalized quote</span> after applying.
-          </p>
-        </div>
-
         <Tabs defaultValue="visa" className="w-full">
-          <TabsList className="mb-12 grid w-full grid-cols-2 lg:grid-cols-4">
+          <TabsList className="mb-8 flex flex-wrap">
             {TAB_KEYS.map((k) => (
-              <TabsTrigger key={k} value={k} className="text-sm">
+              <TabsTrigger key={k} value={k}>
                 {t(`pricing.tabs.${k}`)}
               </TabsTrigger>
             ))}
@@ -76,74 +60,34 @@ function Pricing() {
             const plans = tRaw<Plan[]>(`pricing.plans.${key}`) ?? [];
             return (
               <TabsContent key={key} value={key}>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-3">
                   {plans.map((p) => (
-                    <Card
-                      key={p.name}
-                      className={`relative flex flex-col transition-all hover:shadow-lg ${
-                        p.popular ? "border-2 border-accent lg:scale-105" : ""
-                      }`}
-                    >
-                      {p.popular && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                          <Badge className="bg-accent text-accent-foreground hover:bg-accent px-3 py-1">
-                            {t("pricing.mostPopular")}
-                          </Badge>
+                    <Card key={p.name} className={p.popular ? "border-accent shadow-md" : ""}>
+                      <CardContent className="flex flex-col gap-4 p-6">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-semibold">{p.name}</h3>
+                          {p.popular ? (
+                            <Badge className="bg-accent text-accent-foreground hover:bg-accent">
+                              {t("pricing.mostPopular")}
+                            </Badge>
+                          ) : null}
                         </div>
-                      )}
-
-                      <CardHeader className="pb-4">
-                        <h3 className="text-xl font-bold text-foreground">{p.name}</h3>
-                      </CardHeader>
-
-                      <CardContent className="flex flex-1 flex-col gap-6">
-                        <div className="space-y-1">
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-4xl font-bold text-foreground">
-                              ${p.minUsd}
-                            </span>
-                            <span className="text-sm text-muted-foreground">USD</span>
+                        <div>
+                          <div className="text-2xl font-bold">{p.price}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {t("pricing.contactQuote")}
                           </div>
-                          <p className="text-xs text-muted-foreground">
-                            Starting price - Up to ${p.maxUsd} depending on complexity
-                          </p>
-                          <p className="text-xs text-muted-foreground pt-2 border-t">
-                            {p.minRwf.toLocaleString()} - {p.maxRwf.toLocaleString()} RWF
-                          </p>
                         </div>
-
-                        <div className="space-y-2 border-t pt-4">
-                          {p.timeline && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <Clock className="h-4 w-4 text-primary shrink-0" />
-                              <span className="text-muted-foreground">{p.timeline}</span>
-                            </div>
-                          )}
-                          {p.documents && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <FileText className="h-4 w-4 text-primary shrink-0" />
-                              <span className="text-muted-foreground">{p.documents}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <ul className="space-y-3 flex-1">
+                        <ul className="space-y-2 text-sm text-muted-foreground">
                           {p.features.map((f) => (
-                            <li key={f} className="flex gap-3 text-sm">
-                              <Check className="h-4 w-4 shrink-0 text-green-500 mt-0.5" />
-                              <span className="text-foreground">{f}</span>
+                            <li key={f} className="flex gap-2">
+                              <Check className="h-4 w-4 shrink-0 text-primary" />
+                              {f}
                             </li>
                           ))}
                         </ul>
-
-                        <Button
-                          onClick={() => handleGetStarted(p.intent)}
-                          className="w-full"
-                          variant={p.popular ? "default" : "outline"}
-                          size="lg"
-                        >
+                        <Button className="mt-2" onClick={() => handleGetStarted(p.intent)}>
                           {t("pricing.getStarted")}
-                          <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </CardContent>
                     </Card>
@@ -151,20 +95,15 @@ function Pricing() {
                 </div>
 
                 {key === "translation" ? (
-                  <div className="mt-12 flex flex-col items-center justify-between gap-4 rounded-xl border border-border bg-blue-500/5 px-6 py-8 md:flex-row">
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        {t("pricing.translationStrip")}{" "}
-                        <span className="font-semibold text-foreground">
-                          {t("pricing.weSpeakBrand")}
-                        </span>
-                        .
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Get instant translation support for 17+ languages
-                      </p>
-                    </div>
-                    <Button variant="outline" asChild size="lg">
+                  <div className="mt-8 flex flex-col items-center justify-between gap-4 rounded-xl border border-border bg-muted/30 px-6 py-6 md:flex-row">
+                    <p className="text-sm text-muted-foreground">
+                      {t("pricing.translationStrip")}{" "}
+                      <span className="font-semibold text-foreground">
+                        {t("pricing.weSpeakBrand")}
+                      </span>
+                      .
+                    </p>
+                    <Button variant="outline" asChild>
                       <a href="/translate" className="gap-2">
                         {t("pricing.openPortal")} <ArrowRight className="h-4 w-4" />
                       </a>
@@ -176,48 +115,15 @@ function Pricing() {
           })}
         </Tabs>
 
-        <div className="mt-16 grid gap-4 md:grid-cols-3">
-          
-            href="/faq"
-            className="group rounded-lg border border-border bg-card p-5 hover:border-accent hover:shadow-md transition-all"
-          >
-            <h4 className="font-semibold text-foreground mb-1">
-              {"What's Included? "}
-              <span className="text-accent group-hover:translate-x-1 inline-block transition-transform">
-                {">"}
-              </span>
-            </h4>
-            <p className="text-xs text-muted-foreground">
-              {t("pricing.bottom.whatIncluded")}
-            </p>
+        <div className="mt-12 grid gap-3 text-sm md:grid-cols-3">
+          <a href="/faq" className="rounded-lg border border-border p-4 hover:bg-accent/5">
+            {t("pricing.bottom.whatIncluded")} <span className="text-primary">→</span>
           </a>
-          
-            href="/faq"
-            className="group rounded-lg border border-border bg-card p-5 hover:border-accent hover:shadow-md transition-all"
-          >
-            <h4 className="font-semibold text-foreground mb-1">
-              {"How Pricing Works "}
-              <span className="text-accent group-hover:translate-x-1 inline-block transition-transform">
-                {">"}
-              </span>
-            </h4>
-            <p className="text-xs text-muted-foreground">
-              {t("pricing.bottom.howFees")}
-            </p>
+          <a href="/faq" className="rounded-lg border border-border p-4 hover:bg-accent/5">
+            {t("pricing.bottom.howFees")} <span className="text-primary">→</span>
           </a>
-          
-            href="/faq"
-            className="group rounded-lg border border-border bg-card p-5 hover:border-accent hover:shadow-md transition-all"
-          >
-            <h4 className="font-semibold text-foreground mb-1">
-              {"Refund Policy "}
-              <span className="text-accent group-hover:translate-x-1 inline-block transition-transform">
-                {">"}
-              </span>
-            </h4>
-            <p className="text-xs text-muted-foreground">
-              {t("pricing.bottom.refund")}
-            </p>
+          <a href="/faq" className="rounded-lg border border-border p-4 hover:bg-accent/5">
+            {t("pricing.bottom.refund")} <span className="text-primary">→</span>
           </a>
         </div>
       </section>
@@ -230,4 +136,3 @@ function Pricing() {
     </PublicLayout>
   );
 }
-ENDOFFILE
