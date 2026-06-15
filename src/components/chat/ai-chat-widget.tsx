@@ -20,10 +20,10 @@ interface SystemPromptConfig {
 
 /**
  * AI Chat Widget Component
- * 
+ *
  * A floating chat widget that appears on public pages and dashboards.
  * Portal-aware: shows different greetings and system prompts based on the current portal.
- * 
+ *
  * Features:
  * - Floating button in bottom-right corner
  * - Portal-aware greeting and quick actions
@@ -128,7 +128,10 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
   };
 
   const config = getSystemPromptConfig();
-  const apiConfigured = Boolean(import.meta.env.VITE_ANTHROPIC_API_KEY && import.meta.env.VITE_ANTHROPIC_API_KEY !== "your-key-here");
+  const apiConfigured = Boolean(
+    import.meta.env.VITE_ANTHROPIC_API_KEY &&
+    import.meta.env.VITE_ANTHROPIC_API_KEY !== "your-key-here",
+  );
 
   // Initialize with greeting message
   useEffect(() => {
@@ -256,7 +259,10 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
           <div className="relative grid h-8 w-8 place-items-center rounded-full bg-primary-foreground/15">
             <Sparkles className="h-4 w-4" />
             {hasUnread && (
-              <span className="absolute -right-1 -top-1 flex h-3 w-3"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75" /><span className="relative inline-flex h-3 w-3 rounded-full bg-destructive" /></span>
+              <span className="absolute -right-1 -top-1 flex h-3 w-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75" />
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-destructive" />
+              </span>
             )}
           </div>
           <span className="hidden font-bold min-[360px]:inline">Ask AI</span>
@@ -269,9 +275,14 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
           {/* Header */}
           <div className="chat-header relative flex items-center justify-between bg-gradient-to-r from-primary to-primary/80 p-4 text-primary-foreground">
             <div className="flex flex-1 items-center gap-3">
-              <div className="grid h-9 w-9 place-items-center rounded-full bg-primary-foreground/15"><Sparkles className="h-4 w-4" /></div>
+              <div className="grid h-9 w-9 place-items-center rounded-full bg-primary-foreground/15">
+                <Sparkles className="h-4 w-4" />
+              </div>
               <div>
-                <h3 className="flex items-center gap-2 font-bold">San Brothers AI <span className="h-2 w-2 rounded-full bg-success" /><span className="text-[10px] font-medium opacity-80">Online</span></h3>
+                <h3 className="flex items-center gap-2 font-bold">
+                  San Brothers AI <span className="h-2 w-2 rounded-full bg-success" />
+                  <span className="text-[10px] font-medium opacity-80">Online</span>
+                </h3>
                 <p className="text-xs opacity-70">Powered by Claude · {currentPortal}</p>
               </div>
             </div>
@@ -304,7 +315,14 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
           {!isMinimized && (
             <>
               <div className="flex-1 space-y-4 overflow-y-auto p-4">
-                {!apiConfigured && messages.length <= 1 ? <div className="rounded-lg border border-consultancy/30 bg-consultancy/10 px-3 py-2 text-xs text-foreground">⚠ AI assistant not yet configured. <a className="font-semibold text-primary underline" href="/contact">Contact us</a></div> : null}
+                {!apiConfigured && messages.length <= 1 ? (
+                  <div className="rounded-lg border border-consultancy/30 bg-consultancy/10 px-3 py-2 text-xs text-foreground">
+                    ⚠ AI assistant not yet configured.{" "}
+                    <a className="font-semibold text-primary underline" href="/contact">
+                      Contact us
+                    </a>
+                  </div>
+                ) : null}
                 {messages.map((message, index) => (
                   <div
                     key={index}
@@ -312,7 +330,11 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
                       message.role === "user" ? "justify-end" : "justify-start"
                     }`}
                   >
-                    {message.role === "assistant" ? <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-[10px] font-black text-primary-foreground">SB</div> : null}
+                    {message.role === "assistant" ? (
+                      <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-[10px] font-black text-primary-foreground">
+                        SB
+                      </div>
+                    ) : null}
                     <div
                       className={`max-w-[85%] rounded-2xl px-4 py-2 ${
                         message.role === "user"
@@ -321,7 +343,9 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
                       }`}
                     >
                       <p className="text-sm">{message.content}</p>
-                      <span className="mt-1 hidden text-[9px] opacity-60 group-hover:block">Just now</span>
+                      <span className="mt-1 hidden text-[9px] opacity-60 group-hover:block">
+                        Just now
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -335,7 +359,9 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
                         <div className="h-2 w-2 rounded-full bg-foreground animate-bounce delay-100" />
                         <div className="h-2 w-2 rounded-full bg-foreground animate-bounce delay-200" />
                       </div>
-                      <span className="text-xs text-muted-foreground">San Brothers is typing...</span>
+                      <span className="text-xs text-muted-foreground">
+                        San Brothers is typing...
+                      </span>
                     </div>
                   </div>
                 )}
@@ -343,7 +369,9 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
                 {/* Quick Actions (shown after greeting) */}
                 {messages.length === 1 && !isLoading && (
                   <div className="space-y-2 pt-2">
-                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Quick questions:</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      Quick questions:
+                    </p>
                     {config.quickActions.map((action) => (
                       <Button
                         key={action}
@@ -351,7 +379,8 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
                         onClick={() => handleQuickAction(action)}
                         className="group h-auto w-full justify-between rounded-xl border-border bg-card px-3 py-2.5 text-xs text-foreground hover:border-primary/30 hover:bg-accent"
                       >
-                        {action}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        {action}
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </Button>
                     ))}
                   </div>
@@ -381,7 +410,12 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="mt-2 text-center text-[10px] text-muted-foreground">10 message limit · AI may make mistakes · <a href="/contact" className="font-semibold text-primary hover:underline">Contact us</a></p>
+                <p className="mt-2 text-center text-[10px] text-muted-foreground">
+                  10 message limit · AI may make mistakes ·{" "}
+                  <a href="/contact" className="font-semibold text-primary hover:underline">
+                    Contact us
+                  </a>
+                </p>
               </div>
             </>
           )}

@@ -48,11 +48,28 @@ RULES:
 - Be warm but professional. Use the user's language if they write in French, Chinese, or Kinyarwanda.`;
 
 function FormattedMessage({ content }: { content: string }) {
-  return <>{content.split("\n").map((line, index) => {
-    const isBullet = line.startsWith("- ") || line.startsWith("• ");
-    const parts = line.replace(/^[-•] /, "").split(/(\*\*[^*]+\*\*)/g);
-    return <div key={`${line}-${index}`} className={isBullet ? "flex gap-2" : undefined}>{isBullet ? <span aria-hidden="true">•</span> : null}<span>{parts.map((part, partIndex) => part.startsWith("**") && part.endsWith("**") ? <strong key={partIndex}>{part.slice(2, -2)}</strong> : part)}</span></div>;
-  })}</>;
+  return (
+    <>
+      {content.split("\n").map((line, index) => {
+        const isBullet = line.startsWith("- ") || line.startsWith("• ");
+        const parts = line.replace(/^[-•] /, "").split(/(\*\*[^*]+\*\*)/g);
+        return (
+          <div key={`${line}-${index}`} className={isBullet ? "flex gap-2" : undefined}>
+            {isBullet ? <span aria-hidden="true">•</span> : null}
+            <span>
+              {parts.map((part, partIndex) =>
+                part.startsWith("**") && part.endsWith("**") ? (
+                  <strong key={partIndex}>{part.slice(2, -2)}</strong>
+                ) : (
+                  part
+                ),
+              )}
+            </span>
+          </div>
+        );
+      })}
+    </>
+  );
 }
 
 export function AiChatWidget() {
@@ -123,9 +140,14 @@ export function AiChatWidget() {
           aria-label="Open AI assistant"
           className="chat-launcher fixed bottom-6 right-6 z-50 h-auto rounded-full px-3 py-2.5 shadow-lg transition hover:scale-105 hover:shadow-xl sm:px-4"
         >
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-primary-foreground/15"><Sparkles className="h-4 w-4" /></span>
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-primary-foreground/15">
+            <Sparkles className="h-4 w-4" />
+          </span>
           <span className="hidden font-bold min-[360px]:inline">Ask AI</span>
-          <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75" /><span className="relative inline-flex h-3 w-3 rounded-full bg-destructive" /></span>
+          <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75" />
+            <span className="relative inline-flex h-3 w-3 rounded-full bg-destructive" />
+          </span>
         </Button>
       )}
 
@@ -137,11 +159,20 @@ export function AiChatWidget() {
                 <Sparkles className="h-4 w-4" />
               </div>
               <div>
-                <div className="flex items-center gap-2 text-sm font-bold">San Brothers AI <span className="h-2 w-2 rounded-full bg-success" /><span className="text-[10px] font-medium opacity-80">Online</span></div>
+                <div className="flex items-center gap-2 text-sm font-bold">
+                  San Brothers AI <span className="h-2 w-2 rounded-full bg-success" />
+                  <span className="text-[10px] font-medium opacity-80">Online</span>
+                </div>
                 <div className="text-xs opacity-70">Powered by Claude</div>
               </div>
             </div>
-            <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" onClick={() => setOpen(false)} aria-label="Close">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              onClick={() => setOpen(false)}
+              aria-label="Close"
+            >
               <X className="h-4 w-4" />
             </Button>
           </header>
@@ -149,12 +180,26 @@ export function AiChatWidget() {
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
             {messages.length === 0 && (
               <div className="space-y-4">
-                {!apiConfigured ? <div className="rounded-lg border border-consultancy/30 bg-consultancy/10 px-3 py-2 text-xs text-foreground">⚠ AI assistant not yet configured. <a className="font-semibold text-primary underline" href="/contact">Contact us</a></div> : null}
+                {!apiConfigured ? (
+                  <div className="rounded-lg border border-consultancy/30 bg-consultancy/10 px-3 py-2 text-xs text-foreground">
+                    ⚠ AI assistant not yet configured.{" "}
+                    <a className="font-semibold text-primary underline" href="/contact">
+                      Contact us
+                    </a>
+                  </div>
+                ) : null}
                 <div className="flex items-start gap-2">
-                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary font-black text-primary-foreground">SB</div>
-                  <div className="rounded-2xl rounded-tl-sm border border-border bg-card px-3 py-3 text-sm leading-relaxed text-foreground shadow-sm">Hi! I&apos;m your San Brothers AI assistant. I can help with visa questions, accounting services, company registration, translation, and more.</div>
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary font-black text-primary-foreground">
+                    SB
+                  </div>
+                  <div className="rounded-2xl rounded-tl-sm border border-border bg-card px-3 py-3 text-sm leading-relaxed text-foreground shadow-sm">
+                    Hi! I&apos;m your San Brothers AI assistant. I can help with visa questions,
+                    accounting services, company registration, translation, and more.
+                  </div>
                 </div>
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Quick questions:</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Quick questions:
+                </p>
                 <div className="space-y-2">
                   {SUGGESTIONS.map((s) => (
                     <Button
@@ -163,7 +208,8 @@ export function AiChatWidget() {
                       onClick={() => send(s)}
                       className="group h-auto w-full justify-between whitespace-normal rounded-xl border-border bg-card px-3 py-3 text-left text-xs text-foreground hover:border-primary/30 hover:bg-accent"
                     >
-                      <span>{s}</span><ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
+                      <span>{s}</span>
+                      <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
                     </Button>
                   ))}
                 </div>
@@ -172,9 +218,16 @@ export function AiChatWidget() {
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={cn("group flex items-start gap-2", m.role === "user" ? "justify-end" : "justify-start")}
+                className={cn(
+                  "group flex items-start gap-2",
+                  m.role === "user" ? "justify-end" : "justify-start",
+                )}
               >
-                {m.role === "assistant" ? <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-[10px] font-black text-primary-foreground">SB</div> : null}
+                {m.role === "assistant" ? (
+                  <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-[10px] font-black text-primary-foreground">
+                    SB
+                  </div>
+                ) : null}
                 <div
                   className={cn(
                     "max-w-[85%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap",
@@ -184,7 +237,9 @@ export function AiChatWidget() {
                   )}
                 >
                   <FormattedMessage content={m.content} />
-                  <span className="mt-1 hidden text-[9px] opacity-60 group-hover:block">Just now</span>
+                  <span className="mt-1 hidden text-[9px] opacity-60 group-hover:block">
+                    Just now
+                  </span>
                 </div>
               </div>
             ))}
@@ -222,13 +277,21 @@ export function AiChatWidget() {
                   disabled={loading}
                   className="h-11 rounded-full border-border px-4 focus-visible:border-primary/30"
                 />
-                <Button type="submit" size="icon" className="h-11 w-11 shrink-0 rounded-full" disabled={loading || !input.trim()}>
+                <Button
+                  type="submit"
+                  size="icon"
+                  className="h-11 w-11 shrink-0 rounded-full"
+                  disabled={loading || !input.trim()}
+                >
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </form>
             )}
             <p className="mt-2 text-center text-[10px] text-muted-foreground">
-              10 message limit · AI may make mistakes · <a href="/contact" className="font-semibold text-primary hover:underline">Contact us</a>
+              10 message limit · AI may make mistakes ·{" "}
+              <a href="/contact" className="font-semibold text-primary hover:underline">
+                Contact us
+              </a>
             </p>
           </div>
         </div>
