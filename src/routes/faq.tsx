@@ -28,11 +28,11 @@ export const Route = createFileRoute("/faq")({
 const GROUP_KEYS = ["general", "visa", "accounting", "translation", "payments"] as const;
 
 const GROUP_STYLES = {
-  general: { Icon: HelpCircle, color: "text-muted-foreground", border: "border-l-muted-foreground", tint: "bg-muted" },
-  visa: { Icon: Plane, color: "text-visa", border: "border-l-visa", tint: "bg-visa/10" },
-  accounting: { Icon: Calculator, color: "text-accounting", border: "border-l-accounting", tint: "bg-accounting/10" },
-  translation: { Icon: Languages, color: "text-translation", border: "border-l-translation", tint: "bg-translation/10" },
-  payments: { Icon: CreditCard, color: "text-consultancy", border: "border-l-consultancy", tint: "bg-consultancy/10" },
+  general: { Icon: HelpCircle, color: "text-muted-foreground", open: "data-[state=open]:text-foreground", border: "border-l-muted-foreground", tint: "bg-muted" },
+  visa: { Icon: Plane, color: "text-visa", open: "data-[state=open]:text-visa", border: "border-l-visa", tint: "bg-visa/10" },
+  accounting: { Icon: Calculator, color: "text-accounting", open: "data-[state=open]:text-accounting", border: "border-l-accounting", tint: "bg-accounting/10" },
+  translation: { Icon: Languages, color: "text-translation", open: "data-[state=open]:text-translation", border: "border-l-translation", tint: "bg-translation/10" },
+  payments: { Icon: CreditCard, color: "text-consultancy", open: "data-[state=open]:text-consultancy", border: "border-l-consultancy", tint: "bg-consultancy/10" },
 };
 
 interface Group {
@@ -107,7 +107,7 @@ function Faq() {
               </div>
             ) : filteredGroups.map(({ key, group, items }) => {
               if (items.length === 0) return null;
-              const { Icon, color, border, tint } = GROUP_STYLES[key];
+              const { Icon, color, open, border, tint } = GROUP_STYLES[key];
               return (
                 <section id={key} key={key} className="reveal scroll-mt-28 border-b border-border pb-12">
                   <div className={`flex items-center gap-4 border-l-4 ${border} pl-4`}>
@@ -117,7 +117,7 @@ function Faq() {
                   <Accordion type="single" collapsible className="mt-5">
                     {items.map((it) => (
                       <AccordionItem key={it.q} value={it.q} className="border-border">
-                        <AccordionTrigger className={`text-base font-semibold text-foreground hover:no-underline data-[state=open]:${color}`}>{it.q}</AccordionTrigger>
+                        <AccordionTrigger className={`text-base font-semibold text-foreground hover:no-underline ${open}`}>{it.q}</AccordionTrigger>
                         <AccordionContent className={`border-l-2 ${border} pl-4 pr-2 text-sm leading-relaxed text-muted-foreground`}>{it.a}</AccordionContent>
                       </AccordionItem>
                     ))}

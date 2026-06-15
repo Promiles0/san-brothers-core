@@ -101,8 +101,6 @@ export function PublicFooter() {
                 href="#"
                 aria-label="LinkedIn"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted transition-all duration-200 hover:border-primary/30 hover:bg-primary/10"
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(10,102,194,0.2)"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(10,102,194,0.4)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = ""; (e.currentTarget as HTMLAnchorElement).style.borderColor = ""; }}
               >
                 <Linkedin className="h-3.5 w-3.5 text-muted-foreground" />
               </a>
@@ -110,8 +108,6 @@ export function PublicFooter() {
                 href="#"
                 aria-label="Twitter"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted transition-all duration-200 hover:border-primary/30 hover:bg-primary/10"
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(29,161,242,0.15)"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(29,161,242,0.3)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = ""; (e.currentTarget as HTMLAnchorElement).style.borderColor = ""; }}
               >
                 <Twitter className="h-3.5 w-3.5 text-muted-foreground" />
               </a>
@@ -119,8 +115,6 @@ export function PublicFooter() {
                 href="https://wa.me/250700000000"
                 aria-label="WhatsApp"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted transition-all duration-200 hover:border-success/30 hover:bg-success/10"
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(37,211,102,0.15)"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(37,211,102,0.3)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = ""; (e.currentTarget as HTMLAnchorElement).style.borderColor = ""; }}
               >
                 <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
               </a>

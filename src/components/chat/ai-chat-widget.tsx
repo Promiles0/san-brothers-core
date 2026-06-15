@@ -193,7 +193,7 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
           "anthropic-dangerous-direct-browser-access": "true",
         },
         body: JSON.stringify({
-          model: "claude-3-5-haiku-20241022",
+          model: "claude-sonnet-4-20250514",
           max_tokens: 1024,
           system: config.systemPrompt,
           messages: conversationHistory,

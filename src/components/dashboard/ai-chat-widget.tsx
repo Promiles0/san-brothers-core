@@ -2,7 +2,7 @@
 // SECURITY: Exposing an Anthropic key in the browser is insecure — recommend
 // proxying through a server function before production.
 import { useState, useRef, useEffect } from "react";
-import { ArrowRight, Send, Sparkles, X, RotateCcw } from "lucide-react";
+import { ArrowRight, Sparkles, X, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
