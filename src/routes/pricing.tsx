@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+﻿import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Briefcase, Calculator, Check, DollarSign, Globe2, HelpCircle, Languages, Plane, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,10 +33,10 @@ interface Plan {
 const TAB_KEYS = ["visa", "accounting", "consultancy", "translation"] as const;
 
 const TAB_STYLES = {
-  visa: { Icon: Plane, color: "text-visa", active: "data-[state=active]:bg-visa", border: "border-visa", glow: "shadow-[0_16px_45px_-24px_var(--visa)]", tint: "hover:bg-visa/5", button: "bg-visa hover:bg-visa/90", outline: "border-visa text-visa hover:bg-visa/10" },
-  accounting: { Icon: Calculator, color: "text-accounting", active: "data-[state=active]:bg-accounting", border: "border-accounting", glow: "shadow-[0_16px_45px_-24px_var(--accounting)]", tint: "hover:bg-accounting/5", button: "bg-accounting hover:bg-accounting/90", outline: "border-accounting text-accounting hover:bg-accounting/10" },
-  consultancy: { Icon: Briefcase, color: "text-consultancy", active: "data-[state=active]:bg-consultancy", border: "border-consultancy", glow: "shadow-[0_16px_45px_-24px_var(--consultancy)]", tint: "hover:bg-consultancy/5", button: "bg-consultancy hover:bg-consultancy/90", outline: "border-consultancy text-consultancy hover:bg-consultancy/10" },
-  translation: { Icon: Languages, color: "text-translation", active: "data-[state=active]:bg-translation", border: "border-translation", glow: "shadow-[0_16px_45px_-24px_var(--translation)]", tint: "hover:bg-translation/5", button: "bg-translation hover:bg-translation/90", outline: "border-translation text-translation hover:bg-translation/10" },
+  visa: { Icon: Plane, color: "text-blue-500", active: "data-[state=active]:bg-blue-500", border: "border-blue-500", glow: "shadow-[0_16px_45px_-24px_var(#3B82F6)]", tint: "hover:bg-blue-500/5", button: "bg-blue-500 hover:bg-blue-500/90", outline: "border-blue-500 text-blue-500 hover:bg-blue-500/10" },
+  accounting: { Icon: Calculator, color: "text-emerald-500", active: "data-[state=active]:bg-emerald-500", border: "border-emerald-500", glow: "shadow-[0_16px_45px_-24px_var(#10B981)]", tint: "hover:bg-emerald-500/5", button: "bg-emerald-500 hover:bg-emerald-500/90", outline: "border-emerald-500 text-emerald-500 hover:bg-emerald-500/10" },
+  consultancy: { Icon: Briefcase, color: "text-amber-500", active: "data-[state=active]:bg-amber-500", border: "border-amber-500", glow: "shadow-[0_16px_45px_-24px_var(#F59E0B)]", tint: "hover:bg-amber-500/5", button: "bg-amber-500 hover:bg-amber-500/90", outline: "border-amber-500 text-amber-500 hover:bg-amber-500/10" },
+  translation: { Icon: Languages, color: "text-purple-500", active: "data-[state=active]:bg-purple-500", border: "border-purple-500", glow: "shadow-[0_16px_45px_-24px_var(#8B5CF6)]", tint: "hover:bg-purple-500/5", button: "bg-purple-500 hover:bg-purple-500/90", outline: "border-purple-500 text-purple-500 hover:bg-purple-500/10" },
 };
 
 const VALUE_LINES = ["Best for individuals", "Most popular for SMEs", "For growing companies"];
@@ -130,7 +130,7 @@ function Pricing() {
                 {key === "translation" ? (
                   <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-xl border border-border border-l-4 border-l-translation bg-gradient-to-r from-translation/20 to-translation/5 px-6 py-6 md:flex-row">
                     <div className="flex items-start gap-3">
-                      <Globe2 className="mt-0.5 h-5 w-5 shrink-0 text-translation" />
+                      <Globe2 className="mt-0.5 h-5 w-5 shrink-0 text-purple-500" />
                       <p className="text-sm text-muted-foreground">
                         {t("pricing.translationStrip")}{" "}
                         <span className="font-semibold text-foreground">{t("pricing.weSpeakBrand")}</span>.
