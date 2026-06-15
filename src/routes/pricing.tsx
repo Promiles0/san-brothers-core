@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Check, ArrowRight } from "lucide-react";
+import { ArrowRight, Briefcase, Calculator, Check, DollarSign, Globe2, HelpCircle, Languages, Plane, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,9 +32,28 @@ interface Plan {
 
 const TAB_KEYS = ["visa", "accounting", "consultancy", "translation"] as const;
 
+const TAB_STYLES = {
+  visa: { Icon: Plane, color: "text-visa", active: "data-[state=active]:bg-visa", border: "border-visa", glow: "shadow-[0_16px_45px_-24px_var(--visa)]", tint: "hover:bg-visa/5", button: "bg-visa hover:bg-visa/90", outline: "border-visa text-visa hover:bg-visa/10" },
+  accounting: { Icon: Calculator, color: "text-accounting", active: "data-[state=active]:bg-accounting", border: "border-accounting", glow: "shadow-[0_16px_45px_-24px_var(--accounting)]", tint: "hover:bg-accounting/5", button: "bg-accounting hover:bg-accounting/90", outline: "border-accounting text-accounting hover:bg-accounting/10" },
+  consultancy: { Icon: Briefcase, color: "text-consultancy", active: "data-[state=active]:bg-consultancy", border: "border-consultancy", glow: "shadow-[0_16px_45px_-24px_var(--consultancy)]", tint: "hover:bg-consultancy/5", button: "bg-consultancy hover:bg-consultancy/90", outline: "border-consultancy text-consultancy hover:bg-consultancy/10" },
+  translation: { Icon: Languages, color: "text-translation", active: "data-[state=active]:bg-translation", border: "border-translation", glow: "shadow-[0_16px_45px_-24px_var(--translation)]", tint: "hover:bg-translation/5", button: "bg-translation hover:bg-translation/90", outline: "border-translation text-translation hover:bg-translation/10" },
+};
+
+const VALUE_LINES = ["Best for individuals", "Most popular for SMEs", "For growing companies"];
+
 function Pricing() {
   const { t, tRaw } = useI18n();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const els = document.querySelectorAll(".reveal");
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.target.classList.toggle("revealed", e.isIntersecting)),
+      { threshold: 0.1 },
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
 
   const handleGetStarted = async (intent: string) => {
     const destination = await resolveServiceIntentDestination(intent);
