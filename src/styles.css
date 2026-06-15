@@ -195,6 +195,52 @@
   50% { opacity: .55; transform: scale(.82); }
 }
 
+@keyframes chat-border-cycle {
+  0%, 100% { box-shadow: 0 0 0 2px var(--primary), 0 12px 32px color-mix(in oklab, var(--primary) 24%, transparent); }
+  50% { box-shadow: 0 0 0 2px var(--translation), 0 16px 40px color-mix(in oklab, var(--translation) 28%, transparent); }
+}
+
+@keyframes chat-header-shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.chat-launcher {
+  animation: chat-border-cycle 5s ease-in-out infinite;
+}
+
+.chat-launcher::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  z-index: -1;
+  border: 1px solid color-mix(in oklab, var(--primary) 55%, transparent);
+  border-radius: inherit;
+  animation: public-pulse 2.4s ease-in-out infinite;
+}
+
+.chat-header::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary-foreground), transparent);
+  animation: chat-header-shimmer 3s linear infinite;
+}
+
 @utility public-hero-gradient {
   background-image: linear-gradient(125deg, var(--primary), color-mix(in oklab, var(--primary) 76%, var(--background)), color-mix(in oklab, var(--visa) 34%, var(--primary)));
   background-size: 220% 220%;
@@ -220,10 +266,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .public-hero-gradient, .public-fade-up, .public-pulse {
+  .public-hero-gradient, .public-fade-up, .public-pulse, .chat-launcher, .chat-launcher::before, .chat-header::after {
     animation: none;
   }
-  .scroll-reveal {
+  .scroll-reveal, .reveal {
     opacity: 1;
     transform: none;
     transition: none;

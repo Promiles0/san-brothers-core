@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Check, ArrowRight } from "lucide-react";
+import { ArrowRight, Briefcase, Calculator, Check, DollarSign, Globe2, HelpCircle, Languages, Plane, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,9 +32,28 @@ interface Plan {
 
 const TAB_KEYS = ["visa", "accounting", "consultancy", "translation"] as const;
 
+const TAB_STYLES = {
+  visa: { Icon: Plane, color: "text-visa", active: "data-[state=active]:bg-visa", border: "border-visa", glow: "shadow-[0_16px_45px_-24px_var(--visa)]", tint: "hover:bg-visa/5", button: "bg-visa hover:bg-visa/90", outline: "border-visa text-visa hover:bg-visa/10" },
+  accounting: { Icon: Calculator, color: "text-accounting", active: "data-[state=active]:bg-accounting", border: "border-accounting", glow: "shadow-[0_16px_45px_-24px_var(--accounting)]", tint: "hover:bg-accounting/5", button: "bg-accounting hover:bg-accounting/90", outline: "border-accounting text-accounting hover:bg-accounting/10" },
+  consultancy: { Icon: Briefcase, color: "text-consultancy", active: "data-[state=active]:bg-consultancy", border: "border-consultancy", glow: "shadow-[0_16px_45px_-24px_var(--consultancy)]", tint: "hover:bg-consultancy/5", button: "bg-consultancy hover:bg-consultancy/90", outline: "border-consultancy text-consultancy hover:bg-consultancy/10" },
+  translation: { Icon: Languages, color: "text-translation", active: "data-[state=active]:bg-translation", border: "border-translation", glow: "shadow-[0_16px_45px_-24px_var(--translation)]", tint: "hover:bg-translation/5", button: "bg-translation hover:bg-translation/90", outline: "border-translation text-translation hover:bg-translation/10" },
+};
+
+const VALUE_LINES = ["Best for individuals", "Most popular for SMEs", "For growing companies"];
+
 function Pricing() {
   const { t, tRaw } = useI18n();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const els = document.querySelectorAll(".reveal");
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.target.classList.toggle("revealed", e.isIntersecting)),
+      { threshold: 0.1 },
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
 
   const handleGetStarted = async (intent: string) => {
     const destination = await resolveServiceIntentDestination(intent);
@@ -46,47 +66,60 @@ function Pricing() {
         <p className="text-sm text-muted-foreground">{t("pricing.allPrices")}</p>
       </PageHero>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
+      <div className="border-b border-border bg-muted/20 px-4 py-4 text-center text-xs text-muted-foreground dark:bg-muted/10 sm:text-sm">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-1">
+          <span>🔒 Transparent pricing</span><span aria-hidden="true">·</span><span>No hidden fees</span>
+          <span aria-hidden="true">·</span><span>All prices in RWF</span><span aria-hidden="true">·</span><span>Payments accepted in USD</span>
+        </div>
+      </div>
+
+      <section className="mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-20">
         <Tabs defaultValue="visa" className="w-full">
-          <TabsList className="mb-8 flex flex-wrap">
-            {TAB_KEYS.map((k) => (
-              <TabsTrigger key={k} value={k}>
-                {t(`pricing.tabs.${k}`)}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="mb-10 border-b border-border pb-8">
+            <TabsList className="flex h-auto w-full justify-start gap-2 overflow-x-auto bg-transparent p-0 pb-2 md:justify-center">
+              {TAB_KEYS.map((k) => {
+                const { Icon, color, active } = TAB_STYLES[k];
+                return (
+                  <TabsTrigger key={k} value={k} className={`${active} rounded-full border border-border bg-card px-4 py-2.5 text-muted-foreground shadow-none hover:bg-muted data-[state=active]:text-primary-foreground data-[state=active]:shadow-md`}>
+                    <Icon className={`mr-2 h-4 w-4 ${color}`} />
+                    {t(`pricing.tabs.${k}`)}
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+            <p className="mt-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Choose the plan that fits your needs</p>
+          </div>
 
           {TAB_KEYS.map((key) => {
             const plans = tRaw<Plan[]>(`pricing.plans.${key}`) ?? [];
+            const styles = TAB_STYLES[key];
             return (
               <TabsContent key={key} value={key}>
-                <div className="grid gap-6 md:grid-cols-3">
-                  {plans.map((p) => (
-                    <Card key={p.name} className={p.popular ? "border-accent shadow-md" : ""}>
-                      <CardContent className="flex flex-col gap-4 p-6">
+                <div className="grid items-stretch gap-6 md:grid-cols-3">
+                  {plans.map((p, index) => (
+                    <Card key={p.name} style={{ transitionDelay: `${index * 100}ms` }} className={`reveal relative overflow-hidden bg-card transition-[transform,box-shadow,background-color,opacity] duration-300 hover:-translate-y-1 hover:shadow-lg ${styles.tint} ${p.popular ? `border-2 ${styles.border} ${styles.glow} md:scale-105` : "border-border"}`}>
+                      <div className={`h-1 w-full bg-current ${styles.color}`} />
+                      {p.popular ? <Badge className={`absolute right-4 top-4 border-0 ${styles.button} text-primary-foreground`}>{t("pricing.mostPopular")}</Badge> : null}
+                      <CardContent className="flex h-full flex-col gap-5 p-6 pt-7">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-lg font-semibold">{p.name}</h3>
-                          {p.popular ? (
-                            <Badge className="bg-accent text-accent-foreground hover:bg-accent">
-                              {t("pricing.mostPopular")}
-                            </Badge>
-                          ) : null}
+                          <h3 className="pr-24 text-lg font-semibold text-foreground">{p.name}</h3>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold">{p.price}</div>
+                          <div className="text-4xl font-black tracking-tight text-foreground">{p.price}</div>
                           <div className="text-xs text-muted-foreground">
                             {t("pricing.contactQuote")}
                           </div>
                         </div>
+                        <p className="text-sm font-semibold italic text-muted-foreground">{VALUE_LINES[index] ?? VALUE_LINES[0]}</p>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                           {p.features.map((f) => (
                             <li key={f} className="flex gap-2">
-                              <Check className="h-4 w-4 shrink-0 text-primary" />
+                              <Check className={`mt-0.5 h-4 w-4 shrink-0 ${styles.color}`} />
                               {f}
                             </li>
                           ))}
                         </ul>
-                        <Button className="mt-2" onClick={() => handleGetStarted(p.intent)}>
+                        <Button variant={p.popular ? "default" : "outline"} className={`mt-auto ${p.popular ? `${styles.button} text-primary-foreground` : styles.outline}`} onClick={() => handleGetStarted(p.intent)}>
                           {t("pricing.getStarted")}
                         </Button>
                       </CardContent>
@@ -95,14 +128,14 @@ function Pricing() {
                 </div>
 
                 {key === "translation" ? (
-                  <div className="mt-8 flex flex-col items-center justify-between gap-4 rounded-xl border border-border bg-muted/30 px-6 py-6 md:flex-row">
-                    <p className="text-sm text-muted-foreground">
-                      {t("pricing.translationStrip")}{" "}
-                      <span className="font-semibold text-foreground">
-                        {t("pricing.weSpeakBrand")}
-                      </span>
-                      .
-                    </p>
+                  <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-xl border border-border border-l-4 border-l-translation bg-gradient-to-r from-translation/20 to-translation/5 px-6 py-6 md:flex-row">
+                    <div className="flex items-start gap-3">
+                      <Globe2 className="mt-0.5 h-5 w-5 shrink-0 text-translation" />
+                      <p className="text-sm text-muted-foreground">
+                        {t("pricing.translationStrip")}{" "}
+                        <span className="font-semibold text-foreground">{t("pricing.weSpeakBrand")}</span>.
+                      </p>
+                    </div>
                     <Button variant="outline" asChild>
                       <a href="/translate" className="gap-2">
                         {t("pricing.openPortal")} <ArrowRight className="h-4 w-4" />
@@ -115,16 +148,18 @@ function Pricing() {
           })}
         </Tabs>
 
-        <div className="mt-12 grid gap-3 text-sm md:grid-cols-3">
-          <a href="/faq" className="rounded-lg border border-border p-4 hover:bg-accent/5">
-            {t("pricing.bottom.whatIncluded")} <span className="text-primary">→</span>
-          </a>
-          <a href="/faq" className="rounded-lg border border-border p-4 hover:bg-accent/5">
-            {t("pricing.bottom.howFees")} <span className="text-primary">→</span>
-          </a>
-          <a href="/faq" className="rounded-lg border border-border p-4 hover:bg-accent/5">
-            {t("pricing.bottom.refund")} <span className="text-primary">→</span>
-          </a>
+        <div className="mt-14 grid gap-3 border-t border-border pt-10 text-sm md:grid-cols-3">
+          {[
+            { label: t("pricing.bottom.whatIncluded"), Icon: HelpCircle },
+            { label: t("pricing.bottom.howFees"), Icon: DollarSign },
+            { label: t("pricing.bottom.refund"), Icon: RotateCcw },
+          ].map(({ label, Icon }) => (
+            <a key={label} href="/faq" className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-foreground transition-all hover:border-primary/30 hover:bg-accent/10 hover:shadow-md">
+              <Icon className="h-5 w-5 text-primary" />
+              <span className="flex-1">{label}</span>
+              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+            </a>
+          ))}
         </div>
       </section>
 

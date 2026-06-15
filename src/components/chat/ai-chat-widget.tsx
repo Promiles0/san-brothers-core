@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, X, Send, Minimize2, Maximize2 } from "lucide-react";
+import { ArrowRight, Sparkles, X, Send, Minimize2, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -54,13 +54,32 @@ export function AIChatWidget() {
 
   // Get portal-specific configuration
   const getSystemPromptConfig = (): SystemPromptConfig => {
-    const basePrompt = `You are a helpful assistant for San Brothers Company Ltd, a professional services company in Kigali, Rwanda (Florida House, 2nd Floor, KN 70 Street).
-Contact: +250 788 687 288, +250 788 453 192, sanbrothersgroup@gmail.com
-Hours: Mon-Fri 8:00-18:00 CAT
+    const basePrompt = `You are a knowledgeable, professional, and friendly AI assistant for San Brothers Company Ltd — a professional services firm in Kigali, Rwanda.
 
-Always be helpful, professional, and concise.
-If you cannot help, direct them to contact San Brothers directly.
-Never make up information about services or prices.`;
+COMPANY INFO:
+- Name: San Brothers Company Ltd
+- Location: Florida House, 2nd Floor, KN 70 Street, Kigali, Rwanda
+- Phone: +250 788 687 288, +250 788 453 192
+- China office: +86 155 7739 0044
+- Email: sanbrothersgroup@gmail.com
+- Hours: Mon–Fri, 8:00–18:00 CAT
+- Website: san-brothers.aroi-dev00.workers.dev
+
+SERVICES:
+1. Visa & Permits: Tourist Visa (from RWF 45,000), Business Visa (from RWF 65,000), Student Visa (from RWF 50,000), Work Permit (from RWF 120,000)
+2. Accounting: Bookkeeping (from RWF 35,000/mo), Tax Filing (from RWF 40,000), Financial Reporting (from RWF 55,000), Audit Support (from RWF 70,000)
+3. Translation: Document Translation (from RWF 8,000/page), Legal Translation (from RWF 15,000/page), Live Interpreter (from $0.80/min), Multilingual Support (from RWF 80,000/mo)
+4. Business Consultancy: Company Registration (from RWF 150,000), Business Planning (from RWF 200,000), Trade Advisory (from RWF 100,000), Admin Support (from RWF 45,000/mo)
+
+LANGUAGES: English, Chinese (中文), Kinyarwanda, French, Arabic
+PARTNER: Best of the Best Company Ltd — China sourcing, product shipping, scholarships
+
+RULES:
+- Be concise and helpful. Max 3 sentences per reply unless user asks for details.
+- Always recommend creating an account at /auth/register for specific quotes.
+- For urgent/specific cases: direct to sanbrothersgroup@gmail.com or call.
+- Never invent prices beyond what is listed above. Say "contact us for exact pricing" for custom quotes.
+- Be warm but professional. Use the user's language if they write in French, Chinese, or Kinyarwanda.`;
 
     switch (currentPortal) {
       case "translate":
@@ -109,6 +128,7 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
   };
 
   const config = getSystemPromptConfig();
+  const apiConfigured = Boolean(import.meta.env.VITE_ANTHROPIC_API_KEY && import.meta.env.VITE_ANTHROPIC_API_KEY !== "your-key-here");
 
   // Initialize with greeting message
   useEffect(() => {
@@ -173,7 +193,7 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
           "anthropic-dangerous-direct-browser-access": "true",
         },
         body: JSON.stringify({
-          model: "claude-3-5-haiku-20241022",
+          model: "claude-sonnet-4-20250514",
           max_tokens: 1024,
           system: config.systemPrompt,
           messages: conversationHistory,
@@ -230,31 +250,35 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
             setIsOpen(true);
             setHasUnread(false);
           }}
-          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all hover:scale-110 hover:shadow-xl"
+          className="chat-launcher fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-primary px-3 py-2.5 text-primary-foreground shadow-lg transition-all hover:scale-105 hover:shadow-xl sm:px-4"
           aria-label="Open chat"
         >
-          <div className="relative">
-            <MessageCircle className="h-6 w-6" />
+          <div className="relative grid h-8 w-8 place-items-center rounded-full bg-primary-foreground/15">
+            <Sparkles className="h-4 w-4" />
             {hasUnread && (
-              <div className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-red-500 animate-pulse" />
+              <span className="absolute -right-1 -top-1 flex h-3 w-3"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75" /><span className="relative inline-flex h-3 w-3 rounded-full bg-destructive" /></span>
             )}
           </div>
+          <span className="hidden font-bold min-[360px]:inline">Ask AI</span>
         </button>
       )}
 
       {/* Chat Panel */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 flex h-[500px] w-full max-w-[400px] flex-col rounded-lg border border-border bg-card shadow-xl">
+        <div className="fixed bottom-0 right-0 z-50 flex h-[min(650px,100dvh)] w-full flex-col overflow-hidden border border-border bg-background shadow-2xl sm:bottom-6 sm:right-6 sm:max-w-[400px] sm:rounded-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-border bg-primary p-4 text-primary-foreground">
-            <div className="flex-1">
-              <h3 className="font-semibold">San Brothers Assistant</h3>
-              <p className="text-xs opacity-90">{currentPortal}</p>
+          <div className="chat-header relative flex items-center justify-between bg-gradient-to-r from-primary to-primary/80 p-4 text-primary-foreground">
+            <div className="flex flex-1 items-center gap-3">
+              <div className="grid h-9 w-9 place-items-center rounded-full bg-primary-foreground/15"><Sparkles className="h-4 w-4" /></div>
+              <div>
+                <h3 className="flex items-center gap-2 font-bold">San Brothers AI <span className="h-2 w-2 rounded-full bg-success" /><span className="text-[10px] font-medium opacity-80">Online</span></h3>
+                <p className="text-xs opacity-70">Powered by Claude · {currentPortal}</p>
+              </div>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setIsMinimized(!isMinimized)}
-                className="rounded p-1 hover:bg-primary/80"
+                className="rounded-full p-2 hover:bg-primary-foreground/10"
                 aria-label={isMinimized ? "Maximize" : "Minimize"}
               >
                 {isMinimized ? (
@@ -268,7 +292,7 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
                   setIsOpen(false);
                   setMessages([]);
                 }}
-                className="rounded p-1 hover:bg-primary/80"
+                className="rounded-full p-2 hover:bg-primary-foreground/10"
                 aria-label="Close chat"
               >
                 <X className="h-4 w-4" />
@@ -279,22 +303,25 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
           {/* Messages Area */}
           {!isMinimized && (
             <>
-              <div className="flex-1 overflow-y-auto space-y-4 p-4">
+              <div className="flex-1 space-y-4 overflow-y-auto p-4">
+                {!apiConfigured && messages.length <= 1 ? <div className="rounded-lg border border-consultancy/30 bg-consultancy/10 px-3 py-2 text-xs text-foreground">⚠ AI assistant not yet configured. <a className="font-semibold text-primary underline" href="/contact">Contact us</a></div> : null}
                 {messages.map((message, index) => (
                   <div
                     key={index}
-                    className={`flex ${
+                    className={`group flex items-start gap-2 ${
                       message.role === "user" ? "justify-end" : "justify-start"
                     }`}
                   >
+                    {message.role === "assistant" ? <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-[10px] font-black text-primary-foreground">SB</div> : null}
                     <div
-                      className={`max-w-xs rounded-lg px-4 py-2 ${
+                      className={`max-w-[85%] rounded-2xl px-4 py-2 ${
                         message.role === "user"
                           ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-foreground"
+                          : "rounded-tl-sm border border-border bg-card text-foreground shadow-sm"
                       }`}
                     >
                       <p className="text-sm">{message.content}</p>
+                      <span className="mt-1 hidden text-[9px] opacity-60 group-hover:block">Just now</span>
                     </div>
                   </div>
                 ))}
@@ -302,27 +329,30 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
                 {/* Typing Indicator */}
                 {isLoading && (
                   <div className="flex justify-start">
-                    <div className="rounded-lg bg-muted px-4 py-2">
+                    <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-2">
                       <div className="flex gap-1">
                         <div className="h-2 w-2 rounded-full bg-foreground animate-bounce" />
                         <div className="h-2 w-2 rounded-full bg-foreground animate-bounce delay-100" />
                         <div className="h-2 w-2 rounded-full bg-foreground animate-bounce delay-200" />
                       </div>
+                      <span className="text-xs text-muted-foreground">San Brothers is typing...</span>
                     </div>
                   </div>
                 )}
 
                 {/* Quick Actions (shown after greeting) */}
                 {messages.length === 1 && !isLoading && (
-                  <div className="flex flex-wrap gap-2 pt-2">
+                  <div className="space-y-2 pt-2">
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Quick questions:</p>
                     {config.quickActions.map((action) => (
-                      <button
+                      <Button
                         key={action}
+                        variant="outline"
                         onClick={() => handleQuickAction(action)}
-                        className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground hover:bg-secondary/80 transition-colors"
+                        className="group h-auto w-full justify-between rounded-xl border-border bg-card px-3 py-2.5 text-xs text-foreground hover:border-primary/30 hover:bg-accent"
                       >
-                        {action}
-                      </button>
+                        {action}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      </Button>
                     ))}
                   </div>
                 )}
@@ -340,17 +370,18 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
                     disabled={isLoading}
-                    className="flex-1"
+                    className="h-11 flex-1 rounded-full border-border px-4 focus-visible:border-primary/30"
                   />
                   <Button
                     onClick={() => sendMessage(inputValue)}
                     disabled={isLoading || !inputValue.trim()}
-                    size="sm"
-                    className="px-3"
+                    size="icon"
+                    className="h-11 w-11 shrink-0 rounded-full"
                   >
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
+                <p className="mt-2 text-center text-[10px] text-muted-foreground">10 message limit · AI may make mistakes · <a href="/contact" className="font-semibold text-primary hover:underline">Contact us</a></p>
               </div>
             </>
           )}
