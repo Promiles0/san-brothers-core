@@ -59,10 +59,7 @@ const methodStyle: Record<string, string> = {
   office: "bg-muted text-muted-foreground border-border",
 };
 
-const statusMeta: Record<
-  string,
-  { label: string; cls: string; icon: typeof CheckCircle2 }
-> = {
+const statusMeta: Record<string, { label: string; cls: string; icon: typeof CheckCircle2 }> = {
   completed: {
     label: "Completed",
     cls: "bg-green-500/15 text-green-600 dark:text-green-400 border-green-500/30",
@@ -217,9 +214,7 @@ function PaymentsPage() {
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 animate-in fade-in duration-300">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t("dashboard.payments.title")}
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("dashboard.payments.title")}</h1>
           <p className="text-sm text-muted-foreground">Your payments and billing history</p>
         </div>
         <Button variant="outline" size="sm" onClick={exportCsv} disabled={!rows?.length}>
@@ -232,11 +227,7 @@ function PaymentsPage() {
         <StatCard
           icon={Wallet}
           label="Total Paid"
-          value={
-            rows === null
-              ? "…"
-              : `$${stats.totalUsd.toLocaleString()}`
-          }
+          value={rows === null ? "…" : `$${stats.totalUsd.toLocaleString()}`}
           sub={rows === null ? "" : `${stats.totalRwf.toLocaleString()} RWF`}
           accent="border-l-green-500"
           loading={rows === null}
@@ -381,13 +372,7 @@ function PaymentsPage() {
                           ≈ {r.amount_rwf.toLocaleString()} RWF
                         </div>
                       </div>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "gap-1 border capitalize",
-                          sm.cls,
-                        )}
-                      >
+                      <Badge variant="outline" className={cn("gap-1 border capitalize", sm.cls)}>
                         <StatusIcon className="h-3 w-3" /> {sm.label}
                       </Badge>
                       <Button

@@ -16,12 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { StatusBadge } from "@/lib/dashboard/status-badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/providers/i18n-provider";
@@ -55,7 +50,11 @@ function fileMeta(name: string) {
   if (["png", "jpg", "jpeg", "webp", "gif", "heic"].includes(ext))
     return { Icon: FileImage, color: "text-blue-500 bg-blue-500/10", kind: "image" as const };
   if (["xls", "xlsx", "csv"].includes(ext))
-    return { Icon: FileSpreadsheet, color: "text-emerald-500 bg-emerald-500/10", kind: "sheet" as const };
+    return {
+      Icon: FileSpreadsheet,
+      color: "text-emerald-500 bg-emerald-500/10",
+      kind: "sheet" as const,
+    };
   if (["doc", "docx"].includes(ext))
     return { Icon: FileText, color: "text-blue-600 bg-blue-600/10", kind: "doc" as const };
   return { Icon: FileIcon, color: "text-muted-foreground bg-muted", kind: "other" as const };
@@ -165,9 +164,7 @@ function DocumentsPage() {
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 animate-in fade-in duration-300">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t("dashboard.documents.title")}
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("dashboard.documents.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("dashboard.documents.subtitle")}</p>
         </div>
       </div>
@@ -186,9 +183,7 @@ function DocumentsPage() {
         }}
         className={cn(
           "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-center transition",
-          dragOver
-            ? "border-primary bg-primary/5"
-            : "border-border bg-muted/30 hover:bg-muted/50",
+          dragOver ? "border-primary bg-primary/5" : "border-border bg-muted/30 hover:bg-muted/50",
         )}
       >
         <UploadCloud className="h-8 w-8 text-muted-foreground" />
@@ -293,11 +288,21 @@ function DocumentsPage() {
                     </div>
                     <StatusBadge status={d.status} />
                     {previewable && (
-                      <Button size="icon" variant="ghost" onClick={() => openPreview(d)} title="Preview">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => openPreview(d)}
+                        title="Preview"
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
                     )}
-                    <Button size="icon" variant="ghost" onClick={() => download(d)} title="Download">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => download(d)}
+                      title="Download"
+                    >
                       <Download className="h-4 w-4" />
                     </Button>
                   </div>

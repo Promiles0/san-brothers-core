@@ -43,9 +43,7 @@ function MessagesPage() {
     setLoading(true);
     const { data, error } = await supabase
       .from("conversations")
-      .select(
-        "id,client_id,department,claimed_by,last_message_at,status,priority",
-      )
+      .select("id,client_id,department,claimed_by,last_message_at,status,priority")
       .eq("client_id", user.id)
       .order("last_message_at", { ascending: false });
     if (error) {
@@ -91,8 +89,7 @@ function MessagesPage() {
       });
     }
     setRows(list);
-    if (!selectedId && list.length > 0 && window.innerWidth >= 768)
-      setSelectedId(list[0].id);
+    if (!selectedId && list.length > 0 && window.innerWidth >= 768) setSelectedId(list[0].id);
     setLoading(false);
   };
 
@@ -188,10 +185,7 @@ function MessagesPage() {
         <Card className="grid h-full min-h-0 grid-cols-1 overflow-hidden md:grid-cols-[320px_1fr]">
           {/* List */}
           <div
-            className={cn(
-              "min-h-0 border-r",
-              mobileView === "chat" ? "hidden md:block" : "block",
-            )}
+            className={cn("min-h-0 border-r", mobileView === "chat" ? "hidden md:block" : "block")}
           >
             <div className="flex items-center justify-between border-b px-3 py-2 md:hidden">
               <h2 className="text-base font-semibold">Messages</h2>
@@ -209,12 +203,7 @@ function MessagesPage() {
           </div>
 
           {/* Chat */}
-          <div
-            className={cn(
-              "min-h-0",
-              mobileView === "list" ? "hidden md:block" : "block",
-            )}
-          >
+          <div className={cn("min-h-0", mobileView === "list" ? "hidden md:block" : "block")}>
             {selected && selectedDep ? (
               <ChatWindow
                 conversationId={selected.id}

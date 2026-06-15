@@ -1,6 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, Plus, Trash2, DollarSign, Package } from "lucide-react";
+import {
+  Copy,
+  Edit3,
+  GripVertical,
+  Loader2,
+  Plus,
+  Trash2,
+  DollarSign,
+  Package,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -20,15 +30,14 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  getInterpreterPricing,
-  updateInterpreterPricing,
-} from "@/lib/pricing/interpreter-rates";
+import { getInterpreterPricing, updateInterpreterPricing } from "@/lib/pricing/interpreter-rates";
 import {
   getAllMinutePackages,
   createMinutePackage,
@@ -62,6 +71,81 @@ const emptyForm: PackageForm = {
   active: true,
 };
 
+const RWF_PER_USD = 1285;
+
+const SERVICE_PRICES = {
+  visa: [
+    { name: "Tourist Visa", key: "tourist-visa", price: "From 80,000 RWF", intent: "tourist-visa" },
+    {
+      name: "Student Visa",
+      key: "student-visa",
+      price: "From 150,000 RWF",
+      intent: "student-visa",
+    },
+    { name: "Work Permit", key: "work-permit", price: "From 200,000 RWF", intent: "work-permit" },
+  ],
+  accounting: [
+    { name: "Starter", key: "bookkeeping", price: "From 50,000 RWF / mo", intent: "bookkeeping" },
+    { name: "Standard", key: "tax-filing", price: "From 120,000 RWF / mo", intent: "tax-filing" },
+    {
+      name: "Premium",
+      key: "tax-compliance",
+      price: "From 250,000 RWF / mo",
+      intent: "tax-compliance",
+    },
+  ],
+  consultancy: [
+    {
+      name: "Company Registration",
+      key: "company-registration",
+      price: "From 180,000 RWF",
+      intent: "company-registration",
+    },
+    {
+      name: "Business Plan",
+      key: "business-planning",
+      price: "From 350,000 RWF",
+      intent: "business-planning",
+    },
+    {
+      name: "Investor Advisory",
+      key: "trade-investment",
+      price: "Custom quote",
+      intent: "trade-investment",
+    },
+  ],
+  translation: [
+    {
+      name: "Document (per page)",
+      key: "document-translation",
+      price: "From 8,000 RWF",
+      intent: "document-translation",
+    },
+    {
+      name: "Live Interpreter",
+      key: "live-interpreter",
+      price: "From 1,500 RWF / min",
+      intent: "live-interpreter",
+    },
+    {
+      name: "Legal Translation",
+      key: "legal-translation",
+      price: "From 12,000 RWF / page",
+      intent: "legal-translation",
+    },
+  ],
+};
+
+const CATEGORY_BADGES: Record<keyof typeof SERVICE_PRICES, string> = {
+  visa: "bg-blue-500/10 text-blue-500",
+  accounting: "bg-emerald-500/10 text-emerald-500",
+  consultancy: "bg-amber-500/10 text-amber-600 dark:text-amber-300",
+  translation: "bg-purple-500/10 text-purple-500",
+};
+
+type ServiceCategory = keyof typeof SERVICE_PRICES;
+type ServicePrice = (typeof SERVICE_PRICES)[ServiceCategory][number];
+
 function AdminPricing() {
   const { profile } = useAuth();
   const [clientRate, setClientRate] = useState("1.00");
@@ -75,6 +159,11 @@ function AdminPricing() {
   const [editingPackage, setEditingPackage] = useState<MinutePackage | null>(null);
   const [packageForm, setPackageForm] = useState<PackageForm>(emptyForm);
   const [savingPackage, setSavingPackage] = useState(false);
+  const [rateUpdatedAt, setRateUpdatedAt] = useState<string | null>(null);
+  const [editingService, setEditingService] = useState<
+    (ServicePrice & { category: ServiceCategory; index: number }) | null
+  >(null);
+  const [draftServicePrice, setDraftServicePrice] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -95,6 +184,15 @@ function AdminPricing() {
       } finally {
         setLoadingPackages(false);
       }
+      const { data: latestRateAudit } = await supabase
+        .from("audit_log")
+        .select("created_at")
+        .eq("action", "pricing_updated")
+        .order("created_at", { ascending: false })
+        .limit(1);
+      setRateUpdatedAt(
+        (latestRateAudit?.[0] as { created_at: string } | undefined)?.created_at ?? null,
+      );
     })();
   }, []);
 
@@ -213,7 +311,31 @@ function AdminPricing() {
     setPackageDialog(true);
   };
 
+  const duplicatePackage = (pkg: MinutePackage) => {
+    setEditingPackage(null);
+    setPackageForm({
+      name: `Copy of ${pkg.name}`,
+      minutes: pkg.minutes,
+      price_usd: pkg.price_usd,
+      is_popular: false,
+      is_free_trial: pkg.is_free_trial,
+      free_minutes: pkg.free_minutes,
+      active: pkg.active,
+    });
+    setPackageDialog(true);
+  };
+
   const commission = (parseFloat(clientRate) || 0) - (parseFloat(staffRate) || 0);
+  const client = parseFloat(clientRate) || 0;
+  const staff = parseFloat(staffRate) || 0;
+  const staffPct = client > 0 ? Math.round((staff / client) * 100) : 0;
+  const companyPct = Math.max(0, 100 - staffPct);
+  const sortedPackages = [...packages].sort((a, b) => a.display_order - b.display_order);
+  const activePackages = packages.filter((pkg) => pkg.active);
+  const avgPrice =
+    activePackages.length > 0
+      ? activePackages.reduce((acc, pkg) => acc + pkg.price_usd, 0) / activePackages.length
+      : 0;
 
   return (
     <div className="space-y-6">
@@ -232,8 +354,8 @@ function AdminPricing() {
             Interpreter Call Rates
           </CardTitle>
           <CardDescription>
-            Per-minute rates for live interpreter calls. Commission is the difference between
-            client and staff rates.
+            Per-minute rates for live interpreter calls. Commission is the difference between client
+            and staff rates.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -255,6 +377,9 @@ function AdminPricing() {
                       disabled={savingRates}
                     />
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    ≈ RWF {(client * RWF_PER_USD).toLocaleString("en-US")} per minute
+                  </p>
                 </div>
                 <div className="space-y-1.5">
                   <Label>Staff Rate (USD/minute)</Label>
@@ -269,18 +394,35 @@ function AdminPricing() {
                       disabled={savingRates}
                     />
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    ≈ RWF {(staff * RWF_PER_USD).toLocaleString("en-US")} per minute
+                  </p>
                 </div>
               </div>
               <div className="rounded-lg border bg-muted/30 p-4">
                 <p className="text-sm">
                   Company commission per minute:{" "}
-                  <span className="font-bold text-primary">
-                    ${commission.toFixed(2)}
-                  </span>
+                  <span className="font-bold text-primary">${commission.toFixed(2)}</span>
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Staff earns the staff rate. Company keeps the difference.
                 </p>
+                <div className="mt-4 overflow-hidden rounded-full bg-muted">
+                  <div className="flex h-3 w-full">
+                    <div className="bg-blue-500" style={{ width: `${staffPct}%` }} />
+                    <div className="bg-emerald-500" style={{ width: `${companyPct}%` }} />
+                  </div>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                  <span>Staff: {staffPct}%</span>
+                  <span>Company: {companyPct}%</span>
+                  <span>
+                    Last updated:{" "}
+                    {rateUpdatedAt
+                      ? new Date(rateUpdatedAt).toLocaleDateString()
+                      : "No audit entry yet"}
+                  </span>
+                </div>
               </div>
               <Button onClick={handleSaveRates} disabled={savingRates}>
                 {savingRates && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -288,6 +430,93 @@ function AdminPricing() {
               </Button>
             </>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Edit3 className="h-4 w-4 text-primary" />
+            Service Pricing Reference
+          </CardTitle>
+          <CardDescription>
+            These prices appear on the public /pricing page. To update, edit src/messages/en.json
+            {" -> "}pricing.plans.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-300">
+            To change public prices: update the price field in src/messages/en.json under
+            pricing.plans.[category][n].price and redeploy.
+          </div>
+          <Tabs defaultValue="visa">
+            <TabsList className="flex h-auto flex-wrap justify-start gap-2 bg-transparent p-0">
+              {(Object.keys(SERVICE_PRICES) as ServiceCategory[]).map((category) => (
+                <TabsTrigger
+                  key={category}
+                  value={category}
+                  className="rounded-full border border-border bg-card px-4 py-2 capitalize data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
+                  {category}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {(Object.keys(SERVICE_PRICES) as ServiceCategory[]).map((category) => (
+              <TabsContent key={category} value={category}>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Service Name</TableHead>
+                      <TableHead>Current Price Display</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Link to Apply</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {SERVICE_PRICES[category].map((service, index) => (
+                      <TableRow key={service.key}>
+                        <TableCell className="font-medium">{service.name}</TableCell>
+                        <TableCell>
+                          {editingService?.key === service.key &&
+                          draftServicePrice !== service.price ? (
+                            <span className="inline-flex items-center gap-2">
+                              {draftServicePrice}
+                              <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300">
+                                unsaved
+                              </Badge>
+                            </span>
+                          ) : (
+                            service.price
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={`capitalize ${CATEGORY_BADGES[category]}`}>
+                            {category}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-mono text-xs text-muted-foreground">
+                          pricing.plans.{category}.{index}.price
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingService({ ...service, category, index });
+                              setDraftServicePrice(service.price);
+                            }}
+                          >
+                            Edit
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+            ))}
+          </Tabs>
         </CardContent>
       </Card>
 
@@ -323,16 +552,18 @@ function AdminPricing() {
                   <TableHead>Name</TableHead>
                   <TableHead>Minutes</TableHead>
                   <TableHead>Price (USD)</TableHead>
+                  <TableHead>Price/min</TableHead>
                   <TableHead>Popular</TableHead>
                   <TableHead>Active</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {packages.map((pkg) => (
+                {sortedPackages.map((pkg) => (
                   <TableRow key={pkg.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
+                        <GripVertical className="h-4 w-4 text-muted-foreground" />
                         {pkg.name}
                         {pkg.is_free_trial && (
                           <Badge variant="secondary" className="text-[10px]">
@@ -343,6 +574,9 @@ function AdminPricing() {
                     </TableCell>
                     <TableCell className="tabular-nums">{pkg.minutes}</TableCell>
                     <TableCell className="tabular-nums">${pkg.price_usd.toFixed(2)}</TableCell>
+                    <TableCell className="tabular-nums">
+                      ${pkg.minutes > 0 ? (pkg.price_usd / pkg.minutes).toFixed(2) : "0.00"}
+                    </TableCell>
                     <TableCell>
                       {pkg.is_popular ? (
                         <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300">
@@ -376,6 +610,9 @@ function AdminPricing() {
                         >
                           Edit
                         </Button>
+                        <Button variant="ghost" size="sm" onClick={() => duplicatePackage(pkg)}>
+                          Duplicate
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -387,6 +624,12 @@ function AdminPricing() {
                     </TableCell>
                   </TableRow>
                 ))}
+                <TableRow>
+                  <TableCell colSpan={7} className="text-sm text-muted-foreground">
+                    Total active packages: {activePackages.length} | Avg price: $
+                    {avgPrice.toFixed(2)}
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           )}
@@ -481,6 +724,55 @@ function AdminPricing() {
               {savingPackage && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Package
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!editingService} onOpenChange={(open) => !open && setEditingService(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit service price text</DialogTitle>
+            <DialogDescription>
+              This is local guidance only. Copy the JSON path and snippet into src/messages/en.json.
+            </DialogDescription>
+          </DialogHeader>
+          {editingService && (
+            <div className="space-y-4">
+              <div>
+                <Label>Service</Label>
+                <Input value={editingService.name} readOnly />
+              </div>
+              <div>
+                <Label>Price text</Label>
+                <Input
+                  value={draftServicePrice}
+                  onChange={(e) => setDraftServicePrice(e.target.value)}
+                />
+              </div>
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground">JSON path</p>
+                <code className="mt-1 block text-xs">
+                  pricing.plans.{editingService.category}.{editingService.index}.price
+                </code>
+                <pre className="mt-3 overflow-auto rounded bg-background p-3 text-xs">{`"price": "${draftServicePrice}"`}</pre>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (!editingService) return;
+                void navigator.clipboard.writeText(
+                  `pricing.plans.${editingService.category}.${editingService.index}.price`,
+                );
+                toast.success("JSON path copied");
+              }}
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              Copy JSON path
+            </Button>
+            <Button onClick={() => setEditingService(null)}>Done</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

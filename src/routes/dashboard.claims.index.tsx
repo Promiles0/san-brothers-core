@@ -60,7 +60,10 @@ const reasonIcon = (r: string) => {
   }
 };
 
-const statusStyle: Record<string, { border: string; badge: string; label: string; pulse?: boolean }> = {
+const statusStyle: Record<
+  string,
+  { border: string; badge: string; label: string; pulse?: boolean }
+> = {
   open: {
     border: "border-l-red-500",
     badge: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30",
@@ -182,9 +185,7 @@ function ClaimsList() {
                         {t(`dashboard.claims.reason.${r.reason_category}`)}
                       </div>
                       {svcName && (
-                        <div className="text-xs text-muted-foreground">
-                          Related to: {svcName}
-                        </div>
+                        <div className="text-xs text-muted-foreground">Related to: {svcName}</div>
                       )}
                     </div>
                   </div>
@@ -235,9 +236,7 @@ function ClaimsList() {
             <ShieldAlert className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              {t("dashboard.claims.title")}
-            </h1>
+            <h1 className="text-2xl font-bold tracking-tight">{t("dashboard.claims.title")}</h1>
             <p className="text-sm text-muted-foreground">Claims & disputes</p>
           </div>
         </div>
@@ -251,9 +250,7 @@ function ClaimsList() {
       <Tabs defaultValue="open">
         <TabsList>
           <TabsTrigger value="open" className="gap-1.5">
-            {rows && counts.open > 0 && (
-              <AlertOctagon className="h-3.5 w-3.5 text-red-500" />
-            )}
+            {rows && counts.open > 0 && <AlertOctagon className="h-3.5 w-3.5 text-red-500" />}
             {t("dashboard.claims.tab.open")} ({counts.open})
           </TabsTrigger>
           <TabsTrigger value="resolved">

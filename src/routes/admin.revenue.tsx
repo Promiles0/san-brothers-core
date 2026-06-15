@@ -77,13 +77,15 @@ function AdminRevenue() {
       const [{ data: pays }, { data: cs }] = await Promise.all([
         supabase
           .from("payments")
-          .select("id,amount_rwf,method,status,created_at,reference,service_request_id,client:client_id(full_name,email)")
+          .select(
+            "id,amount_rwf,method,status,created_at,reference,service_request_id,client:client_id(full_name,email)",
+          )
           .order("created_at", { ascending: false })
           .limit(1000),
         supabase.from("service_requests").select("id,service_category"),
       ]);
-      setRows(((pays as unknown) as PayRow[]) ?? []);
-      setCases(((cs as unknown) as CaseInfo[]) ?? []);
+      setRows((pays as unknown as PayRow[]) ?? []);
+      setCases((cs as unknown as CaseInfo[]) ?? []);
       setLoading(false);
     })();
   }, []);
@@ -95,8 +97,12 @@ function AdminRevenue() {
     const monthAgo = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
     const weekAgo = new Date(now.getTime() - 7 * 86400 * 1000).toISOString();
     const total = completed.reduce((a, p) => a + (p.amount_rwf ?? 0), 0);
-    const month = completed.filter((p) => p.created_at >= monthAgo).reduce((a, p) => a + (p.amount_rwf ?? 0), 0);
-    const week = completed.filter((p) => p.created_at >= weekAgo).reduce((a, p) => a + (p.amount_rwf ?? 0), 0);
+    const month = completed
+      .filter((p) => p.created_at >= monthAgo)
+      .reduce((a, p) => a + (p.amount_rwf ?? 0), 0);
+    const week = completed
+      .filter((p) => p.created_at >= weekAgo)
+      .reduce((a, p) => a + (p.amount_rwf ?? 0), 0);
     const caseIds = new Set(completed.map((p) => p.service_request_id).filter(Boolean));
     const avgPerCase = caseIds.size > 0 ? total / caseIds.size : 0;
     return { total, month, week, avgPerCase };
@@ -182,16 +188,40 @@ function AdminRevenue() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <CardHeader><CardTitle className="text-base">Revenue — last 12 months</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-base">Revenue — last 12 months</CardTitle>
+          </CardHeader>
           <CardContent className="h-64">
             {mounted && (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={monthlyTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.3} />
                   <XAxis dataKey="month" stroke="currentColor" strokeOpacity={0.3} fontSize={11} />
-                  <YAxis stroke="currentColor" strokeOpacity={0.3} fontSize={11} tickFormatter={(v: number) => v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`} />
-                  <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => fmtUSD(v)} />
-                  <Line type="monotone" dataKey="revenue" stroke="#6366f1" fill="#6366f1" strokeWidth={2} dot={false} />
+                  <YAxis
+                    stroke="currentColor"
+                    strokeOpacity={0.3}
+                    fontSize={11}
+                    tickFormatter={(v: number) =>
+                      v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`
+                    }
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "hsl(var(--popover))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
+                    formatter={(v: number) => fmtUSD(v)}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#6366f1"
+                    fill="#6366f1"
+                    strokeWidth={2}
+                    dot={false}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             )}
@@ -199,15 +229,37 @@ function AdminRevenue() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle className="text-base">Revenue by category</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-base">Revenue by category</CardTitle>
+          </CardHeader>
           <CardContent className="h-64">
             {mounted && (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={byCategory}>
                   <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.3} />
-                  <XAxis dataKey="category" stroke="currentColor" strokeOpacity={0.3} fontSize={11} />
-                  <YAxis stroke="currentColor" strokeOpacity={0.3} fontSize={11} tickFormatter={(v: number) => v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`} />
-                  <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => fmtUSD(v)} />
+                  <XAxis
+                    dataKey="category"
+                    stroke="currentColor"
+                    strokeOpacity={0.3}
+                    fontSize={11}
+                  />
+                  <YAxis
+                    stroke="currentColor"
+                    strokeOpacity={0.3}
+                    fontSize={11}
+                    tickFormatter={(v: number) =>
+                      v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`
+                    }
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "hsl(var(--popover))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
+                    formatter={(v: number) => fmtUSD(v)}
+                  />
                   <Bar dataKey="revenue" fill="#6366f1" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -217,12 +269,20 @@ function AdminRevenue() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle className="text-base">Revenue by payment method</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">Revenue by payment method</CardTitle>
+        </CardHeader>
         <CardContent className="h-64">
           {mounted && byMethod.length > 0 && (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={byMethod} dataKey="value" nameKey="name" outerRadius={90} label={(e) => e.name}>
+                <Pie
+                  data={byMethod}
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={90}
+                  label={(e) => e.name}
+                >
                   {byMethod.map((_, i) => (
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                   ))}
@@ -244,7 +304,9 @@ function AdminRevenue() {
         <CardContent>
           <div className="mb-3 flex flex-wrap gap-2">
             <Select value={methodFilter} onValueChange={setMethodFilter}>
-              <SelectTrigger className="w-40"><SelectValue placeholder="All methods" /></SelectTrigger>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="All methods" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All methods</SelectItem>
                 <SelectItem value="momo">MoMo</SelectItem>
@@ -253,7 +315,9 @@ function AdminRevenue() {
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-40"><SelectValue placeholder="All statuses" /></SelectTrigger>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="All statuses" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All statuses</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
@@ -261,12 +325,24 @@ function AdminRevenue() {
                 <SelectItem value="refunded">Refunded</SelectItem>
               </SelectContent>
             </Select>
-            <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-40" />
-            <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-40" />
+            <Input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-40"
+            />
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-40"
+            />
           </div>
 
           {loading ? (
-            <div className="flex h-32 items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            <div className="flex h-32 items-center justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
           ) : filtered.length === 0 ? (
             <p className="text-sm text-muted-foreground">No payments match the filters.</p>
           ) : (
@@ -284,14 +360,33 @@ function AdminRevenue() {
               <TableBody>
                 {filtered.map((p) => (
                   <TableRow key={p.id}>
-                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{new Date(p.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell className="font-medium">{p.client?.full_name ?? p.client?.email ?? "—"}</TableCell>
-                    <TableCell className="tabular-nums">{fmtUSD(p.amount_rwf ?? 0)}</TableCell>
-                    <TableCell className="capitalize text-muted-foreground">{p.method ?? "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant={p.status === "completed" ? "default" : p.status === "refunded" ? "destructive" : "secondary"} className="capitalize">{p.status}</Badge>
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                      {new Date(p.created_at).toLocaleDateString()}
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">{p.reference ?? "—"}</TableCell>
+                    <TableCell className="font-medium">
+                      {p.client?.full_name ?? p.client?.email ?? "—"}
+                    </TableCell>
+                    <TableCell className="tabular-nums">{fmtUSD(p.amount_rwf ?? 0)}</TableCell>
+                    <TableCell className="capitalize text-muted-foreground">
+                      {p.method ?? "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          p.status === "completed"
+                            ? "default"
+                            : p.status === "refunded"
+                              ? "destructive"
+                              : "secondary"
+                        }
+                        className="capitalize"
+                      >
+                        {p.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">
+                      {p.reference ?? "—"}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

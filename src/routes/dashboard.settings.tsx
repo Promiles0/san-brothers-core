@@ -62,7 +62,8 @@ function SettingsPage() {
   const [busy, setBusy] = useState(false);
   const [smsPhoneNumber, setSmsPhoneNumber] = useState("+250 ");
   const [smsNotificationsEnabled, setSmsNotificationsEnabled] = useState<boolean>(
-    (profile as never as { sms_notifications_enabled?: boolean })?.sms_notifications_enabled ?? false,
+    (profile as never as { sms_notifications_enabled?: boolean })?.sms_notifications_enabled ??
+      false,
   );
   const [smsPreferences, setSmsPreferences] = useState({
     serviceUpdates: true,
@@ -161,9 +162,7 @@ function SettingsPage() {
                 onClick={() => setThemePref(v)}
                 className={cn(
                   "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition hover:bg-accent",
-                  themeCtx.theme === v
-                    ? "border-primary bg-primary/5"
-                    : "border-border",
+                  themeCtx.theme === v ? "border-primary bg-primary/5" : "border-border",
                 )}
               >
                 <Icon className="h-5 w-5" />
@@ -331,9 +330,7 @@ function SettingsPage() {
                   <input
                     type="checkbox"
                     checked={smsPreferences[key as keyof typeof smsPreferences]}
-                    onChange={(e) =>
-                      setSmsPreferences((p) => ({ ...p, [key]: e.target.checked }))
-                    }
+                    onChange={(e) => setSmsPreferences((p) => ({ ...p, [key]: e.target.checked }))}
                     className="h-4 w-4 rounded border-border"
                   />
                   <span>{label}</span>
@@ -380,7 +377,11 @@ function SettingsPage() {
             </div>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="border-destructive/40 text-destructive hover:bg-destructive/10">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-destructive/40 text-destructive hover:bg-destructive/10"
+                >
                   <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete My Account
                 </Button>
               </DialogTrigger>

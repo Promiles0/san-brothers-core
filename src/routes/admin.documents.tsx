@@ -84,7 +84,9 @@ function AdminDocuments() {
     const [{ data: d }, { data: c }, { data: u }] = await Promise.all([
       supabase
         .from("documents")
-        .select("id,file_name,file_path,file_type,file_size_bytes,uploaded_at,service_request_id,client_id")
+        .select(
+          "id,file_name,file_path,file_type,file_size_bytes,uploaded_at,service_request_id,client_id",
+        )
         .order("uploaded_at", { ascending: false }),
       supabase.from("service_requests").select("id,service_category,created_at,client_id"),
       supabase.from("users").select("id,full_name,email"),
@@ -120,8 +122,12 @@ function AdminDocuments() {
         }
       }
       const caseList = Array.from(byCase).map(([cid2, dlist]) => ({
-        case:
-          caseMap.get(cid2) ?? { id: cid2, service_category: "unknown", created_at: "", client_id: cid },
+        case: caseMap.get(cid2) ?? {
+          id: cid2,
+          service_category: "unknown",
+          created_at: "",
+          client_id: cid,
+        },
         docs: dlist,
       }));
       result.push({ client, cases: caseList, unlinkedDocs: unlinked, totalDocs: list.length });
@@ -154,9 +160,10 @@ function AdminDocuments() {
   }, [groups, search]);
 
   const currentGroup = selectedClient ? groups.find((g) => g.client.id === selectedClient) : null;
-  const currentCase = currentGroup && selectedCase
-    ? currentGroup.cases.find((c) => c.case.id === selectedCase)
-    : null;
+  const currentCase =
+    currentGroup && selectedCase
+      ? currentGroup.cases.find((c) => c.case.id === selectedCase)
+      : null;
 
   const visibleDocs: DocRow[] = currentCase
     ? currentCase.docs
@@ -167,6 +174,7 @@ function AdminDocuments() {
   const toggleExpand = (cid: string) =>
     setExpanded((p) => {
       const n = new Set(p);
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       n.has(cid) ? n.delete(cid) : n.add(cid);
       return n;
     });
@@ -174,6 +182,7 @@ function AdminDocuments() {
   const toggleCheck = (id: string) =>
     setChecked((p) => {
       const n = new Set(p);
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       n.has(id) ? n.delete(id) : n.add(id);
       return n;
     });
@@ -211,13 +220,20 @@ function AdminDocuments() {
   };
 
   const zipAllForClient = async (group: ClientGroup) => {
-    const items = [...group.cases.flatMap((c) => c.docs.map((d) => ({ ...d, folder: c.case.service_category }))), ...group.unlinkedDocs];
+    const items = [
+      ...group.cases.flatMap((c) => c.docs.map((d) => ({ ...d, folder: c.case.service_category }))),
+      ...group.unlinkedDocs,
+    ];
     if (items.length === 0) return toast.error("No documents");
     setZipping(true);
     try {
       const name = (group.client.full_name ?? group.client.email).replace(/\s+/g, "_");
       await downloadDocsAsZip(
-        items.map((d) => ({ file_path: d.file_path, file_name: d.file_name, folder: (d as { folder?: string }).folder })),
+        items.map((d) => ({
+          file_path: d.file_path,
+          file_name: d.file_name,
+          folder: (d as { folder?: string }).folder,
+        })),
         `${name}_all_documents`,
       );
       toast.success(`Zipped ${items.length} documents`);
@@ -271,7 +287,11 @@ function AdminDocuments() {
                           className={`group flex items-center gap-1 rounded px-2 py-1.5 text-sm hover:bg-muted/50 ${active ? "bg-muted" : ""}`}
                         >
                           <button onClick={() => toggleExpand(g.client.id)} className="p-0.5">
-                            {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                            {open ? (
+                              <ChevronDown className="h-3.5 w-3.5" />
+                            ) : (
+                              <ChevronRight className="h-3.5 w-3.5" />
+                            )}
                           </button>
                           <button
                             className="flex flex-1 items-center gap-1.5 truncate text-left"
@@ -281,7 +301,11 @@ function AdminDocuments() {
                               setChecked(new Set());
                             }}
                           >
-                            {open ? <FolderOpen className="h-3.5 w-3.5 text-primary" /> : <Folder className="h-3.5 w-3.5 text-primary" />}
+                            {open ? (
+                              <FolderOpen className="h-3.5 w-3.5 text-primary" />
+                            ) : (
+                              <Folder className="h-3.5 w-3.5 text-primary" />
+                            )}
                             <span className="truncate">{g.client.full_name ?? g.client.email}</span>
                             <Badge variant="secondary" className="ml-auto text-[10px]">
                               {g.totalDocs}
@@ -304,7 +328,9 @@ function AdminDocuments() {
                                 >
                                   <Folder className="h-3 w-3" />
                                   <span className="capitalize">{cs.case.service_category}</span>
-                                  <span className="text-muted-foreground">· {cs.case.id.slice(0, 6)}</span>
+                                  <span className="text-muted-foreground">
+                                    · {cs.case.id.slice(0, 6)}
+                                  </span>
                                   <Badge variant="outline" className="ml-auto text-[10px]">
                                     {cs.docs.length}
                                   </Badge>
@@ -330,25 +356,38 @@ function AdminDocuments() {
                 {currentGroup && (
                   <>
                     {" › "}
-                    <span className="text-foreground">{currentGroup.client.full_name ?? currentGroup.client.email}</span>
+                    <span className="text-foreground">
+                      {currentGroup.client.full_name ?? currentGroup.client.email}
+                    </span>
                   </>
                 )}
                 {currentCase && (
                   <>
                     {" › "}
-                    <span className="text-foreground capitalize">{currentCase.case.service_category}</span>
+                    <span className="text-foreground capitalize">
+                      {currentCase.case.service_category}
+                    </span>
                   </>
                 )}
               </div>
               <div className="flex gap-2">
                 {currentGroup && (
-                  <Button size="sm" variant="outline" onClick={() => zipAllForClient(currentGroup)} disabled={zipping}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => zipAllForClient(currentGroup)}
+                    disabled={zipping}
+                  >
                     <Package className="mr-1.5 h-3.5 w-3.5" />
                     Download all for client
                   </Button>
                 )}
                 <Button size="sm" onClick={zipSelected} disabled={zipping || checked.size === 0}>
-                  {zipping ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Download className="mr-1.5 h-3.5 w-3.5" />}
+                  {zipping ? (
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Download className="mr-1.5 h-3.5 w-3.5" />
+                  )}
                   Download selected ({checked.size})
                 </Button>
               </div>
@@ -360,17 +399,23 @@ function AdminDocuments() {
                 Select a client or case from the folder tree to view documents.
               </div>
             ) : visibleDocs.length === 0 ? (
-              <p className="py-10 text-center text-sm text-muted-foreground">No documents in this folder.</p>
+              <p className="py-10 text-center text-sm text-muted-foreground">
+                No documents in this folder.
+              </p>
             ) : (
               <div className="divide-y divide-border rounded border border-border">
                 {visibleDocs.map((d) => (
                   <div key={d.id} className="flex items-center gap-3 px-3 py-2 hover:bg-muted/30">
-                    <Checkbox checked={checked.has(d.id)} onCheckedChange={() => toggleCheck(d.id)} />
+                    <Checkbox
+                      checked={checked.has(d.id)}
+                      onCheckedChange={() => toggleCheck(d.id)}
+                    />
                     <FileText className="h-4 w-4 text-muted-foreground" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{d.file_name ?? "Untitled"}</p>
                       <p className="text-xs text-muted-foreground">
-                        {fmtSize(d.file_size_bytes)} · {new Date(d.uploaded_at).toLocaleDateString()}
+                        {fmtSize(d.file_size_bytes)} ·{" "}
+                        {new Date(d.uploaded_at).toLocaleDateString()}
                       </p>
                     </div>
                     {d.file_type && (

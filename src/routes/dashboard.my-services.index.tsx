@@ -742,7 +742,9 @@ function MyServicesList() {
                 <p className="text-sm text-gray-500">Browse and request your first service!</p>
               </div>
               <Button asChild size="sm">
-                <Link to="/dashboard/services">Browse Services →</Link>
+                <Link to="/dashboard/services" search={undefined}>
+                  Browse Services →
+                </Link>
               </Button>
             </>
           )}

@@ -76,7 +76,9 @@ function AdminServices() {
   const fetchServices = useCallback(async () => {
     const { data, error } = await supabase
       .from("services")
-      .select("id,slug,name_en,name_zh,name_rw,description_en,category,price_min_rwf,price_max_rwf,estimated_days_min,estimated_days_max,is_active")
+      .select(
+        "id,slug,name_en,name_zh,name_rw,description_en,category,price_min_rwf,price_max_rwf,estimated_days_min,estimated_days_max,is_active",
+      )
       .order("sort_order", { ascending: true });
     if (error) toast.error(error.message);
     setServices((data as ServiceRow[]) ?? []);
@@ -105,16 +107,24 @@ function AdminServices() {
     }
   };
 
-  const updatePrice = async (svc: ServiceRow, field: "price_min_rwf" | "price_max_rwf", val: number) => {
+  const updatePrice = async (
+    svc: ServiceRow,
+    field: "price_min_rwf" | "price_max_rwf",
+    val: number,
+  ) => {
     setServices((prev) => prev.map((s) => (s.id === svc.id ? { ...s, [field]: val } : s)));
-    const { error } = await supabase.from("services").update({ [field]: val }).eq("id", svc.id);
+    const { error } = await supabase
+      .from("services")
+      .update({ [field]: val })
+      .eq("id", svc.id);
     if (error) toast.error(error.message);
-    else void logAudit({
-      action: "service_price_updated",
-      target_type: "service",
-      target_id: svc.id,
-      metadata: { service: svc.name_en, field, value: val },
-    });
+    else
+      void logAudit({
+        action: "service_price_updated",
+        target_type: "service",
+        target_id: svc.id,
+        metadata: { service: svc.name_en, field, value: val },
+      });
   };
 
   const handleSave = async () => {
@@ -165,15 +175,21 @@ function AdminServices() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{loading ? "Loading…" : `${services.length} services`}</CardTitle>
+          <CardTitle className="text-base">
+            {loading ? "Loading…" : `${services.length} services`}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <div className="space-y-2">
-              {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
             </div>
           ) : services.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No services yet. Click Add service to create one.</p>
+            <p className="text-sm text-muted-foreground">
+              No services yet. Click Add service to create one.
+            </p>
           ) : (
             <Table>
               <TableHeader>
@@ -195,7 +211,9 @@ function AdminServices() {
                   return (
                     <TableRow key={s.id}>
                       <TableCell className="font-medium">{s.name_en}</TableCell>
-                      <TableCell className="capitalize text-muted-foreground">{s.category}</TableCell>
+                      <TableCell className="capitalize text-muted-foreground">
+                        {s.category}
+                      </TableCell>
                       <TableCell>
                         <span
                           className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${
@@ -233,58 +251,101 @@ function AdminServices() {
             <div className="grid gap-3">
               <div>
                 <Label>Name (English)</Label>
-                <Input value={editing.name_en ?? ""} onChange={(e) => setEditing({ ...editing, name_en: e.target.value })} />
+                <Input
+                  value={editing.name_en ?? ""}
+                  onChange={(e) => setEditing({ ...editing, name_en: e.target.value })}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Name (Chinese)</Label>
-                  <Input value={editing.name_zh ?? ""} onChange={(e) => setEditing({ ...editing, name_zh: e.target.value })} />
+                  <Input
+                    value={editing.name_zh ?? ""}
+                    onChange={(e) => setEditing({ ...editing, name_zh: e.target.value })}
+                  />
                 </div>
                 <div>
                   <Label>Name (Kinyarwanda)</Label>
-                  <Input value={editing.name_rw ?? ""} onChange={(e) => setEditing({ ...editing, name_rw: e.target.value })} />
+                  <Input
+                    value={editing.name_rw ?? ""}
+                    onChange={(e) => setEditing({ ...editing, name_rw: e.target.value })}
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Category</Label>
-                  <Select value={editing.category ?? "visa"} onValueChange={(v) => setEditing({ ...editing, category: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select
+                    value={editing.category ?? "visa"}
+                    onValueChange={(v) => setEditing({ ...editing, category: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       {CATEGORIES.map((c) => (
-                        <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>
+                        <SelectItem key={c} value={c} className="capitalize">
+                          {c}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <Label>Slug</Label>
-                  <Input value={editing.slug ?? ""} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} placeholder="auto from name" />
+                  <Input
+                    value={editing.slug ?? ""}
+                    onChange={(e) => setEditing({ ...editing, slug: e.target.value })}
+                    placeholder="auto from name"
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Min price (RWF)</Label>
-                  <Input type="number" value={editing.price_min_rwf ?? 0} onChange={(e) => setEditing({ ...editing, price_min_rwf: Number(e.target.value) })} />
+                  <Input
+                    type="number"
+                    value={editing.price_min_rwf ?? 0}
+                    onChange={(e) =>
+                      setEditing({ ...editing, price_min_rwf: Number(e.target.value) })
+                    }
+                  />
                 </div>
                 <div>
                   <Label>Max price (RWF)</Label>
-                  <Input type="number" value={editing.price_max_rwf ?? 0} onChange={(e) => setEditing({ ...editing, price_max_rwf: Number(e.target.value) })} />
+                  <Input
+                    type="number"
+                    value={editing.price_max_rwf ?? 0}
+                    onChange={(e) =>
+                      setEditing({ ...editing, price_max_rwf: Number(e.target.value) })
+                    }
+                  />
                 </div>
               </div>
               <div>
                 <Label>Description</Label>
-                <Textarea rows={3} value={editing.description_en ?? ""} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} />
+                <Textarea
+                  rows={3}
+                  value={editing.description_en ?? ""}
+                  onChange={(e) => setEditing({ ...editing, description_en: e.target.value })}
+                />
               </div>
               <div className="flex items-center justify-between">
                 <Label>Active</Label>
-                <Switch checked={editing.is_active ?? true} onCheckedChange={(v) => setEditing({ ...editing, is_active: v })} />
+                <Switch
+                  checked={editing.is_active ?? true}
+                  onCheckedChange={(v) => setEditing({ ...editing, is_active: v })}
+                />
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saving}>{saving ? "Saving…" : "Save"}</Button>
+            <Button variant="outline" onClick={() => setEditing(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving ? "Saving…" : "Save"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

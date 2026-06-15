@@ -20,7 +20,11 @@ function DevPreview() {
       </header>
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-6 px-4 py-16 text-center">
         <a href="/" className="inline-flex">
-          <img src="/sanlogo-Photoroom.png" alt="San Brothers" className="h-14 w-14 object-contain shadow-lg rounded-xl" />
+          <img
+            src="/sanlogo-Photoroom.png"
+            alt="San Brothers"
+            className="h-14 w-14 object-contain shadow-lg rounded-xl"
+          />
         </a>
         <h1 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">Dev Preview</h1>
         <p className="text-balance text-lg text-muted-foreground">Open a dashboard as any role.</p>

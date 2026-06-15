@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
-import { Loader2, UserPlus } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Activity, AlertTriangle, Loader2, Search, Trophy, UserPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -98,6 +98,91 @@ function timeAgo(iso: string) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
+const CAPABILITY_DESCRIPTIONS: Partial<Record<Capability, string>> = {
+  handle_visa: "Can see and manage visa cases",
+  handle_accounting: "Can see and manage accounting cases",
+  handle_translation: "Can see translation cases and documents",
+  handle_live_calls: "Can handle live interpreter call requests",
+  handle_consultancy: "Can see and manage consultancy cases",
+  register_clients_manually: "Can create client accounts manually",
+  handle_claims: "Can view and respond to client claims",
+  approve_visa: "Can approve/reject visa applications",
+  view_financial_reports: "Can access revenue and payment reports",
+  manage_staff: "Can invite, edit, and deactivate staff",
+  manage_pricing: "Can edit interpreter rates and packages",
+  manage_services_catalog: "Can add/edit/disable services",
+  view_audit_log: "Can view the full system audit trail",
+};
+
+const CAPABILITY_GROUPS = [
+  {
+    title: "SERVICE HANDLING",
+    color: "border-l-blue-500 bg-blue-500/5 data-[checked=true]:border-blue-500 data-[checked=true]:bg-blue-500/10",
+    capabilities: [
+      "handle_visa",
+      "handle_accounting",
+      "handle_consultancy",
+      "handle_translation",
+      "handle_live_calls",
+    ] as Capability[],
+  },
+  {
+    title: "CLIENT MANAGEMENT",
+    color: "border-l-emerald-500 bg-emerald-500/5 data-[checked=true]:border-emerald-500 data-[checked=true]:bg-emerald-500/10",
+    capabilities: ["register_clients_manually", "handle_claims", "approve_visa"] as Capability[],
+  },
+  {
+    title: "ADMIN ACCESS",
+    color: "border-l-orange-500 bg-orange-500/5 data-[checked=true]:border-orange-500 data-[checked=true]:bg-orange-500/10",
+    capabilities: [
+      "view_financial_reports",
+      "manage_staff",
+      "manage_pricing",
+      "manage_services_catalog",
+      "view_audit_log",
+    ] as Capability[],
+  },
+];
+
+const PRESET_LABELS: Record<string, string> = {
+  visa_officer: "Visa Officer",
+  accountant: "Accountant",
+  translator: "Translator",
+  manager: "Manager",
+  admin_full: "Full Admin",
+};
+
+function initialsFor(u: UserRow) {
+  const source = u.full_name?.trim() || u.email;
+  const parts = source.split(/\s+/);
+  if (parts.length > 1) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  return source.slice(0, 2).toUpperCase();
+}
+
+function daysSince(iso: string | null | undefined) {
+  if (!iso) return Infinity;
+  return (Date.now() - new Date(iso).getTime()) / (24 * 60 * 60 * 1000);
+}
+
+function roleBadgeClass(role: string) {
+  if (role === "admin") return "bg-red-500/10 text-red-500 hover:bg-red-500/15";
+  if (role === "manager") return "bg-blue-500/10 text-blue-500 hover:bg-blue-500/15";
+  if (role === "translator") return "bg-purple-500/10 text-purple-500 hover:bg-purple-500/15";
+  return "bg-gray-500/10 text-gray-500 dark:text-gray-400 hover:bg-gray-500/15";
+}
+
+function workloadClass(active: number) {
+  if (active > 6) return "bg-red-500";
+  if (active >= 3) return "bg-amber-500";
+  return "bg-emerald-500";
+}
+
+function activeTextClass(days: number) {
+  if (days < 1) return "text-emerald-500";
+  if (days <= 7) return "text-amber-500";
+  return "text-red-400";
+}
+
 function AdminStaff() {
   const { profile } = useAuth();
   const [staff, setStaff] = useState<UserRow[]>([]);
@@ -119,6 +204,10 @@ function AdminStaff() {
     role: "secretary" as StaffRole,
   });
   const [inviting, setInviting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterRole, setFilterRole] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"name" | "cases" | "last_active">("last_active");
 
   const fetchStaff = useCallback(async () => {
     setLoading(true);
@@ -237,6 +326,44 @@ function AdminStaff() {
   };
 
   const selectedStaff = staff.find((s) => s.id === selectedStaffId);
+  const maxActiveCases = Math.max(1, ...staff.map((u) => caseCounts[u.id]?.active ?? 0));
+  const filteredStaff = useMemo(
+    () =>
+      [...staff]
+        .filter(
+          (u) =>
+            (filterRole === "all" || u.role === filterRole) &&
+            (filterStatus === "all" || u.status === filterStatus) &&
+            (searchQuery === "" ||
+              u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              u.email.toLowerCase().includes(searchQuery.toLowerCase())),
+        )
+        .sort((a, b) => {
+          if (sortBy === "cases")
+            return (caseCounts[b.id]?.completed ?? 0) - (caseCounts[a.id]?.completed ?? 0);
+          if (sortBy === "last_active")
+            return (lastActive[b.id] ?? "").localeCompare(lastActive[a.id] ?? "");
+          return (a.full_name ?? a.email).localeCompare(b.full_name ?? b.email);
+        }),
+    [caseCounts, filterRole, filterStatus, lastActive, searchQuery, sortBy, staff],
+  );
+  const topPerformer = useMemo(
+    () =>
+      [...staff].sort(
+        (a, b) => (caseCounts[b.id]?.completed ?? 0) - (caseCounts[a.id]?.completed ?? 0),
+      )[0],
+    [caseCounts, staff],
+  );
+  const mostActive = useMemo(
+    () =>
+      [...staff].sort((a, b) => (caseCounts[b.id]?.active ?? 0) - (caseCounts[a.id]?.active ?? 0))[0],
+    [caseCounts, staff],
+  );
+  const needsAttentionCount = staff.filter(
+    (u) =>
+      daysSince(lastActive[u.id]) > 7 ||
+      ((caseCounts[u.id]?.active ?? 0) === 0 && (caseCounts[u.id]?.completed ?? 0) === 0),
+  ).length;
 
   const toggleStatus = async (u: UserRow) => {
     const next = u.status === "active" ? "inactive" : "active";
@@ -289,6 +416,92 @@ function AdminStaff() {
         </Button>
       </div>
 
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-3">
+        <div className="relative min-w-64 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by name or email..."
+            className="h-9 pl-9"
+          />
+        </div>
+        <Select value={filterRole} onValueChange={setFilterRole}>
+          <SelectTrigger className="h-9 w-40">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Roles</SelectItem>
+            {STAFF_ROLES.map((role) => (
+              <SelectItem key={role} value={role} className="capitalize">
+                {role}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="h-9 w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="invited">Invited</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+          <SelectTrigger className="h-9 w-52">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="last_active">Last Active</SelectItem>
+            <SelectItem value="cases">Most Cases Completed</SelectItem>
+            <SelectItem value="name">Name A-Z</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="ml-auto text-sm text-muted-foreground">
+          {filteredStaff.length} of {staff.length} staff
+        </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="overflow-hidden border-amber-500/20 bg-gradient-to-br from-amber-500/15 to-background">
+          <CardContent className="p-4">
+            <Trophy className="h-5 w-5 text-amber-500" />
+            <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Top Performer
+            </p>
+            <p className="mt-1 font-semibold">{topPerformer?.full_name ?? topPerformer?.email ?? "No staff yet"}</p>
+            <p className="text-xs text-muted-foreground">
+              {topPerformer ? caseCounts[topPerformer.id]?.completed ?? 0 : 0} cases completed
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="overflow-hidden border-blue-500/20 bg-gradient-to-br from-blue-500/15 to-background">
+          <CardContent className="p-4">
+            <Activity className="h-5 w-5 text-blue-500" />
+            <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Most Active
+            </p>
+            <p className="mt-1 font-semibold">{mostActive?.full_name ?? mostActive?.email ?? "No staff yet"}</p>
+            <p className="text-xs text-muted-foreground">
+              {mostActive ? caseCounts[mostActive.id]?.active ?? 0 : 0} active cases
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="overflow-hidden border-red-500/20 bg-gradient-to-br from-red-500/15 to-background">
+          <CardContent className="p-4">
+            <AlertTriangle className="h-5 w-5 text-red-500" />
+            <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Inactive Staff
+            </p>
+            <p className="mt-1 text-2xl font-bold">{needsAttentionCount}</p>
+            <p className="text-xs text-muted-foreground">members need check-in</p>
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Staff members</CardTitle>
@@ -315,31 +528,82 @@ function AdminStaff() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {staff.map((u) => (
+                {filteredStaff.map((u) => {
+                  const activeCases = caseCounts[u.id]?.active ?? 0;
+                  const completedCases = caseCounts[u.id]?.completed ?? 0;
+                  const recentDays = daysSince(lastActive[u.id]);
+                  const workloadWidth = Math.round((activeCases / maxActiveCases) * 100);
+
+                  return (
                   <TableRow key={u.id}>
                     <TableCell className="font-medium">
-                      {u.full_name ?? u.email}
-                      <p className="text-xs text-muted-foreground">{u.email}</p>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                          {initialsFor(u)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate">{u.full_name ?? u.email}</p>
+                          <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+                          <div className="mt-2 h-0.5 w-full rounded-full bg-muted">
+                            <div
+                              className={`h-0.5 rounded-full ${workloadClass(activeCases)}`}
+                              style={{ width: `${workloadWidth}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="capitalize">
+                      <Badge variant="secondary" className={`capitalize ${roleBadgeClass(u.role)}`}>
                         {u.role}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center tabular-nums">
-                      {caseCounts[u.id]?.active ?? 0}
+                      <span className="inline-flex items-center gap-2">
+                        <span
+                          className={`h-2 w-2 rounded-full ${activeCases > 0 ? "bg-emerald-500" : "bg-muted-foreground/40"}`}
+                        />
+                        {activeCases}
+                      </span>
                     </TableCell>
                     <TableCell className="text-center tabular-nums">
-                      {caseCounts[u.id]?.completed ?? 0}
+                      <span className="inline-flex items-center justify-center gap-2">
+                        {completedCases}
+                        {completedCases > 3 && (
+                          <Badge className="bg-amber-500/15 text-[10px] text-amber-600 dark:text-amber-300">
+                            Top performer
+                          </Badge>
+                        )}
+                      </span>
                     </TableCell>
                     <TableCell>
-                      <Switch
-                        checked={u.status === "active"}
-                        onCheckedChange={() => toggleStatus(u)}
-                      />
+                      <div className="flex items-center gap-3">
+                        <Switch
+                          checked={u.status === "active"}
+                          onCheckedChange={() => toggleStatus(u)}
+                        />
+                        <span className="inline-flex items-center gap-1.5 text-xs capitalize text-muted-foreground">
+                          <span
+                            className={`h-2 w-2 rounded-full ${
+                              u.status === "active"
+                                ? "bg-emerald-500"
+                                : u.status === "invited"
+                                  ? "bg-amber-500"
+                                  : "bg-red-500"
+                            }`}
+                          />
+                          {u.status}
+                        </span>
+                      </div>
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {lastActive[u.id] ? timeAgo(lastActive[u.id]!) : "—"}
+                    <TableCell className={`text-xs ${activeTextClass(recentDays)}`}>
+                      {lastActive[u.id] ? (
+                        <span>
+                          {recentDays < 1 ? "● Online recently" : timeAgo(lastActive[u.id]!)}
+                        </span>
+                      ) : (
+                        <span className="text-red-400">No activity</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
@@ -366,7 +630,8 @@ function AdminStaff() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                  );
+                })}
               </TableBody>
             </Table>
           )}
@@ -395,25 +660,6 @@ function AdminStaff() {
               </SelectContent>
             </Select>
 
-            <Select
-              onValueChange={(preset) => {
-                const caps = PRESETS[preset];
-                if (caps) setSelectedCaps(new Set(caps));
-              }}
-              disabled={!selectedStaffId}
-            >
-              <SelectTrigger className="w-56">
-                <SelectValue placeholder="Apply preset" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.keys(PRESETS).map((p) => (
-                  <SelectItem key={p} value={p}>
-                    {p.replace(/_/g, " ")}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
             <Button
               onClick={saveCapabilities}
               disabled={!selectedStaffId || capsSaving}
@@ -434,18 +680,53 @@ function AdminStaff() {
                   </span>
                 </p>
               )}
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {ALL_CAPABILITIES.map((cap) => (
-                  <label
-                    key={cap}
-                    className="flex cursor-pointer items-center gap-2 rounded-md border border-border p-2 text-sm hover:bg-accent"
-                  >
-                    <Checkbox
-                      checked={selectedCaps.has(cap)}
-                      onCheckedChange={() => toggleCap(cap)}
-                    />
-                    <span>{cap.replace(/_/g, " ")}</span>
-                  </label>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(PRESETS).map(([preset, caps]) => {
+                  const active =
+                    caps.length === selectedCaps.size && caps.every((cap) => selectedCaps.has(cap));
+
+                  return (
+                    <Button
+                      key={preset}
+                      type="button"
+                      variant={active ? "default" : "outline"}
+                      size="sm"
+                      className="rounded-full"
+                      onClick={() => setSelectedCaps(new Set(caps))}
+                    >
+                      {PRESET_LABELS[preset]}
+                    </Button>
+                  );
+                })}
+              </div>
+              <div className="grid gap-4 lg:grid-cols-3">
+                {CAPABILITY_GROUPS.map((group) => (
+                  <div key={group.title} className="space-y-2">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      {group.title}
+                    </p>
+                    <div className="space-y-2">
+                      {group.capabilities.map((cap) => {
+                        const checked = selectedCaps.has(cap);
+
+                        return (
+                          <label
+                            key={cap}
+                            data-checked={checked}
+                            className={`flex cursor-pointer gap-3 rounded-md border border-l-4 border-border p-3 text-sm transition-colors hover:bg-accent ${group.color}`}
+                          >
+                            <Checkbox checked={checked} onCheckedChange={() => toggleCap(cap)} />
+                            <span>
+                              <span className="block font-medium">{cap.replace(/_/g, " ")}</span>
+                              <span className="mt-0.5 block text-xs text-muted-foreground">
+                                {CAPABILITY_DESCRIPTIONS[cap]}
+                              </span>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ))}
               </div>
             </>

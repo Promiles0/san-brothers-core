@@ -64,7 +64,15 @@ const DEFAULTS: Settings = {
   payments: { momo_number: "", card_enabled: true, cash_enabled: true },
 };
 
-const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
+const DAYS = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+] as const;
 
 function AdminSettings() {
   const { profile } = useAuth();
@@ -94,7 +102,12 @@ function AdminSettings() {
   const save = async (key: keyof Settings) => {
     setSaving(key);
     const { error } = await supabase.from("company_settings").upsert(
-      { key, value: s[key], updated_by: profile?.id ?? null, updated_at: new Date().toISOString() },
+      {
+        key,
+        value: s[key],
+        updated_by: profile?.id ?? null,
+        updated_at: new Date().toISOString(),
+      },
       { onConflict: "key" },
     );
     setSaving(null);
@@ -107,7 +120,9 @@ function AdminSettings() {
 
   const uploadLogo = async (file: File) => {
     const path = `branding/logo-${Date.now()}-${file.name}`;
-    const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+    const { error: upErr } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true });
     if (upErr) return toast.error(upErr.message);
     const { data } = supabase.storage.from("avatars").getPublicUrl(path);
     setS((p) => ({ ...p, company: { ...p.company, logo_url: data.publicUrl } }));
@@ -133,22 +148,30 @@ function AdminSettings() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Company info</CardTitle>
           <Button size="sm" onClick={() => save("company")} disabled={saving === "company"}>
-            {saving === "company" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+            {saving === "company" ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Save className="h-3.5 w-3.5" />
+            )}
             <span className="ml-1.5">Save</span>
           </Button>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-          {([
-            ["name", "Company name"],
-            ["email", "Contact email"],
-            ["phone", "Phone"],
-            ["website", "Website"],
-          ] as const).map(([k, label]) => (
+          {(
+            [
+              ["name", "Company name"],
+              ["email", "Contact email"],
+              ["phone", "Phone"],
+              ["website", "Website"],
+            ] as const
+          ).map(([k, label]) => (
             <div key={k} className="space-y-1.5">
               <Label>{label}</Label>
               <Input
                 value={s.company[k]}
-                onChange={(e) => setS((p) => ({ ...p, company: { ...p.company, [k]: e.target.value } }))}
+                onChange={(e) =>
+                  setS((p) => ({ ...p, company: { ...p.company, [k]: e.target.value } }))
+                }
               />
             </div>
           ))}
@@ -157,14 +180,20 @@ function AdminSettings() {
             <Textarea
               rows={2}
               value={s.company.address}
-              onChange={(e) => setS((p) => ({ ...p, company: { ...p.company, address: e.target.value } }))}
+              onChange={(e) =>
+                setS((p) => ({ ...p, company: { ...p.company, address: e.target.value } }))
+              }
             />
           </div>
           <div className="sm:col-span-2 space-y-1.5">
             <Label>Logo</Label>
             <div className="flex items-center gap-3">
               {s.company.logo_url && (
-                <img src={s.company.logo_url} alt="logo" className="h-12 w-12 rounded border border-border object-cover" />
+                <img
+                  src={s.company.logo_url}
+                  alt="logo"
+                  className="h-12 w-12 rounded border border-border object-cover"
+                />
               )}
               <Input
                 type="file"
@@ -180,7 +209,11 @@ function AdminSettings() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Working hours</CardTitle>
           <Button size="sm" onClick={() => save("hours")} disabled={saving === "hours"}>
-            {saving === "hours" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+            {saving === "hours" ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Save className="h-3.5 w-3.5" />
+            )}
             <span className="ml-1.5">Save</span>
           </Button>
         </CardHeader>
@@ -204,7 +237,10 @@ function AdminSettings() {
                   disabled={!h.enabled}
                   className="w-32"
                   onChange={(e) =>
-                    setS((p) => ({ ...p, hours: { ...p.hours, [day]: { ...h, open: e.target.value } } }))
+                    setS((p) => ({
+                      ...p,
+                      hours: { ...p.hours, [day]: { ...h, open: e.target.value } },
+                    }))
                   }
                 />
                 <span className="text-muted-foreground">to</span>
@@ -214,7 +250,10 @@ function AdminSettings() {
                   disabled={!h.enabled}
                   className="w-32"
                   onChange={(e) =>
-                    setS((p) => ({ ...p, hours: { ...p.hours, [day]: { ...h, close: e.target.value } } }))
+                    setS((p) => ({
+                      ...p,
+                      hours: { ...p.hours, [day]: { ...h, close: e.target.value } },
+                    }))
                   }
                 />
               </div>
@@ -226,17 +265,27 @@ function AdminSettings() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Notifications</CardTitle>
-          <Button size="sm" onClick={() => save("notifications")} disabled={saving === "notifications"}>
-            {saving === "notifications" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+          <Button
+            size="sm"
+            onClick={() => save("notifications")}
+            disabled={saving === "notifications"}
+          >
+            {saving === "notifications" ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Save className="h-3.5 w-3.5" />
+            )}
             <span className="ml-1.5">Save</span>
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
-          {([
-            ["new_cases", "Email notifications for new cases"],
-            ["payments", "Email notifications for payments"],
-            ["system_alerts", "System alerts"],
-          ] as const).map(([k, label]) => (
+          {(
+            [
+              ["new_cases", "Email notifications for new cases"],
+              ["payments", "Email notifications for payments"],
+              ["system_alerts", "System alerts"],
+            ] as const
+          ).map(([k, label]) => (
             <div key={k} className="flex items-center justify-between">
               <Label htmlFor={k}>{label}</Label>
               <Switch
@@ -255,7 +304,11 @@ function AdminSettings() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Payments</CardTitle>
           <Button size="sm" onClick={() => save("payments")} disabled={saving === "payments"}>
-            {saving === "payments" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+            {saving === "payments" ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Save className="h-3.5 w-3.5" />
+            )}
             <span className="ml-1.5">Save</span>
           </Button>
         </CardHeader>
@@ -264,7 +317,9 @@ function AdminSettings() {
             <Label>MoMo business number</Label>
             <Input
               value={s.payments.momo_number}
-              onChange={(e) => setS((p) => ({ ...p, payments: { ...p.payments, momo_number: e.target.value } }))}
+              onChange={(e) =>
+                setS((p) => ({ ...p, payments: { ...p.payments, momo_number: e.target.value } }))
+              }
             />
           </div>
           <Separator />
@@ -272,14 +327,18 @@ function AdminSettings() {
             <Label>Card payments enabled</Label>
             <Switch
               checked={s.payments.card_enabled}
-              onCheckedChange={(v) => setS((p) => ({ ...p, payments: { ...p.payments, card_enabled: v } }))}
+              onCheckedChange={(v) =>
+                setS((p) => ({ ...p, payments: { ...p.payments, card_enabled: v } }))
+              }
             />
           </div>
           <div className="flex items-center justify-between">
             <Label>Office / cash payments enabled</Label>
             <Switch
               checked={s.payments.cash_enabled}
-              onCheckedChange={(v) => setS((p) => ({ ...p, payments: { ...p.payments, cash_enabled: v } }))}
+              onCheckedChange={(v) =>
+                setS((p) => ({ ...p, payments: { ...p.payments, cash_enabled: v } }))
+              }
             />
           </div>
         </CardContent>

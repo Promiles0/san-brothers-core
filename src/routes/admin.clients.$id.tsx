@@ -79,21 +79,51 @@ function AdminClientDetail() {
 
   useEffect(() => {
     (async () => {
-      const [{ data: c }, { data: r }, { data: p }, { data: d }, { data: a }, { data: u }] = await Promise.all([
-        supabase.from("users").select("id,email,full_name,phone,status,created_at,last_login_at,preferred_language,profile_picture_url").eq("id", id).maybeSingle(),
-        supabase.from("service_requests").select("id,status,service_category,created_at,updated_at,assigned_staff_id,service:services(name_en)").eq("client_id", id).order("created_at", { ascending: false }),
-        supabase.from("payments").select("id,amount_rwf,method,status,created_at").eq("client_id", id).order("created_at", { ascending: false }),
-        supabase.from("documents").select("id,file_name,file_path,file_size_bytes,uploaded_at,service_request_id").eq("client_id", id).order("uploaded_at", { ascending: false }),
-        supabase.from("audit_log").select("id,action,created_at,metadata").eq("target_id", id).order("created_at", { ascending: false }).limit(50),
-        supabase.from("users").select("id,full_name,email").neq("role", "client"),
-      ]);
+      const [{ data: c }, { data: r }, { data: p }, { data: d }, { data: a }, { data: u }] =
+        await Promise.all([
+          supabase
+            .from("users")
+            .select(
+              "id,email,full_name,phone,status,created_at,last_login_at,preferred_language,profile_picture_url",
+            )
+            .eq("id", id)
+            .maybeSingle(),
+          supabase
+            .from("service_requests")
+            .select(
+              "id,status,service_category,created_at,updated_at,assigned_staff_id,service:services(name_en)",
+            )
+            .eq("client_id", id)
+            .order("created_at", { ascending: false }),
+          supabase
+            .from("payments")
+            .select("id,amount_rwf,method,status,created_at")
+            .eq("client_id", id)
+            .order("created_at", { ascending: false }),
+          supabase
+            .from("documents")
+            .select("id,file_name,file_path,file_size_bytes,uploaded_at,service_request_id")
+            .eq("client_id", id)
+            .order("uploaded_at", { ascending: false }),
+          supabase
+            .from("audit_log")
+            .select("id,action,created_at,metadata")
+            .eq("target_id", id)
+            .order("created_at", { ascending: false })
+            .limit(50),
+          supabase.from("users").select("id,full_name,email").neq("role", "client"),
+        ]);
       setClient((c as ClientRow | null) ?? null);
-      setRequests(((r as unknown) as RequestRow[]) ?? []);
-      setPayments(((p as unknown) as PaymentRow[]) ?? []);
-      setDocuments(((d as unknown) as DocRow[]) ?? []);
-      setAudit(((a as unknown) as AuditRow[]) ?? []);
+      setRequests((r as unknown as RequestRow[]) ?? []);
+      setPayments((p as unknown as PaymentRow[]) ?? []);
+      setDocuments((d as unknown as DocRow[]) ?? []);
+      setAudit((a as unknown as AuditRow[]) ?? []);
       const m = new Map<string, string>();
-      for (const su of ((u as unknown) as { id: string; full_name: string | null; email: string }[]) ?? []) {
+      for (const su of (u as unknown as {
+        id: string;
+        full_name: string | null;
+        email: string;
+      }[]) ?? []) {
         m.set(su.id, su.full_name ?? su.email);
       }
       setStaffMap(m);
@@ -103,9 +133,13 @@ function AdminClientDetail() {
 
   const stats = useMemo(() => {
     const total = requests.length;
-    const pending = requests.filter((r) => !["completed", "cancelled", "rejected"].includes(r.status)).length;
+    const pending = requests.filter(
+      (r) => !["completed", "cancelled", "rejected"].includes(r.status),
+    ).length;
     const completed = requests.filter((r) => r.status === "completed").length;
-    const paid = payments.filter((p) => p.status === "completed").reduce((a, p) => a + (p.amount_rwf ?? 0), 0);
+    const paid = payments
+      .filter((p) => p.status === "completed")
+      .reduce((a, p) => a + (p.amount_rwf ?? 0), 0);
     return { total, pending, completed, paid };
   }, [requests, payments]);
 
@@ -142,13 +176,20 @@ function AdminClientDetail() {
   };
 
   if (loading) {
-    return <div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
   }
 
   if (!client) {
     return (
       <div className="space-y-4">
-        <Link to="/admin/clients" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          to="/admin/clients"
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to clients
         </Link>
         <p className="text-sm text-muted-foreground">Client not found.</p>
@@ -158,13 +199,20 @@ function AdminClientDetail() {
 
   return (
     <div className="space-y-6">
-      <Link to="/admin/clients" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        to="/admin/clients"
+        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="h-3.5 w-3.5" /> Back to clients
       </Link>
 
       <div className="flex items-start gap-4">
         {client.profile_picture_url ? (
-          <img src={client.profile_picture_url} alt="" className="h-16 w-16 rounded-full border border-border object-cover" />
+          <img
+            src={client.profile_picture_url}
+            alt=""
+            className="h-16 w-16 rounded-full border border-border object-cover"
+          />
         ) : (
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-lg font-bold text-muted-foreground">
             {(client.full_name ?? client.email).slice(0, 1).toUpperCase()}
@@ -172,10 +220,20 @@ function AdminClientDetail() {
         )}
         <div className="flex-1">
           <h1 className="text-2xl font-bold">{client.full_name ?? client.email}</h1>
-          <p className="text-sm text-muted-foreground">{client.email} {client.phone && `· ${client.phone}`}</p>
-          <p className="text-xs text-muted-foreground">Language: {client.preferred_language ?? "—"} · Joined {new Date(client.created_at).toLocaleDateString()}</p>
+          <p className="text-sm text-muted-foreground">
+            {client.email} {client.phone && `· ${client.phone}`}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Language: {client.preferred_language ?? "—"} · Joined{" "}
+            {new Date(client.created_at).toLocaleDateString()}
+          </p>
         </div>
-        <Badge variant={client.status === "active" ? "default" : "secondary"} className="capitalize">{client.status}</Badge>
+        <Badge
+          variant={client.status === "active" ? "default" : "secondary"}
+          className="capitalize"
+        >
+          {client.status}
+        </Badge>
       </div>
 
       <Tabs defaultValue="overview">
@@ -196,14 +254,18 @@ function AdminClientDetail() {
             ].map((s) => (
               <Card key={s.label}>
                 <CardContent className="p-4">
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground">{s.label}</p>
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                    {s.label}
+                  </p>
                   <p className="mt-1 text-2xl font-bold">{s.value}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
           <Card>
-            <CardHeader><CardTitle className="text-base">Recent activity</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="text-base">Recent activity</CardTitle>
+            </CardHeader>
             <CardContent>
               {audit.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No activity recorded.</p>
@@ -214,7 +276,9 @@ function AdminClientDetail() {
                       <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
                       <div className="flex-1">
                         <p>{a.action}</p>
-                        <p className="text-xs text-muted-foreground">{new Date(a.created_at).toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(a.created_at).toLocaleString()}
+                        </p>
                       </div>
                     </li>
                   ))}
@@ -245,13 +309,25 @@ function AdminClientDetail() {
                     {requests.map((r) => (
                       <TableRow key={r.id}>
                         <TableCell className="font-medium">{r.service?.name_en ?? "—"}</TableCell>
-                        <TableCell className="capitalize text-muted-foreground">{r.service_category}</TableCell>
-                        <TableCell><StatusBadge status={r.status} /></TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {r.assigned_staff_id ? (staffMap.get(r.assigned_staff_id) ?? "—") : <span className="italic">Unassigned</span>}
+                        <TableCell className="capitalize text-muted-foreground">
+                          {r.service_category}
                         </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{new Date(r.updated_at).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <StatusBadge status={r.status} />
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {r.assigned_staff_id ? (
+                            (staffMap.get(r.assigned_staff_id) ?? "—")
+                          ) : (
+                            <span className="italic">Unassigned</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {new Date(r.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {new Date(r.updated_at).toLocaleDateString()}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -264,7 +340,11 @@ function AdminClientDetail() {
         <TabsContent value="documents" className="space-y-3">
           <div className="flex justify-end">
             <Button size="sm" onClick={downloadAll} disabled={zipping || documents.length === 0}>
-              {zipping ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Package className="mr-1.5 h-3.5 w-3.5" />}
+              {zipping ? (
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Package className="mr-1.5 h-3.5 w-3.5" />
+              )}
               Download all documents
             </Button>
           </div>
@@ -274,15 +354,30 @@ function AdminClientDetail() {
               <Card key={caseId}>
                 <CardHeader className="py-3">
                   <CardTitle className="text-sm">
-                    {req ? `${req.service?.name_en ?? req.service_category} · ${caseId.slice(0, 8)}` : "Unlinked documents"}
+                    {req
+                      ? `${req.service?.name_en ?? req.service_category} · ${caseId.slice(0, 8)}`
+                      : "Unlinked documents"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-1">
                   {docs.map((d) => (
-                    <div key={d.id} className="flex items-center gap-3 rounded border border-border px-3 py-1.5 text-sm">
+                    <div
+                      key={d.id}
+                      className="flex items-center gap-3 rounded border border-border px-3 py-1.5 text-sm"
+                    >
                       <span className="flex-1 truncate">{d.file_name ?? "Untitled"}</span>
-                      <span className="text-xs text-muted-foreground">{new Date(d.uploaded_at).toLocaleDateString()}</span>
-                      <Button size="sm" variant="ghost" onClick={() => downloadSingle(d.file_path, d.file_name).catch((e) => toast.error((e as Error).message))}>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(d.uploaded_at).toLocaleDateString()}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() =>
+                          downloadSingle(d.file_path, d.file_name).catch((e) =>
+                            toast.error((e as Error).message),
+                          )
+                        }
+                      >
                         <Download className="h-3.5 w-3.5" />
                       </Button>
                     </div>
@@ -291,7 +386,9 @@ function AdminClientDetail() {
               </Card>
             );
           })}
-          {documents.length === 0 && <p className="text-sm text-muted-foreground">No documents uploaded.</p>}
+          {documents.length === 0 && (
+            <p className="text-sm text-muted-foreground">No documents uploaded.</p>
+          )}
         </TabsContent>
 
         <TabsContent value="activity">
@@ -315,7 +412,9 @@ function AdminClientDetail() {
                         <TableCell className="text-xs text-muted-foreground font-mono">
                           {a.metadata ? JSON.stringify(a.metadata).slice(0, 80) : "—"}
                         </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{new Date(a.created_at).toLocaleString()}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {new Date(a.created_at).toLocaleString()}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

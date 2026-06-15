@@ -1,6 +1,20 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { DollarSign, Activity, Users as UsersIcon, UserCog, ShieldCheck } from "lucide-react";
+import {
+  Activity,
+  ClipboardList,
+  DollarSign,
+  Download,
+  FileClock,
+  Package,
+  ShieldCheck,
+  TrendingDown,
+  TrendingUp,
+  UserCog,
+  UserPlus,
+  Users as UsersIcon,
+  type LucideIcon,
+} from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -15,6 +29,8 @@ import {
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/admin/")({ component: AdminOverview });
 
@@ -37,12 +53,25 @@ function AdminOverview() {
   const { profile } = useAuth();
   const [kpis, setKpis] = useState({
     revenueMonth: 0,
+    lastMonthRevenue: 0,
     activeCases: 0,
     totalClients: 0,
     staffCount: 0,
+    unassignedCases: 0,
   });
   const [casesByCat, setCasesByCat] = useState<{ category: string; count: number }[]>([]);
   const [revenueTrend, setRevenueTrend] = useState<{ date: string; revenue: number }[]>([]);
+  const [recentActivity, setRecentActivity] = useState<
+    {
+      id: string;
+      action: string;
+      target_type: string | null;
+      target_id: string | null;
+      user_id: string | null;
+      created_at: string;
+      staffName?: string;
+    }[]
+  >([]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -53,6 +82,8 @@ function AdminOverview() {
     (async () => {
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
       const start30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
       const startOfWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -63,6 +94,14 @@ function AdminOverview() {
         .gte("created_at", startOfMonth)
         .eq("status", "completed");
       if (e1) console.warn("[admin/overview] payments month:", e1.message);
+
+      const { data: payLastMonth, error: e1b } = await supabase
+        .from("payments")
+        .select("*")
+        .gte("created_at", startOfLastMonth)
+        .lt("created_at", endOfLastMonth)
+        .eq("status", "completed");
+      if (e1b) console.warn("[admin/overview] payments last month:", e1b.message);
 
       // Active cases — use positive IN list to avoid PostgREST not.in quoting issues
       const { count: activeCount, error: e2 } = await supabase
@@ -100,17 +139,64 @@ function AdminOverview() {
         .eq("status", "completed");
       if (e6) console.warn("[admin/overview] payments 30d:", e6.message);
 
+      const { count: unassignedCount, error: e7 } = await supabase
+        .from("service_requests")
+        .select("id", { count: "exact", head: true })
+        .is("assigned_staff_id", null)
+        .not("status", "in", '("completed","cancelled","rejected")');
+      if (e7) console.warn("[admin/overview] unassigned cases:", e7.message);
+
+      const { data: auditRows, error: e8 } = await supabase
+        .from("audit_log")
+        .select("id,action,target_type,target_id,user_id,created_at")
+        .order("created_at", { ascending: false })
+        .limit(8);
+      if (e8) console.warn("[admin/overview] recent activity:", e8.message);
+
+      const userIds = Array.from(
+        new Set(
+          ((auditRows ?? []) as { user_id: string | null }[]).map((r) => r.user_id).filter(Boolean),
+        ),
+      ) as string[];
+      const { data: activityUsers } =
+        userIds.length > 0
+          ? await supabase.from("users").select("id,full_name,email").in("id", userIds)
+          : { data: [] };
+      const userMap = new Map(
+        ((activityUsers ?? []) as { id: string; full_name: string | null; email: string }[]).map(
+          (u) => [u.id, u.full_name ?? u.email],
+        ),
+      );
+
       // --- Compute KPIs ---
       const revenueMonth = (payMonth ?? []).reduce(
         (acc: number, p: { amount_rwf?: number | null }) => acc + (p.amount_rwf ?? 0),
         0,
       );
+      const lastMonthRevenue = (payLastMonth ?? []).reduce(
+        (acc: number, p: { amount_rwf?: number | null }) => acc + (p.amount_rwf ?? 0),
+        0,
+      );
       setKpis({
         revenueMonth,
+        lastMonthRevenue,
         activeCases: activeCount ?? 0,
         totalClients: clientCount ?? 0,
         staffCount: staffCount ?? 0,
+        unassignedCases: unassignedCount ?? 0,
       });
+      setRecentActivity(
+        (
+          (auditRows ?? []) as {
+            id: string;
+            action: string;
+            target_type: string | null;
+            target_id: string | null;
+            user_id: string | null;
+            created_at: string;
+          }[]
+        ).map((row) => ({ ...row, staffName: row.user_id ? userMap.get(row.user_id) : undefined })),
+      );
 
       // --- Cases by category ---
       const catMap: Record<string, number> = {
@@ -140,6 +226,11 @@ function AdminOverview() {
     })();
   }, []);
 
+  const revenueDelta =
+    kpis.lastMonthRevenue > 0
+      ? Math.round(((kpis.revenueMonth - kpis.lastMonthRevenue) / kpis.lastMonthRevenue) * 100)
+      : null;
+
   return (
     <div className="space-y-8">
       <div className="rounded-xl border border-border bg-gradient-to-br from-primary/10 via-background to-background p-6">
@@ -155,31 +246,71 @@ function AdminOverview() {
         </p>
       </div>
 
+      {kpis.unassignedCases > 0 && (
+        <Link
+          to="/admin/cases"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 transition-colors hover:bg-amber-500/15 dark:text-amber-300"
+        >
+          <span className="font-medium">
+            {kpis.unassignedCases} cases are unassigned - assign them now
+          </span>
+          <span className="text-xs font-semibold uppercase tracking-wider">Open cases</span>
+        </Link>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
           icon={DollarSign}
           label="Revenue this month"
           value={fmtUSD(kpis.revenueMonth)}
           accent="from-emerald-500/20 to-emerald-500/0"
+          to="/admin/revenue"
+          trend={revenueDelta}
         />
         <KpiCard
           icon={Activity}
           label="Active cases"
           value={kpis.activeCases.toString()}
           accent="from-blue-500/20 to-blue-500/0"
+          to="/admin/cases"
         />
         <KpiCard
           icon={UsersIcon}
           label="Total clients"
           value={kpis.totalClients.toString()}
           accent="from-violet-500/20 to-violet-500/0"
+          to="/admin/clients"
         />
         <KpiCard
           icon={UserCog}
           label="Staff count"
           value={kpis.staffCount.toString()}
           accent="from-amber-500/20 to-amber-500/0"
+          to="/admin/staff"
         />
+      </div>
+
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Quick Actions
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { label: "Assign Unassigned Cases", to: "/admin/cases", Icon: ClipboardList },
+            { label: "Invite Staff", to: "/admin/staff", Icon: UserPlus },
+            { label: "Update Pricing", to: "/admin/pricing", Icon: DollarSign },
+            { label: "View Audit Log", to: "/admin/audit", Icon: FileClock },
+            { label: "Manage Services", to: "/admin/services", Icon: Package },
+            { label: "Export Revenue", to: "/admin/revenue", Icon: Download },
+          ].map(({ label, to, Icon }) => (
+            <Button key={label} variant="outline" size="sm" asChild>
+              <Link to={to as never} className="gap-2">
+                <Icon className="h-4 w-4" />
+                {label}
+              </Link>
+            </Button>
+          ))}
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -261,8 +392,58 @@ function AdminOverview() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base">Recent Activity</CardTitle>
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/admin/audit">View full audit log</Link>
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {recentActivity.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No recent activity yet.</p>
+          ) : (
+            <div className="divide-y divide-border">
+              {recentActivity.map((entry) => (
+                <div
+                  key={entry.id}
+                  className="grid gap-2 py-3 text-sm md:grid-cols-[150px_1fr_auto] md:items-center"
+                >
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(entry.created_at).toLocaleString()}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{entry.staffName ?? "System"}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {entry.target_type ?? "target"}{" "}
+                      {entry.target_id ? entry.target_id.slice(0, 8) : ""}
+                    </p>
+                  </div>
+                  <Badge className={activityBadgeClass(entry.action)}>
+                    {entry.action.replace(/_/g, " ")}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
+}
+
+function activityBadgeClass(action: string) {
+  if (action === "status_changed") return "bg-blue-500/10 text-blue-500 hover:bg-blue-500/15";
+  if (action === "role_changed") return "bg-purple-500/10 text-purple-500 hover:bg-purple-500/15";
+  if (action === "pricing_updated")
+    return "bg-amber-500/10 text-amber-600 dark:text-amber-300 hover:bg-amber-500/15";
+  if (action === "staff_activated")
+    return "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/15";
+  if (action === "staff_deactivated") return "bg-red-500/10 text-red-500 hover:bg-red-500/15";
+  if (action.startsWith("minute_package_"))
+    return "bg-orange-500/10 text-orange-500 hover:bg-orange-500/15";
+  return "bg-gray-500/10 text-gray-500 dark:text-gray-300 hover:bg-gray-500/15";
 }
 
 function KpiCard({
@@ -270,27 +451,47 @@ function KpiCard({
   label,
   value,
   accent,
+  to,
+  trend,
 }: {
-  icon: typeof DollarSign;
+  icon: LucideIcon;
   label: string;
   value: string;
   accent: string;
+  to: string;
+  trend?: number | null;
 }) {
   return (
-    <Card className="relative overflow-hidden">
-      <div
-        className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${accent}`}
-        aria-hidden
-      />
-      <CardContent className="relative p-5">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {label}
-          </span>
-          <Icon className="h-4 w-4 text-muted-foreground" />
-        </div>
-        <p className="mt-3 text-2xl font-bold tracking-tight">{value}</p>
-      </CardContent>
-    </Card>
+    <Link to={to as never} className="block">
+      <Card className="relative overflow-hidden transition-colors hover:bg-accent/40">
+        <div
+          className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${accent}`}
+          aria-hidden
+        />
+        <CardContent className="relative p-5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {label}
+            </span>
+            <Icon className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <p className="mt-3 text-2xl font-bold tracking-tight">{value}</p>
+          {typeof trend === "number" && (
+            <p
+              className={`mt-2 inline-flex items-center gap-1 text-xs font-medium ${
+                trend >= 0 ? "text-emerald-500" : "text-red-500"
+              }`}
+            >
+              {trend >= 0 ? (
+                <TrendingUp className="h-3.5 w-3.5" />
+              ) : (
+                <TrendingDown className="h-3.5 w-3.5" />
+              )}
+              {Math.abs(trend)}% vs last month
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

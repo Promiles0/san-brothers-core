@@ -1,6 +1,27 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, Check, CircleAlert as AlertCircle, FileText, Download, Upload, Briefcase, Plane, Calculator, Languages, Clock, Calendar, Hash, MessageSquare, ExternalLink, User, ChevronRight, Circle as XCircle, Trash2, Paperclip } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  CircleAlert as AlertCircle,
+  FileText,
+  Download,
+  Upload,
+  Briefcase,
+  Plane,
+  Calculator,
+  Languages,
+  Clock,
+  Calendar,
+  Hash,
+  MessageSquare,
+  ExternalLink,
+  User,
+  ChevronRight,
+  Circle as XCircle,
+  Trash2,
+  Paperclip,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
@@ -77,33 +98,77 @@ const STEPS = [
 
 const CANCELLED_STATUSES = new Set(["rejected", "cancelled"]);
 
-const CATEGORY_CONFIG: Record<string, { icon: React.ElementType; color: string; bg: string; border: string; text: string; label: string }> = {
-  visa:        { icon: Plane,      color: "#3B82F6", bg: "bg-blue-500/15",    border: "border-blue-500/40",    text: "text-blue-600 dark:text-blue-400",       label: "Visa & Permits" },
-  accounting:  { icon: Calculator, color: "#10B981", bg: "bg-emerald-500/15", border: "border-emerald-500/40", text: "text-emerald-600 dark:text-emerald-400", label: "Accounting" },
-  translation: { icon: Languages,  color: "#8B5CF6", bg: "bg-violet-500/15",  border: "border-violet-500/40",  text: "text-violet-600 dark:text-violet-400",   label: "Translation" },
-  consultancy: { icon: Briefcase,  color: "#F59E0B", bg: "bg-amber-500/15",   border: "border-amber-500/40",   text: "text-amber-600 dark:text-amber-400",     label: "Consultancy" },
+const CATEGORY_CONFIG: Record<
+  string,
+  {
+    icon: React.ElementType;
+    color: string;
+    bg: string;
+    border: string;
+    text: string;
+    label: string;
+  }
+> = {
+  visa: {
+    icon: Plane,
+    color: "#3B82F6",
+    bg: "bg-blue-500/15",
+    border: "border-blue-500/40",
+    text: "text-blue-600 dark:text-blue-400",
+    label: "Visa & Permits",
+  },
+  accounting: {
+    icon: Calculator,
+    color: "#10B981",
+    bg: "bg-emerald-500/15",
+    border: "border-emerald-500/40",
+    text: "text-emerald-600 dark:text-emerald-400",
+    label: "Accounting",
+  },
+  translation: {
+    icon: Languages,
+    color: "#8B5CF6",
+    bg: "bg-violet-500/15",
+    border: "border-violet-500/40",
+    text: "text-violet-600 dark:text-violet-400",
+    label: "Translation",
+  },
+  consultancy: {
+    icon: Briefcase,
+    color: "#F59E0B",
+    bg: "bg-amber-500/15",
+    border: "border-amber-500/40",
+    text: "text-amber-600 dark:text-amber-400",
+    label: "Consultancy",
+  },
 };
 
 const STATUS_META: Record<string, { dot: string; pulse: boolean; label: string }> = {
-  submitted:              { dot: "bg-blue-500",   pulse: false, label: "Submitted" },
-  under_review:           { dot: "bg-yellow-500", pulse: true,  label: "Under Review" },
-  awaiting_client:        { dot: "bg-orange-500", pulse: true,  label: "Awaiting You" },
-  verified:               { dot: "bg-blue-600",   pulse: false, label: "Verified" },
+  submitted: { dot: "bg-blue-500", pulse: false, label: "Submitted" },
+  under_review: { dot: "bg-yellow-500", pulse: true, label: "Under Review" },
+  awaiting_client: { dot: "bg-orange-500", pulse: true, label: "Awaiting You" },
+  verified: { dot: "bg-blue-600", pulse: false, label: "Verified" },
   submitted_to_authority: { dot: "bg-purple-500", pulse: false, label: "Submitted to Authority" },
-  completed:              { dot: "bg-green-500",  pulse: false, label: "Completed" },
-  rejected:               { dot: "bg-red-500",    pulse: false, label: "Rejected" },
-  cancelled:              { dot: "bg-gray-400",   pulse: false, label: "Cancelled" },
+  completed: { dot: "bg-green-500", pulse: false, label: "Completed" },
+  rejected: { dot: "bg-red-500", pulse: false, label: "Rejected" },
+  cancelled: { dot: "bg-gray-400", pulse: false, label: "Cancelled" },
 };
 
 function fmt(date: string | null | undefined, opts?: Intl.DateTimeFormatOptions) {
   if (!date) return "—";
-  return new Date(date).toLocaleDateString(undefined, opts ?? { day: "numeric", month: "short", year: "numeric" });
+  return new Date(date).toLocaleDateString(
+    undefined,
+    opts ?? { day: "numeric", month: "short", year: "numeric" },
+  );
 }
 
 function fmtDateTime(date: string) {
   return new Date(date).toLocaleString(undefined, {
-    month: "short", day: "numeric", year: "numeric",
-    hour: "numeric", minute: "2-digit",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
   });
 }
 
@@ -176,13 +241,17 @@ function ServiceDetailPage() {
     }
   }, [id]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   useEffect(() => {
     if (sr?.services?.name_en) {
       document.title = `${sr.services.name_en} — San Brothers`;
     }
-    return () => { document.title = "San Brothers"; };
+    return () => {
+      document.title = "San Brothers";
+    };
   }, [sr?.services?.name_en]);
 
   const doUpload = async (file: File) => {
@@ -239,13 +308,19 @@ function ServiceDetailPage() {
     const { data, error } = await supabase.storage
       .from("client-documents")
       .createSignedUrl(d.file_path, 3600);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     window.open(data.signedUrl, "_blank");
   };
 
   const handleDelete = async (docId: string) => {
     const { error } = await supabase.from("documents").delete().eq("id", docId);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     setDeleteConfirm(null);
     toast.success("Document deleted.");
     await load();
@@ -313,7 +388,11 @@ function ServiceDetailPage() {
   const isCompleted = sr.status === "completed";
   const isCancelled = CANCELLED_STATUSES.has(sr.status);
   const activeIdx = isCompleted ? STEPS.length - 1 : currentStepIdx;
-  const progressPct = isCompleted ? 100 : currentStepIdx < 0 ? 0 : Math.round((currentStepIdx / (STEPS.length - 1)) * 100);
+  const progressPct = isCompleted
+    ? 100
+    : currentStepIdx < 0
+      ? 0
+      : Math.round((currentStepIdx / (STEPS.length - 1)) * 100);
 
   // Price / duration labels
   const priceLabel = (() => {
@@ -399,7 +478,9 @@ function ServiceDetailPage() {
     <div className="max-w-6xl mx-auto px-4 py-6">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-1">
-        <Link to="/dashboard/my-services" className="hover:text-foreground transition-colors">My Services</Link>
+        <Link to="/dashboard/my-services" className="hover:text-foreground transition-colors">
+          My Services
+        </Link>
         <ChevronRight className="h-3.5 w-3.5" />
         <span className="text-foreground font-medium truncate max-w-[200px]">{localName}</span>
       </nav>
@@ -416,11 +497,19 @@ function ServiceDetailPage() {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div className="flex items-start gap-4">
-          <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border", cat.bg, cat.border)}>
+          <div
+            className={cn(
+              "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border",
+              cat.bg,
+              cat.border,
+            )}
+          >
             <CatIcon className="h-5 w-5" style={{ color: cat.color }} />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground leading-tight">{localName}</h1>
+            <h1 className="text-xl font-bold tracking-tight text-foreground leading-tight">
+              {localName}
+            </h1>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
               <span className={cn("text-sm font-medium", cat.text)}>{cat.label}</span>
               <span className="text-muted-foreground text-xs">·</span>
@@ -431,20 +520,34 @@ function ServiceDetailPage() {
               {sr.updated_at !== sr.created_at && (
                 <>
                   <span className="text-muted-foreground text-xs">·</span>
-                  <span className="text-xs text-muted-foreground">Updated {fmtRelative(sr.updated_at)}</span>
+                  <span className="text-xs text-muted-foreground">
+                    Updated {fmtRelative(sr.updated_at)}
+                  </span>
                 </>
               )}
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <div className={cn("flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium border",
-            sr.status === "completed" ? "bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400" :
-            sr.status === "awaiting_client" ? "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400" :
-            sr.status === "under_review" ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-600 dark:text-yellow-400" :
-            "bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400"
-          )}>
-            <span className={cn("h-1.5 w-1.5 rounded-full", statusMeta.dot, statusMeta.pulse && "animate-pulse")} />
+          <div
+            className={cn(
+              "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium border",
+              sr.status === "completed"
+                ? "bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400"
+                : sr.status === "awaiting_client"
+                  ? "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400"
+                  : sr.status === "under_review"
+                    ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-600 dark:text-yellow-400"
+                    : "bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400",
+            )}
+          >
+            <span
+              className={cn(
+                "h-1.5 w-1.5 rounded-full",
+                statusMeta.dot,
+                statusMeta.pulse && "animate-pulse",
+              )}
+            />
             {statusMeta.label}
           </div>
         </div>
@@ -455,7 +558,9 @@ function ServiceDetailPage() {
         <div className="flex items-start gap-3 rounded-lg border border-orange-500/40 bg-orange-500/10 px-4 py-3 mb-6">
           <AlertCircle className="h-4 w-4 text-orange-500 mt-0.5 shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-orange-700 dark:text-orange-400">Action Required</p>
+            <p className="text-sm font-semibold text-orange-700 dark:text-orange-400">
+              Action Required
+            </p>
             <p className="text-xs text-orange-600 dark:text-orange-500 mt-0.5">
               {t("dashboard.myServices.awaitingBanner")}
             </p>
@@ -465,10 +570,8 @@ function ServiceDetailPage() {
 
       {/* Two-column grid */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-
         {/* ── LEFT (3/5) ── */}
         <div className="lg:col-span-3 space-y-5">
-
           {/* Progress tracker */}
           <div className="rounded-xl border border-border bg-card p-6">
             <h2 className="text-sm font-semibold text-foreground mb-6 flex items-center gap-2">
@@ -524,15 +627,22 @@ function ServiceDetailPage() {
                           >
                             {isDone ? <Check className="h-3.5 w-3.5" /> : i + 1}
                           </div>
-                          <p className={cn(
-                            "mt-2 text-xs text-center leading-tight px-1",
-                            isDone ? "text-green-600 dark:text-green-400 font-medium" :
-                            isActive ? "text-foreground font-semibold" : "text-muted-foreground",
-                          )}>
+                          <p
+                            className={cn(
+                              "mt-2 text-xs text-center leading-tight px-1",
+                              isDone
+                                ? "text-green-600 dark:text-green-400 font-medium"
+                                : isActive
+                                  ? "text-foreground font-semibold"
+                                  : "text-muted-foreground",
+                            )}
+                          >
                             {step.short}
                           </p>
                           {isDone && <p className="text-[10px] text-muted-foreground">Done</p>}
-                          {isActive && <p className="text-[10px] text-blue-500 font-medium">Active</p>}
+                          {isActive && (
+                            <p className="text-[10px] text-blue-500 font-medium">Active</p>
+                          )}
                         </div>
                       );
                     })}
@@ -559,21 +669,34 @@ function ServiceDetailPage() {
                       const isActive = i === activeIdx && !isCompleted;
                       return (
                         <li key={step.key} className="relative flex gap-4 pb-5 last:pb-0">
-                          <div className={cn(
-                            "relative z-10 h-7 w-7 shrink-0 rounded-full grid place-items-center text-xs font-semibold border-2",
-                            isDone ? "bg-green-500 border-green-500 text-white" :
-                            isActive ? "bg-blue-600 border-blue-600 text-white ring-4 ring-blue-500/20" :
-                            "bg-card border-border text-muted-foreground",
-                          )}>
+                          <div
+                            className={cn(
+                              "relative z-10 h-7 w-7 shrink-0 rounded-full grid place-items-center text-xs font-semibold border-2",
+                              isDone
+                                ? "bg-green-500 border-green-500 text-white"
+                                : isActive
+                                  ? "bg-blue-600 border-blue-600 text-white ring-4 ring-blue-500/20"
+                                  : "bg-card border-border text-muted-foreground",
+                            )}
+                          >
                             {isDone ? <Check className="h-3 w-3" /> : i + 1}
                           </div>
                           <div className="pt-0.5">
-                            <p className={cn(
-                              "text-sm font-medium",
-                              isDone ? "text-green-600 dark:text-green-400" :
-                              isActive ? "text-foreground" : "text-muted-foreground",
-                            )}>{step.label}</p>
-                            {isActive && <p className="text-xs text-blue-500 font-medium">In progress</p>}
+                            <p
+                              className={cn(
+                                "text-sm font-medium",
+                                isDone
+                                  ? "text-green-600 dark:text-green-400"
+                                  : isActive
+                                    ? "text-foreground"
+                                    : "text-muted-foreground",
+                              )}
+                            >
+                              {step.label}
+                            </p>
+                            {isActive && (
+                              <p className="text-xs text-blue-500 font-medium">In progress</p>
+                            )}
                           </div>
                         </li>
                       );
@@ -598,11 +721,18 @@ function ServiceDetailPage() {
                   className="relative flex gap-4 pb-5 last:pb-0"
                   style={{ animationDelay: `${i * 100}ms` }}
                 >
-                  <div className={cn("relative z-10 h-4 w-4 shrink-0 mt-0.5 rounded-full border-2 border-card", ev.dot)} />
+                  <div
+                    className={cn(
+                      "relative z-10 h-4 w-4 shrink-0 mt-0.5 rounded-full border-2 border-card",
+                      ev.dot,
+                    )}
+                  />
                   <div className="min-w-0">
                     <p className="text-xs text-muted-foreground mb-0.5">{fmtDateTime(ev.date)}</p>
                     <p className={cn("text-sm font-semibold", ev.color)}>{ev.title}</p>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{ev.description}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {ev.description}
+                    </p>
                   </div>
                 </li>
               ))}
@@ -619,13 +749,24 @@ function ServiceDetailPage() {
                 </h2>
               </div>
               <label className="cursor-pointer">
-                <Button asChild size="sm" variant="outline" disabled={uploading} className="h-8 text-xs">
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  disabled={uploading}
+                  className="h-8 text-xs"
+                >
                   <span>
                     <Upload className="h-3 w-3 mr-1.5" />
                     {uploading ? "Uploading…" : "+ Upload Document"}
                   </span>
                 </Button>
-                <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileInput} />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileInput}
+                />
               </label>
             </div>
 
@@ -646,17 +787,25 @@ function ServiceDetailPage() {
             <div
               className={cn(
                 "mx-6 my-4 rounded-lg border-2 border-dashed transition-colors cursor-pointer",
-                dragOver ? "border-blue-500 bg-blue-500/5" : "border-border hover:border-blue-400 hover:bg-muted/30",
+                dragOver
+                  ? "border-blue-500 bg-blue-500/5"
+                  : "border-border hover:border-blue-400 hover:bg-muted/30",
               )}
-              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
             >
               <div className="flex flex-col items-center gap-1.5 py-5 text-center">
-                <Paperclip className={cn("h-5 w-5", dragOver ? "text-blue-500" : "text-muted-foreground")} />
+                <Paperclip
+                  className={cn("h-5 w-5", dragOver ? "text-blue-500" : "text-muted-foreground")}
+                />
                 <p className="text-sm text-muted-foreground">
-                  <span className="font-medium text-foreground">Drag files here</span> or click to upload
+                  <span className="font-medium text-foreground">Drag files here</span> or click to
+                  upload
                 </p>
                 <p className="text-xs text-muted-foreground">PDF, JPG, PNG, DOCX · Max 10MB</p>
               </div>
@@ -665,18 +814,31 @@ function ServiceDetailPage() {
             {docs.length > 0 && (
               <div className="divide-y divide-border border-t border-border">
                 {docs.map((d) => (
-                  <div key={d.id} className="flex items-center gap-3 px-6 py-3.5 hover:bg-muted/30 transition-colors">
-                    <div className={cn(
-                      "grid h-9 w-9 shrink-0 place-items-center rounded-lg",
-                      d.is_final_delivery ? "bg-green-500/10" : "bg-muted",
-                    )}>
-                      <FileText className={cn("h-4 w-4", d.is_final_delivery ? "text-green-500" : "text-muted-foreground")} />
+                  <div
+                    key={d.id}
+                    className="flex items-center gap-3 px-6 py-3.5 hover:bg-muted/30 transition-colors"
+                  >
+                    <div
+                      className={cn(
+                        "grid h-9 w-9 shrink-0 place-items-center rounded-lg",
+                        d.is_final_delivery ? "bg-green-500/10" : "bg-muted",
+                      )}
+                    >
+                      <FileText
+                        className={cn(
+                          "h-4 w-4",
+                          d.is_final_delivery ? "text-green-500" : "text-muted-foreground",
+                        )}
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate text-foreground">{d.file_name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {fmtSize(d.file_size_bytes)}{d.file_size_bytes ? " · " : ""}Uploaded {fmt(d.uploaded_at)}
-                        {d.is_final_delivery && <span className="ml-1.5 text-green-500 font-medium">Final delivery</span>}
+                        {fmtSize(d.file_size_bytes)}
+                        {d.file_size_bytes ? " · " : ""}Uploaded {fmt(d.uploaded_at)}
+                        {d.is_final_delivery && (
+                          <span className="ml-1.5 text-green-500 font-medium">Final delivery</span>
+                        )}
                       </p>
                       {d.rejection_reason && (
                         <p className="mt-0.5 text-xs text-destructive">{d.rejection_reason}</p>
@@ -729,7 +891,6 @@ function ServiceDetailPage() {
 
         {/* ── RIGHT (2/5) ── */}
         <div className="lg:col-span-2 space-y-4">
-
           {/* Service details */}
           <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className={cn("px-5 py-3 border-b border-border", cat.bg)}>
@@ -755,7 +916,9 @@ function ServiceDetailPage() {
               {durationLabel && <InfoRow label="Est. Duration" value={durationLabel} />}
               <InfoRow label="Submitted" value={fmt(sr.created_at)} />
               {sr.completed_at && <InfoRow label="Completed" value={fmt(sr.completed_at)} />}
-              {sr.visa_expiry_date && <InfoRow label="Visa Expiry" value={fmt(sr.visa_expiry_date)} />}
+              {sr.visa_expiry_date && (
+                <InfoRow label="Visa Expiry" value={fmt(sr.visa_expiry_date)} />
+              )}
               {sr.authority_ref && <InfoRow label="Authority Ref" value={sr.authority_ref} mono />}
             </div>
           </div>
@@ -776,8 +939,12 @@ function ServiceDetailPage() {
                     <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-card" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{staff.full_name}</p>
-                    <p className="text-xs text-muted-foreground capitalize">{staff.role?.replace(/_/g, " ")}</p>
+                    <p className="text-sm font-semibold text-foreground truncate">
+                      {staff.full_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground capitalize">
+                      {staff.role?.replace(/_/g, " ")}
+                    </p>
                   </div>
                 </div>
                 <Button asChild size="sm" variant="outline" className="w-full h-8 text-xs">
@@ -794,7 +961,9 @@ function ServiceDetailPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-foreground">Pending Assignment</p>
-                  <p className="text-xs text-muted-foreground">A handler will be assigned shortly</p>
+                  <p className="text-xs text-muted-foreground">
+                    A handler will be assigned shortly
+                  </p>
                 </div>
               </div>
             )}
@@ -803,7 +972,9 @@ function ServiceDetailPage() {
           {/* Quick actions */}
           <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="px-5 py-3 border-b border-border">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-foreground">Quick Actions</h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-foreground">
+                Quick Actions
+              </h3>
             </div>
             <div className="p-3 space-y-1">
               <label className="cursor-pointer block">
@@ -819,7 +990,10 @@ function ServiceDetailPage() {
                 <input type="file" className="hidden" onChange={handleFileInput} />
               </label>
 
-              <Link to="/dashboard/messages" className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-muted transition-colors">
+              <Link
+                to="/dashboard/messages"
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-muted transition-colors"
+              >
                 <div className="grid h-8 w-8 place-items-center rounded-lg bg-green-500/10 shrink-0">
                   <MessageSquare className="h-4 w-4 text-green-500" />
                 </div>
@@ -849,7 +1023,9 @@ function ServiceDetailPage() {
           {sr.status === "submitted" && (
             <div className="rounded-xl border border-destructive/30 bg-destructive/5 overflow-hidden">
               <div className="px-5 py-3 border-b border-destructive/20">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-destructive">Danger Zone</h3>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-destructive">
+                  Danger Zone
+                </h3>
               </div>
               <div className="px-5 py-4">
                 <p className="text-xs text-muted-foreground mb-3">
@@ -873,15 +1049,30 @@ function ServiceDetailPage() {
       {/* Delete confirm */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setDeleteConfirm(null)} />
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setDeleteConfirm(null)}
+          />
           <div className="relative z-10 w-full max-w-sm rounded-xl border bg-card shadow-2xl p-6 space-y-4">
             <h3 className="text-base font-semibold text-foreground">Delete document?</h3>
-            <p className="text-sm text-muted-foreground">This document will be permanently removed.</p>
+            <p className="text-sm text-muted-foreground">
+              This document will be permanently removed.
+            </p>
             <div className="flex gap-3">
-              <Button variant="outline" size="sm" className="flex-1" onClick={() => setDeleteConfirm(null)}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => setDeleteConfirm(null)}
+              >
                 Cancel
               </Button>
-              <Button variant="destructive" size="sm" className="flex-1" onClick={() => handleDelete(deleteConfirm)}>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="flex-1"
+                onClick={() => handleDelete(deleteConfirm)}
+              >
                 Delete
               </Button>
             </div>
@@ -892,7 +1083,10 @@ function ServiceDetailPage() {
       {/* Cancel confirm */}
       {showCancelDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCancelDialog(false)} />
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowCancelDialog(false)}
+          />
           <div className="relative z-10 w-full max-w-sm rounded-xl border bg-card shadow-2xl p-6 space-y-4">
             <div className="flex items-center gap-3">
               <div className="grid h-10 w-10 place-items-center rounded-full bg-destructive/10 shrink-0">
@@ -904,13 +1098,26 @@ function ServiceDetailPage() {
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
-              Cancel your <strong className="text-foreground">{localName}</strong> request? Uploaded documents will be retained.
+              Cancel your <strong className="text-foreground">{localName}</strong> request? Uploaded
+              documents will be retained.
             </p>
             <div className="flex gap-3">
-              <Button variant="outline" size="sm" className="flex-1" onClick={() => setShowCancelDialog(false)} disabled={cancelling}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => setShowCancelDialog(false)}
+                disabled={cancelling}
+              >
                 Keep Request
               </Button>
-              <Button variant="destructive" size="sm" className="flex-1" onClick={cancelRequest} disabled={cancelling}>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="flex-1"
+                onClick={cancelRequest}
+                disabled={cancelling}
+              >
                 {cancelling ? "Cancelling…" : "Yes, Cancel"}
               </Button>
             </div>
@@ -925,7 +1132,14 @@ function InfoRow({ label, value, mono }: { label: string; value: string; mono?: 
   return (
     <div className="flex items-center justify-between gap-3 px-5 py-2.5">
       <span className="text-xs text-muted-foreground shrink-0">{label}</span>
-      <span className={cn("text-xs font-medium text-foreground text-right truncate max-w-[140px]", mono && "font-mono")}>{value}</span>
+      <span
+        className={cn(
+          "text-xs font-medium text-foreground text-right truncate max-w-[140px]",
+          mono && "font-mono",
+        )}
+      >
+        {value}
+      </span>
     </div>
   );
 }

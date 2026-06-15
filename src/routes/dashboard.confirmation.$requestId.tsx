@@ -269,7 +269,9 @@ function ConfirmationPage() {
           It may have been removed, or you may not have access to it.
         </p>
         <Button asChild className="mt-6">
-          <Link to="/dashboard">Back to dashboard</Link>
+          <Link to="/dashboard" search={undefined}>
+            Back to dashboard
+          </Link>
         </Button>
       </div>
     );
