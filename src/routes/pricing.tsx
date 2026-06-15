@@ -66,47 +66,60 @@ function Pricing() {
         <p className="text-sm text-muted-foreground">{t("pricing.allPrices")}</p>
       </PageHero>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
+      <div className="border-b border-border bg-muted/20 px-4 py-4 text-center text-xs text-muted-foreground dark:bg-muted/10 sm:text-sm">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-1">
+          <span>🔒 Transparent pricing</span><span aria-hidden="true">·</span><span>No hidden fees</span>
+          <span aria-hidden="true">·</span><span>All prices in RWF</span><span aria-hidden="true">·</span><span>Payments accepted in USD</span>
+        </div>
+      </div>
+
+      <section className="mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-20">
         <Tabs defaultValue="visa" className="w-full">
-          <TabsList className="mb-8 flex flex-wrap">
-            {TAB_KEYS.map((k) => (
-              <TabsTrigger key={k} value={k}>
-                {t(`pricing.tabs.${k}`)}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="mb-10 border-b border-border pb-8">
+            <TabsList className="flex h-auto w-full justify-start gap-2 overflow-x-auto bg-transparent p-0 pb-2 md:justify-center">
+              {TAB_KEYS.map((k) => {
+                const { Icon, color, active } = TAB_STYLES[k];
+                return (
+                  <TabsTrigger key={k} value={k} className={`${active} rounded-full border border-border bg-card px-4 py-2.5 text-muted-foreground shadow-none hover:bg-muted data-[state=active]:text-primary-foreground data-[state=active]:shadow-md`}>
+                    <Icon className={`mr-2 h-4 w-4 ${color}`} />
+                    {t(`pricing.tabs.${k}`)}
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+            <p className="mt-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Choose the plan that fits your needs</p>
+          </div>
 
           {TAB_KEYS.map((key) => {
             const plans = tRaw<Plan[]>(`pricing.plans.${key}`) ?? [];
+            const styles = TAB_STYLES[key];
             return (
               <TabsContent key={key} value={key}>
-                <div className="grid gap-6 md:grid-cols-3">
-                  {plans.map((p) => (
-                    <Card key={p.name} className={p.popular ? "border-accent shadow-md" : ""}>
-                      <CardContent className="flex flex-col gap-4 p-6">
+                <div className="grid items-stretch gap-6 md:grid-cols-3">
+                  {plans.map((p, index) => (
+                    <Card key={p.name} style={{ transitionDelay: `${index * 100}ms` }} className={`reveal relative overflow-hidden bg-card transition-[transform,box-shadow,background-color,opacity] duration-300 hover:-translate-y-1 hover:shadow-lg ${styles.tint} ${p.popular ? `border-2 ${styles.border} ${styles.glow} md:scale-105` : "border-border"}`}>
+                      <div className={`h-1 w-full bg-current ${styles.color}`} />
+                      {p.popular ? <Badge className={`absolute right-4 top-4 border-0 ${styles.button} text-primary-foreground`}>{t("pricing.mostPopular")}</Badge> : null}
+                      <CardContent className="flex h-full flex-col gap-5 p-6 pt-7">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-lg font-semibold">{p.name}</h3>
-                          {p.popular ? (
-                            <Badge className="bg-accent text-accent-foreground hover:bg-accent">
-                              {t("pricing.mostPopular")}
-                            </Badge>
-                          ) : null}
+                          <h3 className="pr-24 text-lg font-semibold text-foreground">{p.name}</h3>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold">{p.price}</div>
+                          <div className="text-4xl font-black tracking-tight text-foreground">{p.price}</div>
                           <div className="text-xs text-muted-foreground">
                             {t("pricing.contactQuote")}
                           </div>
                         </div>
+                        <p className="text-sm font-semibold italic text-muted-foreground">{VALUE_LINES[index] ?? VALUE_LINES[0]}</p>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                           {p.features.map((f) => (
                             <li key={f} className="flex gap-2">
-                              <Check className="h-4 w-4 shrink-0 text-primary" />
+                              <Check className={`mt-0.5 h-4 w-4 shrink-0 ${styles.color}`} />
                               {f}
                             </li>
                           ))}
                         </ul>
-                        <Button className="mt-2" onClick={() => handleGetStarted(p.intent)}>
+                        <Button variant={p.popular ? "default" : "outline"} className={`mt-auto ${p.popular ? `${styles.button} text-primary-foreground` : styles.outline}`} onClick={() => handleGetStarted(p.intent)}>
                           {t("pricing.getStarted")}
                         </Button>
                       </CardContent>
