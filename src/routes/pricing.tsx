@@ -1,4 +1,3 @@
-﻿import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -15,16 +14,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PublicLayout } from "@/components/layout/public-layout";
-import { PageHero, CtaBanner } from "@/components/marketing/page-sections";
+import { CtaBanner, PageHero } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Pricing — San Brothers" },
+      { title: "Pricing - San Brothers" },
       {
         name: "description",
         content: "Transparent pricing for visa, accounting, consultancy, and translation services.",
@@ -33,6 +32,7 @@ export const Route = createFileRoute("/pricing")({
   }),
   component: Pricing,
 });
+
 interface Plan {
   name: string;
   price: string;
@@ -46,43 +46,43 @@ const TAB_KEYS = ["visa", "accounting", "consultancy", "translation"] as const;
 const TAB_STYLES = {
   visa: {
     Icon: Plane,
-    color: "text-blue-500",
-    active: "data-[state=active]:bg-blue-500",
-    border: "border-blue-500",
-    glow: "shadow-[0_16px_45px_-24px_var(#3B82F6)]",
-    tint: "hover:bg-blue-500/5",
-    button: "bg-blue-500 hover:bg-blue-500/90",
-    outline: "border-blue-500 text-blue-500 hover:bg-blue-500/10",
+    color: "text-visa",
+    active: "data-[state=active]:bg-visa",
+    border: "border-visa",
+    glow: "shadow-[0_16px_45px_-24px_var(--visa)]",
+    tint: "hover:bg-visa/5",
+    button: "bg-visa hover:bg-visa/90",
+    outline: "border-visa text-visa hover:bg-visa/10",
   },
   accounting: {
     Icon: Calculator,
-    color: "text-emerald-500",
-    active: "data-[state=active]:bg-emerald-500",
-    border: "border-emerald-500",
-    glow: "shadow-[0_16px_45px_-24px_var(#10B981)]",
-    tint: "hover:bg-emerald-500/5",
-    button: "bg-emerald-500 hover:bg-emerald-500/90",
-    outline: "border-emerald-500 text-emerald-500 hover:bg-emerald-500/10",
+    color: "text-accounting",
+    active: "data-[state=active]:bg-accounting",
+    border: "border-accounting",
+    glow: "shadow-[0_16px_45px_-24px_var(--accounting)]",
+    tint: "hover:bg-accounting/5",
+    button: "bg-accounting hover:bg-accounting/90",
+    outline: "border-accounting text-accounting hover:bg-accounting/10",
   },
   consultancy: {
     Icon: Briefcase,
-    color: "text-amber-500",
-    active: "data-[state=active]:bg-amber-500",
-    border: "border-amber-500",
-    glow: "shadow-[0_16px_45px_-24px_var(#F59E0B)]",
-    tint: "hover:bg-amber-500/5",
-    button: "bg-amber-500 hover:bg-amber-500/90",
-    outline: "border-amber-500 text-amber-500 hover:bg-amber-500/10",
+    color: "text-consultancy",
+    active: "data-[state=active]:bg-consultancy",
+    border: "border-consultancy",
+    glow: "shadow-[0_16px_45px_-24px_var(--consultancy)]",
+    tint: "hover:bg-consultancy/5",
+    button: "bg-consultancy hover:bg-consultancy/90",
+    outline: "border-consultancy text-consultancy hover:bg-consultancy/10",
   },
   translation: {
     Icon: Languages,
-    color: "text-purple-500",
-    active: "data-[state=active]:bg-purple-500",
-    border: "border-purple-500",
-    glow: "shadow-[0_16px_45px_-24px_var(#8B5CF6)]",
-    tint: "hover:bg-purple-500/5",
-    button: "bg-purple-500 hover:bg-purple-500/90",
-    outline: "border-purple-500 text-purple-500 hover:bg-purple-500/10",
+    color: "text-translation",
+    active: "data-[state=active]:bg-translation",
+    border: "border-translation",
+    glow: "shadow-[0_16px_45px_-24px_var(--translation)]",
+    tint: "hover:bg-translation/5",
+    button: "bg-translation hover:bg-translation/90",
+    outline: "border-translation text-translation hover:bg-translation/10",
   },
 };
 
@@ -91,16 +91,6 @@ const VALUE_LINES = ["Best for individuals", "Most popular for SMEs", "For growi
 function Pricing() {
   const { t, tRaw } = useI18n();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const els = document.querySelectorAll(".reveal");
-    const obs = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.target.classList.toggle("revealed", e.isIntersecting)),
-      { threshold: 0.1 },
-    );
-    els.forEach((el) => obs.observe(el));
-    return () => obs.disconnect();
-  }, []);
 
   const handleGetStarted = async (intent: string) => {
     const destination = await resolveServiceIntentDestination(intent);
@@ -115,12 +105,12 @@ function Pricing() {
 
       <div className="border-b border-border bg-muted/20 px-4 py-4 text-center text-xs text-muted-foreground dark:bg-muted/10 sm:text-sm">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-1">
-          <span>🔒 Transparent pricing</span>
-          <span aria-hidden="true">·</span>
+          <span>Transparent pricing</span>
+          <span aria-hidden="true">.</span>
           <span>No hidden fees</span>
-          <span aria-hidden="true">·</span>
+          <span aria-hidden="true">.</span>
           <span>All prices in RWF</span>
-          <span aria-hidden="true">·</span>
+          <span aria-hidden="true">.</span>
           <span>Payments accepted in USD</span>
         </div>
       </div>
@@ -130,7 +120,8 @@ function Pricing() {
           <div className="mb-10 border-b border-border pb-8">
             <TabsList className="flex h-auto w-full justify-start gap-2 overflow-x-auto bg-transparent p-0 pb-2 md:justify-center">
               {TAB_KEYS.map((k) => {
-                const { Icon, color, active } = TAB_STYLES[k];
+                const { Icon, active, color } = TAB_STYLES[k];
+
                 return (
                   <TabsTrigger
                     key={k}
@@ -151,6 +142,7 @@ function Pricing() {
           {TAB_KEYS.map((key) => {
             const plans = tRaw<Plan[]>(`pricing.plans.${key}`) ?? [];
             const styles = TAB_STYLES[key];
+
             return (
               <TabsContent key={key} value={key}>
                 <div className="grid items-stretch gap-6 md:grid-cols-3">
@@ -158,7 +150,11 @@ function Pricing() {
                     <Card
                       key={p.name}
                       style={{ transitionDelay: `${index * 100}ms` }}
-                      className={`reveal relative overflow-hidden bg-card transition-[transform,box-shadow,background-color,opacity] duration-300 hover:-translate-y-1 hover:shadow-lg ${styles.tint} ${p.popular ? `border-2 ${styles.border} ${styles.glow} md:scale-105` : "border-border"}`}
+                      className={`relative overflow-hidden bg-card transition-[transform,box-shadow,background-color] duration-300 hover:-translate-y-1 hover:shadow-lg ${styles.tint} ${
+                        p.popular
+                          ? `border-2 ${styles.border} ${styles.glow} md:scale-105`
+                          : "border-border"
+                      }`}
                     >
                       <div className={`h-1 w-full bg-current ${styles.color}`} />
                       {p.popular ? (
@@ -206,7 +202,7 @@ function Pricing() {
                 {key === "translation" ? (
                   <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-xl border border-border border-l-4 border-l-translation bg-gradient-to-r from-translation/20 to-translation/5 px-6 py-6 md:flex-row">
                     <div className="flex items-start gap-3">
-                      <Globe2 className="mt-0.5 h-5 w-5 shrink-0 text-purple-500" />
+                      <Globe2 className="mt-0.5 h-5 w-5 shrink-0 text-translation" />
                       <p className="text-sm text-muted-foreground">
                         {t("pricing.translationStrip")}{" "}
                         <span className="font-semibold text-foreground">
