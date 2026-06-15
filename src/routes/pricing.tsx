@@ -1,6 +1,17 @@
 ﻿import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Briefcase, Calculator, Check, DollarSign, Globe2, HelpCircle, Languages, Plane, RotateCcw } from "lucide-react";
+import {
+  ArrowRight,
+  Briefcase,
+  Calculator,
+  Check,
+  DollarSign,
+  Globe2,
+  HelpCircle,
+  Languages,
+  Plane,
+  RotateCcw,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,10 +44,46 @@ interface Plan {
 const TAB_KEYS = ["visa", "accounting", "consultancy", "translation"] as const;
 
 const TAB_STYLES = {
-  visa: { Icon: Plane, color: "text-blue-500", active: "data-[state=active]:bg-blue-500", border: "border-blue-500", glow: "shadow-[0_16px_45px_-24px_var(#3B82F6)]", tint: "hover:bg-blue-500/5", button: "bg-blue-500 hover:bg-blue-500/90", outline: "border-blue-500 text-blue-500 hover:bg-blue-500/10" },
-  accounting: { Icon: Calculator, color: "text-emerald-500", active: "data-[state=active]:bg-emerald-500", border: "border-emerald-500", glow: "shadow-[0_16px_45px_-24px_var(#10B981)]", tint: "hover:bg-emerald-500/5", button: "bg-emerald-500 hover:bg-emerald-500/90", outline: "border-emerald-500 text-emerald-500 hover:bg-emerald-500/10" },
-  consultancy: { Icon: Briefcase, color: "text-amber-500", active: "data-[state=active]:bg-amber-500", border: "border-amber-500", glow: "shadow-[0_16px_45px_-24px_var(#F59E0B)]", tint: "hover:bg-amber-500/5", button: "bg-amber-500 hover:bg-amber-500/90", outline: "border-amber-500 text-amber-500 hover:bg-amber-500/10" },
-  translation: { Icon: Languages, color: "text-purple-500", active: "data-[state=active]:bg-purple-500", border: "border-purple-500", glow: "shadow-[0_16px_45px_-24px_var(#8B5CF6)]", tint: "hover:bg-purple-500/5", button: "bg-purple-500 hover:bg-purple-500/90", outline: "border-purple-500 text-purple-500 hover:bg-purple-500/10" },
+  visa: {
+    Icon: Plane,
+    color: "text-blue-500",
+    active: "data-[state=active]:bg-blue-500",
+    border: "border-blue-500",
+    glow: "shadow-[0_16px_45px_-24px_var(#3B82F6)]",
+    tint: "hover:bg-blue-500/5",
+    button: "bg-blue-500 hover:bg-blue-500/90",
+    outline: "border-blue-500 text-blue-500 hover:bg-blue-500/10",
+  },
+  accounting: {
+    Icon: Calculator,
+    color: "text-emerald-500",
+    active: "data-[state=active]:bg-emerald-500",
+    border: "border-emerald-500",
+    glow: "shadow-[0_16px_45px_-24px_var(#10B981)]",
+    tint: "hover:bg-emerald-500/5",
+    button: "bg-emerald-500 hover:bg-emerald-500/90",
+    outline: "border-emerald-500 text-emerald-500 hover:bg-emerald-500/10",
+  },
+  consultancy: {
+    Icon: Briefcase,
+    color: "text-amber-500",
+    active: "data-[state=active]:bg-amber-500",
+    border: "border-amber-500",
+    glow: "shadow-[0_16px_45px_-24px_var(#F59E0B)]",
+    tint: "hover:bg-amber-500/5",
+    button: "bg-amber-500 hover:bg-amber-500/90",
+    outline: "border-amber-500 text-amber-500 hover:bg-amber-500/10",
+  },
+  translation: {
+    Icon: Languages,
+    color: "text-purple-500",
+    active: "data-[state=active]:bg-purple-500",
+    border: "border-purple-500",
+    glow: "shadow-[0_16px_45px_-24px_var(#8B5CF6)]",
+    tint: "hover:bg-purple-500/5",
+    button: "bg-purple-500 hover:bg-purple-500/90",
+    outline: "border-purple-500 text-purple-500 hover:bg-purple-500/10",
+  },
 };
 
 const VALUE_LINES = ["Best for individuals", "Most popular for SMEs", "For growing companies"];
@@ -68,8 +115,13 @@ function Pricing() {
 
       <div className="border-b border-border bg-muted/20 px-4 py-4 text-center text-xs text-muted-foreground dark:bg-muted/10 sm:text-sm">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-1">
-          <span>🔒 Transparent pricing</span><span aria-hidden="true">·</span><span>No hidden fees</span>
-          <span aria-hidden="true">·</span><span>All prices in RWF</span><span aria-hidden="true">·</span><span>Payments accepted in USD</span>
+          <span>🔒 Transparent pricing</span>
+          <span aria-hidden="true">·</span>
+          <span>No hidden fees</span>
+          <span aria-hidden="true">·</span>
+          <span>All prices in RWF</span>
+          <span aria-hidden="true">·</span>
+          <span>Payments accepted in USD</span>
         </div>
       </div>
 
@@ -80,14 +132,20 @@ function Pricing() {
               {TAB_KEYS.map((k) => {
                 const { Icon, color, active } = TAB_STYLES[k];
                 return (
-                  <TabsTrigger key={k} value={k} className={`${active} rounded-full border border-border bg-card px-4 py-2.5 text-muted-foreground shadow-none hover:bg-muted data-[state=active]:text-primary-foreground data-[state=active]:shadow-md`}>
+                  <TabsTrigger
+                    key={k}
+                    value={k}
+                    className={`${active} rounded-full border border-border bg-card px-4 py-2.5 text-muted-foreground shadow-none hover:bg-muted data-[state=active]:text-primary-foreground data-[state=active]:shadow-md`}
+                  >
                     <Icon className={`mr-2 h-4 w-4 ${color}`} />
                     {t(`pricing.tabs.${k}`)}
                   </TabsTrigger>
                 );
               })}
             </TabsList>
-            <p className="mt-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Choose the plan that fits your needs</p>
+            <p className="mt-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Choose the plan that fits your needs
+            </p>
           </div>
 
           {TAB_KEYS.map((key) => {
@@ -97,20 +155,34 @@ function Pricing() {
               <TabsContent key={key} value={key}>
                 <div className="grid items-stretch gap-6 md:grid-cols-3">
                   {plans.map((p, index) => (
-                    <Card key={p.name} style={{ transitionDelay: `${index * 100}ms` }} className={`reveal relative overflow-hidden bg-card transition-[transform,box-shadow,background-color,opacity] duration-300 hover:-translate-y-1 hover:shadow-lg ${styles.tint} ${p.popular ? `border-2 ${styles.border} ${styles.glow} md:scale-105` : "border-border"}`}>
+                    <Card
+                      key={p.name}
+                      style={{ transitionDelay: `${index * 100}ms` }}
+                      className={`reveal relative overflow-hidden bg-card transition-[transform,box-shadow,background-color,opacity] duration-300 hover:-translate-y-1 hover:shadow-lg ${styles.tint} ${p.popular ? `border-2 ${styles.border} ${styles.glow} md:scale-105` : "border-border"}`}
+                    >
                       <div className={`h-1 w-full bg-current ${styles.color}`} />
-                      {p.popular ? <Badge className={`absolute right-4 top-4 border-0 ${styles.button} text-primary-foreground`}>{t("pricing.mostPopular")}</Badge> : null}
+                      {p.popular ? (
+                        <Badge
+                          className={`absolute right-4 top-4 border-0 ${styles.button} text-primary-foreground`}
+                        >
+                          {t("pricing.mostPopular")}
+                        </Badge>
+                      ) : null}
                       <CardContent className="flex h-full flex-col gap-5 p-6 pt-7">
                         <div className="flex items-center justify-between">
                           <h3 className="pr-24 text-lg font-semibold text-foreground">{p.name}</h3>
                         </div>
                         <div>
-                          <div className="text-4xl font-black tracking-tight text-foreground">{p.price}</div>
+                          <div className="text-4xl font-black tracking-tight text-foreground">
+                            {p.price}
+                          </div>
                           <div className="text-xs text-muted-foreground">
                             {t("pricing.contactQuote")}
                           </div>
                         </div>
-                        <p className="text-sm font-semibold italic text-muted-foreground">{VALUE_LINES[index] ?? VALUE_LINES[0]}</p>
+                        <p className="text-sm font-semibold italic text-muted-foreground">
+                          {VALUE_LINES[index] ?? VALUE_LINES[0]}
+                        </p>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                           {p.features.map((f) => (
                             <li key={f} className="flex gap-2">
@@ -119,7 +191,11 @@ function Pricing() {
                             </li>
                           ))}
                         </ul>
-                        <Button variant={p.popular ? "default" : "outline"} className={`mt-auto ${p.popular ? `${styles.button} text-primary-foreground` : styles.outline}`} onClick={() => handleGetStarted(p.intent)}>
+                        <Button
+                          variant={p.popular ? "default" : "outline"}
+                          className={`mt-auto ${p.popular ? `${styles.button} text-primary-foreground` : styles.outline}`}
+                          onClick={() => handleGetStarted(p.intent)}
+                        >
                           {t("pricing.getStarted")}
                         </Button>
                       </CardContent>
@@ -133,7 +209,10 @@ function Pricing() {
                       <Globe2 className="mt-0.5 h-5 w-5 shrink-0 text-purple-500" />
                       <p className="text-sm text-muted-foreground">
                         {t("pricing.translationStrip")}{" "}
-                        <span className="font-semibold text-foreground">{t("pricing.weSpeakBrand")}</span>.
+                        <span className="font-semibold text-foreground">
+                          {t("pricing.weSpeakBrand")}
+                        </span>
+                        .
                       </p>
                     </div>
                     <Button variant="outline" asChild>
@@ -154,7 +233,11 @@ function Pricing() {
             { label: t("pricing.bottom.howFees"), Icon: DollarSign },
             { label: t("pricing.bottom.refund"), Icon: RotateCcw },
           ].map(({ label, Icon }) => (
-            <a key={label} href="/faq" className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-foreground transition-all hover:border-primary/30 hover:bg-accent/10 hover:shadow-md">
+            <a
+              key={label}
+              href="/faq"
+              className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-foreground transition-all hover:border-primary/30 hover:bg-accent/10 hover:shadow-md"
+            >
               <Icon className="h-5 w-5 text-primary" />
               <span className="flex-1">{label}</span>
               <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
