@@ -128,14 +128,14 @@ function Pricing() {
                 </div>
 
                 {key === "translation" ? (
-                  <div className="mt-8 flex flex-col items-center justify-between gap-4 rounded-xl border border-border bg-muted/30 px-6 py-6 md:flex-row">
-                    <p className="text-sm text-muted-foreground">
-                      {t("pricing.translationStrip")}{" "}
-                      <span className="font-semibold text-foreground">
-                        {t("pricing.weSpeakBrand")}
-                      </span>
-                      .
-                    </p>
+                  <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-xl border border-border border-l-4 border-l-translation bg-gradient-to-r from-translation/20 to-translation/5 px-6 py-6 md:flex-row">
+                    <div className="flex items-start gap-3">
+                      <Globe2 className="mt-0.5 h-5 w-5 shrink-0 text-translation" />
+                      <p className="text-sm text-muted-foreground">
+                        {t("pricing.translationStrip")}{" "}
+                        <span className="font-semibold text-foreground">{t("pricing.weSpeakBrand")}</span>.
+                      </p>
+                    </div>
                     <Button variant="outline" asChild>
                       <a href="/translate" className="gap-2">
                         {t("pricing.openPortal")} <ArrowRight className="h-4 w-4" />
@@ -148,16 +148,18 @@ function Pricing() {
           })}
         </Tabs>
 
-        <div className="mt-12 grid gap-3 text-sm md:grid-cols-3">
-          <a href="/faq" className="rounded-lg border border-border p-4 hover:bg-accent/5">
-            {t("pricing.bottom.whatIncluded")} <span className="text-primary">→</span>
-          </a>
-          <a href="/faq" className="rounded-lg border border-border p-4 hover:bg-accent/5">
-            {t("pricing.bottom.howFees")} <span className="text-primary">→</span>
-          </a>
-          <a href="/faq" className="rounded-lg border border-border p-4 hover:bg-accent/5">
-            {t("pricing.bottom.refund")} <span className="text-primary">→</span>
-          </a>
+        <div className="mt-14 grid gap-3 border-t border-border pt-10 text-sm md:grid-cols-3">
+          {[
+            { label: t("pricing.bottom.whatIncluded"), Icon: HelpCircle },
+            { label: t("pricing.bottom.howFees"), Icon: DollarSign },
+            { label: t("pricing.bottom.refund"), Icon: RotateCcw },
+          ].map(({ label, Icon }) => (
+            <a key={label} href="/faq" className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-foreground transition-all hover:border-primary/30 hover:bg-accent/10 hover:shadow-md">
+              <Icon className="h-5 w-5 text-primary" />
+              <span className="flex-1">{label}</span>
+              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+            </a>
+          ))}
         </div>
       </section>
 
