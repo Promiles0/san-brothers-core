@@ -275,3 +275,66 @@
     transition: none;
   }
 }
+
+/* --- Auth UI/UX Enhancements --- */
+
+/* Gradient animation for background */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Fade in animation */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Fade in with delay */
+@keyframes fade-in-delay {
+  0%, 50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Slide down animation */
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Slide up animation */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Shake animation for errors */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@utility animate-gradient-shift {
+  animation: gradient-shift 15s ease infinite;
+}
+
+@utility animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+@utility animate-fade-in-delay {
+  animation: fade-in-delay 1.2s ease-out;
+}
+
+@utility animate-slide-down {
+  animation: slide-down 0.5s ease-out;
+}
+
+@utility animate-slide-up {
+  animation: slide-up 0.5s ease-out;
+}
+
+@utility animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
