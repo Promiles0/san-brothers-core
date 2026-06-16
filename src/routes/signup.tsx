@@ -4,11 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, ChevronRight, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -17,7 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AuthLayout, PasswordStrength } from "@/components/auth/auth-layout";
+import { AuthLayoutEnhanced, PasswordStrength } from "@/components/auth/auth-layout-enhanced";
+import { EnhancedInput } from "@/components/auth/enhanced-input";
 import {
   GoogleSignInButton,
   WeChatSignInButton,
@@ -28,6 +26,7 @@ import { useI18n } from "@/lib/providers/i18n-provider";
 import { intentLabel, friendlyAuthError } from "@/lib/auth/intent-labels";
 import { supabase } from "@/lib/supabase";
 import { usePortal, type Portal } from "@/lib/portal-context";
+
 const signupSchema = z
   .object({
     full_name: z.string().min(2, "auth.errors.nameTooShort"),
@@ -53,10 +52,12 @@ export const Route = createFileRoute("/signup")({
     intent: typeof s.intent === "string" ? s.intent : undefined,
     portal: typeof s.portal === "string" ? (s.portal as Portal) : undefined,
   }),
-  component: SignupPage,
+  component: SignupPageEnhanced,
 });
 
-function SignupPage() {
+type SignupStep = "basic" | "details" | "security" | "confirm";
+
+function SignupPageEnhanced() {
   const { t } = useI18n();
   const { intent, portal: portalParam } = useSearch({ from: "/signup" }) as {
     intent?: string;
@@ -66,6 +67,8 @@ function SignupPage() {
   const { signUp } = useAuth();
   const { current: detectedPortal } = usePortal();
   const targetPortal: Portal = portalParam || detectedPortal;
+
+  const [currentStep, setCurrentStep] = useState<SignupStep>("basic");
   const [serverError, setServerError] = useState<string | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
 
@@ -74,14 +77,17 @@ function SignupPage() {
     handleSubmit,
     watch,
     setValue,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
     defaultValues: { preferred_language: "en", terms: false },
+    mode: "onChange",
   });
 
   const password = watch("password") || "";
   const lang = watch("preferred_language");
+  const terms = watch("terms");
   const intentName = intentLabel(intent);
 
   useEffect(() => {
@@ -113,6 +119,36 @@ function SignupPage() {
     }
   };
 
+  const handleNextStep = async () => {
+    const steps: SignupStep[] = ["basic", "details", "security", "confirm"];
+    const currentIndex = steps.indexOf(currentStep);
+
+    let fieldsToValidate: (keyof SignupForm)[] = [];
+
+    if (currentStep === "basic") {
+      fieldsToValidate = ["full_name", "email"];
+    } else if (currentStep === "details") {
+      fieldsToValidate = ["phone", "preferred_language"];
+    } else if (currentStep === "security") {
+      fieldsToValidate = ["password", "confirm"];
+    }
+
+    const isValid = await trigger(fieldsToValidate);
+
+    if (isValid && currentIndex < steps.length - 1) {
+      setCurrentStep(steps[currentIndex + 1]);
+    }
+  };
+
+  const handlePrevStep = () => {
+    const steps: SignupStep[] = ["basic", "details", "security", "confirm"];
+    const currentIndex = steps.indexOf(currentStep);
+
+    if (currentIndex > 0) {
+      setCurrentStep(steps[currentIndex - 1]);
+    }
+  };
+
   const onSubmit = async (data: SignupForm) => {
     setServerError(null);
     const { error, userId } = await signUp({
@@ -122,22 +158,25 @@ function SignupPage() {
       phone: data.phone,
       preferred_language: data.preferred_language,
     });
+
     if (error) {
       const key = friendlyAuthError(error.message);
       setServerError(t(key));
       toast.error(t(key));
       return;
     }
+
     if (intent && userId) {
       await supabase.from("signup_intents").insert({ user_id: userId, intent_slug: intent });
     }
+
     if (userId) {
-      // Track which portal the user signed up from (best-effort).
       await supabase
         .from("users")
         .update({ source_portals: [targetPortal] })
         .eq("id", userId);
     }
+
     toast.success(t("auth.signup.successToast"));
     navigate({
       to: "/signup/verify-email",
@@ -145,140 +184,260 @@ function SignupPage() {
     });
   };
 
+  const stepTitles: Record<SignupStep, string> = {
+    basic: "Create your account",
+    details: "Tell us more",
+    security: "Secure your account",
+    confirm: "Review & confirm",
+  };
+
+  const stepDescriptions: Record<SignupStep, string> = {
+    basic: "Start with your basic information",
+    details: "Add your contact details",
+    security: "Set a strong password",
+    confirm: "Review everything before confirming",
+  };
+
   return (
-    <AuthLayout
-      title={t("auth.signup.title")}
-      subtitle={t("auth.signup.subtitle")}
+    <AuthLayoutEnhanced
+      title={stepTitles[currentStep]}
+      subtitle={stepDescriptions[currentStep]}
       footer={
         <span>
           {t("auth.signup.haveAccount")}{" "}
           <Link
             to="/login"
             search={{ intent: intent || undefined } as never}
-            className="font-medium text-primary hover:underline"
+            className="font-medium text-primary hover:underline transition-colors"
           >
             {t("common.login")}
           </Link>
         </span>
       }
     >
+      {/* Progress indicator */}
+      <div className="mb-8 flex justify-between gap-2">
+        {(["basic", "details", "security", "confirm"] as SignupStep[]).map((step, index) => (
+          <div
+            key={step}
+            className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+              ["basic", "details", "security", "confirm"].indexOf(currentStep) >= index
+                ? "bg-primary"
+                : "bg-muted"
+            }`}
+          />
+        ))}
+      </div>
+
       {intentName ? (
-        <div className="mb-4 rounded-md bg-primary/10 px-3 py-2 text-sm text-foreground">
+        <div className="mb-4 rounded-lg bg-primary/10 px-3 py-2 text-sm text-foreground animate-fade-in">
           {t("auth.signup.intentBanner")} <span className="font-semibold">{intentName}</span>
         </div>
       ) : null}
 
       {serverError ? (
-        <Alert variant="destructive" className="mb-4">
+        <Alert variant="destructive" className="mb-4 animate-shake">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{serverError}</AlertDescription>
         </Alert>
       ) : null}
 
-      <div className="space-y-2">
-        <GoogleSignInButton onClick={handleGoogleSignIn} loading={googleLoading} />
-        <WeChatSignInButton />
-      </div>
-      <OrDivider />
+      {/* Step 1: Basic Information */}
+      {currentStep === "basic" && (
+        <div className="space-y-4 animate-fade-in">
+          <div className="space-y-2 mb-6">
+            <GoogleSignInButton onClick={handleGoogleSignIn} loading={googleLoading} />
+            <WeChatSignInButton />
+          </div>
+          <OrDivider />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <Field
-          label={t("auth.signup.fullName")}
-          error={errors.full_name?.message ? t(errors.full_name.message) : undefined}
-        >
-          <Input autoComplete="name" {...register("full_name")} />
-        </Field>
-        <Field
-          label={t("auth.signup.email")}
-          error={errors.email?.message ? t(errors.email.message) : undefined}
-        >
-          <Input type="email" autoComplete="email" {...register("email")} />
-        </Field>
-        <Field
-          label={t("auth.signup.phone")}
-          hint={t("auth.signup.phoneHint")}
-          error={errors.phone?.message ? t(errors.phone.message) : undefined}
-        >
-          <Input type="tel" placeholder="+250 7--- --- ---" {...register("phone")} />
-        </Field>
-        <Field label={t("auth.signup.preferredLanguage")}>
-          <Select
-            value={lang}
-            onValueChange={(v) => setValue("preferred_language", v as "en" | "zh" | "rw")}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="en">English</SelectItem>
-              <SelectItem value="zh">中文</SelectItem>
-              <SelectItem value="rw">Kinyarwanda</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field
-          label={t("auth.signup.password")}
-          error={errors.password?.message ? t(errors.password.message) : undefined}
-        >
-          <Input type="password" autoComplete="new-password" {...register("password")} />
-          <PasswordStrength password={password} />
-        </Field>
-        <Field
-          label={t("auth.signup.confirmPassword")}
-          error={errors.confirm?.message ? t(errors.confirm.message) : undefined}
-        >
-          <Input type="password" autoComplete="new-password" {...register("confirm")} />
-        </Field>
-
-        <div className="flex items-start gap-2">
-          <Checkbox
-            id="terms"
-            onCheckedChange={(c) => setValue("terms", Boolean(c), { shouldValidate: true })}
+          <EnhancedInput
+            label={t("auth.signup.fullName")}
+            placeholder="Full Name"
+            autoComplete="name"
+            error={errors.full_name?.message ? t(errors.full_name.message) : undefined}
+            {...register("full_name")}
           />
-          <label htmlFor="terms" className="text-xs text-muted-foreground leading-snug">
-            {t("auth.signup.termsPrefix")}{" "}
-            <a href="/terms" className="underline">
-              {t("auth.signup.terms")}
-            </a>{" "}
-            {t("common.and") || "&"}{" "}
-            <a href="/privacy" className="underline">
-              {t("auth.signup.privacy")}
-            </a>
-          </label>
+
+          <EnhancedInput
+            label={t("auth.signup.email")}
+            type="email"
+            placeholder="your@email.com"
+            autoComplete="email"
+            error={errors.email?.message ? t(errors.email.message) : undefined}
+            {...register("email")}
+          />
+
+          <Button onClick={handleNextStep} className="w-full h-11">
+            Next <ChevronRight className="h-4 w-4 ml-2" />
+          </Button>
         </div>
-        {errors.terms ? (
-          <p className="text-xs text-destructive">{t(errors.terms.message!)}</p>
-        ) : null}
+      )}
 
-        <div id="turnstile-container" />
+      {/* Step 2: Contact Details */}
+      {currentStep === "details" && (
+        <div className="space-y-4 animate-fade-in">
+          <EnhancedInput
+            label={t("auth.signup.phone")}
+            type="tel"
+            placeholder="+250 7--- --- ---"
+            hint={t("auth.signup.phoneHint")}
+            error={errors.phone?.message ? t(errors.phone.message) : undefined}
+            {...register("phone")}
+          />
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t("auth.signup.submit")}
-        </Button>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-foreground">
+              {t("auth.signup.preferredLanguage")}
+            </label>
+            <Select
+              value={lang}
+              onValueChange={(v) => setValue("preferred_language", v as "en" | "zh" | "rw")}
+            >
+              <SelectTrigger className="h-11">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="zh">中文</SelectItem>
+                <SelectItem value="rw">Kinyarwanda</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-        <p className="text-center text-xs text-muted-foreground">{t("auth.signup.helpText")}</p>
-      </form>
-    </AuthLayout>
-  );
-}
+          <div className="flex gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePrevStep}
+              className="flex-1 h-11"
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <Button onClick={handleNextStep} className="flex-1 h-11">
+              Next <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      )}
 
-function Field({
-  label,
-  error,
-  hint,
-  children,
-}: {
-  label: string;
-  error?: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      {children}
-      {hint && !error ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
-      {error ? <p className="text-xs text-destructive">{error}</p> : null}
-    </div>
+      {/* Step 3: Security */}
+      {currentStep === "security" && (
+        <div className="space-y-4 animate-fade-in">
+          <EnhancedInput
+            label={t("auth.signup.password")}
+            type="password"
+            placeholder="Create a strong password"
+            showPasswordToggle
+            error={errors.password?.message ? t(errors.password.message) : undefined}
+            {...register("password")}
+          />
+
+          <PasswordStrength password={password} />
+
+          <EnhancedInput
+            label={t("auth.signup.confirmPassword")}
+            type="password"
+            placeholder="Confirm your password"
+            showPasswordToggle
+            error={errors.confirm?.message ? t(errors.confirm.message) : undefined}
+            {...register("confirm")}
+          />
+
+          <div className="flex gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePrevStep}
+              className="flex-1 h-11"
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <Button onClick={handleNextStep} className="flex-1 h-11">
+              Next <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 4: Review & Confirm */}
+      {currentStep === "confirm" && (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 animate-fade-in">
+          <div className="rounded-lg bg-muted/50 p-4 space-y-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Name:</span>
+              <span className="font-medium">{watch("full_name")}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Email:</span>
+              <span className="font-medium">{watch("email")}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Phone:</span>
+              <span className="font-medium">{watch("phone")}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Language:</span>
+              <span className="font-medium uppercase">{watch("preferred_language")}</span>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2 py-2">
+            <input
+              type="checkbox"
+              id="terms"
+              checked={terms}
+              onChange={(e) => setValue("terms", e.target.checked, { shouldValidate: true })}
+              className="mt-1"
+            />
+            <label htmlFor="terms" className="text-xs text-muted-foreground leading-snug">
+              {t("auth.signup.termsPrefix")}{" "}
+              <a href="/terms" className="underline text-primary hover:text-primary/80">
+                {t("auth.signup.terms")}
+              </a>{" "}
+              {t("common.and") || "&"}{" "}
+              <a href="/privacy" className="underline text-primary hover:text-primary/80">
+                {t("auth.signup.privacy")}
+              </a>
+            </label>
+          </div>
+          {errors.terms ? (
+            <p className="text-xs text-destructive">{t(errors.terms.message!)}</p>
+          ) : null}
+
+          <div id="turnstile-container" />
+
+          <div className="flex gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePrevStep}
+              className="flex-1 h-11"
+              disabled={isSubmitting}
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <Button type="submit" className="flex-1 h-11" disabled={isSubmitting || !terms}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  Create Account
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </>
+              )}
+            </Button>
+          </div>
+
+          <p className="text-center text-xs text-muted-foreground">{t("auth.signup.helpText")}</p>
+        </form>
+      )}
+    </AuthLayoutEnhanced>
   );
 }
