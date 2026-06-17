@@ -150,7 +150,7 @@ function Hero() {
           {/* Visual: floating service preview cards built from tokens */}
           <div className="home-fade-up home-delay-2 relative mx-auto hidden aspect-[5/4] w-full max-w-md md:block">
             <FloatingPreview
-              className="absolute left-0 top-4 w-[62%] rotate-[-4deg]"
+              className="home-float-a absolute left-0 top-4 w-[62%]"
               icon={Plane}
               tag="VISA"
               title="Tori Faci"
@@ -158,7 +158,7 @@ function Hero() {
               tone="primary"
             />
             <FloatingPreview
-              className="absolute right-0 top-24 w-[58%] rotate-[3deg]"
+              className="home-float-b absolute right-0 top-24 w-[58%]"
               icon={Languages}
               tag="TRANSLATION"
               title="Diploma EN → ZH"
@@ -166,7 +166,7 @@ function Hero() {
               tone="accent"
             />
             <FloatingPreview
-              className="absolute bottom-0 left-8 w-[64%] rotate-[-2deg]"
+              className="home-float-c absolute bottom-0 left-8 w-[64%]"
               icon={Briefcase}
               tag="CONSULTANCY"
               title="Company registered"
@@ -174,6 +174,7 @@ function Hero() {
               tone="success"
             />
           </div>
+
         </div>
 
         {/* Language strip */}
