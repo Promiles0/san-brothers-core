@@ -398,6 +398,33 @@ function Process() {
     },
   ];
 
+  const containerRef = useRef<HTMLOListElement | null>(null);
+  const [lit, setLit] = useState<boolean[]>(() => steps.map(() => false));
+
+  useEffect(() => {
+    const root = containerRef.current;
+    if (!root) return;
+    const items = Array.from(root.querySelectorAll<HTMLElement>("[data-step]"));
+    const io = new IntersectionObserver(
+      (entries) => {
+        setLit((prev) => {
+          const next = [...prev];
+          entries.forEach((e) => {
+            const idx = Number((e.target as HTMLElement).dataset.step);
+            if (e.isIntersecting) next[idx] = true;
+          });
+          return next;
+        });
+      },
+      { threshold: 0.45 },
+    );
+    items.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
+  const progress = lit.filter(Boolean).length / Math.max(1, steps.length - 1);
+  const trackPct = Math.min(1, progress);
+
   return (
     <section className="border-b border-border bg-background py-20 md:py-24">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
@@ -408,29 +435,44 @@ function Process() {
           align="center"
         />
 
-        <ol className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {steps.map((s, i) => (
-            <li
-              key={s.title}
-              className={`home-fade-up home-delay-${i + 1} relative rounded-2xl border border-border bg-card p-6`}
-            >
-              <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <s.icon className="h-5 w-5 text-accent" />
-              </div>
-              <h3 className="mt-4 font-bold text-card-foreground">{s.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{s.desc}</p>
-              {i < steps.length - 1 && (
-                <div
-                  aria-hidden
-                  className="absolute right-[-12px] top-1/2 hidden h-px w-6 -translate-y-1/2 bg-border lg:block"
-                />
-              )}
-            </li>
-          ))}
-        </ol>
+        <div className="relative mt-12">
+          {/* Connecting track (desktop) */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-0 right-0 top-[3.25rem] hidden h-0.5 rounded-full bg-border lg:block"
+          >
+            <div
+              className="process-track h-full rounded-full"
+              style={{ ["--track" as string]: String(trackPct) }}
+            />
+          </div>
+
+          <ol
+            ref={containerRef}
+            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+          >
+            {steps.map((s, i) => (
+              <li
+                key={s.title}
+                data-step={i}
+                className={`process-step home-fade-up home-delay-${i + 1} relative rounded-2xl border border-border bg-card/80 p-6 backdrop-blur transition-all duration-500 ${
+                  lit[i] ? "is-lit border-primary/30 shadow-lg shadow-primary/10" : ""
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="step-num grid h-10 w-10 place-items-center rounded-full bg-secondary text-sm font-bold text-muted-foreground">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <s.icon
+                    className={`h-5 w-5 transition-colors duration-500 ${lit[i] ? "text-accent" : "text-muted-foreground"}`}
+                  />
+                </div>
+                <h3 className="mt-4 font-bold tracking-tight text-card-foreground">{s.title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
     </section>
   );
