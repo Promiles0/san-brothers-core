@@ -220,10 +220,10 @@ function FloatingPreview({
   } as const;
   return (
     <div
-      className={`rounded-2xl border border-border bg-card p-4 shadow-lg shadow-foreground/5 ${className ?? ""}`}
+      className={`glass-card rounded-2xl border border-border/70 p-4 shadow-2xl shadow-primary/10 ring-1 ring-white/5 ${className ?? ""}`}
     >
       <div className="flex items-center gap-3">
-        <div className={`grid h-10 w-10 place-items-center rounded-xl ${tones[tone]}`}>
+        <div className={`grid h-10 w-10 place-items-center rounded-xl ${tones[tone]} shadow-inner`}>
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0">
@@ -233,8 +233,8 @@ function FloatingPreview({
           <div className="truncate text-sm font-semibold text-card-foreground">{title}</div>
         </div>
       </div>
-      <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-        <span className="h-1.5 w-1.5 rounded-full bg-success" />
+      <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success ring-1 ring-success/30">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success shadow-[0_0_8px_var(--success)]" />
         {status}
       </div>
     </div>
