@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Plane,
@@ -92,15 +93,13 @@ function Hero() {
   const { t } = useI18n();
   return (
     <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-secondary/40 via-background to-background">
-      {/* soft decorative blob, token-based */}
+      {/* Ambient mesh gradient — adapts to theme via tokens */}
+      <div aria-hidden className="home-mesh opacity-60 dark:opacity-50" />
       <div
         aria-hidden
         className="pointer-events-none absolute -top-32 right-1/2 h-[28rem] w-[28rem] translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
       />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-accent/10 blur-3xl"
-      />
+
 
       <div className="relative mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
         <div className="grid items-center gap-12 md:grid-cols-2">
@@ -151,7 +150,7 @@ function Hero() {
           {/* Visual: floating service preview cards built from tokens */}
           <div className="home-fade-up home-delay-2 relative mx-auto hidden aspect-[5/4] w-full max-w-md md:block">
             <FloatingPreview
-              className="absolute left-0 top-4 w-[62%] rotate-[-4deg]"
+              className="home-float-a absolute left-0 top-4 w-[62%]"
               icon={Plane}
               tag="VISA"
               title="Tori Faci"
@@ -159,7 +158,7 @@ function Hero() {
               tone="primary"
             />
             <FloatingPreview
-              className="absolute right-0 top-24 w-[58%] rotate-[3deg]"
+              className="home-float-b absolute right-0 top-24 w-[58%]"
               icon={Languages}
               tag="TRANSLATION"
               title="Diploma EN → ZH"
@@ -167,7 +166,7 @@ function Hero() {
               tone="accent"
             />
             <FloatingPreview
-              className="absolute bottom-0 left-8 w-[64%] rotate-[-2deg]"
+              className="home-float-c absolute bottom-0 left-8 w-[64%]"
               icon={Briefcase}
               tag="CONSULTANCY"
               title="Company registered"
@@ -175,6 +174,7 @@ function Hero() {
               tone="success"
             />
           </div>
+
         </div>
 
         {/* Language strip */}
@@ -220,10 +220,10 @@ function FloatingPreview({
   } as const;
   return (
     <div
-      className={`rounded-2xl border border-border bg-card p-4 shadow-lg shadow-foreground/5 ${className ?? ""}`}
+      className={`glass-card rounded-2xl border border-border/70 p-4 shadow-2xl shadow-primary/10 ring-1 ring-white/5 ${className ?? ""}`}
     >
       <div className="flex items-center gap-3">
-        <div className={`grid h-10 w-10 place-items-center rounded-xl ${tones[tone]}`}>
+        <div className={`grid h-10 w-10 place-items-center rounded-xl ${tones[tone]} shadow-inner`}>
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0">
@@ -233,8 +233,8 @@ function FloatingPreview({
           <div className="truncate text-sm font-semibold text-card-foreground">{title}</div>
         </div>
       </div>
-      <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-        <span className="h-1.5 w-1.5 rounded-full bg-success" />
+      <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success ring-1 ring-success/30">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success shadow-[0_0_8px_var(--success)]" />
         {status}
       </div>
     </div>
@@ -299,17 +299,21 @@ function ServicesGrid() {
             <Link
               to={s.href}
               key={s.title}
-              className={`home-fade-up home-delay-${i + 1} group flex flex-col rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5`}
+              className={`home-fade-up home-delay-${i + 1} service-card group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-6`}
             >
-              <div className="flex items-start justify-between">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+              />
+              <div className="relative flex items-start justify-between">
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 text-primary ring-1 ring-primary/20 transition-all duration-300 group-hover:from-primary group-hover:to-primary/80 group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/30">
                   <s.icon className="h-6 w-6" />
                 </div>
-                <ArrowRight className="h-5 w-5 text-muted-foreground transition-all group-hover:translate-x-1 group-hover:text-primary" />
+                <ArrowRight className="h-5 w-5 text-muted-foreground transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-primary" />
               </div>
-              <h3 className="mt-5 text-lg font-bold text-card-foreground">{s.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{s.desc}</p>
-              <div className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground">
+              <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">{s.title}</h3>
+              <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+              <div className="relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-accent/20 transition-all group-hover:ring-accent/50 group-hover:shadow-[0_0_12px_color-mix(in_oklab,var(--accent)_30%,transparent)]">
                 <Sparkles className="h-3 w-3 text-accent" />
                 {s.outcome}
               </div>
@@ -394,6 +398,33 @@ function Process() {
     },
   ];
 
+  const containerRef = useRef<HTMLOListElement | null>(null);
+  const [lit, setLit] = useState<boolean[]>(() => steps.map(() => false));
+
+  useEffect(() => {
+    const root = containerRef.current;
+    if (!root) return;
+    const items = Array.from(root.querySelectorAll<HTMLElement>("[data-step]"));
+    const io = new IntersectionObserver(
+      (entries) => {
+        setLit((prev) => {
+          const next = [...prev];
+          entries.forEach((e) => {
+            const idx = Number((e.target as HTMLElement).dataset.step);
+            if (e.isIntersecting) next[idx] = true;
+          });
+          return next;
+        });
+      },
+      { threshold: 0.45 },
+    );
+    items.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
+  const progress = lit.filter(Boolean).length / Math.max(1, steps.length - 1);
+  const trackPct = Math.min(1, progress);
+
   return (
     <section className="border-b border-border bg-background py-20 md:py-24">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
@@ -404,29 +435,44 @@ function Process() {
           align="center"
         />
 
-        <ol className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {steps.map((s, i) => (
-            <li
-              key={s.title}
-              className={`home-fade-up home-delay-${i + 1} relative rounded-2xl border border-border bg-card p-6`}
-            >
-              <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <s.icon className="h-5 w-5 text-accent" />
-              </div>
-              <h3 className="mt-4 font-bold text-card-foreground">{s.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{s.desc}</p>
-              {i < steps.length - 1 && (
-                <div
-                  aria-hidden
-                  className="absolute right-[-12px] top-1/2 hidden h-px w-6 -translate-y-1/2 bg-border lg:block"
-                />
-              )}
-            </li>
-          ))}
-        </ol>
+        <div className="relative mt-12">
+          {/* Connecting track (desktop) */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-0 right-0 top-[3.25rem] hidden h-0.5 rounded-full bg-border lg:block"
+          >
+            <div
+              className="process-track h-full rounded-full"
+              style={{ ["--track" as string]: String(trackPct) }}
+            />
+          </div>
+
+          <ol
+            ref={containerRef}
+            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+          >
+            {steps.map((s, i) => (
+              <li
+                key={s.title}
+                data-step={i}
+                className={`process-step home-fade-up home-delay-${i + 1} relative rounded-2xl border border-border bg-card/80 p-6 backdrop-blur transition-all duration-500 ${
+                  lit[i] ? "is-lit border-primary/30 shadow-lg shadow-primary/10" : ""
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="step-num grid h-10 w-10 place-items-center rounded-full bg-secondary text-sm font-bold text-muted-foreground">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <s.icon
+                    className={`h-5 w-5 transition-colors duration-500 ${lit[i] ? "text-accent" : "text-muted-foreground"}`}
+                  />
+                </div>
+                <h3 className="mt-4 font-bold tracking-tight text-card-foreground">{s.title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
     </section>
   );
