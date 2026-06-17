@@ -93,15 +93,13 @@ function Hero() {
   const { t } = useI18n();
   return (
     <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-secondary/40 via-background to-background">
-      {/* soft decorative blob, token-based */}
+      {/* Ambient mesh gradient — adapts to theme via tokens */}
+      <div aria-hidden className="home-mesh opacity-60 dark:opacity-50" />
       <div
         aria-hidden
         className="pointer-events-none absolute -top-32 right-1/2 h-[28rem] w-[28rem] translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
       />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-accent/10 blur-3xl"
-      />
+
 
       <div className="relative mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
         <div className="grid items-center gap-12 md:grid-cols-2">
