@@ -13,6 +13,7 @@ import { Route as StaffRouteImport } from './routes/staff'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MaintainerRouteImport } from './routes/maintainer'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InterpreterRouteImport } from './routes/interpreter'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -124,6 +125,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MaintainerRoute = MaintainerRouteImport.update({
+  id: '/maintainer',
+  path: '/maintainer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -604,6 +610,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/interpreter': typeof InterpreterRoute
   '/login': typeof LoginRouteWithChildren
+  '/maintainer': typeof MaintainerRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRouteWithChildren
@@ -699,6 +706,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/interpreter': typeof InterpreterRoute
   '/login': typeof LoginRouteWithChildren
+  '/maintainer': typeof MaintainerRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRouteWithChildren
@@ -790,6 +798,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/interpreter': typeof InterpreterRoute
   '/login': typeof LoginRouteWithChildren
+  '/maintainer': typeof MaintainerRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRouteWithChildren
@@ -890,6 +899,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/interpreter'
     | '/login'
+    | '/maintainer'
     | '/pricing'
     | '/reset-password'
     | '/signup'
@@ -985,6 +995,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/interpreter'
     | '/login'
+    | '/maintainer'
     | '/pricing'
     | '/reset-password'
     | '/signup'
@@ -1075,6 +1086,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/interpreter'
     | '/login'
+    | '/maintainer'
     | '/pricing'
     | '/reset-password'
     | '/signup'
@@ -1174,6 +1186,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   InterpreterRoute: typeof InterpreterRoute
   LoginRoute: typeof LoginRouteWithChildren
+  MaintainerRoute: typeof MaintainerRoute
   PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRouteWithChildren
@@ -1221,6 +1234,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/maintainer': {
+      id: '/maintainer'
+      path: '/maintainer'
+      fullPath: '/maintainer'
+      preLoaderRoute: typeof MaintainerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -2170,6 +2190,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   InterpreterRoute: InterpreterRoute,
   LoginRoute: LoginRouteWithChildren,
+  MaintainerRoute: MaintainerRoute,
   PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRouteWithChildren,
