@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import * as THREE from "three";
 import {
   Plane,
   Calculator,
@@ -147,32 +149,9 @@ function Hero() {
             </ul>
           </div>
 
-          {/* Visual: floating service preview cards built from tokens */}
-          <div className="home-fade-up home-delay-2 relative mx-auto hidden aspect-[5/4] w-full max-w-md md:block">
-            <FloatingPreview
-              className="home-float-a absolute left-0 top-4 w-[62%]"
-              icon={Plane}
-              tag="VISA"
-              title="Tori Faci"
-              status="Submitted on time"
-              tone="primary"
-            />
-            <FloatingPreview
-              className="home-float-b absolute right-0 top-24 w-[58%]"
-              icon={Languages}
-              tag="TRANSLATION"
-              title="Diploma EN → ZH"
-              status="Done in 18 hrs"
-              tone="accent"
-            />
-            <FloatingPreview
-              className="home-float-c absolute bottom-0 left-8 w-[64%]"
-              icon={Briefcase}
-              tag="CONSULTANCY"
-              title="Company registered"
-              status="2 weeks · official"
-              tone="success"
-            />
+          {/* Visual: original brand mark rendered as a transparent 3D texture */}
+          <div className="home-fade-up home-delay-2 relative mx-auto h-[260px] w-full max-w-sm sm:h-[320px] md:h-[430px] md:max-w-md">
+            <Logo3DScene />
           </div>
 
         </div>
@@ -195,6 +174,73 @@ function Hero() {
         </div>
       </div>
     </section>
+  );
+}
+
+function Logo3DScene() {
+  return (
+    <Canvas
+      aria-label="San Brothers logo"
+      camera={{ position: [0, 0, 6.2], fov: 38 }}
+      dpr={[1, 1.8]}
+      gl={{ alpha: true, antialias: true }}
+      style={{ background: "transparent" }}
+    >
+      <ambientLight intensity={1.9} />
+      <directionalLight position={[3, 4, 5]} intensity={2.25} />
+      <directionalLight position={[-3, -1, 2]} intensity={0.75} color="#ff4b3f" />
+      <Suspense fallback={null}>
+        <Logo3D />
+      </Suspense>
+    </Canvas>
+  );
+}
+
+function Logo3D() {
+  const groupRef = useRef<THREE.Group>(null);
+  const texture = useLoader(THREE.TextureLoader, "/sanlogo-Photoroom.png");
+
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  texture.needsUpdate = true;
+
+  useFrame(({ clock }) => {
+    if (!groupRef.current) return;
+    const t = clock.getElapsedTime();
+    groupRef.current.rotation.y = Math.sin(t * 0.55) * 0.18;
+    groupRef.current.rotation.x = Math.sin(t * 0.4) * 0.045 - 0.04;
+    groupRef.current.scale.setScalar(1 + Math.sin(t * 0.8) * 0.018);
+  });
+
+  const image = texture.image as HTMLImageElement | undefined;
+  const aspect = image?.width && image?.height ? image.width / image.height : 1;
+  const width = 4.65;
+  const height = width / aspect;
+
+  return (
+    <group ref={groupRef} rotation={[0, -0.08, 0]}>
+      <mesh position={[0.1, -0.12, -0.16]} scale={[1.01, 1.01, 1]}>
+        <planeGeometry args={[width, height]} />
+        <meshBasicMaterial
+          map={texture}
+          transparent
+          opacity={0.22}
+          color="#160000"
+          depthWrite={false}
+        />
+      </mesh>
+      <mesh>
+        <planeGeometry args={[width, height]} />
+        <meshStandardMaterial
+          map={texture}
+          transparent
+          roughness={0.38}
+          metalness={0.04}
+          toneMapped={false}
+          depthWrite={false}
+        />
+      </mesh>
+    </group>
   );
 }
 
