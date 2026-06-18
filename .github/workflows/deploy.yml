@@ -9,16 +9,26 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      # Setup Node explicitly to prevent runtime version confusion with Node 24
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Setup Bun for fast installations and building
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
+      # Install your dependencies cleanly
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      # Build the production app with all your environment secrets
       - name: Build
         run: bun run build
         env:
@@ -28,8 +38,9 @@ jobs:
           VITE_DAILY_CO_DOMAIN: ${{ secrets.VITE_DAILY_CO_DOMAIN }}
           VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
 
+      # Deploy using the stable wrangler wrapper
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          packageManager: bun
+          # We omit 'packageManager: bun' here to bypass the bugged bunx path execution environment error

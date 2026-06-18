@@ -183,7 +183,11 @@ function MaintainerConsole() {
   const [lastRefresh, setLastRefresh] = useState<number>(Date.now());
   const [refreshing, setRefreshing] = useState(false);
 
-  const [site, setSite] = useState<SiteHealth>({ status: "loading", latencyMs: null, checkedAt: null });
+  const [site, setSite] = useState<SiteHealth>({
+    status: "loading",
+    latencyMs: null,
+    checkedAt: null,
+  });
   const [db, setDb] = useState<DbHealth>({ status: "loading", latencyMs: null, checkedAt: null });
 
   const [commits, setCommits] = useState<GhCommit[] | null>(null);
@@ -308,7 +312,10 @@ function MaintainerConsole() {
       ]);
       setRecent({
         signup: u?.[0]
-          ? { email: (u[0] as { email: string }).email, created_at: (u[0] as { created_at: string }).created_at }
+          ? {
+              email: (u[0] as { email: string }).email,
+              created_at: (u[0] as { created_at: string }).created_at,
+            }
           : null,
         payment: p?.[0]
           ? {
@@ -614,8 +621,16 @@ function MaintainerConsole() {
               value={counts.service_requests}
               icon={<FileClock className="h-4 w-4" />}
             />
-            <MiniStat label="Payments" value={counts.payments} icon={<Activity className="h-4 w-4" />} />
-            <MiniStat label="Messages" value={counts.messages} icon={<Activity className="h-4 w-4" />} />
+            <MiniStat
+              label="Payments"
+              value={counts.payments}
+              icon={<Activity className="h-4 w-4" />}
+            />
+            <MiniStat
+              label="Messages"
+              value={counts.messages}
+              icon={<Activity className="h-4 w-4" />}
+            />
             <MiniStat
               label="Audit Entries"
               value={counts.audit_log}
@@ -631,9 +646,7 @@ function MaintainerConsole() {
             <RecentRow
               label="Latest payment"
               primary={
-                recent.payment
-                  ? `${(recent.payment.amount_rwf ?? 0).toLocaleString()} RWF`
-                  : "—"
+                recent.payment ? `${(recent.payment.amount_rwf ?? 0).toLocaleString()} RWF` : "—"
               }
               secondary={recent.payment ? relTime(recent.payment.created_at) : ""}
             />
@@ -687,9 +700,12 @@ function MaintainerConsole() {
                     .filter((r) => filterMatches(r.action, auditFilter))
                     .map((r) => {
                       const name = r.user_id
-                        ? auditUsers[r.user_id] ?? r.user_id.slice(0, 8)
+                        ? (auditUsers[r.user_id] ?? r.user_id.slice(0, 8))
                         : "system";
-                      const ts = new Date(r.created_at).toISOString().replace("T", " ").slice(0, 19);
+                      const ts = new Date(r.created_at)
+                        .toISOString()
+                        .replace("T", " ")
+                        .slice(0, 19);
                       return (
                         <li key={r.id} className="flex flex-wrap gap-x-2 break-all">
                           <span className="text-zinc-600">[{ts}]</span>
@@ -709,10 +725,7 @@ function MaintainerConsole() {
               )}
             </div>
             <div className="border-t border-zinc-800 p-3 text-right">
-              <Link
-                to="/admin/audit"
-                className="text-xs text-cyan-400 hover:text-cyan-300"
-              >
+              <Link to="/admin/audit" className="text-xs text-cyan-400 hover:text-cyan-300">
                 View full audit log →
               </Link>
             </div>
@@ -767,9 +780,11 @@ function MaintainerConsole() {
 function filterMatches(action: string, f: "all" | "pricing" | "staff" | "case") {
   if (f === "all") return true;
   const a = action.toLowerCase();
-  if (f === "pricing") return a.includes("pricing") || a.includes("minute_package") || a.includes("price");
+  if (f === "pricing")
+    return a.includes("pricing") || a.includes("minute_package") || a.includes("price");
   if (f === "staff") return a.includes("staff") || a.includes("role_changed");
-  if (f === "case") return a.includes("status_changed") || a.includes("case") || a.includes("note_added");
+  if (f === "case")
+    return a.includes("status_changed") || a.includes("case") || a.includes("note_added");
   return true;
 }
 
@@ -1021,9 +1036,7 @@ interface ActionItem {
 function ActionGroup({ title, items }: { title: string; items: ActionItem[] }) {
   return (
     <div>
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-        {title}
-      </h3>
+      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">{title}</h3>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((it) => {
           const inner = (
@@ -1096,7 +1109,10 @@ function EnvReference() {
 
   return (
     <section>
-      <SectionTitle icon={<ShieldCheck className="h-4 w-4" />} title="Environment & Config Reference" />
+      <SectionTitle
+        icon={<ShieldCheck className="h-4 w-4" />}
+        title="Environment & Config Reference"
+      />
       <div className="rounded-xl border border-zinc-800 bg-zinc-900">
         <button
           onClick={() => setOpen((v) => !v)}

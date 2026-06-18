@@ -9,6 +9,7 @@
       {
         "dlitem": "off"
       }
-    ]
+    ],
+    "compat-api/css": "off"
   }
 }
