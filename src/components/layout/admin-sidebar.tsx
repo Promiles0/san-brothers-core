@@ -12,6 +12,7 @@ import {
   ScrollText,
   Wrench,
   DollarSign,
+  TrendingUp,
   Settings,
   LogOut,
   type LucideIcon,
@@ -40,6 +41,7 @@ const groups: Group[] = [
     title: "Overview",
     items: [
       { label: "Overview", icon: LayoutDashboard, to: "/admin" },
+      { label: "Analytics", icon: TrendingUp, to: "/admin/analytics" },
       { label: "Revenue", icon: BarChart3, to: "/admin/revenue" },
     ],
   },
