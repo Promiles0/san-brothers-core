@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -53,7 +54,7 @@ const STATUS_CONFIG: Record<string, { label: string; dot: string; pulse: boolean
 const CATEGORY_CONFIG: Record<
   string,
   {
-    icon: React.ElementType;
+    icon: LucideIcon;
     color: string;
     bg: string;
     border: string;

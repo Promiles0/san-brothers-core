@@ -21,6 +21,7 @@ import {
   Circle as XCircle,
   Trash2,
   Paperclip,
+  type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -101,7 +102,7 @@ const CANCELLED_STATUSES = new Set(["rejected", "cancelled"]);
 const CATEGORY_CONFIG: Record<
   string,
   {
-    icon: React.ElementType;
+    icon: LucideIcon;
     color: string;
     bg: string;
     border: string;

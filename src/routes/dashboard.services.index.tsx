@@ -12,6 +12,7 @@ import {
   Check,
   X,
   Radio,
+  type LucideIcon,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -35,7 +36,7 @@ type Category = (typeof CATEGORIES)[number];
 const CATEGORY_CONFIG: Record<
   string,
   {
-    icon: React.ElementType;
+    icon: LucideIcon;
     color: string;
     bg: string;
     text: string;
