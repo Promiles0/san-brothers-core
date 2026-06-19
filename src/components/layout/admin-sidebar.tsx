@@ -12,6 +12,7 @@ import {
   ScrollText,
   Wrench,
   DollarSign,
+  TrendingUp,
   Settings,
   LogOut,
   type LucideIcon,
