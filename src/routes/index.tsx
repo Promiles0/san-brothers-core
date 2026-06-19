@@ -532,6 +532,46 @@ function Process() {
 const REAL_LOGOS: { name: string; src?: string }[] = [];
 const REAL_TESTIMONIALS: { quote: string; name: string; role?: string; loc?: string }[] = [];
 
+interface PartnerLogo {
+  name: string;
+  src: string;
+  bgColor: string;
+}
+
+const PARTNER_LOGOS: PartnerLogo[] = [
+  { name: "Rwanda Development Board", src: "/logos/rdb.png", bgColor: "#000000" },
+  { name: "Irembo Gov", src: "/logos/irembo-gov.png", bgColor: "#005FD3" },
+  // Add more partner logos here as they become available
+];
+
+function PartnerLogoMarquee() {
+  const trackLogos = [...PARTNER_LOGOS, ...PARTNER_LOGOS];
+
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-border bg-card/30 py-8">
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-background to-transparent sm:w-24" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-background to-transparent sm:w-24" />
+
+      <div className="group flex w-max animate-marquee gap-6 px-6 hover:[animation-play-state:paused] sm:gap-8">
+        {trackLogos.map((logo, i) => (
+          <div
+            key={`${logo.name}-${i}`}
+            className="flex h-16 shrink-0 items-center justify-center rounded-lg px-6 shadow-sm transition-transform duration-300 hover:scale-105 sm:h-20 sm:px-8"
+            style={{ backgroundColor: logo.bgColor }}
+          >
+            <img
+              src={logo.src}
+              alt={logo.name}
+              className="h-9 w-auto object-contain sm:h-11"
+              loading="lazy"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function SocialProof() {
   const { t } = useI18n();
   const hasLogos = REAL_LOGOS.length > 0;
@@ -563,9 +603,13 @@ function SocialProof() {
             ))}
           </div>
         ) : (
-          <div className="mt-10 rounded-2xl border border-dashed border-border bg-card/50 px-6 py-10 text-center text-sm text-muted-foreground">
-            Trusted by Rwandan and international clients across visa, accounting, translation and
-            consultancy.
+          <div className="mt-10">
+            <div className="mb-6 flex justify-center">
+              <span className="inline-block rounded-full border border-border bg-card px-3 py-1 text-xs font-bold uppercase tracking-widest text-accent">
+                PARTNERS & RECOGNITION
+              </span>
+            </div>
+            <PartnerLogoMarquee />
           </div>
         )}
 
