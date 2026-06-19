@@ -102,7 +102,6 @@ function Hero() {
         className="pointer-events-none absolute -top-32 right-1/2 h-[28rem] w-[28rem] translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
       />
 
-
       <div className="relative mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
         <div className="grid items-center gap-12 md:grid-cols-2">
           {/* Copy */}
@@ -153,7 +152,6 @@ function Hero() {
           <div className="home-fade-up home-delay-2 relative mx-auto h-[260px] w-full max-w-sm sm:h-[320px] md:h-[430px] md:max-w-md">
             <Logo3DScene />
           </div>
-
         </div>
 
         {/* Language strip */}
@@ -357,8 +355,12 @@ function ServicesGrid() {
                 </div>
                 <ArrowRight className="h-5 w-5 text-muted-foreground transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-primary" />
               </div>
-              <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">{s.title}</h3>
-              <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+              <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">
+                {s.title}
+              </h3>
+              <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">
+                {s.desc}
+              </p>
               <div className="relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-accent/20 transition-all group-hover:ring-accent/50 group-hover:shadow-[0_0_12px_color-mix(in_oklab,var(--accent)_30%,transparent)]">
                 <Sparkles className="h-3 w-3 text-accent" />
                 {s.outcome}
@@ -493,10 +495,7 @@ function Process() {
             />
           </div>
 
-          <ol
-            ref={containerRef}
-            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
-          >
+          <ol ref={containerRef} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {steps.map((s, i) => (
               <li
                 key={s.title}
@@ -539,8 +538,9 @@ interface PartnerLogo {
 }
 
 const PARTNER_LOGOS: PartnerLogo[] = [
-  { name: "Rwanda Development Board", src: "/logos/rdb.png", bgColor: "#000000" },
+  { name: "Rwanda Development Board", src: "/logos/rdb.png", bgColor: "#FFFFFF" },
   { name: "Irembo Gov", src: "/logos/irembo-gov.png", bgColor: "#005FD3" },
+  { name: "we the best ", src: "/logos/thebest .png", bgColor: "#FFFFFF" },
   // Add more partner logos here as they become available
 ];
 
@@ -552,7 +552,7 @@ function PartnerLogoMarquee() {
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-background to-transparent sm:w-24" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-background to-transparent sm:w-24" />
 
-      <div className="group flex w-max animate-marquee gap-6 px-6 hover:[animation-play-state:paused] sm:gap-8">
+      <div className="group flex w-max animate-marquee gap-6 px-6 hover:paused sm:gap-8">
         {trackLogos.map((logo, i) => (
           <div
             key={`${logo.name}-${i}`}

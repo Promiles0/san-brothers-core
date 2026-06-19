@@ -24,8 +24,7 @@ export function PublicNavbar() {
     { href: "/faq", label: t("nav.faq") },
   ];
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
     <header className="glass-nav sticky top-0 z-50 w-full">
@@ -55,8 +54,12 @@ export function PublicNavbar() {
         </nav>
 
         <div className="hidden items-center gap-1 md:flex">
-          <span className="icon-spin-hover inline-flex"><LanguageSwitcher /></span>
-          <span className="icon-spin-hover inline-flex"><ThemeToggle /></span>
+          <span className="icon-spin-hover inline-flex">
+            <LanguageSwitcher />
+          </span>
+          <span className="icon-spin-hover inline-flex">
+            <ThemeToggle />
+          </span>
           {user ? (
             <UserMenu />
           ) : (
@@ -76,7 +79,9 @@ export function PublicNavbar() {
         </div>
 
         <div className="flex items-center gap-1 md:hidden">
-          <span className="icon-spin-hover inline-flex"><ThemeToggle /></span>
+          <span className="icon-spin-hover inline-flex">
+            <ThemeToggle />
+          </span>
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Open menu">
