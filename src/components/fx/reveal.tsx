@@ -62,10 +62,10 @@ export function Reveal({
     return () => io.disconnect();
   }, [once, threshold]);
 
-  const Comp = Tag as never;
+  const Comp = Tag as unknown as React.ElementType;
   return (
     <Comp
-      ref={ref as never}
+      ref={ref}
       data-variant={variant}
       className={cn("fx-reveal", className)}
       style={{

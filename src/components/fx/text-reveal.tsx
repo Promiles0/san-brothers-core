@@ -48,8 +48,9 @@ export function TextReveal({
 
   const words = text.split(/(\s+)/);
 
+  const Comp = Tag as unknown as React.ElementType;
   return (
-    <Tag ref={ref as never} className={cn("fx-text-reveal", className)}>
+    <Comp ref={ref} className={cn("fx-text-reveal", className)}>
       {words.map((w, i) =>
         /^\s+$/.test(w) ? (
           <span key={i}> </span>
@@ -64,6 +65,6 @@ export function TextReveal({
           </span>
         )
       )}
-    </Tag>
+    </Comp>
   );
 }
