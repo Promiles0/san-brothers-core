@@ -45,17 +45,36 @@ interface UserRow {
 
 const PAGE = 50;
 
-function actionType(action: string) {
+function actionBucket(action: string) {
   const a = action.toLowerCase();
   if (a.includes("create") || a.includes("insert")) return "create";
-  if (a.includes("update") || a.includes("edit")) return "update";
-  if (a.includes("delete") || a.includes("remove")) return "delete";
+  if (a.includes("update") || a.includes("edit") || a.includes("changed")) return "update";
+  if (a.includes("delete") || a.includes("remove") || a.includes("rejected")) return "delete";
   if (a.includes("login") || a.includes("logout")) return "login";
   if (a.includes("download") || a.includes("export")) return "download";
   return "other";
 }
 
-const ACTION_COLORS: Record<string, string> = {
+// Specific per-action colors (extends the bucket fallback below).
+const SPECIFIC_ACTION_COLORS: Record<string, string> = {
+  status_changed: "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30",
+  pricing_updated: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30",
+  staff_activated: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30",
+  staff_deactivated: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
+  role_changed: "bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30",
+  minute_package_created:
+    "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30",
+  minute_package_updated:
+    "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30",
+  minute_package_deleted:
+    "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30",
+  review_approved:
+    "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
+  review_rejected: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
+  note_added: "bg-gray-500/15 text-gray-700 dark:text-gray-400 border-gray-500/30",
+};
+
+const BUCKET_COLORS: Record<string, string> = {
   create: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30",
   update: "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30",
   delete: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
@@ -63,6 +82,11 @@ const ACTION_COLORS: Record<string, string> = {
   download: "bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30",
   other: "bg-muted text-muted-foreground",
 };
+
+function colorFor(action: string) {
+  return SPECIFIC_ACTION_COLORS[action] ?? BUCKET_COLORS[actionBucket(action)];
+}
+
 
 function AdminAudit() {
   const [rows, setRows] = useState<AuditRow[]>([]);
