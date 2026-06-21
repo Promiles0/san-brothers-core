@@ -40,7 +40,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase, uploadToStorage } from "@/lib/supabase";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { cn, computeSLA } from "@/lib/utils";
 
 export const Route = createFileRoute("/dashboard/my-services/$id")({
   component: ServiceDetailPage,
