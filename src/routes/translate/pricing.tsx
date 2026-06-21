@@ -366,5 +366,5 @@ function LanguageSelect({
   );
 }
 
-// Re-export Badge to keep prior imports satisfied
-export { Badge };
+
+
