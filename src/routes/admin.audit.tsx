@@ -227,7 +227,7 @@ function AdminAudit() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All staff</SelectItem>
-            {users.map((u) => (
+            {staffWithEntries.map((u) => (
               <SelectItem key={u.id} value={u.id}>
                 {u.full_name ?? u.email}
               </SelectItem>
@@ -241,13 +241,14 @@ function AdminAudit() {
             setPage(0);
           }}
         >
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-56">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {["all", "create", "update", "delete", "login", "download", "other"].map((t) => (
-              <SelectItem key={t} value={t} className="capitalize">
-                {t}
+            <SelectItem value="all">All actions</SelectItem>
+            {distinctActions.map((a) => (
+              <SelectItem key={a} value={a}>
+                {a}
               </SelectItem>
             ))}
           </SelectContent>
@@ -270,6 +271,11 @@ function AdminAudit() {
           }}
           className="w-40"
         />
+        {hasActiveFilters && (
+          <Button size="sm" variant="ghost" onClick={clearFilters}>
+            Clear filters
+          </Button>
+        )}
       </div>
 
       <Card>
@@ -277,9 +283,12 @@ function AdminAudit() {
           <CardTitle className="text-base">
             {loading
               ? "Loading…"
-              : `${filtered.length} entries · page ${page + 1} of ${totalPages}`}
+              : hasActiveFilters
+                ? `${filtered.length} of ${rows.length} entries · page ${page + 1} of ${totalPages}`
+                : `${filtered.length} entries · page ${page + 1} of ${totalPages}`}
           </CardTitle>
         </CardHeader>
+
         <CardContent>
           {loading ? (
             <div className="space-y-2">
