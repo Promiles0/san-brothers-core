@@ -1230,6 +1230,80 @@ function ServiceDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Review dialog */}
+      <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Leave a review</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Your review helps other clients trust San Brothers. It will be
+              published after a quick check by our team.
+            </p>
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Rating
+              </p>
+              <div
+                className="flex items-center gap-1"
+                onMouseLeave={() => setReviewHover(0)}
+              >
+                {[1, 2, 3, 4, 5].map((n) => {
+                  const active = n <= (reviewHover || reviewRating);
+                  return (
+                    <button
+                      key={n}
+                      type="button"
+                      onMouseEnter={() => setReviewHover(n)}
+                      onClick={() => setReviewRating(n)}
+                      className="rounded p-1 transition-transform hover:scale-110"
+                      aria-label={`${n} star${n === 1 ? "" : "s"}`}
+                    >
+                      <Star
+                        className={cn(
+                          "h-7 w-7 transition-colors",
+                          active
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-muted-foreground/40",
+                        )}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Your review
+              </p>
+              <Textarea
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                rows={5}
+                maxLength={1000}
+                placeholder="Tell others about your experience with San Brothers..."
+              />
+              <p className="mt-1 text-right text-[10px] text-muted-foreground">
+                {reviewText.length}/1000
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setReviewOpen(false)}
+              disabled={reviewSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button onClick={submitReview} disabled={reviewSubmitting}>
+              {reviewSubmitting ? "Submitting…" : "Submit review"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
