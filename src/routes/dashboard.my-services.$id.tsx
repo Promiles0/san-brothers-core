@@ -262,6 +262,67 @@ function ServiceDetailPage() {
     load();
   }, [load]);
 
+  // Check whether the client has already reviewed this service request
+  useEffect(() => {
+    if (!user || !id) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("reviews")
+        .select("id")
+        .eq("client_id", user.id)
+        .eq("service_request_id", id)
+        .maybeSingle();
+      if (!cancelled) setExistingReviewId((data?.id as string) ?? null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, id]);
+
+  const submitReview = async () => {
+    if (!user || !sr) return;
+    if (reviewRating < 1) {
+      toast.error("Please select a rating");
+      return;
+    }
+    if (reviewText.trim().length < 10) {
+      toast.error("Please share a few words about your experience");
+      return;
+    }
+    setReviewSubmitting(true);
+    const displayName =
+      profile?.full_name?.trim() ||
+      user.email?.split("@")[0] ||
+      "Anonymous client";
+    const { data, error } = await supabase
+      .from("reviews")
+      .insert({
+        client_id: user.id,
+        service_request_id: sr.id,
+        rating: reviewRating,
+        review_text: reviewText.trim(),
+        client_display_name: displayName,
+      })
+      .select("id")
+      .single();
+    setReviewSubmitting(false);
+    if (error) {
+      if (error.code === "23505") {
+        toast.error("You've already submitted a review for this service.");
+      } else {
+        toast.error(error.message);
+      }
+      return;
+    }
+    setExistingReviewId((data?.id as string) ?? null);
+    setReviewOpen(false);
+    setReviewRating(0);
+    setReviewText("");
+    toast.success("Thank you! Your review will be visible after a quick review.");
+  };
+
+
   useEffect(() => {
     if (sr?.services?.name_en) {
       document.title = `${sr.services.name_en} — San Brothers`;
