@@ -185,8 +185,7 @@ export function ChatWindow(props: ChatWindowProps) {
           setMessages((prev) => prev.map((p) => (p.id === m.id ? { ...p, ...m } : p)));
         },
       )
-      .subscribe((status) => {
-      });
+      .subscribe();
 
     return () => {
       cancelled = true;

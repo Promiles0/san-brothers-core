@@ -264,8 +264,7 @@ function useIncomingCall(
             await showCall(call, true);
           },
         )
-        .subscribe((status) => {
-        });
+        .subscribe();
     }
 
     // Channel 2: calls forwarded to this interpreter
@@ -285,8 +284,7 @@ function useIncomingCall(
           await showCall(call, true);
         },
       )
-      .subscribe((status) => {
-      });
+      .subscribe();
 
     return () => {
       if (channel1) void supabase.removeChannel(channel1);

@@ -182,8 +182,7 @@ function ActiveCallPage() {
           }
         },
       )
-      .subscribe((status) => {
-      });
+      .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
