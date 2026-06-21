@@ -354,11 +354,12 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
             <>
               <div className="flex-1 space-y-4 overflow-y-auto p-4">
                 {!apiConfigured && messages.length <= 1 ? (
-                  <div className="rounded-lg border border-consultancy/30 bg-consultancy/10 px-3 py-2 text-xs text-foreground">
-                    ⚠ AI assistant not yet configured.{" "}
+                  <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-foreground">
+                    AI responses coming soon — for urgent matters,{" "}
                     <a className="font-semibold text-primary underline" href="/contact">
-                      Contact us
+                      contact us directly
                     </a>
+                    .
                   </div>
                 ) : null}
                 {messages.map((message, index) => (
@@ -380,7 +381,18 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
                           : "rounded-tl-sm border border-border bg-card text-foreground shadow-sm"
                       }`}
                     >
-                      <p className="text-sm">{message.content}</p>
+                      <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                      {message.error && message.retryOf && index === messages.length - 1 && (
+                        <button
+                          type="button"
+                          onClick={() => sendMessage(message.retryOf!)}
+                          disabled={isLoading}
+                          className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline disabled:opacity-50"
+                        >
+                          <RotateCcw className="h-3 w-3" />
+                          Try again
+                        </button>
+                      )}
                       <span className="mt-1 hidden text-[9px] opacity-60 group-hover:block">
                         Just now
                       </span>
