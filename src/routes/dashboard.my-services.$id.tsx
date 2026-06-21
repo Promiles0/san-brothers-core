@@ -1237,16 +1237,15 @@ function ServiceDetailPage() {
       <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Leave a review</DialogTitle>
+            <DialogTitle>{t("reviews.client.dialogTitle")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Your review helps other clients trust San Brothers. It will be
-              published after a quick check by our team.
+              {t("reviews.client.dialogIntro")}
             </p>
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Rating
+                {t("reviews.client.ratingLabel")}
               </p>
               <div
                 className="flex items-center gap-1"
@@ -1278,14 +1277,14 @@ function ServiceDetailPage() {
             </div>
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Your review
+                {t("reviews.client.reviewLabel")}
               </p>
               <Textarea
                 value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
                 rows={5}
                 maxLength={1000}
-                placeholder="Tell others about your experience with San Brothers..."
+                placeholder={t("reviews.client.reviewPlaceholder")}
               />
               <p className="mt-1 text-right text-[10px] text-muted-foreground">
                 {reviewText.length}/1000
@@ -1298,10 +1297,12 @@ function ServiceDetailPage() {
               onClick={() => setReviewOpen(false)}
               disabled={reviewSubmitting}
             >
-              Cancel
+              {t("reviews.client.cancel")}
             </Button>
             <Button onClick={submitReview} disabled={reviewSubmitting}>
-              {reviewSubmitting ? "Submitting…" : "Submit review"}
+              {reviewSubmitting
+                ? t("reviews.client.submitting")
+                : t("reviews.client.submit")}
             </Button>
           </DialogFooter>
         </DialogContent>
