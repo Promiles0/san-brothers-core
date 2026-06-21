@@ -645,6 +645,11 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         title: "Live Interpreter Session",
         description: `${bookFromLang} to ${bookToLang} · ${bookDate} ${bookTime}`,
         metadata: { client_id: user.id, service_id: service.id, service_slug: service.slug },
+        intent: {
+          kind: "service",
+          service_id: service.id,
+          metadata: { service_slug: service.slug, booking: "interpreter" },
+        },
         finalize: async (intentId) => {
           console.info("Stripe payment succeeded for interpreter booking", {
             paymentIntentId: intentId,
