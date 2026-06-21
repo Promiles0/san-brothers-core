@@ -20,6 +20,7 @@ import { AIChatWidget } from "@/components/chat/ai-chat-widget";
 import { CustomCursor } from "@/components/fx/custom-cursor";
 import { ScrollProgress } from "@/components/fx/scroll-progress";
 import { PageTransition } from "@/components/fx/page-transition";
+import { AutoReveal } from "@/components/fx/auto-reveal";
 
 function NotFoundComponent() {
   return (
@@ -135,6 +136,7 @@ function RootComponent() {
           <AuthProvider>
             <ScrollProgress />
             <CustomCursor />
+            <AutoReveal />
             <PageTransition>
               <Outlet />
             </PageTransition>
