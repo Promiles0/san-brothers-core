@@ -407,7 +407,35 @@ export function StaffCaseDetail({
         <h1 className="text-2xl font-bold">{data.client?.full_name ?? "—"}</h1>
         <span className="text-muted-foreground">— {data.service?.name_en}</span>
         <StatusBadge status={data.status} />
+        {(() => {
+          const sla = computeSLA({
+            createdAt: data.created_at,
+            completedAt: data.completed_at,
+            estimatedDaysMin: data.service?.estimated_days_min,
+            estimatedDaysMax: data.service?.estimated_days_max,
+            status: data.status,
+          });
+          if (!sla) return null;
+          const toneClass =
+            sla.tone === "success"
+              ? "border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400"
+              : sla.tone === "amber"
+                ? "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                : "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-400";
+          return (
+            <span
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium",
+                toneClass,
+              )}
+            >
+              <Clock className="h-3 w-3" />
+              {sla.text}
+            </span>
+          );
+        })()}
       </div>
+
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="text-muted-foreground">Assigned to:</span>
         <span className="font-medium">
