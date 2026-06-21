@@ -17,6 +17,9 @@ import { I18nProvider } from "@/lib/providers/i18n-provider";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import { AIChatWidget } from "@/components/chat/ai-chat-widget";
+import { CustomCursor } from "@/components/fx/custom-cursor";
+import { ScrollProgress } from "@/components/fx/scroll-progress";
+import { PageTransition } from "@/components/fx/page-transition";
 
 function NotFoundComponent() {
   return (
@@ -130,7 +133,11 @@ function RootComponent() {
       <ThemeProvider>
         <I18nProvider>
           <AuthProvider>
-            <Outlet />
+            <ScrollProgress />
+            <CustomCursor />
+            <PageTransition>
+              <Outlet />
+            </PageTransition>
             <Toaster richColors position="top-right" />
             <AIChatWidget />
           </AuthProvider>
