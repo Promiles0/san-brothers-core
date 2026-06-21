@@ -770,6 +770,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                 serviceTitle={payIntent.title}
                 description={payIntent.description}
                 metadata={payIntent.metadata}
+                intent={payIntent.intent}
                 onSuccess={async (intentId: string) => {
                   setStripeError(null);
                   await payIntent.finalize(intentId);
