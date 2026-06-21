@@ -205,6 +205,14 @@ export function StepPayment({
             amount={basePrice}
             serviceTitle={`Service Application: ${service.name_en}`}
             description={`Complete your application for ${service.name_en}`}
+            intent={{
+              kind: "service",
+              service_id: service.id,
+              metadata: {
+                serviceSlug: service.slug,
+                documentCount: state.uploadedDocuments.length.toString(),
+              },
+            }}
             metadata={{
               serviceId: service.id,
               serviceSlug: service.slug,
