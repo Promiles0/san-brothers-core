@@ -684,6 +684,10 @@ body.has-custom-cursor select {
 
 @media (prefers-reduced-motion: reduce) {
   .fx-page-in,
+  .fx-page-fade,
+  .fx-page-slide,
+  .fx-page-zoom,
+  .fx-page-blur,
   .fx-tilt-inner,
   .fx-cursor-dot,
   .fx-cursor-ring,
@@ -696,7 +700,19 @@ body.has-custom-cursor select {
     animation: none !important;
     transition: none !important;
     transform: none !important;
+    filter: none !important;
     stroke-dashoffset: 0 !important;
+  }
+  .fx-reveal,
+  .fx-stagger .fx-stagger-item,
+  .fx-split .fx-split-left,
+  .fx-split .fx-split-right,
+  .fx-text-reveal .fx-text-word-inner {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    animation: none !important;
+    transition: none !important;
   }
   .fx-scroll-progress { transition: none; }
 }
