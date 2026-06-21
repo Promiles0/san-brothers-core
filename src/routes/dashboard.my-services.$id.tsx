@@ -1100,7 +1100,7 @@ function ServiceDetailPage() {
                   type="button"
                   onClick={() => {
                     if (existingReviewId) {
-                      toast.info("You've already submitted a review for this service.");
+                      toast.info(t("reviews.client.alreadyToast"));
                       return;
                     }
                     setReviewOpen(true);
@@ -1112,12 +1112,14 @@ function ServiceDetailPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      {existingReviewId ? "Review submitted" : "Leave a Review"}
+                      {existingReviewId
+                        ? t("reviews.client.alreadySubmitted")
+                        : t("reviews.client.leaveAction")}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {existingReviewId
-                        ? "Thanks for your feedback"
-                        : "Share your experience with San Brothers"}
+                        ? t("reviews.client.alreadyDesc")
+                        : t("reviews.client.leaveActionDesc")}
                     </p>
                   </div>
                 </button>
