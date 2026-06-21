@@ -283,11 +283,11 @@ function ServiceDetailPage() {
   const submitReview = async () => {
     if (!user || !sr) return;
     if (reviewRating < 1) {
-      toast.error("Please select a rating");
+      toast.error(t("reviews.client.ratingRequired"));
       return;
     }
     if (reviewText.trim().length < 10) {
-      toast.error("Please share a few words about your experience");
+      toast.error(t("reviews.client.reviewTooShort"));
       return;
     }
     setReviewSubmitting(true);
@@ -309,7 +309,7 @@ function ServiceDetailPage() {
     setReviewSubmitting(false);
     if (error) {
       if (error.code === "23505") {
-        toast.error("You've already submitted a review for this service.");
+        toast.error(t("reviews.client.alreadyToast"));
       } else {
         toast.error(error.message);
       }
@@ -319,7 +319,7 @@ function ServiceDetailPage() {
     setReviewOpen(false);
     setReviewRating(0);
     setReviewText("");
-    toast.success("Thank you! Your review will be visible after a quick review.");
+    toast.success(t("reviews.client.successToast"));
   };
 
 
