@@ -69,14 +69,6 @@ export function RotatingText({
       aria-live="polite"
       aria-label={current}
     >
-      {/* Measure stack — reserves space for the tallest phrase */}
-      <span className="fx-rotating-measure-stack" aria-hidden="true">
-        {safe.map((p, idx) => (
-          <span key={idx} className="fx-rotating-measure-row">
-            {p}
-          </span>
-        ))}
-      </span>
 
       {/* Animated phrase */}
       <span className="fx-rotating-active" key={`${i}-${phase}`}>

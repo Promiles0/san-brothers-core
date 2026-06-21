@@ -557,25 +557,14 @@
 
 /* ---------- Rotating headline (per-word phrase swap) ---------- */
 .fx-rotating {
-  display: grid;
-  position: relative;
-}
-.fx-rotating-measure-stack {
-  display: grid;
-  visibility: hidden;
-  pointer-events: none;
-  grid-area: 1 / 1;
-}
-.fx-rotating-measure-row {
-  grid-area: 1 / 1;
-}
-.fx-rotating-active {
-  grid-area: 1 / 1;
-  display: block;
+  display: inline;
   background: linear-gradient(120deg, var(--primary), var(--accent));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+.fx-rotating-active {
+  display: inline;
 }
 .fx-rot-word-in,
 .fx-rot-word-out {
