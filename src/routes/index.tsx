@@ -135,12 +135,12 @@ function PageStyles() {
 
 function Hero() {
   const { t, tRaw } = useI18n();
-  const rotatingWords = (() => {
+  const rotatingPhrases = (() => {
     try {
-      const v = tRaw<string[]>("home.heroRotatingWords");
-      return Array.isArray(v) && v.length ? v : [t("services.visa")];
+      const v = tRaw<string[]>("home.heroRotatingPhrases");
+      return Array.isArray(v) && v.length ? v : [t("home.heroTitle")];
     } catch {
-      return [t("services.visa")];
+      return [t("home.heroTitle")];
     }
   })();
   return (
@@ -163,11 +163,8 @@ function Hero() {
               <Sparkles className="h-3.5 w-3.5 text-accent" />
               Trusted in 15+ countries
             </span>
-            <h1 className="mt-6 text-balance text-4xl font-black leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl">
-              {t("home.heroRotatingPrefix")}{" "}
-              <RotatingText words={rotatingWords} />
-              <br className="hidden sm:block" />{" "}
-              {t("home.heroRotatingSuffix")}
+            <h1 className="mt-6 text-balance text-4xl font-black leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
+              <RotatingText phrases={rotatingPhrases} />
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg md:mx-0">
               {t("home.heroSubtitle")}

@@ -2,29 +2,30 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface RotatingTextProps {
-  words: string[];
-  /** Visible time per word before swapping (ms). */
+  /** Full phrases to cycle through. Each can wrap naturally. */
+  phrases: string[];
+  /** Visible time per phrase (ms). */
   intervalMs?: number;
-  /** Exit animation duration (ms). */
-  exitMs?: number;
-  /** Per-letter stagger (ms). */
+  /** Per-word stagger (ms). */
   staggerMs?: number;
+  /** Out animation duration (ms). */
+  exitMs?: number;
   className?: string;
 }
 
 /**
- * Cycles through words with a per-letter swap: outgoing letters
- * slide up + blur out one by one, then incoming letters slide up + un-blur in.
- * Reduced-motion: shows the first word only.
+ * Cycles through full phrases. Words slide-up + blur out, next phrase's words
+ * slide-up + blur in with a stagger. Reserves space for the largest phrase
+ * to avoid layout jumps, and supports natural line wrapping.
  */
 export function RotatingText({
-  words,
-  intervalMs = 2600,
-  exitMs = 450,
-  staggerMs = 28,
+  phrases,
+  intervalMs = 3200,
+  staggerMs = 55,
+  exitMs = 520,
   className,
 }: RotatingTextProps) {
-  const safe = words && words.length > 0 ? words : [""];
+  const safe = phrases && phrases.length > 0 ? phrases : [""];
   const [i, setI] = useState(0);
   const [phase, setPhase] = useState<"in" | "out">("in");
   const [reduced, setReduced] = useState(false);
@@ -41,12 +42,13 @@ export function RotatingText({
 
   useEffect(() => {
     if (reduced || safe.length < 2) return;
+    const wordCount = safe[i].trim().split(/\s+/).length;
     const tick = () => {
       setPhase("out");
       window.setTimeout(() => {
         setI((p) => (p + 1) % safe.length);
         setPhase("in");
-      }, exitMs + staggerMs * Math.max(0, safe[i].length - 1));
+      }, exitMs + staggerMs * Math.max(0, wordCount - 1));
     };
     timer.current = window.setTimeout(tick, intervalMs);
     return () => {
@@ -55,37 +57,47 @@ export function RotatingText({
   }, [i, phase, reduced, safe, intervalMs, exitMs, staggerMs]);
 
   if (reduced) {
-    return <span className={cn("fx-rotating-text", className)}>{safe[0]}</span>;
+    return <span className={cn("fx-rotating block", className)}>{safe[0]}</span>;
   }
 
-  const word = safe[i];
-  const letters = Array.from(word);
+  const current = safe[i];
+  const words = current.split(/(\s+)/); // keep whitespace tokens
 
   return (
     <span
-      className={cn("fx-rotating-text", className)}
+      className={cn("fx-rotating", className)}
       aria-live="polite"
-      aria-label={word}
+      aria-label={current}
     >
-      {/* Reserve width to prevent layout jump */}
-      <span className="fx-rotating-measure" aria-hidden="true">
-        {safe.reduce((a, b) => (a.length >= b.length ? a : b))}
-      </span>
-      <span className="fx-rotating-stage" key={`${i}-${phase}`}>
-        {letters.map((ch, idx) => (
-          <span
-            key={idx}
-            className={
-              phase === "in" ? "fx-rot-letter-in" : "fx-rot-letter-out"
-            }
-            style={{
-              animationDelay: `${idx * staggerMs}ms`,
-              animationDuration: phase === "in" ? "560ms" : `${exitMs}ms`,
-            }}
-          >
-            {ch === " " ? "\u00A0" : ch}
+      {/* Measure stack — reserves space for the tallest phrase */}
+      <span className="fx-rotating-measure-stack" aria-hidden="true">
+        {safe.map((p, idx) => (
+          <span key={idx} className="fx-rotating-measure-row">
+            {p}
           </span>
         ))}
+      </span>
+
+      {/* Animated phrase */}
+      <span className="fx-rotating-active" key={`${i}-${phase}`}>
+        {words.map((w, idx) => {
+          if (/^\s+$/.test(w)) return <span key={idx}>{w}</span>;
+          const wordIndex = words.slice(0, idx).filter((x) => !/^\s+$/.test(x)).length;
+          return (
+            <span
+              key={idx}
+              className={
+                phase === "in" ? "fx-rot-word-in" : "fx-rot-word-out"
+              }
+              style={{
+                animationDelay: `${wordIndex * staggerMs}ms`,
+                animationDuration: phase === "in" ? "640ms" : `${exitMs}ms`,
+              }}
+            >
+              {w}
+            </span>
+          );
+        })}
       </span>
     </span>
   );

@@ -63,9 +63,14 @@
   "home": {
     "heroTitle": "Your Trusted Partner for Global Professional Services",
     "heroSubtitle": "Accounting Services, visas & Permit Facilitation, Translation & Interpretation translation, Business Consultancy and more .. — built for clients in Rwanda and around the world.",
-    "heroRotatingPrefix": "Your trusted partner for",
-    "heroRotatingSuffix": "worldwide.",
-    "heroRotatingWords": ["visas", "translation", "accounting", "consultancy", "business setup", "permits"],
+    "heroRotatingPhrases": [
+      "Your trusted partner for visas worldwide.",
+      "Professional translation in every language.",
+      "Accounting that keeps your business sharp.",
+      "Business consultancy that unlocks growth.",
+      "Permits and company setup, done right.",
+      "Global expertise, built for Rwanda."
+    ],
     "trustStrip": "Trusted by Rwandan and foreign clients · 1,000+ successful applications",
     "servicesHeading": "Our Services",
     "whyHeading": "Why San Brothers",

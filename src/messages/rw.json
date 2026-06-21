@@ -63,9 +63,14 @@
   "home": {
     "heroTitle": "Umufatanyabikorwa wawe wizewe mu Serivisi z'Umwuga ku Isi",
     "heroSubtitle": "Ibaruramari, viza, ubusemuzi, n'inkunga y'ubucuruzi — byateguriwe abakiriya bo mu Rwanda no ku isi.",
-    "heroRotatingPrefix": "Umufatanyabikorwa wawe wizewe muri",
-    "heroRotatingSuffix": "ku isi.",
-    "heroRotatingWords": ["viza", "ubusemuzi", "ibaruramari", "inama", "iyandikisha ry'ikigo", "uburenganzira bw'akazi"],
+    "heroRotatingPhrases": [
+      "Umufatanyabikorwa wawe wizewe muri viza ku isi.",
+      "Ubusemuzi bw'umwuga mu ndimi zose.",
+      "Ibaruramari rituma ubucuruzi bwawe butera imbere.",
+      "Inama z'ubucuruzi zikongerera iterambere.",
+      "Uruhushya n'iyandikisha ry'ikigo bikorwa neza.",
+      "Ubunararibonye bw'isi, bwateguriwe u Rwanda."
+    ],
     "trustStrip": "Twizewe n'abakiriya b'Abanyarwanda n'Abashinwa · Dosiye 1,000+ zatsindiye",
     "servicesHeading": "Serivisi zacu",
     "whyHeading": "Kuki San Brothers",
