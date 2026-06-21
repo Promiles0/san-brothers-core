@@ -61,6 +61,7 @@ interface CaseDetail {
   assigned_staff_id: string | null;
   service_category: ServiceCategory;
   created_at: string;
+  completed_at?: string | null;
   authority_name?: string | null;
   authority_ref?: string | null;
   authority_notes?: string | null;
@@ -74,8 +75,13 @@ interface CaseDetail {
     city: string | null;
     country: string | null;
   } | null;
-  service: { name_en: string } | null;
+  service: {
+    name_en: string;
+    estimated_days_min?: number | null;
+    estimated_days_max?: number | null;
+  } | null;
 }
+
 
 interface StaffMember {
   id: string;
