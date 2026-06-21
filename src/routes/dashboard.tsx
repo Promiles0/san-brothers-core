@@ -4,7 +4,7 @@ import { ProtectedRoute } from "@/components/auth/protected-route";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
-import { AiChatWidget } from "@/components/dashboard/ai-chat-widget";
+
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardLayoutRoute,
@@ -134,7 +134,6 @@ function DashboardShell() {
   return (
     <DashboardLayout role={role} hiddenNavKeys={hiddenNavKeys}>
       <Outlet />
-      {role === "client" && <AiChatWidget />}
     </DashboardLayout>
   );
 }
