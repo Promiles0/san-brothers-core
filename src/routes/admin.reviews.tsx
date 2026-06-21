@@ -80,6 +80,7 @@ function fmt(iso: string) {
 
 function AdminReviews() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [filter, setFilter] = useState<FilterTab>("pending");
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -152,36 +153,51 @@ function AdminReviews() {
       target_id: review.id,
       metadata: { rating: review.rating, client_id: review.client_id },
     });
-    toast.success(`Review ${nextStatus}`);
+    toast.success(
+      t(nextStatus === "approved" ? "reviews.admin.approveToast" : "reviews.admin.rejectToast"),
+    );
     setActive(null);
     void fetchReviews();
   };
 
   const toggleFeatured = async (review: ReviewRow, next: boolean) => {
     setSavingId(review.id);
+    // Optimistic update so the switch reflects instantly while disabled
+    setReviews((prev) =>
+      prev.map((r) => (r.id === review.id ? { ...r, is_featured: next } : r)),
+    );
     const { error } = await supabase
       .from("reviews")
       .update({ is_featured: next })
       .eq("id", review.id);
     setSavingId(null);
     if (error) {
+      // Revert on failure
+      setReviews((prev) =>
+        prev.map((r) => (r.id === review.id ? { ...r, is_featured: !next } : r)),
+      );
       toast.error(error.message);
       return;
     }
-    setReviews((prev) =>
-      prev.map((r) => (r.id === review.id ? { ...r, is_featured: next } : r)),
+    toast.success(
+      t(next ? "reviews.admin.featuredOnToast" : "reviews.admin.featuredOffToast"),
     );
-    toast.success(next ? "Featured on homepage" : "Removed from homepage");
   };
+
+  const emptyCopy = (f: FilterTab) =>
+    f === "pending"
+      ? t("reviews.admin.emptyPending")
+      : f === "approved"
+        ? t("reviews.admin.emptyApproved")
+        : f === "rejected"
+          ? t("reviews.admin.emptyRejected")
+          : t("reviews.admin.emptyAll");
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Client Reviews</h1>
-        <p className="text-sm text-muted-foreground">
-          Moderate testimonials submitted by clients and feature the best ones on
-          your homepage.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("reviews.admin.title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("reviews.admin.subtitle")}</p>
       </div>
 
       {/* Stat cards */}
@@ -190,18 +206,22 @@ function AdminReviews() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total
+                {t("reviews.admin.stats.total")}
               </p>
               <MessageSquare className="h-4 w-4 text-muted-foreground" />
             </div>
-            <p className="mt-2 text-2xl font-bold">{stats.total}</p>
+            {loading ? (
+              <Skeleton className="mt-2 h-7 w-12" />
+            ) : (
+              <p className="mt-2 text-2xl font-bold">{stats.total}</p>
+            )}
           </CardContent>
         </Card>
         <Card className={stats.pending > 0 ? "border-amber-500/40 bg-amber-500/5" : ""}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Pending
+                {t("reviews.admin.stats.pending")}
               </p>
               <Loader2
                 className={cn(
@@ -210,39 +230,51 @@ function AdminReviews() {
                 )}
               />
             </div>
-            <p
-              className={cn(
-                "mt-2 text-2xl font-bold",
-                stats.pending > 0 && "text-amber-600 dark:text-amber-400",
-              )}
-            >
-              {stats.pending}
-            </p>
+            {loading ? (
+              <Skeleton className="mt-2 h-7 w-12" />
+            ) : (
+              <p
+                className={cn(
+                  "mt-2 text-2xl font-bold",
+                  stats.pending > 0 && "text-amber-600 dark:text-amber-400",
+                )}
+              >
+                {stats.pending}
+              </p>
+            )}
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Avg Rating
+                {t("reviews.admin.stats.avg")}
               </p>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <p className="text-2xl font-bold">{stats.avg.toFixed(1)}</p>
-              <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-            </div>
+            {loading ? (
+              <Skeleton className="mt-2 h-7 w-16" />
+            ) : (
+              <div className="mt-2 flex items-baseline gap-2">
+                <p className="text-2xl font-bold">{stats.avg.toFixed(1)}</p>
+                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+              </div>
+            )}
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Featured
+                {t("reviews.admin.stats.featured")}
               </p>
               <Sparkles className="h-4 w-4 text-muted-foreground" />
             </div>
-            <p className="mt-2 text-2xl font-bold">{stats.featured}</p>
+            {loading ? (
+              <Skeleton className="mt-2 h-7 w-12" />
+            ) : (
+              <p className="mt-2 text-2xl font-bold">{stats.featured}</p>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -251,24 +283,22 @@ function AdminReviews() {
       <div className="flex flex-wrap items-center gap-2">
         {FILTERS.map((f) => {
           const count =
-            f.value === "all"
-              ? reviews.length
-              : reviews.filter((r) => r.status === f.value).length;
-          const active = filter === f.value;
+            f === "all" ? reviews.length : reviews.filter((r) => r.status === f).length;
+          const isActive = filter === f;
           return (
             <button
-              key={f.value}
+              key={f}
               type="button"
-              onClick={() => setFilter(f.value)}
+              onClick={() => setFilter(f)}
               className={cn(
                 "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                active
+                isActive
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-card text-muted-foreground hover:text-foreground",
               )}
             >
-              {f.label}
-              <span className="ml-1.5 opacity-70">{count}</span>
+              {t(`reviews.admin.filters.${f}`)}
+              {!loading && <span className="ml-1.5 opacity-70">{count}</span>}
             </button>
           );
         })}
@@ -277,29 +307,50 @@ function AdminReviews() {
       {/* Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Reviews</CardTitle>
+          <CardTitle className="text-base">{t("reviews.admin.tableTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="flex h-40 items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <div className="space-y-3" aria-busy="true" aria-live="polite">
+              <span className="sr-only">{t("reviews.admin.loading")}</span>
+              {[0, 1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 rounded-lg border border-border/60 p-3"
+                >
+                  <Skeleton className="h-9 w-9 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-3.5 w-1/3" />
+                    <Skeleton className="h-3 w-2/3" />
+                  </div>
+                  <Skeleton className="h-7 w-20 rounded-md" />
+                  <Skeleton className="h-7 w-16 rounded-md" />
+                </div>
+              ))}
             </div>
           ) : filtered.length === 0 ? (
-            <p className="py-12 text-center text-sm text-muted-foreground">
-              No reviews in this view yet.
-            </p>
+            <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+              <div className="grid h-12 w-12 place-items-center rounded-full bg-muted">
+                <MessageSquare className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <p className="max-w-md text-sm text-muted-foreground">{emptyCopy(filter)}</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Client</TableHead>
-                    <TableHead>Rating</TableHead>
-                    <TableHead className="min-w-[280px]">Review</TableHead>
-                    <TableHead>Service</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Submitted</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t("reviews.admin.th.client")}</TableHead>
+                    <TableHead>{t("reviews.admin.th.rating")}</TableHead>
+                    <TableHead className="min-w-[280px]">
+                      {t("reviews.admin.th.review")}
+                    </TableHead>
+                    <TableHead>{t("reviews.admin.th.service")}</TableHead>
+                    <TableHead>{t("reviews.admin.th.status")}</TableHead>
+                    <TableHead>{t("reviews.admin.th.submitted")}</TableHead>
+                    <TableHead className="text-right">
+                      {t("reviews.admin.th.actions")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -324,7 +375,7 @@ function AdminReviews() {
                           variant="outline"
                           className={cn("capitalize", statusBadge(r.status))}
                         >
-                          {r.status}
+                          {t(`reviews.admin.filters.${r.status}`)}
                         </Badge>
                       </TableCell>
                       <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
@@ -340,7 +391,11 @@ function AdminReviews() {
                                 onClick={() => moderate(r, "approved")}
                                 className="h-8 bg-emerald-600 text-white hover:bg-emerald-700"
                               >
-                                Approve
+                                {savingId === r.id ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  t("reviews.admin.approve")
+                                )}
                               </Button>
                               <Button
                                 size="sm"
@@ -349,20 +404,23 @@ function AdminReviews() {
                                 onClick={() => moderate(r, "rejected")}
                                 className="h-8 border-red-500/40 text-red-600 hover:bg-red-500 hover:text-white dark:text-red-400"
                               >
-                                Reject
+                                {t("reviews.admin.reject")}
                               </Button>
                             </>
                           )}
                           {r.status === "approved" && (
                             <label className="flex items-center gap-2 text-xs">
                               <span className="text-muted-foreground">
-                                Featured
+                                {t("reviews.admin.featured")}
                               </span>
                               <Switch
                                 checked={r.is_featured}
                                 disabled={savingId === r.id}
                                 onCheckedChange={(v) => toggleFeatured(r, v)}
                               />
+                              {savingId === r.id && (
+                                <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                              )}
                             </label>
                           )}
                           <Button
@@ -374,7 +432,7 @@ function AdminReviews() {
                               setAdminNotes(r.admin_notes ?? "");
                             }}
                           >
-                            View
+                            {t("reviews.admin.view")}
                           </Button>
                         </div>
                       </TableCell>
@@ -391,7 +449,7 @@ function AdminReviews() {
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Review details</DialogTitle>
+            <DialogTitle>{t("reviews.admin.detailsTitle")}</DialogTitle>
           </DialogHeader>
           {active && (
             <div className="space-y-4">
@@ -409,18 +467,18 @@ function AdminReviews() {
               </blockquote>
               <div>
                 <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Internal admin notes
+                  {t("reviews.admin.notesLabel")}
                 </p>
                 <Textarea
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
                   rows={3}
-                  placeholder="Optional notes for the team..."
+                  placeholder={t("reviews.admin.notesPlaceholder")}
                 />
               </div>
               {active.reviewed_at && (
                 <p className="text-xs text-muted-foreground">
-                  Last actioned {fmt(active.reviewed_at)}
+                  {t("reviews.admin.lastActioned")} {fmt(active.reviewed_at)}
                 </p>
               )}
             </div>
@@ -434,14 +492,14 @@ function AdminReviews() {
                   onClick={() => active && moderate(active, "rejected", adminNotes)}
                   disabled={savingId === active?.id}
                 >
-                  Reject
+                  {t("reviews.admin.reject")}
                 </Button>
                 <Button
                   className="bg-emerald-600 text-white hover:bg-emerald-700"
                   onClick={() => active && moderate(active, "approved", adminNotes)}
                   disabled={savingId === active?.id}
                 >
-                  Approve
+                  {t("reviews.admin.approve")}
                 </Button>
               </>
             ) : (
@@ -459,12 +517,12 @@ function AdminReviews() {
                     toast.error(error.message);
                     return;
                   }
-                  toast.success("Notes saved");
+                  toast.success(t("reviews.admin.savedNotes"));
                   setActive(null);
                   void fetchReviews();
                 }}
               >
-                Save notes
+                {t("reviews.admin.saveNotes")}
               </Button>
             )}
           </DialogFooter>
