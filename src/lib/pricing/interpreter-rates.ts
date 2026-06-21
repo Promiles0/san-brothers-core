@@ -52,6 +52,12 @@ export function calculateCommission(clientRate: number, staffRate: number): numb
   return clientRate - staffRate;
 }
 
+export const RWF_PER_USD = 1285;
+
 export function convertUsdToRwf(usd: number): number {
-  return Math.round(usd * 1285);
+  return Math.round(usd * RWF_PER_USD);
+}
+
+export function convertRwfToUsd(rwf: number): number {
+  return rwf / RWF_PER_USD;
 }
