@@ -45,17 +45,36 @@ interface UserRow {
 
 const PAGE = 50;
 
-function actionType(action: string) {
+function actionBucket(action: string) {
   const a = action.toLowerCase();
   if (a.includes("create") || a.includes("insert")) return "create";
-  if (a.includes("update") || a.includes("edit")) return "update";
-  if (a.includes("delete") || a.includes("remove")) return "delete";
+  if (a.includes("update") || a.includes("edit") || a.includes("changed")) return "update";
+  if (a.includes("delete") || a.includes("remove") || a.includes("rejected")) return "delete";
   if (a.includes("login") || a.includes("logout")) return "login";
   if (a.includes("download") || a.includes("export")) return "download";
   return "other";
 }
 
-const ACTION_COLORS: Record<string, string> = {
+// Specific per-action colors (extends the bucket fallback below).
+const SPECIFIC_ACTION_COLORS: Record<string, string> = {
+  status_changed: "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30",
+  pricing_updated: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30",
+  staff_activated: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30",
+  staff_deactivated: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
+  role_changed: "bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30",
+  minute_package_created:
+    "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30",
+  minute_package_updated:
+    "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30",
+  minute_package_deleted:
+    "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30",
+  review_approved:
+    "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
+  review_rejected: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
+  note_added: "bg-gray-500/15 text-gray-700 dark:text-gray-400 border-gray-500/30",
+};
+
+const BUCKET_COLORS: Record<string, string> = {
   create: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30",
   update: "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30",
   delete: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
@@ -63,6 +82,11 @@ const ACTION_COLORS: Record<string, string> = {
   download: "bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30",
   other: "bg-muted text-muted-foreground",
 };
+
+function colorFor(action: string) {
+  return SPECIFIC_ACTION_COLORS[action] ?? BUCKET_COLORS[actionBucket(action)];
+}
+
 
 function AdminAudit() {
   const [rows, setRows] = useState<AuditRow[]>([]);
@@ -106,7 +130,7 @@ function AdminAudit() {
     const q = filter.toLowerCase();
     return rows.filter((a) => {
       if (staffId !== "all" && a.user_id !== staffId) return false;
-      if (type !== "all" && actionType(a.action) !== type) return false;
+      if (type !== "all" && a.action !== type) return false;
       if (dateFrom && a.created_at < dateFrom) return false;
       if (dateTo && a.created_at > dateTo + "T23:59:59") return false;
       if (
@@ -123,15 +147,41 @@ function AdminAudit() {
     });
   }, [rows, filter, staffId, type, dateFrom, dateTo, nameById]);
 
+  // Distinct action types actually present in the data
+  const distinctActions = useMemo(() => {
+    const set = new Set<string>();
+    rows.forEach((r) => set.add(r.action));
+    return Array.from(set).sort();
+  }, [rows]);
+
+  // Staff who actually have entries (intersect users list with audit user_ids)
+  const staffWithEntries = useMemo(() => {
+    const ids = new Set<string>();
+    rows.forEach((r) => r.user_id && ids.add(r.user_id));
+    return users.filter((u) => ids.has(u.id));
+  }, [rows, users]);
+
   const pageRows = filtered.slice(page * PAGE, (page + 1) * PAGE);
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE));
+
+  const hasActiveFilters =
+    filter !== "" || staffId !== "all" || type !== "all" || dateFrom !== "" || dateTo !== "";
+
+  const clearFilters = () => {
+    setFilter("");
+    setStaffId("all");
+    setType("all");
+    setDateFrom("");
+    setDateTo("");
+    setPage(0);
+  };
 
   const handleExport = () => {
     exportCsv(
       filtered.map((a) => ({
         timestamp: a.created_at,
         action: a.action,
-        type: actionType(a.action),
+        type: actionBucket(a.action),
         staff: a.user_id ? (nameById[a.user_id] ?? a.user_id) : "System",
         target_type: a.target_type ?? "",
         target_id: a.target_id ?? "",
@@ -141,6 +191,7 @@ function AdminAudit() {
       `audit_log_${new Date().toISOString().slice(0, 10)}.csv`,
     );
   };
+
 
   return (
     <div className="space-y-6">
@@ -176,7 +227,7 @@ function AdminAudit() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All staff</SelectItem>
-            {users.map((u) => (
+            {staffWithEntries.map((u) => (
               <SelectItem key={u.id} value={u.id}>
                 {u.full_name ?? u.email}
               </SelectItem>
@@ -190,13 +241,14 @@ function AdminAudit() {
             setPage(0);
           }}
         >
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-56">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {["all", "create", "update", "delete", "login", "download", "other"].map((t) => (
-              <SelectItem key={t} value={t} className="capitalize">
-                {t}
+            <SelectItem value="all">All actions</SelectItem>
+            {distinctActions.map((a) => (
+              <SelectItem key={a} value={a}>
+                {a}
               </SelectItem>
             ))}
           </SelectContent>
@@ -219,6 +271,11 @@ function AdminAudit() {
           }}
           className="w-40"
         />
+        {hasActiveFilters && (
+          <Button size="sm" variant="ghost" onClick={clearFilters}>
+            Clear filters
+          </Button>
+        )}
       </div>
 
       <Card>
@@ -226,9 +283,12 @@ function AdminAudit() {
           <CardTitle className="text-base">
             {loading
               ? "Loading…"
-              : `${filtered.length} entries · page ${page + 1} of ${totalPages}`}
+              : hasActiveFilters
+                ? `${filtered.length} of ${rows.length} entries · page ${page + 1} of ${totalPages}`
+                : `${filtered.length} entries · page ${page + 1} of ${totalPages}`}
           </CardTitle>
         </CardHeader>
+
         <CardContent>
           {loading ? (
             <div className="space-y-2">
@@ -261,7 +321,6 @@ function AdminAudit() {
                 </TableHeader>
                 <TableBody>
                   {pageRows.map((a) => {
-                    const t = actionType(a.action);
                     return (
                       <TableRow key={a.id}>
                         <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
@@ -271,10 +330,11 @@ function AdminAudit() {
                           {a.user_id ? (nameById[a.user_id] ?? a.user_id.slice(0, 8)) : "System"}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className={`${ACTION_COLORS[t]} text-xs`}>
+                          <Badge variant="outline" className={`${colorFor(a.action)} text-xs`}>
                             {a.action}
                           </Badge>
                         </TableCell>
+
                         <TableCell className="text-xs text-muted-foreground">
                           {a.target_type ? `${a.target_type}:` : ""}
                           {a.target_id ? a.target_id.slice(0, 8) : "—"}
