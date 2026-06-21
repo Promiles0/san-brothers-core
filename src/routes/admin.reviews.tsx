@@ -26,6 +26,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useI18n } from "@/lib/providers/i18n-provider";
 import type { Review, ReviewStatus } from "@/lib/types/database";
 
 export const Route = createFileRoute("/admin/reviews")({ component: AdminReviews });
