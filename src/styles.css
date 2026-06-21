@@ -559,10 +559,6 @@
 .fx-rotating {
   display: grid;
   position: relative;
-  background: linear-gradient(120deg, var(--primary), var(--accent));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 .fx-rotating-measure-stack {
   display: grid;
@@ -575,7 +571,11 @@
 }
 .fx-rotating-active {
   grid-area: 1 / 1;
-  display: inline;
+  display: block;
+  background: linear-gradient(120deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 .fx-rot-word-in,
 .fx-rot-word-out {
