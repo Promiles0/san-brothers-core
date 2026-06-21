@@ -743,11 +743,16 @@ body.has-custom-cursor select {
   }
   .fx-reveal,
   [data-fx],
+  .fx-stagger,
   .fx-stagger .fx-stagger-item,
   .fx-split .fx-split-left,
   .fx-split .fx-split-right,
   .fx-text-reveal .fx-text-word-inner,
-  .fx-rotating-text-word {
+  .fx-rotating-text-word,
+  .fx-rotating,
+  .fx-rotating-active,
+  .fx-rot-word-in,
+  .fx-rot-word-out {
     opacity: 1 !important;
     transform: none !important;
     filter: none !important;
