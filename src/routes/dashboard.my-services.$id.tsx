@@ -21,11 +21,20 @@ import {
   Circle as XCircle,
   Trash2,
   Paperclip,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { StatusBadge } from "@/lib/dashboard/status-badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/providers/i18n-provider";
