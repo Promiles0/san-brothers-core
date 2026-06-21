@@ -6,6 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { CtaBanner } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
+import { Magnetic } from "@/components/fx/magnetic";
+import { TiltCard } from "@/components/fx/tilt-card";
+import { AnimatedCounter } from "@/components/fx/animated-counter";
+import { ParallaxLayer } from "@/components/fx/parallax-layer";
 
 export const Route = createFileRoute("/about")({
   head: () => ({ meta: [{ title: "About San Brothers — Kigali, Rwanda" }, { name: "description", content: "Meet the Kigali team simplifying visas, accounting, translation, and business services." }] }),
@@ -24,9 +28,24 @@ function About() {
   ];
   return (
     <PublicLayout>
-      <section className="overflow-hidden border-b border-border bg-linear-to-br from-primary/10 via-background to-visa/10">
-        <div className="mx-auto grid min-h-[670px] max-w-7xl items-center gap-14 px-4 py-20 md:px-6 lg:grid-cols-[1.15fr_.85fr]">
-          <div><p className="text-xs font-bold uppercase tracking-[0.24em] text-primary">Est. in Kigali, Rwanda</p><h1 className="mt-5 max-w-3xl text-balance text-5xl font-black leading-[1.03] md:text-6xl">Professionals Who Handle the Hard Parts</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">San Brothers is a Rwandan professional services firm built for individuals, SMEs, and international clients who need expert help navigating visas, accounting, translation, and business setup — all in one place.</p><div className="mt-8 flex flex-wrap gap-x-7 gap-y-3">{["500+ Clients", "17 Services", "5 Languages"].map((stat) => <span key={stat} className="font-semibold">{stat}</span>)}</div><Button size="lg" className="mt-8" asChild><Link to="/signup" search={{ intent: "service" } as never}>Work With Us <ArrowRight /></Link></Button></div>
+      <section className="overflow-hidden border-b border-border bg-linear-to-br from-primary/10 via-background to-visa/10 relative">
+        <ParallaxLayer speed={-0.25} aria-hidden className="pointer-events-none absolute -top-32 -right-32 h-[28rem] w-[28rem]">
+          <div className="h-full w-full rounded-full bg-primary/15 blur-3xl" />
+        </ParallaxLayer>
+        <ParallaxLayer speed={0.15} aria-hidden className="pointer-events-none absolute -bottom-32 -left-32 h-[28rem] w-[28rem]">
+          <div className="h-full w-full rounded-full bg-visa/15 blur-3xl" />
+        </ParallaxLayer>
+        <div className="relative mx-auto grid min-h-[670px] max-w-7xl items-center gap-14 px-4 py-20 md:px-6 lg:grid-cols-[1.15fr_.85fr]">
+          <div><p className="text-xs font-bold uppercase tracking-[0.24em] text-primary">Est. in Kigali, Rwanda</p><h1 className="mt-5 max-w-3xl text-balance text-5xl font-black leading-[1.03] md:text-6xl">Professionals Who Handle the Hard Parts</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">San Brothers is a Rwandan professional services firm built for individuals, SMEs, and international clients who need expert help navigating visas, accounting, translation, and business setup — all in one place.</p>
+            <div className="mt-8 flex flex-wrap gap-x-10 gap-y-3">
+              {[{ value: 500, suffix: "+", label: "Clients" }, { value: 17, suffix: "", label: "Services" }, { value: 5, suffix: "", label: "Languages" }].map((s) => (
+                <div key={s.label}>
+                  <AnimatedCounter to={s.value} suffix={s.suffix} className="block text-3xl font-black text-primary" />
+                  <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{s.label}</span>
+                </div>
+              ))}
+            </div>
+            <Magnetic strength={18} className="mt-8 inline-block"><Button size="lg" asChild><Link to="/signup" search={{ intent: "service" } as never}>Work With Us <ArrowRight /></Link></Button></Magnetic></div>
           <div className="relative mx-auto w-full max-w-lg"><div className="absolute -inset-10 rounded-full bg-primary/10 blur-3xl" /><Card className="relative overflow-hidden border-border/70 shadow-xl"><div className="grid h-3 grid-cols-4"><span className="bg-visa" /><span className="bg-accounting" /><span className="bg-translation" /><span className="bg-consultancy" /></div><CardContent className="p-8 md:p-10"><div className="flex items-center gap-2 text-sm font-medium text-success"><span className="public-pulse h-2.5 w-2.5 rounded-full bg-success" /> Kigali office open</div><MapPin className="mt-14 h-10 w-10 text-primary" /><h2 className="mt-5 text-3xl font-bold">Florida House</h2><p className="mt-3 text-muted-foreground">2nd Floor · KN 70 Street<br />Kigali, Rwanda 🇷🇼</p><div className="mt-12 grid grid-cols-4 gap-3">{["bg-visa", "bg-accounting", "bg-translation", "bg-consultancy"].map((color, index) => <span key={color} className={`${color} rounded-full`} style={{ height: `${36 + index * 22}px` }} />)}</div></CardContent></Card></div>
         </div>
       </section>
