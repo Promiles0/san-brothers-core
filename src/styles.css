@@ -555,7 +555,7 @@
   transition-delay: calc(var(--base, 80ms) + (var(--i, 0) * var(--step, 140ms)));
 }
 
-/* ---------- Rotating headline word ---------- */
+/* ---------- Rotating headline (per-letter swap) ---------- */
 .fx-rotating-text {
   display: inline-block;
   position: relative;
@@ -564,15 +564,38 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  white-space: nowrap;
 }
-.fx-rotating-text-word {
+.fx-rotating-measure {
   display: inline-block;
-  animation: fx-rotating-in 0.65s cubic-bezier(0.16,1,0.3,1) both;
+  visibility: hidden;
+  pointer-events: none;
 }
-@keyframes fx-rotating-in {
-  0%   { opacity: 0; transform: translateY(0.6em) scale(0.96); filter: blur(8px); }
+.fx-rotating-stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-flex;
+  align-items: baseline;
+}
+.fx-rot-letter-in,
+.fx-rot-letter-out {
+  display: inline-block;
+  will-change: transform, opacity, filter;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+.fx-rot-letter-in  { animation-name: fx-rot-in; }
+.fx-rot-letter-out { animation-name: fx-rot-out; }
+
+@keyframes fx-rot-in {
+  0%   { opacity: 0; transform: translateY(0.7em) rotateX(-40deg); filter: blur(10px); }
   60%  { opacity: 1; filter: blur(0); }
-  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) rotateX(0); filter: blur(0); }
+}
+@keyframes fx-rot-out {
+  0%   { opacity: 1; transform: translateY(0) rotateX(0); filter: blur(0); }
+  100% { opacity: 0; transform: translateY(-0.7em) rotateX(40deg); filter: blur(10px); }
 }
 
 /* ---------- Split reveal ---------- */
