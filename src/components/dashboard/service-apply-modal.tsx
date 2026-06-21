@@ -291,6 +291,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
     title: string;
     description?: string;
     metadata: Record<string, string>;
+    intent: import("@/components/payments/stripe-payment-form").PaymentIntentRequest;
     finalize: (intentId: string) => Promise<void>;
   } | null>(null);
 
