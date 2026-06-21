@@ -321,6 +321,14 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
             </div>
             <div className="flex gap-2">
               <button
+                onClick={startNewConversation}
+                className="rounded-full p-2 hover:bg-primary-foreground/10"
+                aria-label="New conversation"
+                title="New conversation"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </button>
+              <button
                 onClick={() => setIsMinimized(!isMinimized)}
                 className="rounded-full p-2 hover:bg-primary-foreground/10"
                 aria-label={isMinimized ? "Maximize" : "Minimize"}
@@ -332,10 +340,7 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
                 )}
               </button>
               <button
-                onClick={() => {
-                  setIsOpen(false);
-                  setMessages([]);
-                }}
+                onClick={() => setIsOpen(false)}
                 className="rounded-full p-2 hover:bg-primary-foreground/10"
                 aria-label="Close chat"
               >
