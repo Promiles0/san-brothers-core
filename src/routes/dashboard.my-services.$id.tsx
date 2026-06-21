@@ -461,16 +461,33 @@ function ServiceDetailPage() {
   const CatIcon = cat.icon;
   const statusMeta = STATUS_META[sr.status] ?? STATUS_META.submitted;
 
-  // Progress calculation
-  const currentStepIdx = STEPS.findIndex((s) => s.key === sr.status);
+  // Progress calculation — build the visible step list, hiding the
+  // "Submitted to Authority" step when the case doesn't go to an authority
+  // (no authority_ref AND case never reached that status).
+  const hasAuthorityStep =
+    !!sr.authority_ref || sr.status === "submitted_to_authority";
+  const VISIBLE_STEPS = STEPS.filter(
+    (s) => s.key !== "submitted_to_authority" || hasAuthorityStep,
+  );
   const isCompleted = sr.status === "completed";
-  const isCancelled = CANCELLED_STATUSES.has(sr.status);
-  const activeIdx = isCompleted ? STEPS.length - 1 : currentStepIdx;
+  const isRejected = sr.status === "rejected";
+  const isCancelled = sr.status === "cancelled";
+  const isAwaiting = sr.status === "awaiting_client";
+  const isStopped = isRejected || isCancelled;
+
+  // For awaiting_client we freeze the timeline at the prior step
+  // (progress_step gives us the underlying position); otherwise map status → idx.
+  const statusForIdx = isAwaiting ? null : sr.status;
+  let currentStepIdx = VISIBLE_STEPS.findIndex((s) => s.key === statusForIdx);
+  if (currentStepIdx < 0 && isAwaiting) {
+    // Best-effort: stay at "under_review" while awaiting client
+    currentStepIdx = VISIBLE_STEPS.findIndex((s) => s.key === "under_review");
+  }
+  if (currentStepIdx < 0) currentStepIdx = 0;
+  const activeIdx = isCompleted ? VISIBLE_STEPS.length - 1 : currentStepIdx;
   const progressPct = isCompleted
     ? 100
-    : currentStepIdx < 0
-      ? 0
-      : Math.round((currentStepIdx / (STEPS.length - 1)) * 100);
+    : Math.round((currentStepIdx / (VISIBLE_STEPS.length - 1)) * 100);
 
   // Price / duration labels
   const priceLabel = (() => {
