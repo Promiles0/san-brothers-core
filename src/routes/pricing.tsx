@@ -19,6 +19,8 @@ import { PublicLayout } from "@/components/layout/public-layout";
 import { CtaBanner, PageHero } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
+import { Magnetic } from "@/components/fx/magnetic";
+import { TiltCard } from "@/components/fx/tilt-card";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -147,55 +149,62 @@ function Pricing() {
               <TabsContent key={key} value={key}>
                 <div className="grid items-stretch gap-6 md:grid-cols-3">
                   {plans.map((p, index) => (
-                    <Card
+                    <TiltCard
                       key={p.name}
+                      max={5}
+                      className="h-full"
                       style={{ transitionDelay: `${index * 100}ms` }}
-                      className={`relative overflow-hidden bg-card transition-[transform,box-shadow,background-color] duration-300 hover:-translate-y-1 hover:shadow-lg ${styles.tint} ${
-                        p.popular
-                          ? `border-2 ${styles.border} ${styles.glow} md:scale-105`
-                          : "border-border"
-                      }`}
                     >
-                      <div className={`h-1 w-full bg-current ${styles.color}`} />
-                      {p.popular ? (
-                        <Badge
-                          className={`absolute right-4 top-4 border-0 ${styles.button} text-primary-foreground`}
-                        >
-                          {t("pricing.mostPopular")}
-                        </Badge>
-                      ) : null}
-                      <CardContent className="flex h-full flex-col gap-5 p-6 pt-7">
-                        <div className="flex items-center justify-between">
-                          <h3 className="pr-24 text-lg font-semibold text-foreground">{p.name}</h3>
-                        </div>
-                        <div>
-                          <div className="text-4xl font-black tracking-tight text-foreground">
-                            {p.price}
+                      <Card
+                        className={`relative h-full overflow-hidden bg-card transition-[transform,box-shadow,background-color] duration-300 hover:-translate-y-1 hover:shadow-lg ${styles.tint} ${
+                          p.popular
+                            ? `border-2 ${styles.border} ${styles.glow} md:scale-105`
+                            : "border-border"
+                        }`}
+                      >
+                        <div className={`h-1 w-full bg-current ${styles.color}`} />
+                        {p.popular ? (
+                          <Badge
+                            className={`absolute right-4 top-4 border-0 ${styles.button} text-primary-foreground`}
+                          >
+                            {t("pricing.mostPopular")}
+                          </Badge>
+                        ) : null}
+                        <CardContent className="flex h-full flex-col gap-5 p-6 pt-7">
+                          <div className="flex items-center justify-between">
+                            <h3 className="pr-24 text-lg font-semibold text-foreground">{p.name}</h3>
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            {t("pricing.contactQuote")}
+                          <div>
+                            <div className="text-4xl font-black tracking-tight text-foreground">
+                              {p.price}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {t("pricing.contactQuote")}
+                            </div>
                           </div>
-                        </div>
-                        <p className="text-sm font-semibold italic text-muted-foreground">
-                          {VALUE_LINES[index] ?? VALUE_LINES[0]}
-                        </p>
-                        <ul className="space-y-2 text-sm text-muted-foreground">
-                          {p.features.map((f) => (
-                            <li key={f} className="flex gap-2">
-                              <Check className={`mt-0.5 h-4 w-4 shrink-0 ${styles.color}`} />
-                              {f}
-                            </li>
-                          ))}
-                        </ul>
-                        <Button
-                          variant={p.popular ? "default" : "outline"}
-                          className={`mt-auto ${p.popular ? `${styles.button} text-primary-foreground` : styles.outline}`}
-                          onClick={() => handleGetStarted(p.intent)}
-                        >
-                          {t("pricing.getStarted")}
-                        </Button>
-                      </CardContent>
-                    </Card>
+                          <p className="text-sm font-semibold italic text-muted-foreground">
+                            {VALUE_LINES[index] ?? VALUE_LINES[0]}
+                          </p>
+                          <ul className="space-y-2 text-sm text-muted-foreground">
+                            {p.features.map((f) => (
+                              <li key={f} className="flex gap-2">
+                                <Check className={`mt-0.5 h-4 w-4 shrink-0 ${styles.color}`} />
+                                {f}
+                              </li>
+                            ))}
+                          </ul>
+                          <Magnetic strength={12} className="mt-auto block w-full">
+                            <Button
+                              variant={p.popular ? "default" : "outline"}
+                              className={`w-full ${p.popular ? `${styles.button} text-primary-foreground` : styles.outline}`}
+                              onClick={() => handleGetStarted(p.intent)}
+                            >
+                              {t("pricing.getStarted")}
+                            </Button>
+                          </Magnetic>
+                        </CardContent>
+                      </Card>
+                    </TiltCard>
                   ))}
                 </div>
 
