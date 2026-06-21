@@ -14,6 +14,7 @@ import {
   DollarSign,
   TrendingUp,
   Settings,
+  Star,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
