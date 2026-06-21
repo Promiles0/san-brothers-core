@@ -1040,6 +1040,27 @@
       },
       "page": "page",
       "docNote": "Final price depends on length and complexity. Get an exact quote after upload.",
+      "calculator": {
+        "title": "Estimate your cost",
+        "subtitle": "Get an instant USD estimate for any of our translation services.",
+        "modes": {
+          "document": "Document Translation",
+          "legal": "Legal Translation",
+          "interpreter": "Live Interpreter"
+        },
+        "pages": "Pages",
+        "minutes": "Minutes",
+        "from": "From language",
+        "to": "To language",
+        "total": "Estimated total",
+        "perPage": "per page",
+        "perMin": "per minute",
+        "cta": "Get started",
+        "note": "Estimate only. Final quote may vary based on document complexity or call length.",
+        "presets": "Suggested packages",
+        "loadingLangs": "Loading languages…",
+        "loadingRate": "Loading live rate…"
+      },
       "faq": {
         "heading": "Quick questions",
         "expire": {
