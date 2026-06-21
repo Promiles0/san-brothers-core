@@ -321,7 +321,6 @@ function AdminAudit() {
                 </TableHeader>
                 <TableBody>
                   {pageRows.map((a) => {
-                    const t = actionType(a.action);
                     return (
                       <TableRow key={a.id}>
                         <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
@@ -331,10 +330,11 @@ function AdminAudit() {
                           {a.user_id ? (nameById[a.user_id] ?? a.user_id.slice(0, 8)) : "System"}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className={`${ACTION_COLORS[t]} text-xs`}>
+                          <Badge variant="outline" className={`${colorFor(a.action)} text-xs`}>
                             {a.action}
                           </Badge>
                         </TableCell>
+
                         <TableCell className="text-xs text-muted-foreground">
                           {a.target_type ? `${a.target_type}:` : ""}
                           {a.target_id ? a.target_id.slice(0, 8) : "—"}
