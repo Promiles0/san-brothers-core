@@ -424,6 +424,11 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         title: localName,
         description: localDesc,
         metadata: { client_id: user!.id, service_id: service.id, service_slug: service.slug },
+        intent: {
+          kind: "service",
+          service_id: service.id,
+          metadata: { service_slug: service.slug },
+        },
         finalize: async (intentId) => {
           console.info("Stripe payment succeeded for service request", {
             paymentIntentId: intentId,
