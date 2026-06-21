@@ -63,6 +63,9 @@
   "home": {
     "heroTitle": "您值得信赖的全球专业服务伙伴",
     "heroSubtitle": "为卢旺达及全球客户提供会计、签证、翻译和商业支持。",
+    "heroRotatingPrefix": "您值得信赖的",
+    "heroRotatingSuffix": "全球合作伙伴。",
+    "heroRotatingWords": ["签证", "翻译", "会计", "咨询", "公司注册", "工作许可"],
     "trustStrip": "深受卢旺达及中国客户信赖 · 1,000+ 项成功案例",
     "servicesHeading": "我们的服务",
     "whyHeading": "为什么选择三兄弟",
