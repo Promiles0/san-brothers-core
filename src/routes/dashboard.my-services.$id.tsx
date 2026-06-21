@@ -1094,6 +1094,34 @@ function ServiceDetailPage() {
                   <p className="text-xs text-muted-foreground">Report an issue</p>
                 </div>
               </Link>
+
+              {sr.status === "completed" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (existingReviewId) {
+                      toast.info("You've already submitted a review for this service.");
+                      return;
+                    }
+                    setReviewOpen(true);
+                  }}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-muted"
+                >
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-amber-500/10 shrink-0">
+                    <Star className="h-4 w-4 text-amber-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      {existingReviewId ? "Review submitted" : "Leave a Review"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {existingReviewId
+                        ? "Thanks for your feedback"
+                        : "Share your experience with San Brothers"}
+                    </p>
+                  </div>
+                </button>
+              )}
             </div>
           </div>
 
