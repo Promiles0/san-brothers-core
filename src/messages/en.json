@@ -1489,5 +1489,56 @@
       "type": "Type",
       "created": "Created"
     }
+  },
+  "reviews": {
+    "client": {
+      "leaveAction": "Leave a Review",
+      "leaveActionDesc": "Share your experience with San Brothers",
+      "alreadySubmitted": "Review submitted",
+      "alreadyDesc": "Thanks for your feedback",
+      "alreadyToast": "You've already submitted a review for this service.",
+      "dialogTitle": "Leave a review",
+      "dialogIntro": "Your review helps other clients trust San Brothers. It will be published after a quick check by our team.",
+      "ratingLabel": "Rating",
+      "ratingRequired": "Please select a rating",
+      "reviewLabel": "Your review",
+      "reviewPlaceholder": "Tell others about your experience with San Brothers...",
+      "reviewTooShort": "Please share a few words about your experience",
+      "cancel": "Cancel",
+      "submit": "Submit review",
+      "submitting": "Submitting…",
+      "successToast": "Thank you! Your review will be visible after a quick check."
+    },
+    "admin": {
+      "title": "Client Reviews",
+      "subtitle": "Moderate testimonials submitted by clients and feature the best ones on your homepage.",
+      "stats": { "total": "Total", "pending": "Pending", "avg": "Avg Rating", "featured": "Featured" },
+      "filters": { "all": "All", "pending": "Pending", "approved": "Approved", "rejected": "Rejected" },
+      "tableTitle": "Reviews",
+      "th": { "client": "Client", "rating": "Rating", "review": "Review", "service": "Service", "status": "Status", "submitted": "Submitted", "actions": "Actions" },
+      "approve": "Approve",
+      "reject": "Reject",
+      "view": "View",
+      "featured": "Featured",
+      "loading": "Loading reviews…",
+      "emptyAll": "No reviews yet. Once clients submit reviews they'll appear here.",
+      "emptyPending": "All caught up — no pending reviews to moderate.",
+      "emptyApproved": "No approved reviews yet.",
+      "emptyRejected": "No rejected reviews.",
+      "approveToast": "Review approved",
+      "rejectToast": "Review rejected",
+      "featuredOnToast": "Featured on homepage",
+      "featuredOffToast": "Removed from homepage",
+      "notesLabel": "Internal admin notes",
+      "notesPlaceholder": "Optional notes for the team...",
+      "saveNotes": "Save notes",
+      "savedNotes": "Notes saved",
+      "lastActioned": "Last actioned",
+      "detailsTitle": "Review details"
+    },
+    "home": {
+      "loading": "Loading reviews…",
+      "empty": "Be the first to share your experience — your review could appear here."
+    }
   }
 }

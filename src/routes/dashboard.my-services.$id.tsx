@@ -283,11 +283,11 @@ function ServiceDetailPage() {
   const submitReview = async () => {
     if (!user || !sr) return;
     if (reviewRating < 1) {
-      toast.error("Please select a rating");
+      toast.error(t("reviews.client.ratingRequired"));
       return;
     }
     if (reviewText.trim().length < 10) {
-      toast.error("Please share a few words about your experience");
+      toast.error(t("reviews.client.reviewTooShort"));
       return;
     }
     setReviewSubmitting(true);
@@ -309,7 +309,7 @@ function ServiceDetailPage() {
     setReviewSubmitting(false);
     if (error) {
       if (error.code === "23505") {
-        toast.error("You've already submitted a review for this service.");
+        toast.error(t("reviews.client.alreadyToast"));
       } else {
         toast.error(error.message);
       }
@@ -319,7 +319,7 @@ function ServiceDetailPage() {
     setReviewOpen(false);
     setReviewRating(0);
     setReviewText("");
-    toast.success("Thank you! Your review will be visible after a quick review.");
+    toast.success(t("reviews.client.successToast"));
   };
 
 
@@ -1100,7 +1100,7 @@ function ServiceDetailPage() {
                   type="button"
                   onClick={() => {
                     if (existingReviewId) {
-                      toast.info("You've already submitted a review for this service.");
+                      toast.info(t("reviews.client.alreadyToast"));
                       return;
                     }
                     setReviewOpen(true);
@@ -1112,12 +1112,14 @@ function ServiceDetailPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      {existingReviewId ? "Review submitted" : "Leave a Review"}
+                      {existingReviewId
+                        ? t("reviews.client.alreadySubmitted")
+                        : t("reviews.client.leaveAction")}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {existingReviewId
-                        ? "Thanks for your feedback"
-                        : "Share your experience with San Brothers"}
+                        ? t("reviews.client.alreadyDesc")
+                        : t("reviews.client.leaveActionDesc")}
                     </p>
                   </div>
                 </button>
@@ -1235,16 +1237,15 @@ function ServiceDetailPage() {
       <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Leave a review</DialogTitle>
+            <DialogTitle>{t("reviews.client.dialogTitle")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Your review helps other clients trust San Brothers. It will be
-              published after a quick check by our team.
+              {t("reviews.client.dialogIntro")}
             </p>
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Rating
+                {t("reviews.client.ratingLabel")}
               </p>
               <div
                 className="flex items-center gap-1"
@@ -1276,14 +1277,14 @@ function ServiceDetailPage() {
             </div>
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Your review
+                {t("reviews.client.reviewLabel")}
               </p>
               <Textarea
                 value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
                 rows={5}
                 maxLength={1000}
-                placeholder="Tell others about your experience with San Brothers..."
+                placeholder={t("reviews.client.reviewPlaceholder")}
               />
               <p className="mt-1 text-right text-[10px] text-muted-foreground">
                 {reviewText.length}/1000
@@ -1296,10 +1297,12 @@ function ServiceDetailPage() {
               onClick={() => setReviewOpen(false)}
               disabled={reviewSubmitting}
             >
-              Cancel
+              {t("reviews.client.cancel")}
             </Button>
             <Button onClick={submitReview} disabled={reviewSubmitting}>
-              {reviewSubmitting ? "Submitting…" : "Submit review"}
+              {reviewSubmitting
+                ? t("reviews.client.submitting")
+                : t("reviews.client.submit")}
             </Button>
           </DialogFooter>
         </DialogContent>

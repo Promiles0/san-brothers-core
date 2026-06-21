@@ -1489,5 +1489,56 @@
       "type": "类型",
       "created": "创建时间"
     }
+  },
+  "reviews": {
+    "client": {
+      "leaveAction": "撰写评价",
+      "leaveActionDesc": "分享您与 San Brothers 的合作体验",
+      "alreadySubmitted": "评价已提交",
+      "alreadyDesc": "感谢您的反馈",
+      "alreadyToast": "您已为此服务提交过评价。",
+      "dialogTitle": "撰写评价",
+      "dialogIntro": "您的评价能帮助其他客户信任 San Brothers。我们的团队审核后即可发布。",
+      "ratingLabel": "评分",
+      "ratingRequired": "请选择评分",
+      "reviewLabel": "您的评价",
+      "reviewPlaceholder": "请分享您与 San Brothers 的合作体验……",
+      "reviewTooShort": "请用几句话描述您的体验",
+      "cancel": "取消",
+      "submit": "提交评价",
+      "submitting": "提交中……",
+      "successToast": "感谢您!评价通过审核后将公开显示。"
+    },
+    "admin": {
+      "title": "客户评价",
+      "subtitle": "审核客户提交的评价,并精选最佳评价展示在首页。",
+      "stats": { "total": "总数", "pending": "待审", "avg": "平均评分", "featured": "精选" },
+      "filters": { "all": "全部", "pending": "待审", "approved": "已通过", "rejected": "已拒绝" },
+      "tableTitle": "评价",
+      "th": { "client": "客户", "rating": "评分", "review": "评价", "service": "服务", "status": "状态", "submitted": "提交时间", "actions": "操作" },
+      "approve": "通过",
+      "reject": "拒绝",
+      "view": "查看",
+      "featured": "精选",
+      "loading": "正在加载评价……",
+      "emptyAll": "暂无评价。客户提交评价后将在此显示。",
+      "emptyPending": "全部处理完毕 —— 没有待审评价。",
+      "emptyApproved": "暂无已通过的评价。",
+      "emptyRejected": "暂无被拒绝的评价。",
+      "approveToast": "评价已通过",
+      "rejectToast": "评价已拒绝",
+      "featuredOnToast": "已设为首页精选",
+      "featuredOffToast": "已从首页移除",
+      "notesLabel": "内部管理备注",
+      "notesPlaceholder": "可选的团队备注……",
+      "saveNotes": "保存备注",
+      "savedNotes": "备注已保存",
+      "lastActioned": "上次操作",
+      "detailsTitle": "评价详情"
+    },
+    "home": {
+      "loading": "正在加载评价……",
+      "empty": "成为第一位分享体验的客户 —— 您的评价可能展示在此。"
+    }
   }
 }

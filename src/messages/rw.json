@@ -1489,5 +1489,56 @@
       "type": "Ubwoko",
       "created": "Yashyizweho"
     }
+  },
+  "reviews": {
+    "client": {
+      "leaveAction": "Andika Igitekerezo",
+      "leaveActionDesc": "Sangiza uburambe bwawe na San Brothers",
+      "alreadySubmitted": "Igitekerezo cyoherejwe",
+      "alreadyDesc": "Murakoze ku gitekerezo cyanyu",
+      "alreadyToast": "Wamaze kohereza igitekerezo kuri iyi serivisi.",
+      "dialogTitle": "Andika igitekerezo",
+      "dialogIntro": "Igitekerezo cyawe gifasha abandi bakiriya kwizera San Brothers. Kizagaragazwa nyuma yo gusuzumwa n'itsinda ryacu.",
+      "ratingLabel": "Amanota",
+      "ratingRequired": "Hitamo amanota",
+      "reviewLabel": "Igitekerezo cyawe",
+      "reviewPlaceholder": "Bwira abandi uburambe bwawe na San Brothers...",
+      "reviewTooShort": "Andika nibura amagambo make ku burambe bwawe",
+      "cancel": "Bireke",
+      "submit": "Ohereza igitekerezo",
+      "submitting": "Birohereza…",
+      "successToast": "Murakoze! Igitekerezo cyanyu kizagaragara nyuma yo gusuzumwa."
+    },
+    "admin": {
+      "title": "Ibitekerezo by'Abakiriya",
+      "subtitle": "Suzuma ibitekerezo byoherejwe n'abakiriya kandi ushyire ibyiza ku rupapuro rw'ahabanza.",
+      "stats": { "total": "Byose", "pending": "Bitegereje", "avg": "Amanota Asanzwe", "featured": "Byatoranyijwe" },
+      "filters": { "all": "Byose", "pending": "Bitegereje", "approved": "Byemejwe", "rejected": "Byanzwe" },
+      "tableTitle": "Ibitekerezo",
+      "th": { "client": "Umukiriya", "rating": "Amanota", "review": "Igitekerezo", "service": "Serivisi", "status": "Imimerere", "submitted": "Cyoherejwe", "actions": "Ibikorwa" },
+      "approve": "Emeza",
+      "reject": "Yanga",
+      "view": "Reba",
+      "featured": "Byatoranyijwe",
+      "loading": "Birashakisha ibitekerezo…",
+      "emptyAll": "Nta bitekerezo birahari. Bizagaragara abakiriya bamara kubyohereza.",
+      "emptyPending": "Byose byarangiye — nta gitekerezo gitegereje gusuzumwa.",
+      "emptyApproved": "Nta gitekerezo cyemejwe kirahari.",
+      "emptyRejected": "Nta gitekerezo cyanzwe.",
+      "approveToast": "Igitekerezo cyemejwe",
+      "rejectToast": "Igitekerezo cyanzwe",
+      "featuredOnToast": "Cyashyizwe ku rupapuro rw'ahabanza",
+      "featuredOffToast": "Cyakuwe ku rupapuro rw'ahabanza",
+      "notesLabel": "Inyandiko z'itsinda",
+      "notesPlaceholder": "Inyandiko zihitamo ku itsinda...",
+      "saveNotes": "Bika inyandiko",
+      "savedNotes": "Inyandiko zabitswe",
+      "lastActioned": "Igikorwa cya nyuma",
+      "detailsTitle": "Ibisobanuro by'igitekerezo"
+    },
+    "home": {
+      "loading": "Birashakisha ibitekerezo…",
+      "empty": "Ba uwa mbere usangiza uburambe — igitekerezo cyawe gishobora kugaragara hano."
+    }
   }
 }

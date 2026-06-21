@@ -600,6 +600,7 @@ function SocialProof() {
   const { t } = useI18n();
   const hasLogos = REAL_LOGOS.length > 0;
   const [featured, setFeatured] = useState<FeaturedReview[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -611,7 +612,10 @@ function SocialProof() {
         .eq("is_featured", true)
         .order("created_at", { ascending: false })
         .limit(6);
-      if (!cancelled) setFeatured((data ?? []) as FeaturedReview[]);
+      if (!cancelled) {
+        setFeatured((data ?? []) as FeaturedReview[]);
+        setLoadingReviews(false);
+      }
     })();
     return () => {
       cancelled = true;
@@ -654,7 +658,39 @@ function SocialProof() {
           </div>
         )}
 
-        {featured.length > 0 && (
+        {loadingReviews ? (
+          <div
+            className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+            aria-busy="true"
+            aria-live="polite"
+          >
+            <span className="sr-only">{t("reviews.home.loading")}</span>
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="flex animate-pulse flex-col gap-4 rounded-2xl border border-border bg-card p-6"
+              >
+                <div className="flex items-center gap-1">
+                  {[0, 1, 2, 3, 4].map((s) => (
+                    <div key={s} className="h-4 w-4 rounded-sm bg-muted" />
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 w-full rounded bg-muted" />
+                  <div className="h-3 w-11/12 rounded bg-muted" />
+                  <div className="h-3 w-2/3 rounded bg-muted" />
+                </div>
+                <div className="flex items-center gap-3 border-t border-border pt-4">
+                  <div className="h-9 w-9 rounded-full bg-muted" />
+                  <div className="space-y-1.5">
+                    <div className="h-3 w-24 rounded bg-muted" />
+                    <div className="h-2.5 w-16 rounded bg-muted" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : featured.length > 0 ? (
           <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {featured.map((r) => (
               <figure
@@ -696,6 +732,15 @@ function SocialProof() {
                 </figcaption>
               </figure>
             ))}
+          </div>
+        ) : (
+          <div className="mt-12 flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-card/50 px-6 py-12 text-center">
+            <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10">
+              <Star className="h-5 w-5 text-primary" />
+            </div>
+            <p className="max-w-md text-sm text-muted-foreground">
+              {t("reviews.home.empty")}
+            </p>
           </div>
         )}
       </div>
