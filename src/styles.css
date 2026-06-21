@@ -556,30 +556,17 @@
 }
 
 /* ---------- Rotating headline (per-word phrase swap) ---------- */
-.fx-rotating {
-  display: grid;
-  position: relative;
-  background: linear-gradient(120deg, var(--primary), var(--accent));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.fx-rotating-measure-stack {
-  display: grid;
-  visibility: hidden;
-  pointer-events: none;
-  grid-area: 1 / 1;
-}
-.fx-rotating-measure-row {
-  grid-area: 1 / 1;
-}
+.fx-rotating,
 .fx-rotating-active {
-  grid-area: 1 / 1;
   display: inline;
 }
 .fx-rot-word-in,
 .fx-rot-word-out {
   display: inline-block;
+  background: linear-gradient(120deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
   will-change: transform, opacity, filter;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   animation-fill-mode: both;
