@@ -27,11 +27,26 @@ function getStripe() {
   return _stripePromise;
 }
 
+export type PaymentIntentRequest =
+  | {
+      kind: "service";
+      service_id: string;
+      service_request_id?: string;
+      metadata?: Record<string, string>;
+    }
+  | {
+      kind: "minute_package";
+      minute_package_id: string;
+      metadata?: Record<string, string>;
+    };
+
 export interface StripePaymentFormProps {
-  amount: number; // USD
+  amount: number; // USD — display only; server recomputes from DB
   serviceTitle: string;
   description?: string;
   metadata?: Record<string, string>;
+  /** Authoritative pricing source. Required unless clientSecret is provided. */
+  intent?: PaymentIntentRequest;
   onSuccess: (paymentIntentId: string) => void | Promise<void>;
   onCancel: () => void;
   onError?: (message: string, error?: unknown) => void;
@@ -41,7 +56,7 @@ export interface StripePaymentFormProps {
 type PaymentMethod = "card" | "mtn-momo" | "paypal" | "bank" | "cash-app" | "amazon-pay";
 
 export function StripePaymentForm(props: StripePaymentFormProps) {
-  const { amount, serviceTitle, onError, clientSecret: propClientSecret } = props;
+  const { amount, serviceTitle, onError, clientSecret: propClientSecret, intent } = props;
   const onErrorRef = useRef(onError);
   const [internalClientSecret, setInternalClientSecret] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
@@ -65,16 +80,35 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
       onErrorRef.current?.(message);
       return;
     }
+    if (!intent) {
+      const message = "Payment intent details are missing.";
+      console.error(message);
+      setInitError(message);
+      onErrorRef.current?.(message);
+      return;
+    }
     setInitError(null);
     setInternalClientSecret(null);
     async function preparePaymentIntent() {
+      const { supabase } = await import("@/lib/supabase");
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        throw new Error("Please sign in to continue with payment.");
+      }
+
+      const body: PaymentIntentRequest = {
+        ...(intent as PaymentIntentRequest),
+        metadata: { serviceTitle, ...props.metadata, ...(intent!.metadata ?? {}) },
+      };
+
       const response = await fetch("/api/stripe/payment-intent", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount,
-          metadata: { serviceTitle, ...props.metadata },
-        }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
       });
 
       const payload = (await response.json().catch(() => ({}))) as {
@@ -109,7 +143,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
     return () => {
       cancelled = true;
     };
-  }, [amount, serviceTitle, propClientSecret]);
+  }, [intent, serviceTitle, propClientSecret, props.metadata]);
 
   const options = useMemo(
     () =>

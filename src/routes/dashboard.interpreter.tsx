@@ -452,15 +452,24 @@ function InterpreterLandingPage() {
     setClientSecret(null);
 
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        toast.error("Please sign in to continue.");
+        setPayPkg(null);
+        return;
+      }
       const response = await fetch("/api/stripe/payment-intent", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          amount: pkg.price_usd,
+          kind: "minute_package",
+          minute_package_id: pkg.id,
           metadata: {
-            type: "minute_package",
             client_id: user.id,
-            package_id: pkg.id,
             minutes: String(pkg.minutes),
           },
         }),

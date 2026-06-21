@@ -291,6 +291,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
     title: string;
     description?: string;
     metadata: Record<string, string>;
+    intent: import("@/components/payments/stripe-payment-form").PaymentIntentRequest;
     finalize: (intentId: string) => Promise<void>;
   } | null>(null);
 
@@ -423,6 +424,11 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         title: localName,
         description: localDesc,
         metadata: { client_id: user!.id, service_id: service.id, service_slug: service.slug },
+        intent: {
+          kind: "service",
+          service_id: service.id,
+          metadata: { service_slug: service.slug },
+        },
         finalize: async (intentId) => {
           console.info("Stripe payment succeeded for service request", {
             paymentIntentId: intentId,
@@ -639,6 +645,11 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
         title: "Live Interpreter Session",
         description: `${bookFromLang} to ${bookToLang} · ${bookDate} ${bookTime}`,
         metadata: { client_id: user.id, service_id: service.id, service_slug: service.slug },
+        intent: {
+          kind: "service",
+          service_id: service.id,
+          metadata: { service_slug: service.slug, booking: "interpreter" },
+        },
         finalize: async (intentId) => {
           console.info("Stripe payment succeeded for interpreter booking", {
             paymentIntentId: intentId,
@@ -759,6 +770,7 @@ export function ServiceApplyModal({ service, open, onOpenChange }: Props) {
                 serviceTitle={payIntent.title}
                 description={payIntent.description}
                 metadata={payIntent.metadata}
+                intent={payIntent.intent}
                 onSuccess={async (intentId: string) => {
                   setStripeError(null);
                   await payIntent.finalize(intentId);
