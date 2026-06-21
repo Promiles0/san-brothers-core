@@ -80,16 +80,35 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
       onErrorRef.current?.(message);
       return;
     }
+    if (!intent) {
+      const message = "Payment intent details are missing.";
+      console.error(message);
+      setInitError(message);
+      onErrorRef.current?.(message);
+      return;
+    }
     setInitError(null);
     setInternalClientSecret(null);
     async function preparePaymentIntent() {
+      const { supabase } = await import("@/lib/supabase");
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        throw new Error("Please sign in to continue with payment.");
+      }
+
+      const body: PaymentIntentRequest = {
+        ...(intent as PaymentIntentRequest),
+        metadata: { serviceTitle, ...props.metadata, ...(intent!.metadata ?? {}) },
+      };
+
       const response = await fetch("/api/stripe/payment-intent", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount,
-          metadata: { serviceTitle, ...props.metadata },
-        }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
       });
 
       const payload = (await response.json().catch(() => ({}))) as {
@@ -124,7 +143,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
     return () => {
       cancelled = true;
     };
-  }, [amount, serviceTitle, propClientSecret]);
+  }, [intent, serviceTitle, propClientSecret, props.metadata]);
 
   const options = useMemo(
     () =>
