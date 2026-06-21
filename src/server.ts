@@ -76,62 +76,8 @@ export default {
 
     // THIS MUST BE FIRST — before any TanStack handler
     if (url.pathname === "/api/stripe/payment-intent" && request.method === "POST") {
-      try {
-        const cloudflareEnv = env as Record<string, unknown>;
-        const secretKey = (cloudflareEnv.VITE_STRIPE_SECRET_KEY ||
-          cloudflareEnv.STRIPE_SECRET_KEY) as string;
-
-        if (!secretKey) {
-          return new Response(JSON.stringify({ error: "Stripe not configured" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-
-        const body = (await request.json()) as {
-          amount: number;
-          metadata?: Record<string, string>;
-        };
-
-        const stripeResponse = await fetch("https://api.stripe.com/v1/payment_intents", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${secretKey}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams({
-            amount: Math.round(body.amount * 100).toString(),
-            currency: "usd",
-            "automatic_payment_methods[enabled]": "true",
-            ...Object.entries(body.metadata || {}).reduce(
-              (acc, [key, value]) => ({ ...acc, [`metadata[${key}]`]: value }),
-              {} as Record<string, string>,
-            ),
-          }),
-        });
-
-        const paymentIntent = (await stripeResponse.json()) as {
-          client_secret: string;
-          error?: { message: string };
-        };
-
-        if (!stripeResponse.ok) {
-          return new Response(JSON.stringify({ error: paymentIntent.error?.message }), {
-            status: 400,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-
-        return new Response(JSON.stringify({ clientSecret: paymentIntent.client_secret }), {
-          headers: { "Content-Type": "application/json" },
-        });
-      } catch (err) {
-        console.error("[Stripe API]", err);
-        return new Response(JSON.stringify({ error: "Payment processing failed" }), {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
+      const response = await handleStripePaymentIntent(request, env);
+      return response;
     }
 
     // TanStack handler AFTER our custom routes
