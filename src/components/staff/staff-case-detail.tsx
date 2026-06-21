@@ -141,7 +141,7 @@ export function StaffCaseDetail({
       const { data: row, error } = await supabase
         .from("service_requests")
         .select(
-          "id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,authority_name,authority_ref,authority_notes,visa_expiry_date,client:users(id,full_name,email,phone,tin_number,city,country),service:services(name_en)",
+          "id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,completed_at,authority_name,authority_ref,authority_notes,visa_expiry_date,client:users(id,full_name,email,phone,tin_number,city,country),service:services(name_en,estimated_days_min,estimated_days_max)",
         )
         .eq("id", id)
         .single();
