@@ -1040,6 +1040,27 @@
       },
       "page": "urupapuro",
       "docNote": "Igiciro nyacyo gishingira ku burebure n'ubukomere. Wohereje wabona igiciro nyacyo.",
+      "calculator": {
+        "title": "Suzuma igiciro cyawe",
+        "subtitle": "Bona igereranyo ryihuse muri USD ku busemuzi bwacu bwose.",
+        "modes": {
+          "document": "Ubusemuzi bw'Inyandiko",
+          "legal": "Ubusemuzi bwemewe",
+          "interpreter": "Umusemuzi ku Buryo Butaziguye"
+        },
+        "pages": "Impapuro",
+        "minutes": "Iminota",
+        "from": "Ururimi rwo guhindura",
+        "to": "Ururimi rwo guhindurirwamo",
+        "total": "Igiciro giteganyijwe",
+        "perPage": "kuri buri rupapuro",
+        "perMin": "kuri buri munota",
+        "cta": "Tangira",
+        "note": "Ni igereranyo gusa. Igiciro nyacyo gishobora gutandukana.",
+        "presets": "Pakeji zigusabwa",
+        "loadingLangs": "Indimi zirimo gushakwa…",
+        "loadingRate": "Igipimo kirimo gushakwa…"
+      },
       "faq": {
         "heading": "Ibibazo bikunze kubazwa",
         "expire": {
