@@ -40,7 +40,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase, uploadToStorage } from "@/lib/supabase";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { cn, computeSLA } from "@/lib/utils";
 
 export const Route = createFileRoute("/dashboard/my-services/$id")({
   component: ServiceDetailPage,
@@ -669,10 +669,40 @@ function ServiceDetailPage() {
         <div className="lg:col-span-3 space-y-5">
           {/* Progress tracker */}
           <div className="rounded-xl border border-border bg-card p-6">
-            <h2 className="text-sm font-semibold text-foreground mb-6 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              Progress
-            </h2>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                Progress
+              </h2>
+              {(() => {
+                const sla = computeSLA({
+                  createdAt: sr.created_at,
+                  completedAt: sr.completed_at,
+                  estimatedDaysMin: sr.services?.estimated_days_min,
+                  estimatedDaysMax: sr.services?.estimated_days_max,
+                  status: sr.status,
+                });
+                if (!sla) return null;
+                const toneClass =
+                  sla.tone === "success"
+                    ? "border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400"
+                    : sla.tone === "amber"
+                      ? "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                      : "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-400";
+                return (
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium",
+                      toneClass,
+                    )}
+                  >
+                    <Clock className="h-3 w-3" />
+                    {sla.text}
+                  </span>
+                );
+              })()}
+            </div>
+
 
             {isRejected ? (
               <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-4">

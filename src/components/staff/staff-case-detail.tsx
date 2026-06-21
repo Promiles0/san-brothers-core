@@ -8,8 +8,9 @@
 //     ADD COLUMN IF NOT EXISTS visa_expiry_date date;
 import { useEffect, useState, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Upload, Download, Mail } from "lucide-react";
+import { ArrowLeft, Upload, Download, Mail, Clock } from "lucide-react";
 import { supabase, uploadToStorage } from "@/lib/supabase";
+import { cn, computeSLA } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useCapabilities } from "@/lib/staff/capability-context";
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,7 @@ interface CaseDetail {
   assigned_staff_id: string | null;
   service_category: ServiceCategory;
   created_at: string;
+  completed_at?: string | null;
   authority_name?: string | null;
   authority_ref?: string | null;
   authority_notes?: string | null;
@@ -73,8 +75,13 @@ interface CaseDetail {
     city: string | null;
     country: string | null;
   } | null;
-  service: { name_en: string } | null;
+  service: {
+    name_en: string;
+    estimated_days_min?: number | null;
+    estimated_days_max?: number | null;
+  } | null;
 }
+
 
 interface StaffMember {
   id: string;
@@ -134,7 +141,7 @@ export function StaffCaseDetail({
       const { data: row, error } = await supabase
         .from("service_requests")
         .select(
-          "id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,authority_name,authority_ref,authority_notes,visa_expiry_date,client:users(id,full_name,email,phone,tin_number,city,country),service:services(name_en)",
+          "id,client_id,status,priority,notes,assigned_staff_id,service_category,created_at,completed_at,authority_name,authority_ref,authority_notes,visa_expiry_date,client:users(id,full_name,email,phone,tin_number,city,country),service:services(name_en,estimated_days_min,estimated_days_max)",
         )
         .eq("id", id)
         .single();
@@ -400,7 +407,35 @@ export function StaffCaseDetail({
         <h1 className="text-2xl font-bold">{data.client?.full_name ?? "—"}</h1>
         <span className="text-muted-foreground">— {data.service?.name_en}</span>
         <StatusBadge status={data.status} />
+        {(() => {
+          const sla = computeSLA({
+            createdAt: data.created_at,
+            completedAt: data.completed_at,
+            estimatedDaysMin: data.service?.estimated_days_min,
+            estimatedDaysMax: data.service?.estimated_days_max,
+            status: data.status,
+          });
+          if (!sla) return null;
+          const toneClass =
+            sla.tone === "success"
+              ? "border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400"
+              : sla.tone === "amber"
+                ? "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                : "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-400";
+          return (
+            <span
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium",
+                toneClass,
+              )}
+            >
+              <Clock className="h-3 w-3" />
+              {sla.text}
+            </span>
+          );
+        })()}
       </div>
+
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="text-muted-foreground">Assigned to:</span>
         <span className="font-medium">
