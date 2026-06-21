@@ -20,11 +20,13 @@ import {
   Sparkles,
   Award,
   HeartHandshake,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { useI18n } from "@/lib/providers/i18n-provider";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/")({
   head: () => ({
