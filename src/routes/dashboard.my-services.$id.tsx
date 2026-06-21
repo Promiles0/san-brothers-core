@@ -21,11 +21,20 @@ import {
   Circle as XCircle,
   Trash2,
   Paperclip,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { StatusBadge } from "@/lib/dashboard/status-badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/providers/i18n-provider";
@@ -193,7 +202,7 @@ function fmtSize(bytes: number | null | undefined) {
 
 function ServiceDetailPage() {
   const { id } = Route.useParams();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { t, locale } = useI18n();
   const [sr, setSr] = useState<SR | null | undefined>(undefined);
   const [docs, setDocs] = useState<Doc[]>([]);
@@ -205,6 +214,13 @@ function ServiceDetailPage() {
   const [dragOver, setDragOver] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Review state
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [existingReviewId, setExistingReviewId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [srRes, docRes] = await Promise.all([
@@ -245,6 +261,67 @@ function ServiceDetailPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Check whether the client has already reviewed this service request
+  useEffect(() => {
+    if (!user || !id) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("reviews")
+        .select("id")
+        .eq("client_id", user.id)
+        .eq("service_request_id", id)
+        .maybeSingle();
+      if (!cancelled) setExistingReviewId((data?.id as string) ?? null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, id]);
+
+  const submitReview = async () => {
+    if (!user || !sr) return;
+    if (reviewRating < 1) {
+      toast.error("Please select a rating");
+      return;
+    }
+    if (reviewText.trim().length < 10) {
+      toast.error("Please share a few words about your experience");
+      return;
+    }
+    setReviewSubmitting(true);
+    const displayName =
+      profile?.full_name?.trim() ||
+      user.email?.split("@")[0] ||
+      "Anonymous client";
+    const { data, error } = await supabase
+      .from("reviews")
+      .insert({
+        client_id: user.id,
+        service_request_id: sr.id,
+        rating: reviewRating,
+        review_text: reviewText.trim(),
+        client_display_name: displayName,
+      })
+      .select("id")
+      .single();
+    setReviewSubmitting(false);
+    if (error) {
+      if (error.code === "23505") {
+        toast.error("You've already submitted a review for this service.");
+      } else {
+        toast.error(error.message);
+      }
+      return;
+    }
+    setExistingReviewId((data?.id as string) ?? null);
+    setReviewOpen(false);
+    setReviewRating(0);
+    setReviewText("");
+    toast.success("Thank you! Your review will be visible after a quick review.");
+  };
+
 
   useEffect(() => {
     if (sr?.services?.name_en) {
@@ -1017,6 +1094,34 @@ function ServiceDetailPage() {
                   <p className="text-xs text-muted-foreground">Report an issue</p>
                 </div>
               </Link>
+
+              {sr.status === "completed" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (existingReviewId) {
+                      toast.info("You've already submitted a review for this service.");
+                      return;
+                    }
+                    setReviewOpen(true);
+                  }}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-muted"
+                >
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-amber-500/10 shrink-0">
+                    <Star className="h-4 w-4 text-amber-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      {existingReviewId ? "Review submitted" : "Leave a Review"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {existingReviewId
+                        ? "Thanks for your feedback"
+                        : "Share your experience with San Brothers"}
+                    </p>
+                  </div>
+                </button>
+              )}
             </div>
           </div>
 
@@ -1125,6 +1230,80 @@ function ServiceDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Review dialog */}
+      <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Leave a review</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Your review helps other clients trust San Brothers. It will be
+              published after a quick check by our team.
+            </p>
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Rating
+              </p>
+              <div
+                className="flex items-center gap-1"
+                onMouseLeave={() => setReviewHover(0)}
+              >
+                {[1, 2, 3, 4, 5].map((n) => {
+                  const active = n <= (reviewHover || reviewRating);
+                  return (
+                    <button
+                      key={n}
+                      type="button"
+                      onMouseEnter={() => setReviewHover(n)}
+                      onClick={() => setReviewRating(n)}
+                      className="rounded p-1 transition-transform hover:scale-110"
+                      aria-label={`${n} star${n === 1 ? "" : "s"}`}
+                    >
+                      <Star
+                        className={cn(
+                          "h-7 w-7 transition-colors",
+                          active
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-muted-foreground/40",
+                        )}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Your review
+              </p>
+              <Textarea
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                rows={5}
+                maxLength={1000}
+                placeholder="Tell others about your experience with San Brothers..."
+              />
+              <p className="mt-1 text-right text-[10px] text-muted-foreground">
+                {reviewText.length}/1000
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setReviewOpen(false)}
+              disabled={reviewSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button onClick={submitReview} disabled={reviewSubmitting}>
+              {reviewSubmitting ? "Submitting…" : "Submit review"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
