@@ -530,9 +530,31 @@ function Process() {
 //  Social proof (real-data ready, hides gracefully when empty)
 // ────────────────────────────────────────────────────────────
 
-// Replace with real client logos & testimonials when ready.
+// Replace with real client logos when ready. Testimonials are fetched from the
+// `reviews` table where status='approved' AND is_featured=true.
 const REAL_LOGOS: { name: string; src?: string }[] = [];
-const REAL_TESTIMONIALS: { quote: string; name: string; role?: string; loc?: string }[] = [];
+
+interface FeaturedReview {
+  id: string;
+  rating: number;
+  review_text: string;
+  client_display_name: string;
+  created_at: string;
+}
+
+function relativeTime(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const day = 24 * 60 * 60 * 1000;
+  const days = Math.floor(diff / day);
+  if (days < 1) return "today";
+  if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks} week${weeks === 1 ? "" : "s"} ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months} month${months === 1 ? "" : "s"} ago`;
+  const years = Math.floor(days / 365);
+  return `${years} year${years === 1 ? "" : "s"} ago`;
+}
 
 interface PartnerLogo {
   name: string;
@@ -577,7 +599,24 @@ function PartnerLogoMarquee() {
 function SocialProof() {
   const { t } = useI18n();
   const hasLogos = REAL_LOGOS.length > 0;
-  const hasTestimonials = REAL_TESTIMONIALS.length > 0;
+  const [featured, setFeatured] = useState<FeaturedReview[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("reviews")
+        .select("id, rating, review_text, client_display_name, created_at")
+        .eq("status", "approved")
+        .eq("is_featured", true)
+        .order("created_at", { ascending: false })
+        .limit(6);
+      if (!cancelled) setFeatured((data ?? []) as FeaturedReview[]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <section className="border-b border-border bg-secondary/40 py-20 md:py-24">
@@ -615,19 +654,31 @@ function SocialProof() {
           </div>
         )}
 
-        {hasTestimonials && (
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {REAL_TESTIMONIALS.map((q) => (
+        {featured.length > 0 && (
+          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {featured.map((r) => (
               <figure
-                key={q.name}
-                className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6"
+                key={r.id}
+                className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
               >
-                <blockquote className="text-sm leading-relaxed text-card-foreground">
-                  “{q.quote}”
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <Star
+                      key={n}
+                      className={`h-4 w-4 ${
+                        n <= r.rating
+                          ? "fill-amber-400 text-amber-400"
+                          : "text-muted-foreground/30"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <blockquote className="flex-1 text-sm italic leading-relaxed text-card-foreground">
+                  “{r.review_text}”
                 </blockquote>
                 <figcaption className="flex items-center gap-3 border-t border-border pt-4">
                   <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                    {q.name
+                    {r.client_display_name
                       .split(" ")
                       .map((p) => p[0])
                       .join("")
@@ -635,12 +686,12 @@ function SocialProof() {
                       .toUpperCase()}
                   </div>
                   <div className="text-xs">
-                    <div className="font-semibold text-card-foreground">{q.name}</div>
-                    {(q.role || q.loc) && (
-                      <div className="text-muted-foreground">
-                        {[q.role, q.loc].filter(Boolean).join(" · ")}
-                      </div>
-                    )}
+                    <div className="font-semibold text-card-foreground">
+                      {r.client_display_name}
+                    </div>
+                    <div className="text-muted-foreground">
+                      {relativeTime(r.created_at)}
+                    </div>
                   </div>
                 </figcaption>
               </figure>
