@@ -183,6 +183,7 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
       // Keep last 10 messages for context (including the new user message)
       const conversationHistory = messages
         .concat([newUserMessage])
+        .filter((msg) => !msg.error)
         .slice(-10)
         .map((msg) => ({
           role: msg.role,
@@ -206,8 +207,13 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
         }),
       });
 
+      if (response.status === 429) {
+        throw Object.assign(new Error("rate_limit"), { kind: "rate_limit" as const });
+      }
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        throw Object.assign(new Error(`API error: ${response.status}`), {
+          kind: "generic" as const,
+        });
       }
 
       const data = await response.json();
@@ -219,15 +225,39 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error("Chat error:", error);
-      const errorMessage: Message = {
-        role: "assistant",
-        content:
-          "Sorry, I'm having trouble right now. Please contact us at sanbrothersgroup@gmail.com",
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      const kind = (error as { kind?: string })?.kind;
+      let errorContent: string;
+      let errorType: MessageError;
+      if (kind === "rate_limit") {
+        errorType = "rate_limit";
+        errorContent =
+          "I'm getting a lot of questions right now — please try again in a moment, or contact us directly at sanbrothersgroup@gmail.com.";
+      } else if (error instanceof TypeError) {
+        // fetch network failure
+        errorType = "network";
+        errorContent =
+          "Sorry, I'm having trouble connecting. Please contact us at sanbrothersgroup@gmail.com";
+      } else {
+        errorType = "generic";
+        errorContent =
+          "Sorry, something went wrong. Please contact us at sanbrothersgroup@gmail.com";
+      }
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: errorContent,
+          error: errorType,
+          retryOf: userMessage,
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const startNewConversation = () => {
+    setMessages([{ role: "assistant", content: config.greeting }]);
   };
 
   /**
