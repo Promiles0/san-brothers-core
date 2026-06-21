@@ -186,7 +186,6 @@ export function ChatWindow(props: ChatWindowProps) {
         },
       )
       .subscribe((status) => {
-        console.log("[Chat] Realtime status:", status);
       });
 
     return () => {

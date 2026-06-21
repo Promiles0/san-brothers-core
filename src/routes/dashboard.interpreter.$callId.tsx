@@ -167,12 +167,6 @@ function ActiveCallPage() {
         },
         (payload) => {
           const updated = payload.new as InterpreterCall;
-          console.log(
-            "[Realtime] status:",
-            updated.status,
-            "| interpreter_id:",
-            updated.interpreter_id,
-          );
           setCall(updated);
           if (updated.interpreter_id) {
             void fetchInterpreter(updated.interpreter_id);
@@ -189,7 +183,6 @@ function ActiveCallPage() {
         },
       )
       .subscribe((status) => {
-        console.log("[Realtime] channel status:", status);
       });
     return () => {
       supabase.removeChannel(channel);
@@ -215,7 +208,6 @@ function ActiveCallPage() {
       if (!data) return;
 
       const updated = data as InterpreterCall;
-      console.log("[Poll] status:", updated.status, "| interpreter_id:", updated.interpreter_id);
 
       setCall(updated);
 
@@ -408,7 +400,6 @@ function ActiveCallPage() {
     // BUG 3 FIX: use <= 0 (not ===) so a timing skew can't let it slip past,
     // and gate on callEndedRef so we never call handleEndCall twice.
     if (minutesRemaining <= 0 && callSeconds > 0 && !callEndedRef.current) {
-      console.log("[Minutes] Hit zero — ending call automatically");
       void handleEndCall();
     }
   }, [minutesRemaining, call?.status]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -450,7 +441,6 @@ function ActiveCallPage() {
 
     const billedSecs = callSecondsRef.current;
     const now = new Date().toISOString();
-    console.log("[EndCall] Ending call:", callId, "| billedSecs:", billedSecs);
 
     /*
      * RLS NOTE — run once in Supabase SQL editor if the update fails with
@@ -471,7 +461,6 @@ function ActiveCallPage() {
       .select()
       .single();
 
-    console.log("[EndCall] Update result:", { data: updatedCall, error });
 
     if (error) {
       console.error("[EndCall] FAILED:", error.message, error.code);
@@ -500,7 +489,6 @@ function ActiveCallPage() {
         paid = Math.max(0, o.paid_minutes_remaining - (usedMin - o.free_minutes_remaining));
       }
 
-      console.log("[EndCall] Updating client_minutes — free:", free, "paid:", paid);
 
       await supabase
         .from("client_minutes")
@@ -508,13 +496,11 @@ function ActiveCallPage() {
         .eq("client_id", user.id);
     }
 
-    console.log("[EndCall] Navigating to summary");
     window.location.href = `/dashboard/interpreter/${callId}/summary`;
   };
 
   // ── Render ────────────────────────────────────────────────────────────────────
 
-  console.log("[CallScreen] call:", call, "status:", call?.status);
 
   if (loading) {
     return (

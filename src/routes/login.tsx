@@ -111,7 +111,6 @@ function LoginPageEnhanced() {
         return;
       }
 
-      console.log("[Login] Success! User:", authData.user.email);
       toast.success("Welcome back!");
 
       // Check if 2FA is enabled (placeholder for future implementation)

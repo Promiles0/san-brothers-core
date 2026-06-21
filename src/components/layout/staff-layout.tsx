@@ -130,7 +130,6 @@ function useIncomingCall(
       audioCtxRef.current = ctx;
       if (ctx.state === "suspended") {
         // Browser requires a user gesture before audio can play.
-        console.log("[Audio] AudioContext suspended — audio blocked by browser policy");
         setAudioBlocked(true);
         return;
       }
@@ -155,7 +154,6 @@ function useIncomingCall(
     }
     void ctx.resume().then(() => {
       if (ctx.state === "running") {
-        console.log("[Audio] AudioContext resumed after user gesture");
         setAudioBlocked(false);
         doBeep(ctx);
       }
@@ -218,14 +216,12 @@ function useIncomingCall(
           },
           async (payload) => {
             const call = payload.new as IncomingCall;
-            console.log("[IncomingCall] INSERT received:", call);
 
             // JS filter 0: skip calls we already accepted (guards against channel-reconnect replay)
             if (acceptedCallIds.current.has(call.id)) return;
 
             // JS filter 1: only truly ringing calls
             if (call.status !== "ringing") {
-              console.log("[IncomingCall] Skipping — status is not ringing:", call.status);
               return;
             }
 
@@ -233,24 +229,10 @@ function useIncomingCall(
             const isMatch = interpreterLanguages.some(
               (pair) => pair.from === call.language_from && pair.to === call.language_to,
             );
-            console.log(
-              "[IncomingCall] language match:",
-              isMatch,
-              "| interpreter pairs:",
-              interpreterLanguages,
-              "| call:",
-              call.language_from,
-              "->",
-              call.language_to,
-            );
             if (!isMatch) return;
 
             // JS filter 3: preferred interpreter routing — skip if call is directed at someone else
             if (call.preferred_interpreter_id && call.preferred_interpreter_id !== profileId) {
-              console.log(
-                "[IncomingCall] Skipping — call directed to another interpreter:",
-                call.preferred_interpreter_id,
-              );
               return;
             }
 
@@ -263,7 +245,6 @@ function useIncomingCall(
               .limit(1);
 
             if ((myActiveCalls?.length ?? 0) > 0) {
-              console.log("[IncomingCall] Already on a call, skipping");
               return;
             }
 
@@ -275,7 +256,6 @@ function useIncomingCall(
               .single();
 
             if (freshProfile?.availability_status !== "online") {
-              console.log("[IncomingCall] Not online, skipping");
               return;
             }
 
@@ -285,7 +265,6 @@ function useIncomingCall(
           },
         )
         .subscribe((status) => {
-          console.log("[IncomingCall] channel1 status:", status);
         });
     }
 
@@ -302,13 +281,11 @@ function useIncomingCall(
         },
         async (payload) => {
           const call = payload.new as IncomingCall;
-          console.log("[ForwardedCall] UPDATE received:", call);
           if (call.status !== "on_hold") return;
           await showCall(call, true);
         },
       )
       .subscribe((status) => {
-        console.log("[IncomingCall] channel2 (forwarded) status:", status);
       });
 
     return () => {
@@ -369,7 +346,6 @@ function useIncomingCall(
           .limit(1);
 
         if ((myActiveCalls?.length ?? 0) > 0) {
-          console.log("[IncomingCall] Poll: Already on a call, skipping");
           return;
         }
 
@@ -381,11 +357,9 @@ function useIncomingCall(
           .single();
 
         if (freshProfile?.availability_status !== "online") {
-          console.log("[IncomingCall] Poll: Not online, skipping");
           return;
         }
 
-        console.log("[IncomingCall] Poll found ringing call (realtime missed it):", match);
         // Poll fires without a user gesture — don't attempt audio.
         await showCall(match as IncomingCall, false);
       }
@@ -426,7 +400,6 @@ function IncomingCallOverlay({
   const handleAccept = async () => {
     if (accepting) return; // prevent double-tap
     setAccepting(true);
-    console.log("[Accept] Attempting to accept call:", call.id, "profileId:", profileId);
 
     const now = new Date().toISOString();
     const isForwarded = call.hold_start != null;
@@ -445,7 +418,6 @@ function IncomingCallOverlay({
       }),
     };
 
-    console.log("[Accept] Sending UPDATE:", updatePayload, "for call id:", call.id);
 
     const { error, data } = await supabase
       .from("interpreter_calls")
@@ -461,7 +433,6 @@ function IncomingCallOverlay({
       return;
     }
 
-    console.log("[Accept] UPDATE succeeded, row returned:", data);
 
     // FIX 4: mark interpreter as busy so new callers don't see them as available
     await supabase.from("users").update({ availability_status: "busy" }).eq("id", profileId);
@@ -473,12 +444,10 @@ function IncomingCallOverlay({
         .from("interpreter_calls")
         .update({ daily_room_url: room.url, daily_room_name: room.name })
         .eq("id", call.id);
-      console.log("[Daily] Room created:", room.url);
     }
 
     onMarkAccepted(call.id);
     onDismiss();
-    console.log("[Accept] Navigating to interpreter screen for callId:", call.id);
     navigate({ to: "/staff/interpreter/$callId", params: { callId: call.id } } as never);
   };
 
