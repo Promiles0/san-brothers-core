@@ -27,6 +27,10 @@ import { Button } from "@/components/ui/button";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase } from "@/lib/supabase";
+import { Magnetic } from "@/components/fx/magnetic";
+import { TiltCard } from "@/components/fx/tilt-card";
+import { AnimatedCounter } from "@/components/fx/animated-counter";
+import { ParallaxLayer } from "@/components/fx/parallax-layer";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -56,6 +60,7 @@ function Home() {
     <PublicLayout>
       <PageStyles />
       <Hero />
+      <StatsStrip />
       <ServicesGrid />
       <WhyUs />
       <Process />
@@ -63,6 +68,40 @@ function Home() {
       <CtaSection />
       <StickyContact />
     </PublicLayout>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+//  Stats strip with animated counters
+// ────────────────────────────────────────────────────────────
+
+function StatsStrip() {
+  const stats = [
+    { value: 500, suffix: "+", label: "Clients served" },
+    { value: 15, suffix: "+", label: "Countries reached" },
+    { value: 17, suffix: "", label: "Services offered" },
+    { value: 98, suffix: "%", label: "On-time delivery" },
+  ];
+  return (
+    <section className="border-b border-border bg-background py-12 md:py-16">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 md:grid-cols-4 md:px-6">
+        {stats.map((s) => (
+          <div
+            key={s.label}
+            className="rounded-2xl border border-border bg-card p-6 text-center transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
+          >
+            <AnimatedCounter
+              to={s.value}
+              suffix={s.suffix}
+              className="block bg-gradient-to-br from-primary to-accent bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-5xl"
+            />
+            <div className="mt-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              {s.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -99,10 +138,12 @@ function Hero() {
     <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-secondary/40 via-background to-background">
       {/* Ambient mesh gradient — adapts to theme via tokens */}
       <div aria-hidden className="home-mesh opacity-60 dark:opacity-50" />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-32 right-1/2 h-[28rem] w-[28rem] translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
-      />
+      <ParallaxLayer speed={-0.25} aria-hidden className="pointer-events-none absolute -top-32 right-1/2 h-[28rem] w-[28rem] translate-x-1/2">
+        <div className="h-full w-full rounded-full bg-primary/10 blur-3xl" />
+      </ParallaxLayer>
+      <ParallaxLayer speed={0.15} aria-hidden className="pointer-events-none absolute bottom-0 left-0 h-[20rem] w-[20rem]">
+        <div className="h-full w-full rounded-full bg-accent/10 blur-3xl" />
+      </ParallaxLayer>
 
 
       <div className="relative mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
@@ -121,18 +162,22 @@ function Hero() {
             </p>
 
             <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row md:justify-start">
-              <Button asChild size="lg" className="h-12 gap-2 px-7 text-base">
-                <Link to="/signup" search={undefined}>
-                  Get started free
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="h-12 gap-2 px-7 text-base">
-                <Link to="/contact">
-                  <MessageCircle className="h-4 w-4" />
-                  Talk to an expert
-                </Link>
-              </Button>
+              <Magnetic strength={18}>
+                <Button asChild size="lg" className="h-12 gap-2 px-7 text-base shadow-lg shadow-primary/30 transition-shadow hover:shadow-primary/50">
+                  <Link to="/signup" search={undefined}>
+                    Get started free
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </Magnetic>
+              <Magnetic strength={14}>
+                <Button asChild size="lg" variant="outline" className="h-12 gap-2 px-7 text-base">
+                  <Link to="/contact">
+                    <MessageCircle className="h-4 w-4" />
+                    Talk to an expert
+                  </Link>
+                </Button>
+              </Magnetic>
             </div>
 
             <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground md:justify-start">
@@ -344,28 +389,33 @@ function ServicesGrid() {
 
         <div className="mt-12 grid gap-5 sm:grid-cols-2">
           {services.map((s, i) => (
-            <Link
-              to={s.href}
+            <TiltCard
               key={s.title}
-              className={`home-fade-up home-delay-${i + 1} service-card group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-6`}
+              max={6}
+              className={`home-fade-up home-delay-${i + 1}`}
             >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-              />
-              <div className="relative flex items-start justify-between">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 text-primary ring-1 ring-primary/20 transition-all duration-300 group-hover:from-primary group-hover:to-primary/80 group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/30">
-                  <s.icon className="h-6 w-6" />
+              <Link
+                to={s.href}
+                className="service-card group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-6"
+              >
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                />
+                <div className="relative flex items-start justify-between">
+                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 text-primary ring-1 ring-primary/20 transition-all duration-300 group-hover:from-primary group-hover:to-primary/80 group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/30">
+                    <s.icon className="h-6 w-6" />
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-primary" />
                 </div>
-                <ArrowRight className="h-5 w-5 text-muted-foreground transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-primary" />
-              </div>
-              <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">{s.title}</h3>
-              <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
-              <div className="relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-accent/20 transition-all group-hover:ring-accent/50 group-hover:shadow-[0_0_12px_color-mix(in_oklab,var(--accent)_30%,transparent)]">
-                <Sparkles className="h-3 w-3 text-accent" />
-                {s.outcome}
-              </div>
-            </Link>
+                <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">{s.title}</h3>
+                <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+                <div className="relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-accent/20 transition-all group-hover:ring-accent/50 group-hover:shadow-[0_0_12px_color-mix(in_oklab,var(--accent)_30%,transparent)]">
+                  <Sparkles className="h-3 w-3 text-accent" />
+                  {s.outcome}
+                </div>
+              </Link>
+            </TiltCard>
           ))}
         </div>
       </div>
@@ -772,23 +822,27 @@ function CtaSection() {
           {t("home.ctaSubtitle")}
         </p>
         <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row">
-          <Button asChild size="lg" variant="secondary" className="h-12 gap-2 px-7 text-base">
-            <Link to="/signup" search={undefined}>
-              Create free account
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="h-12 gap-2 border-primary-foreground/30 bg-transparent px-7 text-base text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-          >
-            <Link to="/contact">
-              <Phone className="h-4 w-4" />
-              Talk to us
-            </Link>
-          </Button>
+          <Magnetic strength={18}>
+            <Button asChild size="lg" variant="secondary" className="h-12 gap-2 px-7 text-base">
+              <Link to="/signup" search={undefined}>
+                Create free account
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </Magnetic>
+          <Magnetic strength={14}>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="h-12 gap-2 border-primary-foreground/30 bg-transparent px-7 text-base text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            >
+              <Link to="/contact">
+                <Phone className="h-4 w-4" />
+                Talk to us
+              </Link>
+            </Button>
+          </Magnetic>
         </div>
       </div>
     </section>
