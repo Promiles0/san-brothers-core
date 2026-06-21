@@ -134,9 +134,7 @@ function InterpreterCallScreen() {
         },
         (payload) => {
           const updated = payload.new as InterpreterCall;
-          console.log("[StaffCall] status update:", updated.status);
           if (updated.status === "completed" || updated.status === "cancelled") {
-            console.log("[StaffCall] Call ended by client, navigating away");
             window.location.href = "/staff";
           }
           if (updated.status === "on_hold") {
@@ -153,7 +151,6 @@ function InterpreterCallScreen() {
         .eq("id", callId)
         .single();
 
-      console.log("[StaffCall] Poll status:", data?.status);
 
       if (data?.status === "completed" || data?.status === "cancelled") {
         clearInterval(poll);
@@ -243,7 +240,6 @@ function InterpreterCallScreen() {
         .from("users")
         .update({ availability_status: "online" })
         .eq("id", profile.id);
-      console.log("[EndCall] Availability reset:", availError?.message ?? "OK");
 
       await checkQueueAndNotify(
         (profile.interpreter_languages as Array<{ from: string; to: string }>) || [],
@@ -265,7 +261,6 @@ function InterpreterCallScreen() {
         .from("users")
         .update({ availability_status: "online" })
         .eq("id", profile.id);
-      console.log("[Release] Availability reset:", availError?.message ?? "OK");
 
       await checkQueueAndNotify(
         (profile.interpreter_languages as Array<{ from: string; to: string }>) || [],

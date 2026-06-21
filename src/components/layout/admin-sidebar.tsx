@@ -52,7 +52,6 @@ const groups: Group[] = [
       { label: "Clients", icon: Users, to: "/admin/clients" },
       { label: "Cases", icon: FolderKanban, to: "/admin/cases", badgeKey: "activeCases" },
       { label: "Messages", icon: MessageSquare, to: "/admin/messages" },
-      { label: "Messages", icon: MessageSquare, to: "/admin/messages" },
       { label: "Reviews", icon: Star, to: "/admin/reviews" },
       { label: "Interpreters", icon: Headphones, to: "/admin/interpreter" },
       { label: "Documents", icon: FolderOpen, to: "/admin/documents" },
