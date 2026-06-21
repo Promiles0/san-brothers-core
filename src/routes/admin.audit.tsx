@@ -130,7 +130,7 @@ function AdminAudit() {
     const q = filter.toLowerCase();
     return rows.filter((a) => {
       if (staffId !== "all" && a.user_id !== staffId) return false;
-      if (type !== "all" && actionType(a.action) !== type) return false;
+      if (type !== "all" && a.action !== type) return false;
       if (dateFrom && a.created_at < dateFrom) return false;
       if (dateTo && a.created_at > dateTo + "T23:59:59") return false;
       if (
@@ -147,15 +147,41 @@ function AdminAudit() {
     });
   }, [rows, filter, staffId, type, dateFrom, dateTo, nameById]);
 
+  // Distinct action types actually present in the data
+  const distinctActions = useMemo(() => {
+    const set = new Set<string>();
+    rows.forEach((r) => set.add(r.action));
+    return Array.from(set).sort();
+  }, [rows]);
+
+  // Staff who actually have entries (intersect users list with audit user_ids)
+  const staffWithEntries = useMemo(() => {
+    const ids = new Set<string>();
+    rows.forEach((r) => r.user_id && ids.add(r.user_id));
+    return users.filter((u) => ids.has(u.id));
+  }, [rows, users]);
+
   const pageRows = filtered.slice(page * PAGE, (page + 1) * PAGE);
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE));
+
+  const hasActiveFilters =
+    filter !== "" || staffId !== "all" || type !== "all" || dateFrom !== "" || dateTo !== "";
+
+  const clearFilters = () => {
+    setFilter("");
+    setStaffId("all");
+    setType("all");
+    setDateFrom("");
+    setDateTo("");
+    setPage(0);
+  };
 
   const handleExport = () => {
     exportCsv(
       filtered.map((a) => ({
         timestamp: a.created_at,
         action: a.action,
-        type: actionType(a.action),
+        type: actionBucket(a.action),
         staff: a.user_id ? (nameById[a.user_id] ?? a.user_id) : "System",
         target_type: a.target_type ?? "",
         target_id: a.target_id ?? "",
@@ -165,6 +191,7 @@ function AdminAudit() {
       `audit_log_${new Date().toISOString().slice(0, 10)}.csv`,
     );
   };
+
 
   return (
     <div className="space-y-6">
