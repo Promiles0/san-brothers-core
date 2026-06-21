@@ -27,11 +27,26 @@ function getStripe() {
   return _stripePromise;
 }
 
+export type PaymentIntentRequest =
+  | {
+      kind: "service";
+      service_id: string;
+      service_request_id?: string;
+      metadata?: Record<string, string>;
+    }
+  | {
+      kind: "minute_package";
+      minute_package_id: string;
+      metadata?: Record<string, string>;
+    };
+
 export interface StripePaymentFormProps {
-  amount: number; // USD
+  amount: number; // USD — display only; server recomputes from DB
   serviceTitle: string;
   description?: string;
   metadata?: Record<string, string>;
+  /** Authoritative pricing source. Required unless clientSecret is provided. */
+  intent?: PaymentIntentRequest;
   onSuccess: (paymentIntentId: string) => void | Promise<void>;
   onCancel: () => void;
   onError?: (message: string, error?: unknown) => void;
@@ -41,7 +56,7 @@ export interface StripePaymentFormProps {
 type PaymentMethod = "card" | "mtn-momo" | "paypal" | "bank" | "cash-app" | "amazon-pay";
 
 export function StripePaymentForm(props: StripePaymentFormProps) {
-  const { amount, serviceTitle, onError, clientSecret: propClientSecret } = props;
+  const { amount, serviceTitle, onError, clientSecret: propClientSecret, intent } = props;
   const onErrorRef = useRef(onError);
   const [internalClientSecret, setInternalClientSecret] = useState<string | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
