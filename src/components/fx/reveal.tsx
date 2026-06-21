@@ -1,4 +1,4 @@
-import { useEffect, useRef, type HTMLAttributes, type ReactNode } from "react";
+import { createElement, useEffect, useRef, type ElementType, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export type RevealVariant =
@@ -62,20 +62,20 @@ export function Reveal({
     return () => io.disconnect();
   }, [once, threshold]);
 
-  const Comp = Tag as unknown as React.ElementType;
-  return (
-    <Comp
-      ref={ref}
-      data-variant={variant}
-      className={cn("fx-reveal", className)}
-      style={{
+  const Comp: ElementType = Tag;
+  return createElement(
+    Comp,
+    {
+      ref,
+      "data-variant": variant,
+      className: cn("fx-reveal", className),
+      style: {
         ...(delay ? { animationDelay: `${delay}ms` } : null),
         ...(duration ? { animationDuration: `${duration}ms` } : null),
         ...style,
-      }}
-      {...rest}
-    >
-      {children}
-    </Comp>
+      },
+      ...rest,
+    },
+    children
   );
 }

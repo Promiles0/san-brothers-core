@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ElementType } from "react";
+import { createElement, useEffect, useRef, type ElementType } from "react";
 import { cn } from "@/lib/utils";
 
 interface TextRevealProps {
@@ -48,23 +48,23 @@ export function TextReveal({
 
   const words = text.split(/(\s+)/);
 
-  const Comp = Tag as unknown as React.ElementType;
-  return (
-    <Comp ref={ref} className={cn("fx-text-reveal", className)}>
-      {words.map((w, i) =>
-        /^\s+$/.test(w) ? (
-          <span key={i}> </span>
-        ) : (
-          <span key={i} className="fx-text-word">
-            <span
-              className="fx-text-word-inner"
-              style={{ animationDelay: `${delay + i * step}ms` }}
-            >
-              {w}
-            </span>
+  const Comp: ElementType = Tag;
+  return createElement(
+    Comp,
+    { ref, className: cn("fx-text-reveal", className) },
+    words.map((w, i) =>
+      /^\s+$/.test(w) ? (
+        <span key={i}> </span>
+      ) : (
+        <span key={i} className="fx-text-word">
+          <span
+            className="fx-text-word-inner"
+            style={{ animationDelay: `${delay + i * step}ms` }}
+          >
+            {w}
           </span>
-        )
-      )}
-    </Comp>
+        </span>
+      )
+    )
   );
 }
