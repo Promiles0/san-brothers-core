@@ -479,3 +479,126 @@
     animation: none;
   }
 }
+
+/* ============================================================ */
+/*  FX layer — global cursor, scroll progress, page transition  */
+/*  tilt cards, magnetic, parallax-safe defaults                */
+/* ============================================================ */
+
+@keyframes fx-page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fx-page-in { animation: fx-page-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+.fx-scroll-progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 100;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  box-shadow: 0 0 12px color-mix(in oklab, var(--primary) 55%, transparent);
+  pointer-events: none;
+  transition: transform 0.08s linear;
+}
+
+.fx-cursor-dot,
+.fx-cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 9999px;
+  transform: translate3d(-100px, -100px, 0);
+  will-change: transform;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+.fx-cursor-dot {
+  width: 6px; height: 6px;
+  margin: -3px 0 0 -3px;
+  background: var(--accent);
+  box-shadow: 0 0 12px color-mix(in oklab, var(--accent) 70%, transparent);
+}
+.fx-cursor-ring {
+  width: 34px; height: 34px;
+  margin: -17px 0 0 -17px;
+  border: 1.5px solid color-mix(in oklab, var(--primary) 70%, transparent);
+  background: color-mix(in oklab, var(--primary) 6%, transparent);
+  backdrop-filter: blur(2px);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.fx-cursor-ring[data-hover="true"] {
+  border-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 10%, transparent);
+}
+body.has-custom-cursor,
+body.has-custom-cursor a,
+body.has-custom-cursor button,
+body.has-custom-cursor [role="button"] {
+  cursor: none;
+}
+body.has-custom-cursor input,
+body.has-custom-cursor textarea,
+body.has-custom-cursor select {
+  cursor: text;
+}
+
+.fx-tilt {
+  perspective: 900px;
+  transform-style: preserve-3d;
+}
+.fx-tilt-inner {
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.fx-tilt-spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in oklab, var(--primary) 18%, transparent), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.fx-tilt:hover .fx-tilt-spotlight::before,
+.fx-tilt-spotlight:hover::before { opacity: 1; }
+
+@keyframes fx-draw {
+  to { stroke-dashoffset: 0; }
+}
+.fx-draw-icon path,
+.fx-draw-icon circle,
+.fx-draw-icon line,
+.fx-draw-icon polyline,
+.fx-draw-icon rect {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: fx-draw 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-page-in,
+  .fx-tilt-inner,
+  .fx-cursor-dot,
+  .fx-cursor-ring,
+  .fx-draw-icon path,
+  .fx-draw-icon circle,
+  .fx-draw-icon line,
+  .fx-draw-icon polyline,
+  .fx-draw-icon rect,
+  .fx-magnetic {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+  .fx-scroll-progress { transition: none; }
+}
