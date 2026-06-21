@@ -1,15 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight, Sparkles, X, Send, Minimize2, Maximize2 } from "lucide-react";
+import { ArrowRight, Sparkles, X, Send, Minimize2, Maximize2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { usePortal } from "@/lib/portal-context";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { useShouldShowChatWidget } from "@/lib/hooks/useShouldShowChatWidget";
 
+type MessageError = "network" | "rate_limit" | "generic" | null;
+
 interface Message {
   role: "user" | "assistant";
   content: string;
+  error?: MessageError;
+  retryOf?: string;
 }
 
 interface SystemPromptConfig {
