@@ -148,7 +148,21 @@ function Hero() {
       {/* Ambient mesh gradient — adapts to theme via tokens */}
       <div aria-hidden className="home-mesh opacity-60 dark:opacity-50" />
       <ParallaxLayer speed={-0.25} aria-hidden className="pointer-events-none absolute -top-32 right-1/2 h-[28rem] w-[28rem] translate-x-1/2">
-...
+        <div className="h-full w-full rounded-full bg-primary/10 blur-3xl" />
+      </ParallaxLayer>
+      <ParallaxLayer speed={0.15} aria-hidden className="pointer-events-none absolute bottom-0 left-0 h-[20rem] w-[20rem]">
+        <div className="h-full w-full rounded-full bg-accent/10 blur-3xl" />
+      </ParallaxLayer>
+
+
+      <div className="relative mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
+        <div className="grid items-center gap-12 md:grid-cols-2" data-fx-skip>
+          {/* Copy */}
+          <div data-fx="slide-right" data-fx-once="true" className="text-center md:text-left">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              <Sparkles className="h-3.5 w-3.5 text-accent" />
+              Trusted in 15+ countries
+            </span>
             <h1 className="mt-6 text-balance text-4xl font-black leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
               <RotatingText phrases={rotatingPhrases} />
             </h1>
