@@ -42,12 +42,7 @@ interface ReviewRow extends Review {
 
 type FilterTab = "all" | "pending" | "approved" | "rejected";
 
-const FILTERS: { value: FilterTab; label: string }[] = [
-  { value: "pending", label: "Pending" },
-  { value: "approved", label: "Approved" },
-  { value: "rejected", label: "Rejected" },
-  { value: "all", label: "All" },
-];
+const FILTERS: FilterTab[] = ["pending", "approved", "rejected", "all"];
 
 function statusBadge(status: ReviewStatus) {
   if (status === "approved")
