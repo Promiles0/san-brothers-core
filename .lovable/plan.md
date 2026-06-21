@@ -1,71 +1,82 @@
-# Scroll & Page Transition Animation Layer
+# Make scroll animations feel intentional + add rotating hero word
 
-Goal: make the site feel alive — every route change runs a polished transition, and every section reveals as the user scrolls. Build on the existing FX stack (we already have `PageTransition`, `ScrollProgress`, `ParallaxLayer`, `TiltCard`, `Magnetic`, `AnimatedCounter`, `CustomCursor`) and add the missing scroll + transition primitives.
+The current `AutoReveal` runs once per section with subtle 24px translations at default browser timing, so on a fast scroll users barely notice anything. We'll make the reveals dramatic, varied, and apply them to inner content blocks (not just the outer `<section>`), and add a word-rotator in the hero headline.
 
-All work is CSS + IntersectionObserver + rAF. No new npm packages. Fully respects `prefers-reduced-motion`. SSR-safe.
+## 1. Rotating hero word (`RotatingText` FX primitive)
 
-## 1. New FX primitives (`src/components/fx/`)
+New component `src/components/fx/rotating-text.tsx`:
+- Cycles through an array of words every ~2.2s
+- Each swap: old word slides up + blurs out, new word slides up + fades/un-blurs in
+- Inline-block, width animates to fit current word (no layout jump)
+- Pauses on `prefers-reduced-motion` (shows first word only)
 
-- `Reveal.tsx` — single wrapper with variants: `fade-up`, `fade`, `slide-left`, `slide-right`, `zoom`, `blur-in`. Props: `delay`, `duration`, `once`, `threshold`. IntersectionObserver-driven.
-- `StaggerGroup.tsx` + `StaggerItem.tsx` — staggered grid/list reveals (cards animate one-by-one) using CSS custom-property `--i` for index-based delay.
-- `SplitReveal.tsx` — two children slide in from opposite sides simultaneously.
-- `StickySection.tsx` — wraps a section that pins while inner content (passed as children) animates with scroll progress (uses `position: sticky` + scroll-linked CSS var `--p`).
-- `ScrollScene.tsx` — generic scroll-progress-driven transform wrapper. Children receive a `--p` CSS var (0→1) tied to viewport position; consumers use it for rotate/scale/translate via inline CSS.
-- `TextReveal.tsx` — word/line mask reveal for headings (split by space, animate each word with stagger).
-- Enhance `PageTransition.tsx` — add `mode` prop: `fade` (current), `slide`, `zoom`, `blur`. Default `fade`. Route-driven via a `data-transition` attribute set on the wrapper.
+Wired into hero (`src/routes/index.tsx` `Hero()`):
+- Headline becomes: `"{prefix} <RotatingText words=[…]/> {suffix}"`
+- Words pulled from i18n (`home.heroRotatingWords` array, added to `en.json`/`zh.json`/`rw.json`): e.g. "visas", "translation", "accounting", "consultancy", "business setup" (localized).
+- Static i18n keys `home.heroRotatingPrefix` / `home.heroRotatingSuffix` for the framing text so all three locales read naturally.
 
-## 2. Global CSS additions (`src/styles.css`)
+Existing `home.heroTitle` stays as fallback for SEO/SSR (rendered server-side, then replaced on mount).
 
-Add keyframes + utilities (all gated by `prefers-reduced-motion: no-preference`):
+## 2. Stronger, more varied scroll reveals
 
-- `@keyframes` for: `reveal-fade-up`, `reveal-fade`, `reveal-slide-left`, `reveal-slide-right`, `reveal-zoom`, `reveal-blur`, `reveal-text-word`, `page-slide-in`, `page-zoom-in`, `page-blur-in`.
-- Utility classes: `.fx-reveal`, `.fx-reveal[data-variant=...]`, `.fx-reveal.is-visible` (triggers animation).
-- `.fx-stagger > * { animation-delay: calc(var(--i, 0) * 70ms); }`.
-- `.fx-page-slide`, `.fx-page-zoom`, `.fx-page-blur` variants for `PageTransition`.
-- `.fx-sticky-scene` helper (sticky positioning, viewport height).
-- Glassmorphism overlay utility `.fx-glass` (backdrop-blur + translucent bg) for transition overlays.
-- All animations end with `@media (prefers-reduced-motion: reduce)` overrides setting `animation: none; transform: none; opacity: 1`.
+Rewrite `src/components/fx/auto-reveal.tsx` + extend `src/styles.css`:
 
-## 3. Page rollouts
+**Broader targeting** — don't just animate `<section>`s. Inside each section, auto-tag these as individual reveals:
+- Direct headings (`h1,h2,h3`) → `fade-up` with 80ms delay
+- Paragraphs directly under headings → `fade-up` 160ms
+- Cards (`[class*="rounded-2xl"][class*="border"]`, `.glass-card`) inside a grid → stagger items
+- Standalone images / canvases → `zoom`
+- Generic block elements with `data-fx` attribute → honored variant
 
-Apply the new primitives consistently across these routes (preserve all existing logic, Supabase queries, i18n keys, audit calls):
+**Stronger animation values** (in `styles.css`):
+- Duration: `0.9s` → `1.1s` (was ~0.7s)
+- Easing: `cubic-bezier(0.16, 1, 0.3, 1)` (expo-out) — already used; keep
+- Translation distance: 24px → **56px** for `fade-up`, 80px for slide variants
+- `zoom`: 0.94 → **0.82** + slight blur
+- `blur-in`: blur 10px → **18px**
+- Stagger step: 90ms → **140ms** with base 80ms
 
-- `src/routes/index.tsx` — wrap each major section in `Reveal` (fade-up); stats strip uses `StaggerGroup`; services grid uses `StaggerGroup` around existing `TiltCard`s; hero headline uses `TextReveal`; process tracker uses `SplitReveal`.
-- `src/routes/services.index.tsx` — hero headline `TextReveal`; stats grid `StaggerGroup`; service cards `StaggerGroup`.
-- `src/routes/pricing.tsx` — tier cards `StaggerGroup` with `Reveal` zoom variant; FAQ block fade-up.
-- `src/routes/about.tsx` — principles + differentiators `StaggerGroup`; CTA `Reveal slide-up`; one `StickySection` for the company story column.
-- `src/routes/contact.tsx` — form fields fade-up; contact channel cards `StaggerGroup`.
-- `src/routes/faq.tsx` — group headers `Reveal`; CTAs `Reveal`. (Skip animations inside Accordion content — known IntersectionObserver pitfall noted in project rules.)
+**More variants per page** — rotate through `fade-up, slide-left, slide-right, zoom, blur-in` per section index so consecutive sections feel different (currently we already alternate, but with weaker values it isn't visible).
 
-## 4. Route-level page transition variants
+**Re-trigger on scroll-back** — change observer to NOT unobserve; toggle `is-visible` based on intersection so users see animation again when scrolling up (only for section-level reveals, not stagger items, to avoid jank).
 
-Map a transition style per route group so navigation feels intentional, not uniform:
+**Earlier trigger** — `rootMargin: "0px 0px -10% 0px"` so reveals fire while content is well inside viewport, then sustain.
 
-- Home `/` → `fade`
-- `/services*` → `slide` (horizontal)
-- `/pricing` → `zoom`
-- `/about` → `fade`
-- `/contact` → `blur`
-- `/faq` → `fade`
+## 3. New utility: `data-fx` attribute opt-in
 
-Implemented inside `PageTransition` by reading current pathname and picking the variant; falls back to `fade`.
+For per-element control without React imports, add CSS hooks:
+```
+[data-fx="fade-up"], [data-fx="slide-left"], …
+```
+Same keyframes as `.fx-reveal[data-variant=…]`. `AutoReveal` reads `data-fx` first, falls back to auto-assigned variant.
 
-## 5. Verification
+## 4. Hero specifically
 
-- Smoke-check each route in preview (mobile + desktop viewport) for: no layout shift, no flash of invisible content (FOIC), animations replay on route change, reduced-motion users see static content.
-- Confirm no shadcn Tabs/Accordion content uses `Reveal` (per project rule).
-- Confirm no new i18n keys needed (purely presentational).
+In `Hero()`:
+- Replace `home-fade-up` static classes with `data-fx="slide-right"` on copy column and `data-fx="zoom"` on the 3D logo column
+- Stats strip cards: stagger with `slide-up`, step 140ms (already a grid → AutoReveal handles)
+- ServicesGrid cards: keep TiltCard, wrap grid in stagger w/ `zoom` variant
+- WhyUs / Process / SocialProof / CTA sections: rotate through `slide-left`, `slide-right`, `blur-in`, `fade-up`
+
+## 5. Accessibility
+
+- All new animations gated by `@media (prefers-reduced-motion: no-preference)`
+- Rotating text falls back to single word
+- Reduce block already covers `.fx-reveal`, `.fx-stagger`, `[data-fx]` (extend it)
+
+## Files
+
+**Created**
+- `src/components/fx/rotating-text.tsx`
+
+**Edited**
+- `src/components/fx/auto-reveal.tsx` (broader selectors, re-trigger, stronger defaults)
+- `src/styles.css` (stronger keyframes/values, `[data-fx]` utility, reduced-motion update)
+- `src/routes/index.tsx` (use `RotatingText` in hero, sprinkle `data-fx` attrs)
+- `src/messages/en.json` + `zh.json` + `rw.json` (`home.heroRotatingPrefix`, `home.heroRotatingSuffix`, `home.heroRotatingWords[]`)
 
 ## Out of scope
-
-- No new packages (no Framer Motion, GSAP, Lenis).
-- No changes to auth, Supabase queries, RLS, or business logic.
-- No changes to dashboard/admin/staff routes — public marketing pages only.
-- No 3D flip / morphing-layout transitions (would need heavy DOM choreography; can be added later if desired).
-
-## Technical notes
-
-- IntersectionObserver instances are created per-component and disconnected on unmount; `once: true` (default) disconnects after first trigger to avoid memory growth on long pages.
-- Scroll-linked components (`ScrollScene`, `StickySection`) share a single rAF loop pattern (same as existing `ScrollProgress` / `ParallaxLayer`).
-- All `useEffect`s early-return on `typeof window === 'undefined'` for SSR safety.
-- `PageTransition` keys off pathname (already does) — adding the variant just swaps the className applied to the keyed wrapper.
+- No new npm packages
+- No changes to auth, Supabase, or i18n provider internals
+- No edits inside Tabs/Accordion content (per project rule — IntersectionObserver pitfall)
+- Other pages (services/about/etc.) inherit the upgraded `AutoReveal` automatically; no per-page edits beyond home
