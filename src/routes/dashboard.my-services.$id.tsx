@@ -674,37 +674,97 @@ function ServiceDetailPage() {
               Progress
             </h2>
 
-            {isCancelled ? (
-              <div className="flex items-center gap-3 rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-3">
-                <XCircle className="h-4 w-4 text-destructive shrink-0" />
-                <p className="text-sm font-medium text-destructive capitalize">{sr.status}</p>
+            {isRejected ? (
+              <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-4">
+                <div className="flex items-start gap-3">
+                  <XCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-red-600 dark:text-red-400">
+                      Request Rejected
+                    </p>
+                    {sr.notes && (
+                      <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-1 leading-relaxed">
+                        {sr.notes}
+                      </p>
+                    )}
+                    <Link
+                      to="/contact"
+                      className="inline-flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400 hover:underline mt-2"
+                    >
+                      Contact us <ExternalLink className="h-3 w-3" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ) : isCancelled ? (
+              <div className="rounded-lg border border-border bg-muted/40 px-4 py-4">
+                <div className="flex items-start gap-3">
+                  <XCircle className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Request Cancelled</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      This request was cancelled on {fmt(sr.updated_at)}.
+                    </p>
+                  </div>
+                </div>
               </div>
             ) : (
               <>
+                {isAwaiting && (
+                  <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3">
+                    <AlertCircle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+                        Action needed — we&apos;re waiting on you
+                      </p>
+                      <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-0.5">
+                        {sr.notes ||
+                          "Please upload the requested documents or reply via messages to continue."}
+                      </p>
+                      <div className="flex flex-wrap gap-3 mt-2">
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="text-xs font-medium text-amber-700 dark:text-amber-400 hover:underline"
+                        >
+                          Upload documents
+                        </button>
+                        <Link
+                          to="/dashboard/messages"
+                          className="text-xs font-medium text-amber-700 dark:text-amber-400 hover:underline"
+                        >
+                          Open messages
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Desktop horizontal stepper */}
                 <div className="hidden sm:block">
-                  <div className="relative flex items-center">
-                    {STEPS.map((step, i) => {
-                      const isDone = i < activeIdx || isCompleted;
-                      const isActive = i === activeIdx && !isCompleted;
+                  <div className="relative flex items-start">
+                    {VISIBLE_STEPS.map((step, i) => {
+                      const isDone = isCompleted ? true : i < activeIdx;
+                      const isActive = !isCompleted && i === activeIdx && !isAwaiting;
+                      const isFrozenActive = isAwaiting && i === activeIdx;
                       return (
                         <div key={step.key} className="flex-1 flex flex-col items-center relative">
-                          {/* Connector line left */}
                           {i > 0 && (
                             <div
                               className={cn(
-                                "absolute left-0 top-4 w-1/2 h-0.5 -translate-y-1/2",
-                                isDone || isActive ? "bg-blue-500" : "bg-border",
+                                "absolute top-4 h-0.5 -translate-y-1/2",
+                                isDone || isActive || isFrozenActive
+                                  ? "bg-blue-500"
+                                  : "bg-border",
                               )}
                               style={{ left: 0, width: "50%" }}
                             />
                           )}
-                          {/* Connector line right */}
-                          {i < STEPS.length - 1 && (
+                          {i < VISIBLE_STEPS.length - 1 && (
                             <div
                               className={cn(
                                 "absolute top-4 h-0.5 -translate-y-1/2",
-                                isDone ? "bg-blue-500" : "bg-border border-dashed",
+                                isDone ? "bg-blue-500" : "bg-border",
                               )}
                               style={{ left: "50%", width: "50%" }}
                             />
@@ -716,8 +776,10 @@ function ServiceDetailPage() {
                               isDone
                                 ? "bg-green-500 border-green-500 text-white"
                                 : isActive
-                                  ? "bg-blue-600 border-blue-600 text-white ring-4 ring-blue-500/20"
-                                  : "bg-card border-border text-muted-foreground",
+                                  ? "bg-blue-600 border-blue-600 text-white ring-4 ring-blue-500/20 animate-pulse"
+                                  : isFrozenActive
+                                    ? "bg-amber-500 border-amber-500 text-white"
+                                    : "bg-card border-border text-muted-foreground",
                             )}
                           >
                             {isDone ? <Check className="h-3.5 w-3.5" /> : i + 1}
@@ -727,16 +789,27 @@ function ServiceDetailPage() {
                               "mt-2 text-xs text-center leading-tight px-1",
                               isDone
                                 ? "text-green-600 dark:text-green-400 font-medium"
-                                : isActive
+                                : isActive || isFrozenActive
                                   ? "text-foreground font-semibold"
                                   : "text-muted-foreground",
                             )}
                           >
                             {step.short}
                           </p>
-                          {isDone && <p className="text-[10px] text-muted-foreground">Done</p>}
                           {isActive && (
-                            <p className="text-[10px] text-blue-500 font-medium">Active</p>
+                            <p className="text-[10px] text-blue-500 font-medium mt-0.5">
+                              Started {fmtRelative(sr.updated_at || sr.created_at)}
+                            </p>
+                          )}
+                          {isFrozenActive && (
+                            <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium mt-0.5">
+                              Paused
+                            </p>
+                          )}
+                          {isDone && i === VISIBLE_STEPS.length - 1 && sr.completed_at && (
+                            <p className="text-[10px] text-muted-foreground mt-0.5">
+                              {fmt(sr.completed_at)}
+                            </p>
                           )}
                         </div>
                       );
@@ -750,7 +823,7 @@ function ServiceDetailPage() {
                       />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Step {Math.max(1, activeIdx + 1)} of {STEPS.length} · {progressPct}% complete
+                      Step {Math.max(1, activeIdx + 1)} of {VISIBLE_STEPS.length} · {progressPct}% complete
                     </p>
                   </div>
                 </div>
@@ -759,9 +832,10 @@ function ServiceDetailPage() {
                 <div className="sm:hidden">
                   <ol className="space-y-0 relative">
                     <div className="absolute left-3.5 top-4 bottom-4 w-0.5 bg-border" />
-                    {STEPS.map((step, i) => {
-                      const isDone = i < activeIdx || isCompleted;
-                      const isActive = i === activeIdx && !isCompleted;
+                    {VISIBLE_STEPS.map((step, i) => {
+                      const isDone = isCompleted ? true : i < activeIdx;
+                      const isActive = !isCompleted && i === activeIdx && !isAwaiting;
+                      const isFrozenActive = isAwaiting && i === activeIdx;
                       return (
                         <li key={step.key} className="relative flex gap-4 pb-5 last:pb-0">
                           <div
@@ -770,8 +844,10 @@ function ServiceDetailPage() {
                               isDone
                                 ? "bg-green-500 border-green-500 text-white"
                                 : isActive
-                                  ? "bg-blue-600 border-blue-600 text-white ring-4 ring-blue-500/20"
-                                  : "bg-card border-border text-muted-foreground",
+                                  ? "bg-blue-600 border-blue-600 text-white ring-4 ring-blue-500/20 animate-pulse"
+                                  : isFrozenActive
+                                    ? "bg-amber-500 border-amber-500 text-white"
+                                    : "bg-card border-border text-muted-foreground",
                             )}
                           >
                             {isDone ? <Check className="h-3 w-3" /> : i + 1}
@@ -782,7 +858,7 @@ function ServiceDetailPage() {
                                 "text-sm font-medium",
                                 isDone
                                   ? "text-green-600 dark:text-green-400"
-                                  : isActive
+                                  : isActive || isFrozenActive
                                     ? "text-foreground"
                                     : "text-muted-foreground",
                               )}
@@ -790,7 +866,19 @@ function ServiceDetailPage() {
                               {step.label}
                             </p>
                             {isActive && (
-                              <p className="text-xs text-blue-500 font-medium">In progress</p>
+                              <p className="text-xs text-blue-500 font-medium">
+                                Started {fmtRelative(sr.updated_at || sr.created_at)}
+                              </p>
+                            )}
+                            {isFrozenActive && (
+                              <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                                Paused — waiting on you
+                              </p>
+                            )}
+                            {isDone && i === VISIBLE_STEPS.length - 1 && sr.completed_at && (
+                              <p className="text-xs text-muted-foreground">
+                                Completed on {fmt(sr.completed_at)}
+                              </p>
                             )}
                           </div>
                         </li>
@@ -801,6 +889,7 @@ function ServiceDetailPage() {
               </>
             )}
           </div>
+
 
           {/* Activity timeline */}
           <div className="rounded-xl border border-border bg-card p-6">
