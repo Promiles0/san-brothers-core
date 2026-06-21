@@ -202,7 +202,7 @@ function fmtSize(bytes: number | null | undefined) {
 
 function ServiceDetailPage() {
   const { id } = Route.useParams();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { t, locale } = useI18n();
   const [sr, setSr] = useState<SR | null | undefined>(undefined);
   const [docs, setDocs] = useState<Doc[]>([]);
@@ -214,6 +214,13 @@ function ServiceDetailPage() {
   const [dragOver, setDragOver] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Review state
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [existingReviewId, setExistingReviewId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [srRes, docRes] = await Promise.all([
