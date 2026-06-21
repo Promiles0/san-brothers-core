@@ -44,7 +44,6 @@ import { Route as StaffProfileRouteImport } from './routes/staff.profile'
 import { Route as StaffMessagesRouteImport } from './routes/staff.messages'
 import { Route as StaffInterpreterRouteImport } from './routes/staff.interpreter'
 import { Route as StaffConsultancyRouteImport } from './routes/staff.consultancy'
-import { Route as StaffAdminRouteImport } from './routes/staff.admin'
 import { Route as StaffAccountingRouteImport } from './routes/staff.accounting'
 import { Route as SignupVerifyEmailRouteImport } from './routes/signup.verify-email'
 import { Route as ServicesVisaRouteImport } from './routes/services.visa'
@@ -83,7 +82,6 @@ import { Route as StaffInterpreterIndexRouteImport } from './routes/staff.interp
 import { Route as StaffConsultancyIndexRouteImport } from './routes/staff.consultancy.index'
 import { Route as StaffClientsIndexRouteImport } from './routes/staff.clients.index'
 import { Route as StaffClaimsIndexRouteImport } from './routes/staff.claims.index'
-import { Route as StaffAdminIndexRouteImport } from './routes/staff.admin.index'
 import { Route as StaffAccountingIndexRouteImport } from './routes/staff.accounting.index'
 import { Route as DashboardServicesIndexRouteImport } from './routes/dashboard.services.index'
 import { Route as DashboardMyServicesIndexRouteImport } from './routes/dashboard.my-services.index'
@@ -96,8 +94,6 @@ import { Route as StaffConsultancyIdRouteImport } from './routes/staff.consultan
 import { Route as StaffClientsNewRouteImport } from './routes/staff.clients.new'
 import { Route as StaffClientsIdRouteImport } from './routes/staff.clients.$id'
 import { Route as StaffClaimsIdRouteImport } from './routes/staff.claims.$id'
-import { Route as StaffAdminPaymentsRouteImport } from './routes/staff.admin.payments'
-import { Route as StaffAdminAnalyticsRouteImport } from './routes/staff.admin.analytics'
 import { Route as StaffAccountingIdRouteImport } from './routes/staff.accounting.$id'
 import { Route as DashboardServicesSlugRouteImport } from './routes/dashboard.services.$slug'
 import { Route as DashboardMyServicesIdRouteImport } from './routes/dashboard.my-services.$id'
@@ -282,11 +278,6 @@ const StaffInterpreterRoute = StaffInterpreterRouteImport.update({
 const StaffConsultancyRoute = StaffConsultancyRouteImport.update({
   id: '/consultancy',
   path: '/consultancy',
-  getParentRoute: () => StaffRoute,
-} as any)
-const StaffAdminRoute = StaffAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
   getParentRoute: () => StaffRoute,
 } as any)
 const StaffAccountingRoute = StaffAccountingRouteImport.update({
@@ -479,11 +470,6 @@ const StaffClaimsIndexRoute = StaffClaimsIndexRouteImport.update({
   path: '/claims/',
   getParentRoute: () => StaffRoute,
 } as any)
-const StaffAdminIndexRoute = StaffAdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => StaffAdminRoute,
-} as any)
 const StaffAccountingIndexRoute = StaffAccountingIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -544,16 +530,6 @@ const StaffClaimsIdRoute = StaffClaimsIdRouteImport.update({
   id: '/claims/$id',
   path: '/claims/$id',
   getParentRoute: () => StaffRoute,
-} as any)
-const StaffAdminPaymentsRoute = StaffAdminPaymentsRouteImport.update({
-  id: '/payments',
-  path: '/payments',
-  getParentRoute: () => StaffAdminRoute,
-} as any)
-const StaffAdminAnalyticsRoute = StaffAdminAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
-  getParentRoute: () => StaffAdminRoute,
 } as any)
 const StaffAccountingIdRoute = StaffAccountingIdRouteImport.update({
   id: '/$id',
@@ -658,7 +634,6 @@ export interface FileRoutesByFullPath {
   '/services/visa': typeof ServicesVisaRoute
   '/signup/verify-email': typeof SignupVerifyEmailRoute
   '/staff/accounting': typeof StaffAccountingRouteWithChildren
-  '/staff/admin': typeof StaffAdminRouteWithChildren
   '/staff/consultancy': typeof StaffConsultancyRouteWithChildren
   '/staff/interpreter': typeof StaffInterpreterRouteWithChildren
   '/staff/messages': typeof StaffMessagesRoute
@@ -686,8 +661,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
-  '/staff/admin/analytics': typeof StaffAdminAnalyticsRoute
-  '/staff/admin/payments': typeof StaffAdminPaymentsRoute
   '/staff/claims/$id': typeof StaffClaimsIdRoute
   '/staff/clients/$id': typeof StaffClientsIdRoute
   '/staff/clients/new': typeof StaffClientsNewRoute
@@ -700,7 +673,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/my-services/': typeof DashboardMyServicesIndexRoute
   '/dashboard/services/': typeof DashboardServicesIndexRoute
   '/staff/accounting/': typeof StaffAccountingIndexRoute
-  '/staff/admin/': typeof StaffAdminIndexRoute
   '/staff/claims/': typeof StaffClaimsIndexRoute
   '/staff/clients/': typeof StaffClientsIndexRoute
   '/staff/consultancy/': typeof StaffConsultancyIndexRoute
@@ -776,8 +748,6 @@ export interface FileRoutesByTo {
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
-  '/staff/admin/analytics': typeof StaffAdminAnalyticsRoute
-  '/staff/admin/payments': typeof StaffAdminPaymentsRoute
   '/staff/claims/$id': typeof StaffClaimsIdRoute
   '/staff/clients/$id': typeof StaffClientsIdRoute
   '/staff/clients/new': typeof StaffClientsNewRoute
@@ -790,7 +760,6 @@ export interface FileRoutesByTo {
   '/dashboard/my-services': typeof DashboardMyServicesIndexRoute
   '/dashboard/services': typeof DashboardServicesIndexRoute
   '/staff/accounting': typeof StaffAccountingIndexRoute
-  '/staff/admin': typeof StaffAdminIndexRoute
   '/staff/claims': typeof StaffClaimsIndexRoute
   '/staff/clients': typeof StaffClientsIndexRoute
   '/staff/consultancy': typeof StaffConsultancyIndexRoute
@@ -850,7 +819,6 @@ export interface FileRoutesById {
   '/services/visa': typeof ServicesVisaRoute
   '/signup/verify-email': typeof SignupVerifyEmailRoute
   '/staff/accounting': typeof StaffAccountingRouteWithChildren
-  '/staff/admin': typeof StaffAdminRouteWithChildren
   '/staff/consultancy': typeof StaffConsultancyRouteWithChildren
   '/staff/interpreter': typeof StaffInterpreterRouteWithChildren
   '/staff/messages': typeof StaffMessagesRoute
@@ -878,8 +846,6 @@ export interface FileRoutesById {
   '/dashboard/my-services/$id': typeof DashboardMyServicesIdRoute
   '/dashboard/services/$slug': typeof DashboardServicesSlugRoute
   '/staff/accounting/$id': typeof StaffAccountingIdRoute
-  '/staff/admin/analytics': typeof StaffAdminAnalyticsRoute
-  '/staff/admin/payments': typeof StaffAdminPaymentsRoute
   '/staff/claims/$id': typeof StaffClaimsIdRoute
   '/staff/clients/$id': typeof StaffClientsIdRoute
   '/staff/clients/new': typeof StaffClientsNewRoute
@@ -892,7 +858,6 @@ export interface FileRoutesById {
   '/dashboard/my-services/': typeof DashboardMyServicesIndexRoute
   '/dashboard/services/': typeof DashboardServicesIndexRoute
   '/staff/accounting/': typeof StaffAccountingIndexRoute
-  '/staff/admin/': typeof StaffAdminIndexRoute
   '/staff/claims/': typeof StaffClaimsIndexRoute
   '/staff/clients/': typeof StaffClientsIndexRoute
   '/staff/consultancy/': typeof StaffConsultancyIndexRoute
@@ -953,7 +918,6 @@ export interface FileRouteTypes {
     | '/services/visa'
     | '/signup/verify-email'
     | '/staff/accounting'
-    | '/staff/admin'
     | '/staff/consultancy'
     | '/staff/interpreter'
     | '/staff/messages'
@@ -981,8 +945,6 @@ export interface FileRouteTypes {
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
-    | '/staff/admin/analytics'
-    | '/staff/admin/payments'
     | '/staff/claims/$id'
     | '/staff/clients/$id'
     | '/staff/clients/new'
@@ -995,7 +957,6 @@ export interface FileRouteTypes {
     | '/dashboard/my-services/'
     | '/dashboard/services/'
     | '/staff/accounting/'
-    | '/staff/admin/'
     | '/staff/claims/'
     | '/staff/clients/'
     | '/staff/consultancy/'
@@ -1071,8 +1032,6 @@ export interface FileRouteTypes {
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
-    | '/staff/admin/analytics'
-    | '/staff/admin/payments'
     | '/staff/claims/$id'
     | '/staff/clients/$id'
     | '/staff/clients/new'
@@ -1085,7 +1044,6 @@ export interface FileRouteTypes {
     | '/dashboard/my-services'
     | '/dashboard/services'
     | '/staff/accounting'
-    | '/staff/admin'
     | '/staff/claims'
     | '/staff/clients'
     | '/staff/consultancy'
@@ -1144,7 +1102,6 @@ export interface FileRouteTypes {
     | '/services/visa'
     | '/signup/verify-email'
     | '/staff/accounting'
-    | '/staff/admin'
     | '/staff/consultancy'
     | '/staff/interpreter'
     | '/staff/messages'
@@ -1172,8 +1129,6 @@ export interface FileRouteTypes {
     | '/dashboard/my-services/$id'
     | '/dashboard/services/$slug'
     | '/staff/accounting/$id'
-    | '/staff/admin/analytics'
-    | '/staff/admin/payments'
     | '/staff/claims/$id'
     | '/staff/clients/$id'
     | '/staff/clients/new'
@@ -1186,7 +1141,6 @@ export interface FileRouteTypes {
     | '/dashboard/my-services/'
     | '/dashboard/services/'
     | '/staff/accounting/'
-    | '/staff/admin/'
     | '/staff/claims/'
     | '/staff/clients/'
     | '/staff/consultancy/'
@@ -1477,13 +1431,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffConsultancyRouteImport
       parentRoute: typeof StaffRoute
     }
-    '/staff/admin': {
-      id: '/staff/admin'
-      path: '/admin'
-      fullPath: '/staff/admin'
-      preLoaderRoute: typeof StaffAdminRouteImport
-      parentRoute: typeof StaffRoute
-    }
     '/staff/accounting': {
       id: '/staff/accounting'
       path: '/accounting'
@@ -1750,13 +1697,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffClaimsIndexRouteImport
       parentRoute: typeof StaffRoute
     }
-    '/staff/admin/': {
-      id: '/staff/admin/'
-      path: '/'
-      fullPath: '/staff/admin/'
-      preLoaderRoute: typeof StaffAdminIndexRouteImport
-      parentRoute: typeof StaffAdminRoute
-    }
     '/staff/accounting/': {
       id: '/staff/accounting/'
       path: '/'
@@ -1840,20 +1780,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/staff/claims/$id'
       preLoaderRoute: typeof StaffClaimsIdRouteImport
       parentRoute: typeof StaffRoute
-    }
-    '/staff/admin/payments': {
-      id: '/staff/admin/payments'
-      path: '/payments'
-      fullPath: '/staff/admin/payments'
-      preLoaderRoute: typeof StaffAdminPaymentsRouteImport
-      parentRoute: typeof StaffAdminRoute
-    }
-    '/staff/admin/analytics': {
-      id: '/staff/admin/analytics'
-      path: '/analytics'
-      fullPath: '/staff/admin/analytics'
-      preLoaderRoute: typeof StaffAdminAnalyticsRouteImport
-      parentRoute: typeof StaffAdminRoute
     }
     '/staff/accounting/$id': {
       id: '/staff/accounting/$id'
@@ -2097,22 +2023,6 @@ const StaffAccountingRouteWithChildren = StaffAccountingRoute._addFileChildren(
   StaffAccountingRouteChildren,
 )
 
-interface StaffAdminRouteChildren {
-  StaffAdminAnalyticsRoute: typeof StaffAdminAnalyticsRoute
-  StaffAdminPaymentsRoute: typeof StaffAdminPaymentsRoute
-  StaffAdminIndexRoute: typeof StaffAdminIndexRoute
-}
-
-const StaffAdminRouteChildren: StaffAdminRouteChildren = {
-  StaffAdminAnalyticsRoute: StaffAdminAnalyticsRoute,
-  StaffAdminPaymentsRoute: StaffAdminPaymentsRoute,
-  StaffAdminIndexRoute: StaffAdminIndexRoute,
-}
-
-const StaffAdminRouteWithChildren = StaffAdminRoute._addFileChildren(
-  StaffAdminRouteChildren,
-)
-
 interface StaffConsultancyRouteChildren {
   StaffConsultancyIdRoute: typeof StaffConsultancyIdRoute
   StaffConsultancyIndexRoute: typeof StaffConsultancyIndexRoute
@@ -2168,7 +2078,6 @@ const StaffVisaRouteWithChildren = StaffVisaRoute._addFileChildren(
 
 interface StaffRouteChildren {
   StaffAccountingRoute: typeof StaffAccountingRouteWithChildren
-  StaffAdminRoute: typeof StaffAdminRouteWithChildren
   StaffConsultancyRoute: typeof StaffConsultancyRouteWithChildren
   StaffInterpreterRoute: typeof StaffInterpreterRouteWithChildren
   StaffMessagesRoute: typeof StaffMessagesRoute
@@ -2187,7 +2096,6 @@ interface StaffRouteChildren {
 
 const StaffRouteChildren: StaffRouteChildren = {
   StaffAccountingRoute: StaffAccountingRouteWithChildren,
-  StaffAdminRoute: StaffAdminRouteWithChildren,
   StaffConsultancyRoute: StaffConsultancyRouteWithChildren,
   StaffInterpreterRoute: StaffInterpreterRouteWithChildren,
   StaffMessagesRoute: StaffMessagesRoute,
