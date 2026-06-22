@@ -1,6 +1,16 @@
 import { useState } from "react";
-import { Lock, Reply, Check, CheckCheck, Smile, FileText, Download } from "lucide-react";
+import { Lock, Reply, Check, CheckCheck, Smile, FileText, Download, Languages, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/providers/i18n-provider";
+
+const LOCALE_TO_LANGUAGE: Record<string, string> = {
+  en: "English",
+  zh: "Chinese (Simplified)",
+  rw: "Kinyarwanda",
+  fr: "French",
+  ar: "Arabic",
+};
+
 
 export interface MessageRecord {
   id: string;
