@@ -48,6 +48,53 @@ export function MessageBubble({
   replyTarget?: MessageRecord | null;
 }) {
   const [pickerOpen, setPickerOpen] = useState(false);
+  const { locale } = useI18n();
+  const [translation, setTranslation] = useState<string | null>(null);
+  const [translating, setTranslating] = useState(false);
+
+  const handleTranslate = async () => {
+    if (translation !== null) {
+      setTranslation(null);
+      return;
+    }
+    if (!m.content) return;
+    const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
+    const targetLanguage = LOCALE_TO_LANGUAGE[locale] ?? "English";
+    if (!apiKey) {
+      setTranslation("[AI translation coming soon]");
+      return;
+    }
+    setTranslating(true);
+    try {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 500,
+          messages: [
+            {
+              role: "user",
+              content: `Translate the following message to ${targetLanguage}. Return ONLY the translated text, nothing else, no explanation, no quotes:\n\n${m.content}`,
+            },
+          ],
+        }),
+      });
+      const data = await response.json();
+      const translated = data?.content?.[0]?.text ?? "[Translation failed]";
+      setTranslation(translated);
+    } catch {
+      setTranslation("[Translation failed]");
+    } finally {
+      setTranslating(false);
+    }
+  };
+
 
   if (m.system_message) {
     return (
