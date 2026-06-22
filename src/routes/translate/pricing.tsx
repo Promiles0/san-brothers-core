@@ -18,7 +18,7 @@ import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase } from "@/lib/supabase";
 import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
 import { getInterpreterPricing } from "@/lib/pricing/interpreter-rates";
-import { convertRwfToUsd } from "@/lib/pricing/interpreter-rates";
+
 import { getMinutePackages, type MinutePackage } from "@/lib/pricing/minute-packages";
 
 export const Route = createFileRoute("/translate/pricing")({
@@ -37,10 +37,11 @@ export const Route = createFileRoute("/translate/pricing")({
   component: PricingPage,
 });
 
-// Per-page RWF rates sourced from src/messages/en.json (pricing.plans.translation).
-// Converted to USD via the shared RWF_PER_USD constant in interpreter-rates.ts.
-const DOC_PER_PAGE_RWF = 8000;
-const LEGAL_PER_PAGE_RWF = 12000;
+// Per-page USD rates are fetched live from the service_prices table (admin-editable).
+// Fallback constants below match the previously-converted USD values so the calculator
+// never displays $0 if the DB fetch fails.
+const DOC_RATE_FALLBACK_USD = 6.23;
+const LEGAL_RATE_FALLBACK_USD = 9.34;
 
 type Mode = "document" | "legal" | "interpreter";
 
@@ -72,19 +73,44 @@ function PricingPage() {
   const [languages, setLanguages] = useState<LanguageRow[]>([]);
   const [interpreterRate, setInterpreterRate] = useState<number | null>(null);
   const [packages, setPackages] = useState<MinutePackage[]>([]);
+  const [docRateUsd, setDocRateUsd] = useState<number>(DOC_RATE_FALLBACK_USD);
+  const [legalRateUsd, setLegalRateUsd] = useState<number>(LEGAL_RATE_FALLBACK_USD);
 
   useEffect(() => {
     void (async () => {
-      const { data } = await supabase
+      const langPromise = supabase
         .from("supported_languages")
         .select("id, code, name_en, flag_emoji")
         .eq("is_active", true)
         .order("name_en");
-      const rows = (data ?? []) as LanguageRow[];
+      const pricesPromise = supabase
+        .from("service_prices")
+        .select("price_usd, services!inner(slug)")
+        .in("services.slug", ["document-translation", "legal-translation"]);
+
+      const [{ data: langData }, { data: priceData }] = await Promise.all([
+        langPromise,
+        pricesPromise,
+      ]);
+
+      const rows = (langData ?? []) as LanguageRow[];
       setLanguages(rows);
       if (rows.length > 0) {
         setFromLang((prev) => prev || rows[0].code);
         setToLang((prev) => prev || rows[Math.min(1, rows.length - 1)].code);
+      }
+
+      if (priceData) {
+        for (const row of priceData as Array<{
+          price_usd: number;
+          services: { slug: string } | { slug: string }[];
+        }>) {
+          const svc = Array.isArray(row.services) ? row.services[0] : row.services;
+          const price = Number(row.price_usd);
+          if (!svc || !Number.isFinite(price) || price <= 0) continue;
+          if (svc.slug === "document-translation") setDocRateUsd(price);
+          else if (svc.slug === "legal-translation") setLegalRateUsd(price);
+        }
       }
     })();
     void getInterpreterPricing()
@@ -94,9 +120,6 @@ function PricingPage() {
       .then(setPackages)
       .catch(() => setPackages([]));
   }, []);
-
-  const docRateUsd = useMemo(() => convertRwfToUsd(DOC_PER_PAGE_RWF), []);
-  const legalRateUsd = useMemo(() => convertRwfToUsd(LEGAL_PER_PAGE_RWF), []);
 
   const { total, breakdown, intent } = useMemo(() => {
     if (mode === "interpreter") {
