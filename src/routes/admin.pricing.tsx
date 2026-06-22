@@ -73,78 +73,55 @@ const emptyForm: PackageForm = {
 
 const RWF_PER_USD = 1285;
 
-const SERVICE_PRICES = {
-  visa: [
-    { name: "Tourist Visa", key: "tourist-visa", price: "From 80,000 RWF", intent: "tourist-visa" },
-    {
-      name: "Student Visa",
-      key: "student-visa",
-      price: "From 150,000 RWF",
-      intent: "student-visa",
-    },
-    { name: "Work Permit", key: "work-permit", price: "From 200,000 RWF", intent: "work-permit" },
-  ],
-  accounting: [
-    { name: "Starter", key: "bookkeeping", price: "From 50,000 RWF / mo", intent: "bookkeeping" },
-    { name: "Standard", key: "tax-filing", price: "From 120,000 RWF / mo", intent: "tax-filing" },
-    {
-      name: "Premium",
-      key: "tax-compliance",
-      price: "From 250,000 RWF / mo",
-      intent: "tax-compliance",
-    },
-  ],
-  consultancy: [
-    {
-      name: "Company Registration",
-      key: "company-registration",
-      price: "From 180,000 RWF",
-      intent: "company-registration",
-    },
-    {
-      name: "Business Plan",
-      key: "business-planning",
-      price: "From 350,000 RWF",
-      intent: "business-planning",
-    },
-    {
-      name: "Investor Advisory",
-      key: "trade-investment",
-      price: "Custom quote",
-      intent: "trade-investment",
-    },
-  ],
-  translation: [
-    {
-      name: "Document (per page)",
-      key: "document-translation",
-      price: "From 8,000 RWF",
-      intent: "document-translation",
-    },
-    {
-      name: "Live Interpreter",
-      key: "live-interpreter",
-      price: "From 1,500 RWF / min",
-      intent: "live-interpreter",
-    },
-    {
-      name: "Legal Translation",
-      key: "legal-translation",
-      price: "From 12,000 RWF / page",
-      intent: "legal-translation",
-    },
-  ],
-};
+type ServiceCategory = "visa" | "accounting" | "consultancy" | "translation";
+type PriceUnit = "flat" | "per_page" | "per_minute" | "per_month";
 
-const CATEGORY_BADGES: Record<keyof typeof SERVICE_PRICES, string> = {
+const CATEGORY_BADGES: Record<ServiceCategory, string> = {
   visa: "bg-blue-500/10 text-blue-500",
   accounting: "bg-emerald-500/10 text-emerald-500",
   consultancy: "bg-amber-500/10 text-amber-600 dark:text-amber-300",
   translation: "bg-purple-500/10 text-purple-500",
 };
 
-type ServiceCategory = keyof typeof SERVICE_PRICES;
-type ServicePrice = (typeof SERVICE_PRICES)[ServiceCategory][number];
+const CATEGORY_ORDER: ServiceCategory[] = ["visa", "accounting", "consultancy", "translation"];
+
+const UNIT_LABEL: Record<PriceUnit, string> = {
+  flat: "Fixed Price",
+  per_page: "Per Page",
+  per_minute: "Per Minute",
+  per_month: "Per Month",
+};
+
+const UNIT_OPTIONS: PriceUnit[] = ["flat", "per_page", "per_minute", "per_month"];
+
+interface ServicePriceRow {
+  id: string;
+  price_usd: number;
+  unit: PriceUnit;
+  display_note: string | null;
+  services: {
+    id: string;
+    slug: string;
+    name_en: string;
+    category: ServiceCategory;
+    sort_order: number;
+    is_active: boolean;
+  } | null;
+}
+
+function formatServicePrice(price: number, unit: PriceUnit, note: string | null): string {
+  if (note === "Custom quote" && price === 0) return "Custom quote";
+  const base = `$${price.toFixed(2)}`;
+  const suffix =
+    unit === "per_page"
+      ? " / page"
+      : unit === "per_minute"
+        ? " / min"
+        : unit === "per_month"
+          ? " / mo"
+          : "";
+  return `${base}${suffix}`;
+}
 
 function AdminPricing() {
   const { profile } = useAuth();
