@@ -402,6 +402,106 @@ function AdminPricing() {
         </p>
       </div>
 
+      {/* Service Pricing */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Edit3 className="h-4 w-4 text-primary" />
+            Service Pricing
+          </CardTitle>
+          <CardDescription>
+            Live USD prices for all services. Edits sync to the public /pricing page automatically.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loadingServicePrices ? (
+            <div className="space-y-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          ) : servicePrices.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No service prices found.
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Service Name</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Unit</TableHead>
+                  <TableHead>Current Price (USD)</TableHead>
+                  <TableHead>Display Note</TableHead>
+                  <TableHead>Active?</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {CATEGORY_ORDER.flatMap((cat) => {
+                  const rows = servicePrices
+                    .filter((r) => r.services?.category === cat)
+                    .sort(
+                      (a, b) => (a.services?.sort_order ?? 0) - (b.services?.sort_order ?? 0),
+                    );
+                  if (rows.length === 0) return [];
+                  return [
+                    <TableRow key={`hdr-${cat}`} className="hover:bg-transparent">
+                      <TableCell colSpan={7} className="py-2">
+                        <Badge className={`capitalize ${CATEGORY_BADGES[cat]}`}>{cat}</Badge>
+                      </TableCell>
+                    </TableRow>,
+                    ...rows.map((row) => {
+                      const isCustomQuote =
+                        row.display_note === "Custom quote" && row.price_usd === 0;
+                      return (
+                        <TableRow key={row.id}>
+                          <TableCell className="font-bold">
+                            {row.services?.name_en ?? "—"}
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={`capitalize ${CATEGORY_BADGES[cat]}`}>{cat}</Badge>
+                          </TableCell>
+                          <TableCell className="text-sm">{UNIT_LABEL[row.unit]}</TableCell>
+                          <TableCell className="tabular-nums">
+                            {isCustomQuote ? (
+                              <span className="text-muted-foreground">Custom quote</span>
+                            ) : (
+                              `$${row.price_usd.toFixed(2)}`
+                            )}
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {row.display_note ?? "—"}
+                          </TableCell>
+                          <TableCell>
+                            {row.services?.is_active ? (
+                              <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-300">
+                                Active
+                              </Badge>
+                            ) : (
+                              <Badge variant="secondary">Inactive</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openEditServicePrice(row)}
+                            >
+                              Edit
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    }),
+                  ];
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Interpreter Call Rates */}
       <Card>
         <CardHeader>
