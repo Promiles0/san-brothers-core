@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Briefcase,
@@ -14,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { CtaBanner, PageHero } from "@/components/marketing/page-sections";
@@ -21,6 +23,7 @@ import { useI18n } from "@/lib/providers/i18n-provider";
 import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
 import { Magnetic } from "@/components/fx/magnetic";
 import { TiltCard } from "@/components/fx/tilt-card";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -34,6 +37,30 @@ export const Route = createFileRoute("/pricing")({
   }),
   component: Pricing,
 });
+
+type PriceUnit = "flat" | "per_page" | "per_minute" | "per_month";
+
+interface LivePrice {
+  price_usd: number;
+  unit: PriceUnit;
+  display_note: string | null;
+}
+
+function formatLivePrice(p: LivePrice): string {
+  if (p.display_note === "Custom quote" && p.price_usd === 0) return "Custom quote";
+  const suffix =
+    p.unit === "per_page"
+      ? " / page"
+      : p.unit === "per_minute"
+        ? " / min"
+        : p.unit === "per_month"
+          ? " / mo"
+          : "";
+  const base = `$${p.price_usd.toFixed(2)}${suffix}`;
+  if (p.display_note && p.display_note !== "Custom quote") return `${p.display_note} ${base}`;
+  return base;
+}
+
 
 interface Plan {
   name: string;
@@ -93,6 +120,46 @@ const VALUE_LINES = ["Best for individuals", "Most popular for SMEs", "For growi
 function Pricing() {
   const { t, tRaw } = useI18n();
   const navigate = useNavigate();
+  const [livePrices, setLivePrices] = useState<Record<string, LivePrice> | null>(null);
+  const [pricesLoading, setPricesLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("service_prices")
+          .select("price_usd, unit, display_note, services!inner(slug, is_active)")
+          .eq("services.is_active", true);
+        if (error) throw error;
+        if (cancelled) return;
+        const map: Record<string, LivePrice> = {};
+        for (const row of (data ?? []) as unknown as Array<{
+          price_usd: number;
+          unit: PriceUnit;
+          display_note: string | null;
+          services: { slug: string; is_active: boolean } | { slug: string; is_active: boolean }[] | null;
+        }>) {
+          const svc = Array.isArray(row.services) ? row.services[0] : row.services;
+          const slug = svc?.slug;
+          if (!slug) continue;
+          map[slug] = {
+            price_usd: Number(row.price_usd),
+            unit: row.unit,
+            display_note: row.display_note,
+          };
+        }
+        if (Object.keys(map).length > 0) setLivePrices(map);
+      } catch {
+        // graceful fallback to tRaw() data
+      } finally {
+        if (!cancelled) setPricesLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleGetStarted = async (intent: string) => {
     const destination = await resolveServiceIntentDestination(intent);
@@ -176,10 +243,13 @@ function Pricing() {
                           </div>
                           <div>
                             <div className="text-4xl font-black tracking-tight text-foreground">
-                              {p.price}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {t("pricing.contactQuote")}
+                              {pricesLoading && !livePrices ? (
+                                <Skeleton className="h-9 w-32" />
+                              ) : livePrices?.[p.intent] ? (
+                                formatLivePrice(livePrices[p.intent])
+                              ) : (
+                                p.price
+                              )}
                             </div>
                           </div>
                           <p className="text-sm font-semibold italic text-muted-foreground">
