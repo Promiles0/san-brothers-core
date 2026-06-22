@@ -1065,6 +1065,11 @@ function Step2Payment({ service, formData, uploadedDocs, portal, onBack }: any) 
         <StripePaymentForm
           amount={basePrice}
           serviceTitle={service.name_en}
+          intent={{
+            kind: "service",
+            service_id: service.id,
+            metadata: { serviceSlug: service.slug },
+          }}
           onSuccess={handlePaymentSuccess}
           onCancel={onBack}
           onError={handlePaymentError}

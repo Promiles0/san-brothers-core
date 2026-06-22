@@ -22,7 +22,6 @@ export async function createDailyRoom(callId: string): Promise<{
     import.meta.env.VITE_DAILY_CO_DOMAIN || import.meta.env.DAILY_CO_DOMAIN || "sanbroh.daily.co";
   const domain = normalizeDomain(rawDomain);
 
-  console.log("[Daily] Creating room. Has key:", !!apiKey, "Domain:", domain);
 
   if (!apiKey) {
     console.warn("[Daily] No API key found in env vars");
@@ -61,14 +60,12 @@ export async function createDailyRoom(callId: string): Promise<{
       const err = await response.json().catch(() => ({}));
       // If the room already exists from a previous accept attempt, reuse it.
       if (response.status === 409) {
-        console.log("[Daily] Room already exists, reusing:", roomName);
         return { url: `https://${domain}/${roomName}`, name: roomName };
       }
       console.error("[Daily] Room creation failed:", response.status, err);
       return null;
     }
 
-    console.log("[Daily] Room created successfully");
     return {
       url: `https://${domain}/${roomName}`,
       name: roomName,

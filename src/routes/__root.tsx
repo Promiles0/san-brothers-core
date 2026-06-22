@@ -18,6 +18,10 @@ import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import { AIChatWidget } from "@/components/chat/ai-chat-widget";
 
+import { ScrollProgress } from "@/components/fx/scroll-progress";
+import { PageTransition } from "@/components/fx/page-transition";
+import { AutoReveal } from "@/components/fx/auto-reveal";
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -130,7 +134,11 @@ function RootComponent() {
       <ThemeProvider>
         <I18nProvider>
           <AuthProvider>
-            <Outlet />
+            <ScrollProgress />
+            <AutoReveal />
+            <PageTransition>
+              <Outlet />
+            </PageTransition>
             <Toaster richColors position="top-right" />
             <AIChatWidget />
           </AuthProvider>

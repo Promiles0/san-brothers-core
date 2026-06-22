@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
-  Copy,
   Edit3,
   GripVertical,
   Loader2,
@@ -18,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import {
   Table,
   TableBody,
@@ -27,6 +26,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -73,78 +79,55 @@ const emptyForm: PackageForm = {
 
 const RWF_PER_USD = 1285;
 
-const SERVICE_PRICES = {
-  visa: [
-    { name: "Tourist Visa", key: "tourist-visa", price: "From 80,000 RWF", intent: "tourist-visa" },
-    {
-      name: "Student Visa",
-      key: "student-visa",
-      price: "From 150,000 RWF",
-      intent: "student-visa",
-    },
-    { name: "Work Permit", key: "work-permit", price: "From 200,000 RWF", intent: "work-permit" },
-  ],
-  accounting: [
-    { name: "Starter", key: "bookkeeping", price: "From 50,000 RWF / mo", intent: "bookkeeping" },
-    { name: "Standard", key: "tax-filing", price: "From 120,000 RWF / mo", intent: "tax-filing" },
-    {
-      name: "Premium",
-      key: "tax-compliance",
-      price: "From 250,000 RWF / mo",
-      intent: "tax-compliance",
-    },
-  ],
-  consultancy: [
-    {
-      name: "Company Registration",
-      key: "company-registration",
-      price: "From 180,000 RWF",
-      intent: "company-registration",
-    },
-    {
-      name: "Business Plan",
-      key: "business-planning",
-      price: "From 350,000 RWF",
-      intent: "business-planning",
-    },
-    {
-      name: "Investor Advisory",
-      key: "trade-investment",
-      price: "Custom quote",
-      intent: "trade-investment",
-    },
-  ],
-  translation: [
-    {
-      name: "Document (per page)",
-      key: "document-translation",
-      price: "From 8,000 RWF",
-      intent: "document-translation",
-    },
-    {
-      name: "Live Interpreter",
-      key: "live-interpreter",
-      price: "From 1,500 RWF / min",
-      intent: "live-interpreter",
-    },
-    {
-      name: "Legal Translation",
-      key: "legal-translation",
-      price: "From 12,000 RWF / page",
-      intent: "legal-translation",
-    },
-  ],
-};
+type ServiceCategory = "visa" | "accounting" | "consultancy" | "translation";
+type PriceUnit = "flat" | "per_page" | "per_minute" | "per_month";
 
-const CATEGORY_BADGES: Record<keyof typeof SERVICE_PRICES, string> = {
+const CATEGORY_BADGES: Record<ServiceCategory, string> = {
   visa: "bg-blue-500/10 text-blue-500",
   accounting: "bg-emerald-500/10 text-emerald-500",
   consultancy: "bg-amber-500/10 text-amber-600 dark:text-amber-300",
   translation: "bg-purple-500/10 text-purple-500",
 };
 
-type ServiceCategory = keyof typeof SERVICE_PRICES;
-type ServicePrice = (typeof SERVICE_PRICES)[ServiceCategory][number];
+const CATEGORY_ORDER: ServiceCategory[] = ["visa", "accounting", "consultancy", "translation"];
+
+const UNIT_LABEL: Record<PriceUnit, string> = {
+  flat: "Fixed Price",
+  per_page: "Per Page",
+  per_minute: "Per Minute",
+  per_month: "Per Month",
+};
+
+const UNIT_OPTIONS: PriceUnit[] = ["flat", "per_page", "per_minute", "per_month"];
+
+interface ServicePriceRow {
+  id: string;
+  price_usd: number;
+  unit: PriceUnit;
+  display_note: string | null;
+  services: {
+    id: string;
+    slug: string;
+    name_en: string;
+    category: ServiceCategory;
+    sort_order: number;
+    is_active: boolean;
+  } | null;
+}
+
+function formatServicePrice(price: number, unit: PriceUnit, note: string | null): string {
+  if (note === "Custom quote" && price === 0) return "Custom quote";
+  const base = `$${price.toFixed(2)}`;
+  const suffix =
+    unit === "per_page"
+      ? " / page"
+      : unit === "per_minute"
+        ? " / min"
+        : unit === "per_month"
+          ? " / mo"
+          : "";
+  return `${base}${suffix}`;
+}
 
 function AdminPricing() {
   const { profile } = useAuth();
@@ -160,10 +143,13 @@ function AdminPricing() {
   const [packageForm, setPackageForm] = useState<PackageForm>(emptyForm);
   const [savingPackage, setSavingPackage] = useState(false);
   const [rateUpdatedAt, setRateUpdatedAt] = useState<string | null>(null);
-  const [editingService, setEditingService] = useState<
-    (ServicePrice & { category: ServiceCategory; index: number }) | null
-  >(null);
-  const [draftServicePrice, setDraftServicePrice] = useState("");
+  const [servicePrices, setServicePrices] = useState<ServicePriceRow[]>([]);
+  const [loadingServicePrices, setLoadingServicePrices] = useState(true);
+  const [editingServicePrice, setEditingServicePrice] = useState<ServicePriceRow | null>(null);
+  const [spDraftPrice, setSpDraftPrice] = useState("");
+  const [spDraftUnit, setSpDraftUnit] = useState<PriceUnit>("flat");
+  const [spDraftNote, setSpDraftNote] = useState("");
+  const [savingServicePrice, setSavingServicePrice] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -193,8 +179,78 @@ function AdminPricing() {
       setRateUpdatedAt(
         (latestRateAudit?.[0] as { created_at: string } | undefined)?.created_at ?? null,
       );
+      try {
+        const { data, error } = await supabase
+          .from("service_prices")
+          .select(
+            "id, price_usd, unit, display_note, services(id, slug, name_en, category, sort_order, is_active)",
+          )
+          .order("sort_order", { foreignTable: "services", ascending: true });
+        if (error) throw error;
+        setServicePrices((data ?? []) as unknown as ServicePriceRow[]);
+      } catch {
+        toast.error("Failed to load service prices");
+      } finally {
+        setLoadingServicePrices(false);
+      }
     })();
   }, []);
+
+  const openEditServicePrice = (row: ServicePriceRow) => {
+    setEditingServicePrice(row);
+    setSpDraftPrice(String(row.price_usd));
+    setSpDraftUnit(row.unit);
+    setSpDraftNote(row.display_note ?? "");
+  };
+
+  const handleSaveServicePrice = async () => {
+    if (!editingServicePrice) return;
+    setSavingServicePrice(true);
+    try {
+      const newPrice = parseFloat(spDraftPrice);
+      if (isNaN(newPrice) || newPrice < 0) {
+        toast.error("Price must be a positive number");
+        return;
+      }
+      const noteTrim = spDraftNote.trim();
+      const { error } = await supabase
+        .from("service_prices")
+        .update({
+          price_usd: newPrice,
+          unit: spDraftUnit,
+          display_note: noteTrim || null,
+          updated_by: profile?.id ?? null,
+        })
+        .eq("id", editingServicePrice.id);
+      if (error) throw error;
+      const oldPrice = editingServicePrice.price_usd;
+      const serviceName = editingServicePrice.services?.name_en ?? "Unknown";
+      setServicePrices((prev) =>
+        prev.map((p) =>
+          p.id === editingServicePrice.id
+            ? { ...p, price_usd: newPrice, unit: spDraftUnit, display_note: noteTrim || null }
+            : p,
+        ),
+      );
+      toast.success("Price updated");
+      void logAudit({
+        action: "service_price_updated",
+        target_type: "service_price",
+        target_id: editingServicePrice.id,
+        metadata: {
+          service_name: serviceName,
+          old_price: oldPrice,
+          new_price: newPrice,
+          unit: spDraftUnit,
+        },
+      });
+      setEditingServicePrice(null);
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSavingServicePrice(false);
+    }
+  };
 
   const handleSaveRates = async () => {
     setSavingRates(true);
@@ -346,6 +402,106 @@ function AdminPricing() {
         </p>
       </div>
 
+      {/* Service Pricing */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Edit3 className="h-4 w-4 text-primary" />
+            Service Pricing
+          </CardTitle>
+          <CardDescription>
+            Live USD prices for all services. Edits sync to the public /pricing page automatically.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loadingServicePrices ? (
+            <div className="space-y-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          ) : servicePrices.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No service prices found.
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Service Name</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Unit</TableHead>
+                  <TableHead>Current Price (USD)</TableHead>
+                  <TableHead>Display Note</TableHead>
+                  <TableHead>Active?</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {CATEGORY_ORDER.flatMap((cat) => {
+                  const rows = servicePrices
+                    .filter((r) => r.services?.category === cat)
+                    .sort(
+                      (a, b) => (a.services?.sort_order ?? 0) - (b.services?.sort_order ?? 0),
+                    );
+                  if (rows.length === 0) return [];
+                  return [
+                    <TableRow key={`hdr-${cat}`} className="hover:bg-transparent">
+                      <TableCell colSpan={7} className="py-2">
+                        <Badge className={`capitalize ${CATEGORY_BADGES[cat]}`}>{cat}</Badge>
+                      </TableCell>
+                    </TableRow>,
+                    ...rows.map((row) => {
+                      const isCustomQuote =
+                        row.display_note === "Custom quote" && row.price_usd === 0;
+                      return (
+                        <TableRow key={row.id}>
+                          <TableCell className="font-bold">
+                            {row.services?.name_en ?? "—"}
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={`capitalize ${CATEGORY_BADGES[cat]}`}>{cat}</Badge>
+                          </TableCell>
+                          <TableCell className="text-sm">{UNIT_LABEL[row.unit]}</TableCell>
+                          <TableCell className="tabular-nums">
+                            {isCustomQuote ? (
+                              <span className="text-muted-foreground">Custom quote</span>
+                            ) : (
+                              `$${row.price_usd.toFixed(2)}`
+                            )}
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {row.display_note ?? "—"}
+                          </TableCell>
+                          <TableCell>
+                            {row.services?.is_active ? (
+                              <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-300">
+                                Active
+                              </Badge>
+                            ) : (
+                              <Badge variant="secondary">Inactive</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openEditServicePrice(row)}
+                            >
+                              Edit
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    }),
+                  ];
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Interpreter Call Rates */}
       <Card>
         <CardHeader>
@@ -433,92 +589,6 @@ function AdminPricing() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Edit3 className="h-4 w-4 text-primary" />
-            Service Pricing Reference
-          </CardTitle>
-          <CardDescription>
-            These prices appear on the public /pricing page. To update, edit src/messages/en.json
-            {" -> "}pricing.plans.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-300">
-            To change public prices: update the price field in src/messages/en.json under
-            pricing.plans.[category][n].price and redeploy.
-          </div>
-          <Tabs defaultValue="visa">
-            <TabsList className="flex h-auto flex-wrap justify-start gap-2 bg-transparent p-0">
-              {(Object.keys(SERVICE_PRICES) as ServiceCategory[]).map((category) => (
-                <TabsTrigger
-                  key={category}
-                  value={category}
-                  className="rounded-full border border-border bg-card px-4 py-2 capitalize data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
-                  {category}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {(Object.keys(SERVICE_PRICES) as ServiceCategory[]).map((category) => (
-              <TabsContent key={category} value={category}>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Service Name</TableHead>
-                      <TableHead>Current Price Display</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Link to Apply</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {SERVICE_PRICES[category].map((service, index) => (
-                      <TableRow key={service.key}>
-                        <TableCell className="font-medium">{service.name}</TableCell>
-                        <TableCell>
-                          {editingService?.key === service.key &&
-                          draftServicePrice !== service.price ? (
-                            <span className="inline-flex items-center gap-2">
-                              {draftServicePrice}
-                              <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300">
-                                unsaved
-                              </Badge>
-                            </span>
-                          ) : (
-                            service.price
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={`capitalize ${CATEGORY_BADGES[category]}`}>
-                            {category}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-mono text-xs text-muted-foreground">
-                          pricing.plans.{category}.{index}.price
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setEditingService({ ...service, category, index });
-                              setDraftServicePrice(service.price);
-                            }}
-                          >
-                            Edit
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </CardContent>
-      </Card>
 
       {/* Minute Packages */}
       <Card>
@@ -728,51 +798,72 @@ function AdminPricing() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!editingService} onOpenChange={(open) => !open && setEditingService(null)}>
+      <Dialog
+        open={!!editingServicePrice}
+        onOpenChange={(open) => !open && setEditingServicePrice(null)}
+      >
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Edit service price text</DialogTitle>
+            <DialogTitle>Edit Service Price</DialogTitle>
             <DialogDescription>
-              This is local guidance only. Copy the JSON path and snippet into src/messages/en.json.
+              Update the USD price, unit, and display note. Changes appear on the public /pricing
+              page immediately.
             </DialogDescription>
           </DialogHeader>
-          {editingService && (
+          {editingServicePrice && (
             <div className="space-y-4">
               <div>
                 <Label>Service</Label>
-                <Input value={editingService.name} readOnly />
+                <Input value={editingServicePrice.services?.name_en ?? ""} readOnly />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Price (USD)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={spDraftPrice}
+                    onChange={(e) => setSpDraftPrice(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label>Unit</Label>
+                  <Select
+                    value={spDraftUnit}
+                    onValueChange={(v) => setSpDraftUnit(v as PriceUnit)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {UNIT_OPTIONS.map((u) => (
+                        <SelectItem key={u} value={u}>
+                          {UNIT_LABEL[u]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div>
-                <Label>Price text</Label>
+                <Label>Display Note</Label>
                 <Input
-                  value={draftServicePrice}
-                  onChange={(e) => setDraftServicePrice(e.target.value)}
+                  value={spDraftNote}
+                  onChange={(e) => setSpDraftNote(e.target.value)}
+                  placeholder="e.g. Starting from, Custom quote"
                 />
-              </div>
-              <div className="rounded-lg border bg-muted/30 p-3">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground">JSON path</p>
-                <code className="mt-1 block text-xs">
-                  pricing.plans.{editingService.category}.{editingService.index}.price
-                </code>
-                <pre className="mt-3 overflow-auto rounded bg-background p-3 text-xs">{`"price": "${draftServicePrice}"`}</pre>
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (!editingService) return;
-                void navigator.clipboard.writeText(
-                  `pricing.plans.${editingService.category}.${editingService.index}.price`,
-                );
-                toast.success("JSON path copied");
-              }}
-            >
-              <Copy className="mr-2 h-4 w-4" />
-              Copy JSON path
+            <Button variant="outline" onClick={() => setEditingServicePrice(null)}>
+              Cancel
             </Button>
-            <Button onClick={() => setEditingService(null)}>Done</Button>
+            <Button onClick={handleSaveServicePrice} disabled={savingServicePrice}>
+              {savingServicePrice && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

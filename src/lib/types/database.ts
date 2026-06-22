@@ -44,6 +44,24 @@ export type ClaimReasonCategory =
 
 export type ClaimStatus = "open" | "under_review" | "resolved" | "rejected";
 
+export type ReviewStatus = "pending" | "approved" | "rejected";
+
+export interface Review {
+  id: string;
+  client_id: string;
+  service_request_id: string | null;
+  rating: number;
+  review_text: string;
+  client_display_name: string;
+  status: ReviewStatus;
+  is_featured: boolean;
+  admin_notes: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface StaffCapability {
   id: string;
   user_id: string;

@@ -1,69 +1,82 @@
-## Goal
+# Make scroll animations feel intentional + add rotating hero word
 
-Turn `src/routes/index.tsx` (1,764 lines, duplicated hero, invisible sections, fake testimonials, generic blue/violet gradient look) into a clean, friendly, professional landing page that loads fast, paints correctly on mobile, and feels distinct from default AI templates.
+The current `AutoReveal` runs once per section with subtle 24px translations at default browser timing, so on a fast scroll users barely notice anything. We'll make the reveals dramatic, varied, and apply them to inner content blocks (not just the outer `<section>`), and add a word-rotator in the hero headline.
 
-## What gets removed
+## 1. Rotating hero word (`RotatingText` FX primitive)
 
-1. **Duplicate hero block** at lines ~1344–1761 (dead/second-hero code).
-2. `**useIntersectionObserver` + `.animate-fade-up { opacity: 0 }**` — replaced with CSS-only entrance animations that don't hide content if JS hasn't run.
-3. **~350 lines of inline `<style>**` keyframes — only the few still in use move to `src/styles.css`; the rest deleted.
-4. **Fake testimonials** (Wang Wei, Li Fang, Marie C., David O., etc.) and **unverified stats** (1,000+ clients, 98% success rate).
-5. Floating orbs, glow-pulse buttons, shimmer headline, glass-card decorations, hardcoded hex backgrounds like `dark:bg-[#080D1A]`.
+New component `src/components/fx/rotating-text.tsx`:
+- Cycles through an array of words every ~2.2s
+- Each swap: old word slides up + blurs out, new word slides up + fades/un-blurs in
+- Inline-block, width animates to fit current word (no layout jump)
+- Pauses on `prefers-reduced-motion` (shows first word only)
 
-## What gets added / restructured
+Wired into hero (`src/routes/index.tsx` `Hero()`):
+- Headline becomes: `"{prefix} <RotatingText words=[…]/> {suffix}"`
+- Words pulled from i18n (`home.heroRotatingWords` array, added to `en.json`/`zh.json`/`rw.json`): e.g. "visas", "translation", "accounting", "consultancy", "business setup" (localized).
+- Static i18n keys `home.heroRotatingPrefix` / `home.heroRotatingSuffix` for the framing text so all three locales read naturally.
 
-### File split (under `src/components/marketing/home/`)
+Existing `home.heroTitle` stays as fallback for SEO/SSR (rendered server-side, then replaced on mount).
 
-- `hero.tsx` — single, focused hero with headline, subhead, primary + secondary CTA, language strip.
-- `services-grid.tsx` — 4 service cards using semantic tokens, outcome-focused copy.
-- `why-us.tsx` — 3–4 reasons with icons, no glow.
-- `process.tsx` — 4-step "How it works" timeline.
-- `social-proof.tsx` — empty-state-friendly slot for real client logos, named testimonials, and stats (renders nothing if data is empty; placeholder copy clearly marked).
-- `cta-section.tsx` — final "Talk to an expert" band.
-- `sticky-contact.tsx` — mobile sticky WhatsApp / Call CTA.
+## 2. Stronger, more varied scroll reveals
 
-`src/routes/index.tsx` becomes a thin composition (~80 lines) wiring those components inside `PublicLayout` with the existing `head()` meta intact.
+Rewrite `src/components/fx/auto-reveal.tsx` + extend `src/styles.css`:
 
-### Visual direction (Modern & friendly)
+**Broader targeting** — don't just animate `<section>`s. Inside each section, auto-tag these as individual reveals:
+- Direct headings (`h1,h2,h3`) → `fade-up` with 80ms delay
+- Paragraphs directly under headings → `fade-up` 160ms
+- Cards (`[class*="rounded-2xl"][class*="border"]`, `.glass-card`) inside a grid → stagger items
+- Standalone images / canvases → `zoom`
+- Generic block elements with `data-fx` attribute → honored variant
 
-- **Palette**: warm neutrals + a single friendly accent. Defined as semantic tokens in `src/styles.css` (`--background`, `--foreground`, `--primary`, `--accent`, `--muted`) so dark mode and theming keep working. No more `text-white`, `bg-[#080D1A]`, or `from-blue-500 to-violet-500` in components.
-- **Typography**: distinctive heading pair (e.g. a friendly geometric display) + clean body, loaded via existing font setup. No Inter/Poppins defaults.
-- **Shape language**: generous radii (`rounded-2xl`), soft shadows, no neon glows.
-- **Motion**: subtle CSS `@keyframes fade-in-up` applied unconditionally (no observer gating), `prefers-reduced-motion` respected.
+**Stronger animation values** (in `styles.css`):
+- Duration: `0.9s` → `1.1s` (was ~0.7s)
+- Easing: `cubic-bezier(0.16, 1, 0.3, 1)` (expo-out) — already used; keep
+- Translation distance: 24px → **56px** for `fade-up`, 80px for slide variants
+- `zoom`: 0.94 → **0.82** + slight blur
+- `blur-in`: blur 10px → **18px**
+- Stagger step: 90ms → **140ms** with base 80ms
 
-### Content changes
+**More variants per page** — rotate through `fade-up, slide-left, slide-right, zoom, blur-in` per section index so consecutive sections feel different (currently we already alternate, but with weaker values it isn't visible).
 
-- Hero subhead rewritten to be outcome-focused, not feature list.
-- Service cards: each gets a one-line outcome ("Student visa to China — handled end to end") instead of generic descriptors.
-- Real-data slots for stats/logos/testimonials — when empty, section either hides or shows a neutral "Trusted by clients across Rwanda & beyond" line. You can drop in real numbers + logos later.
-- Trust strip: payment methods + supported languages, no invented certifications.
+**Re-trigger on scroll-back** — change observer to NOT unobserve; toggle `is-visible` based on intersection so users see animation again when scrolling up (only for section-level reveals, not stagger items, to avoid jank).
 
-### Performance & SEO
+**Earlier trigger** — `rootMargin: "0px 0px -10% 0px"` so reveals fire while content is well inside viewport, then sustain.
 
-- Remove opacity-based hiding so content is in the initial HTML for crawlers and slow phones.
-- Keep existing `head()` meta, add `og:image` placeholder slot for a real share image you provide.
-- `loading="lazy"` on any below-the-fold imagery.
+## 3. New utility: `data-fx` attribute opt-in
 
-## Technical notes
+For per-element control without React imports, add CSS hooks:
+```
+[data-fx="fade-up"], [data-fx="slide-left"], …
+```
+Same keyframes as `.fx-reveal[data-variant=…]`. `AutoReveal` reads `data-fx` first, falls back to auto-assigned variant.
 
-- All color, gradient, shadow values live in `src/styles.css` as semantic tokens; components only use class names like `bg-background`, `text-foreground`, `bg-primary`, `text-accent`.
-- New components are presentation-only — no data fetching, no Supabase calls added.
-- Keep `PublicLayout`, existing nav/footer, and `useI18n` translation keys. New copy that needs translation gets added to `src/messages/en.json`, `zh.json`, `rw.json` under a `home.*` namespace; existing keys stay.
-- Mobile sticky CTA respects safe-area-inset.
-- No new npm packages. Icons stay on `lucide-react`.  
-aslo add those
+## 4. Hero specifically
 
-1.
+In `Hero()`:
+- Replace `home-fade-up` static classes with `data-fx="slide-right"` on copy column and `data-fx="zoom"` on the 3D logo column
+- Stats strip cards: stagger with `slide-up`, step 140ms (already a grid → AutoReveal handles)
+- ServicesGrid cards: keep TiltCard, wrap grid in stagger w/ `zoom` variant
+- WhyUs / Process / SocialProof / CTA sections: rotate through `slide-left`, `slide-right`, `blur-in`, `fade-up`
 
-  Add i18n translations for all new staff dashboard labels, status/filter names, and button text across en/zh/rw.  
-  2. and must supporrt well our all theme modes (dark and light) must math well
+## 5. Accessibility
+
+- All new animations gated by `@media (prefers-reduced-motion: no-preference)`
+- Rotating text falls back to single word
+- Reduce block already covers `.fx-reveal`, `.fx-stagger`, `[data-fx]` (extend it)
+
+## Files
+
+**Created**
+- `src/components/fx/rotating-text.tsx`
+
+**Edited**
+- `src/components/fx/auto-reveal.tsx` (broader selectors, re-trigger, stronger defaults)
+- `src/styles.css` (stronger keyframes/values, `[data-fx]` utility, reduced-motion update)
+- `src/routes/index.tsx` (use `RotatingText` in hero, sprinkle `data-fx` attrs)
+- `src/messages/en.json` + `zh.json` + `rw.json` (`home.heroRotatingPrefix`, `home.heroRotatingSuffix`, `home.heroRotatingWords[]`)
 
 ## Out of scope
-
-- No backend / Supabase / auth changes.
-- Other routes (`/services/*`, `/dashboard/*`, `/staff/*`) untouched.
-- Real testimonial text, client logos, share image — you'll provide; I'll wire the slots.
-
-## Deliverable
-
-A faster, cleaner home page that paints correctly on first load, uses your design tokens consistently, drops the AI-template look, and is broken into small files you can maintain. Approve and I'll build it.
+- No new npm packages
+- No changes to auth, Supabase, or i18n provider internals
+- No edits inside Tabs/Accordion content (per project rule — IntersectionObserver pitfall)
+- Other pages (services/about/etc.) inherit the upgraded `AutoReveal` automatically; no per-page edits beyond home

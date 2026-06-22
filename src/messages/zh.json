@@ -63,6 +63,14 @@
   "home": {
     "heroTitle": "您值得信赖的全球专业服务伙伴",
     "heroSubtitle": "为卢旺达及全球客户提供会计、签证、翻译和商业支持。",
+    "heroRotatingPhrases": [
+      "您值得信赖的全球签证合作伙伴。",
+      "覆盖各种语言的专业翻译服务。",
+      "让您的企业账目井井有条。",
+      "助力企业增长的商业咨询。",
+      "高效完成的许可与公司注册。",
+      "立足卢旺达，服务全球。"
+    ],
     "trustStrip": "深受卢旺达及中国客户信赖 · 1,000+ 项成功案例",
     "servicesHeading": "我们的服务",
     "whyHeading": "为什么选择三兄弟",
@@ -1032,6 +1040,27 @@
       },
       "page": "页",
       "docNote": "最终价格视长度和复杂度而定。上传后获取精确报价。",
+      "calculator": {
+        "title": "估算您的费用",
+        "subtitle": "立即获取我们任何翻译服务的美元估价。",
+        "modes": {
+          "document": "文件翻译",
+          "legal": "法律翻译",
+          "interpreter": "现场口译"
+        },
+        "pages": "页数",
+        "minutes": "分钟",
+        "from": "源语言",
+        "to": "目标语言",
+        "total": "预计总额",
+        "perPage": "每页",
+        "perMin": "每分钟",
+        "cta": "开始使用",
+        "note": "仅为估算。最终报价可能因文件复杂度或通话时长而异。",
+        "presets": "推荐套餐",
+        "loadingLangs": "正在加载语言…",
+        "loadingRate": "正在加载实时费率…"
+      },
       "faq": {
         "heading": "常见问题",
         "expire": {
@@ -1488,6 +1517,57 @@
       "phone": "电话",
       "type": "类型",
       "created": "创建时间"
+    }
+  },
+  "reviews": {
+    "client": {
+      "leaveAction": "撰写评价",
+      "leaveActionDesc": "分享您与 San Brothers 的合作体验",
+      "alreadySubmitted": "评价已提交",
+      "alreadyDesc": "感谢您的反馈",
+      "alreadyToast": "您已为此服务提交过评价。",
+      "dialogTitle": "撰写评价",
+      "dialogIntro": "您的评价能帮助其他客户信任 San Brothers。我们的团队审核后即可发布。",
+      "ratingLabel": "评分",
+      "ratingRequired": "请选择评分",
+      "reviewLabel": "您的评价",
+      "reviewPlaceholder": "请分享您与 San Brothers 的合作体验……",
+      "reviewTooShort": "请用几句话描述您的体验",
+      "cancel": "取消",
+      "submit": "提交评价",
+      "submitting": "提交中……",
+      "successToast": "感谢您!评价通过审核后将公开显示。"
+    },
+    "admin": {
+      "title": "客户评价",
+      "subtitle": "审核客户提交的评价,并精选最佳评价展示在首页。",
+      "stats": { "total": "总数", "pending": "待审", "avg": "平均评分", "featured": "精选" },
+      "filters": { "all": "全部", "pending": "待审", "approved": "已通过", "rejected": "已拒绝" },
+      "tableTitle": "评价",
+      "th": { "client": "客户", "rating": "评分", "review": "评价", "service": "服务", "status": "状态", "submitted": "提交时间", "actions": "操作" },
+      "approve": "通过",
+      "reject": "拒绝",
+      "view": "查看",
+      "featured": "精选",
+      "loading": "正在加载评价……",
+      "emptyAll": "暂无评价。客户提交评价后将在此显示。",
+      "emptyPending": "全部处理完毕 —— 没有待审评价。",
+      "emptyApproved": "暂无已通过的评价。",
+      "emptyRejected": "暂无被拒绝的评价。",
+      "approveToast": "评价已通过",
+      "rejectToast": "评价已拒绝",
+      "featuredOnToast": "已设为首页精选",
+      "featuredOffToast": "已从首页移除",
+      "notesLabel": "内部管理备注",
+      "notesPlaceholder": "可选的团队备注……",
+      "saveNotes": "保存备注",
+      "savedNotes": "备注已保存",
+      "lastActioned": "上次操作",
+      "detailsTitle": "评价详情"
+    },
+    "home": {
+      "loading": "正在加载评价……",
+      "empty": "成为第一位分享体验的客户 —— 您的评价可能展示在此。"
     }
   }
 }

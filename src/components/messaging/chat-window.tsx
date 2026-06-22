@@ -185,9 +185,7 @@ export function ChatWindow(props: ChatWindowProps) {
           setMessages((prev) => prev.map((p) => (p.id === m.id ? { ...p, ...m } : p)));
         },
       )
-      .subscribe((status) => {
-        console.log("[Chat] Realtime status:", status);
-      });
+      .subscribe();
 
     return () => {
       cancelled = true;

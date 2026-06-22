@@ -20,11 +20,18 @@ import {
   Sparkles,
   Award,
   HeartHandshake,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { useI18n } from "@/lib/providers/i18n-provider";
+import { supabase } from "@/lib/supabase";
+import { Magnetic } from "@/components/fx/magnetic";
+import { TiltCard } from "@/components/fx/tilt-card";
+import { AnimatedCounter } from "@/components/fx/animated-counter";
+import { ParallaxLayer } from "@/components/fx/parallax-layer";
+import { RotatingText } from "@/components/fx/rotating-text";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -54,6 +61,7 @@ function Home() {
     <PublicLayout>
       <PageStyles />
       <Hero />
+      <StatsStrip />
       <ServicesGrid />
       <WhyUs />
       <Process />
@@ -61,6 +69,40 @@ function Home() {
       <CtaSection />
       <StickyContact />
     </PublicLayout>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+//  Stats strip with animated counters
+// ────────────────────────────────────────────────────────────
+
+function StatsStrip() {
+  const stats = [
+    { value: 500, suffix: "+", label: "Clients served" },
+    { value: 15, suffix: "+", label: "Countries reached" },
+    { value: 17, suffix: "", label: "Services offered" },
+    { value: 98, suffix: "%", label: "On-time delivery" },
+  ];
+  return (
+    <section className="border-b border-border bg-background py-12 md:py-16">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 md:grid-cols-4 md:px-6">
+        {stats.map((s) => (
+          <div
+            key={s.label}
+            className="rounded-2xl border border-border bg-card p-6 text-center transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
+          >
+            <AnimatedCounter
+              to={s.value}
+              suffix={s.suffix}
+              className="block bg-gradient-to-br from-primary to-accent bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-5xl"
+            />
+            <div className="mt-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              {s.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -92,44 +134,71 @@ function PageStyles() {
 // ────────────────────────────────────────────────────────────
 
 function Hero() {
-  const { t } = useI18n();
+  const { t, tRaw } = useI18n();
+  const rotatingPhrases = (() => {
+    try {
+      const v = tRaw<string[]>("home.heroRotatingPhrases");
+      return Array.isArray(v) && v.length ? v : [t("home.heroTitle")];
+    } catch {
+      return [t("home.heroTitle")];
+    }
+  })();
   return (
-    <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-secondary/40 via-background to-background">
+    <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-secondary/40 via-background to-background" data-fx-skip>
       {/* Ambient mesh gradient — adapts to theme via tokens */}
       <div aria-hidden className="home-mesh opacity-60 dark:opacity-50" />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-32 right-1/2 h-[28rem] w-[28rem] translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
-      />
+      <ParallaxLayer speed={-0.25} aria-hidden className="pointer-events-none absolute -top-32 right-1/2 h-[28rem] w-[28rem] translate-x-1/2">
+        <div className="h-full w-full rounded-full bg-primary/10 blur-3xl" />
+      </ParallaxLayer>
+      <ParallaxLayer speed={0.15} aria-hidden className="pointer-events-none absolute bottom-0 left-0 h-[20rem] w-[20rem]">
+        <div className="h-full w-full rounded-full bg-accent/10 blur-3xl" />
+      </ParallaxLayer>
+
 
       <div className="relative mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
-        <div className="grid items-center gap-12 md:grid-cols-2">
+        <div className="grid items-center gap-12 md:grid-cols-2" data-fx-skip>
           {/* Copy */}
-          <div className="home-fade-up text-center md:text-left">
+          <div data-fx="slide-right" data-fx-once="true" className="text-center md:text-left">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
               Trusted in 15+ countries
             </span>
             <h1 className="mt-6 text-balance text-4xl font-black leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
-              {t("home.heroTitle")}
+              <RotatingText phrases={rotatingPhrases} />
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg md:mx-0">
               {t("home.heroSubtitle")}
             </p>
 
             <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row md:justify-start">
-              <Button asChild size="lg" className="h-12 gap-2 px-7 text-base">
-                <Link to="/signup" search={undefined}>
-                  Get started free
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="h-12 gap-2 px-7 text-base">
-                <Link to="/contact">
-                  <MessageCircle className="h-4 w-4" />
-                  Talk to an expert
-                </Link>
-              </Button>
+              <Magnetic strength={18}>
+                <Button asChild size="lg" className="h-12 gap-2 px-7 text-base shadow-lg shadow-primary/30 transition-shadow hover:shadow-primary/50">
+                  <Link to="/signup" search={undefined}>
+                    Get started free
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </Magnetic>
+              <Magnetic strength={14}>
+                <Button asChild size="lg" variant="outline" className="h-12 gap-2 px-7 text-base">
+                  <Link to="/contact">
+                    <MessageCircle className="h-4 w-4" />
+                    Talk to an expert
+                  </Link>
+                </Button>
+             </Magnetic>
+            </div>
+
+            <div className="mt-4 flex justify-center md:justify-start">
+              <a
+                href="https://wa.me/250788687288"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Chat with us on WhatsApp →
+              </a>
             </div>
 
             <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground md:justify-start">
@@ -149,7 +218,7 @@ function Hero() {
           </div>
 
           {/* Visual: original brand mark rendered as a transparent 3D texture */}
-          <div className="home-fade-up home-delay-2 relative mx-auto h-[260px] w-full max-w-sm sm:h-[320px] md:h-[430px] md:max-w-md">
+          <div data-fx="zoom" data-fx-once="true" className="relative mx-auto h-[260px] w-full max-w-sm sm:h-[320px] md:h-[430px] md:max-w-md">
             <Logo3DScene />
           </div>
         </div>
@@ -340,32 +409,33 @@ function ServicesGrid() {
 
         <div className="mt-12 grid gap-5 sm:grid-cols-2">
           {services.map((s, i) => (
-            <Link
-              to={s.href}
+            <TiltCard
               key={s.title}
-              className={`home-fade-up home-delay-${i + 1} service-card group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-6`}
+              max={6}
+              className={`home-fade-up home-delay-${i + 1}`}
             >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-              />
-              <div className="relative flex items-start justify-between">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 text-primary ring-1 ring-primary/20 transition-all duration-300 group-hover:from-primary group-hover:to-primary/80 group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/30">
-                  <s.icon className="h-6 w-6" />
+              <Link
+                to={s.href}
+                className="service-card group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-6"
+              >
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                />
+                <div className="relative flex items-start justify-between">
+                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 text-primary ring-1 ring-primary/20 transition-all duration-300 group-hover:from-primary group-hover:to-primary/80 group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/30">
+                    <s.icon className="h-6 w-6" />
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-primary" />
                 </div>
-                <ArrowRight className="h-5 w-5 text-muted-foreground transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-primary" />
-              </div>
-              <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">
-                {s.title}
-              </h3>
-              <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">
-                {s.desc}
-              </p>
-              <div className="relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-accent/20 transition-all group-hover:ring-accent/50 group-hover:shadow-[0_0_12px_color-mix(in_oklab,var(--accent)_30%,transparent)]">
-                <Sparkles className="h-3 w-3 text-accent" />
-                {s.outcome}
-              </div>
-            </Link>
+                <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">{s.title}</h3>
+                <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+                <div className="relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-accent/20 transition-all group-hover:ring-accent/50 group-hover:shadow-[0_0_12px_color-mix(in_oklab,var(--accent)_30%,transparent)]">
+                  <Sparkles className="h-3 w-3 text-accent" />
+                  {s.outcome}
+                </div>
+              </Link>
+            </TiltCard>
           ))}
         </div>
       </div>
@@ -527,9 +597,31 @@ function Process() {
 //  Social proof (real-data ready, hides gracefully when empty)
 // ────────────────────────────────────────────────────────────
 
-// Replace with real client logos & testimonials when ready.
+// Replace with real client logos when ready. Testimonials are fetched from the
+// `reviews` table where status='approved' AND is_featured=true.
 const REAL_LOGOS: { name: string; src?: string }[] = [];
-const REAL_TESTIMONIALS: { quote: string; name: string; role?: string; loc?: string }[] = [];
+
+interface FeaturedReview {
+  id: string;
+  rating: number;
+  review_text: string;
+  client_display_name: string;
+  created_at: string;
+}
+
+function relativeTime(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const day = 24 * 60 * 60 * 1000;
+  const days = Math.floor(diff / day);
+  if (days < 1) return "today";
+  if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks} week${weeks === 1 ? "" : "s"} ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months} month${months === 1 ? "" : "s"} ago`;
+  const years = Math.floor(days / 365);
+  return `${years} year${years === 1 ? "" : "s"} ago`;
+}
 
 interface PartnerLogo {
   name: string;
@@ -575,7 +667,28 @@ function PartnerLogoMarquee() {
 function SocialProof() {
   const { t } = useI18n();
   const hasLogos = REAL_LOGOS.length > 0;
-  const hasTestimonials = REAL_TESTIMONIALS.length > 0;
+  const [featured, setFeatured] = useState<FeaturedReview[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("reviews")
+        .select("id, rating, review_text, client_display_name, created_at")
+        .eq("status", "approved")
+        .eq("is_featured", true)
+        .order("created_at", { ascending: false })
+        .limit(6);
+      if (!cancelled) {
+        setFeatured((data ?? []) as FeaturedReview[]);
+        setLoadingReviews(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <section className="border-b border-border bg-secondary/40 py-20 md:py-24">
@@ -613,19 +726,63 @@ function SocialProof() {
           </div>
         )}
 
-        {hasTestimonials && (
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {REAL_TESTIMONIALS.map((q) => (
-              <figure
-                key={q.name}
-                className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6"
+        {loadingReviews ? (
+          <div
+            className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+            aria-busy="true"
+            aria-live="polite"
+          >
+            <span className="sr-only">{t("reviews.home.loading")}</span>
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="flex animate-pulse flex-col gap-4 rounded-2xl border border-border bg-card p-6"
               >
-                <blockquote className="text-sm leading-relaxed text-card-foreground">
-                  “{q.quote}”
+                <div className="flex items-center gap-1">
+                  {[0, 1, 2, 3, 4].map((s) => (
+                    <div key={s} className="h-4 w-4 rounded-sm bg-muted" />
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 w-full rounded bg-muted" />
+                  <div className="h-3 w-11/12 rounded bg-muted" />
+                  <div className="h-3 w-2/3 rounded bg-muted" />
+                </div>
+                <div className="flex items-center gap-3 border-t border-border pt-4">
+                  <div className="h-9 w-9 rounded-full bg-muted" />
+                  <div className="space-y-1.5">
+                    <div className="h-3 w-24 rounded bg-muted" />
+                    <div className="h-2.5 w-16 rounded bg-muted" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : featured.length > 0 ? (
+          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {featured.map((r) => (
+              <figure
+                key={r.id}
+                className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
+              >
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <Star
+                      key={n}
+                      className={`h-4 w-4 ${
+                        n <= r.rating
+                          ? "fill-amber-400 text-amber-400"
+                          : "text-muted-foreground/30"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <blockquote className="flex-1 text-sm italic leading-relaxed text-card-foreground">
+                  “{r.review_text}”
                 </blockquote>
                 <figcaption className="flex items-center gap-3 border-t border-border pt-4">
                   <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                    {q.name
+                    {r.client_display_name
                       .split(" ")
                       .map((p) => p[0])
                       .join("")
@@ -633,16 +790,25 @@ function SocialProof() {
                       .toUpperCase()}
                   </div>
                   <div className="text-xs">
-                    <div className="font-semibold text-card-foreground">{q.name}</div>
-                    {(q.role || q.loc) && (
-                      <div className="text-muted-foreground">
-                        {[q.role, q.loc].filter(Boolean).join(" · ")}
-                      </div>
-                    )}
+                    <div className="font-semibold text-card-foreground">
+                      {r.client_display_name}
+                    </div>
+                    <div className="text-muted-foreground">
+                      {relativeTime(r.created_at)}
+                    </div>
                   </div>
                 </figcaption>
               </figure>
             ))}
+          </div>
+        ) : (
+          <div className="mt-12 flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-card/50 px-6 py-12 text-center">
+            <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10">
+              <Star className="h-5 w-5 text-primary" />
+            </div>
+            <p className="max-w-md text-sm text-muted-foreground">
+              {t("reviews.home.empty")}
+            </p>
           </div>
         )}
       </div>
@@ -674,23 +840,27 @@ function CtaSection() {
           {t("home.ctaSubtitle")}
         </p>
         <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row">
-          <Button asChild size="lg" variant="secondary" className="h-12 gap-2 px-7 text-base">
-            <Link to="/signup" search={undefined}>
-              Create free account
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="h-12 gap-2 border-primary-foreground/30 bg-transparent px-7 text-base text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-          >
-            <Link to="/contact">
-              <Phone className="h-4 w-4" />
-              Talk to us
-            </Link>
-          </Button>
+          <Magnetic strength={18}>
+            <Button asChild size="lg" variant="secondary" className="h-12 gap-2 px-7 text-base">
+              <Link to="/signup" search={undefined}>
+                Create free account
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </Magnetic>
+          <Magnetic strength={14}>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="h-12 gap-2 border-primary-foreground/30 bg-transparent px-7 text-base text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            >
+              <Link to="/contact">
+                <Phone className="h-4 w-4" />
+                Talk to us
+              </Link>
+            </Button>
+          </Magnetic>
         </div>
       </div>
     </section>

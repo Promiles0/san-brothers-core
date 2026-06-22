@@ -63,6 +63,14 @@
   "home": {
     "heroTitle": "Your Trusted Partner for Global Professional Services",
     "heroSubtitle": "Accounting Services, visas & Permit Facilitation, Translation & Interpretation translation, Business Consultancy and more .. — built for clients in Rwanda and around the world.",
+    "heroRotatingPhrases": [
+      "Your trusted partner for visas worldwide.",
+      "Professional translation in every language.",
+      "Accounting that keeps your business sharp.",
+      "Business consultancy that unlocks growth.",
+      "Permits and company setup, done right.",
+      "Global expertise, built for Rwanda."
+    ],
     "trustStrip": "Trusted by Rwandan and foreign clients · 1,000+ successful applications",
     "servicesHeading": "Our Services",
     "whyHeading": "Why San Brothers",
@@ -1032,6 +1040,27 @@
       },
       "page": "page",
       "docNote": "Final price depends on length and complexity. Get an exact quote after upload.",
+      "calculator": {
+        "title": "Estimate your cost",
+        "subtitle": "Get an instant USD estimate for any of our translation services.",
+        "modes": {
+          "document": "Document Translation",
+          "legal": "Legal Translation",
+          "interpreter": "Live Interpreter"
+        },
+        "pages": "Pages",
+        "minutes": "Minutes",
+        "from": "From language",
+        "to": "To language",
+        "total": "Estimated total",
+        "perPage": "per page",
+        "perMin": "per minute",
+        "cta": "Get started",
+        "note": "Estimate only. Final quote may vary based on document complexity or call length.",
+        "presets": "Suggested packages",
+        "loadingLangs": "Loading languages…",
+        "loadingRate": "Loading live rate…"
+      },
       "faq": {
         "heading": "Quick questions",
         "expire": {
@@ -1488,6 +1517,57 @@
       "phone": "Phone",
       "type": "Type",
       "created": "Created"
+    }
+  },
+  "reviews": {
+    "client": {
+      "leaveAction": "Leave a Review",
+      "leaveActionDesc": "Share your experience with San Brothers",
+      "alreadySubmitted": "Review submitted",
+      "alreadyDesc": "Thanks for your feedback",
+      "alreadyToast": "You've already submitted a review for this service.",
+      "dialogTitle": "Leave a review",
+      "dialogIntro": "Your review helps other clients trust San Brothers. It will be published after a quick check by our team.",
+      "ratingLabel": "Rating",
+      "ratingRequired": "Please select a rating",
+      "reviewLabel": "Your review",
+      "reviewPlaceholder": "Tell others about your experience with San Brothers...",
+      "reviewTooShort": "Please share a few words about your experience",
+      "cancel": "Cancel",
+      "submit": "Submit review",
+      "submitting": "Submitting…",
+      "successToast": "Thank you! Your review will be visible after a quick check."
+    },
+    "admin": {
+      "title": "Client Reviews",
+      "subtitle": "Moderate testimonials submitted by clients and feature the best ones on your homepage.",
+      "stats": { "total": "Total", "pending": "Pending", "avg": "Avg Rating", "featured": "Featured" },
+      "filters": { "all": "All", "pending": "Pending", "approved": "Approved", "rejected": "Rejected" },
+      "tableTitle": "Reviews",
+      "th": { "client": "Client", "rating": "Rating", "review": "Review", "service": "Service", "status": "Status", "submitted": "Submitted", "actions": "Actions" },
+      "approve": "Approve",
+      "reject": "Reject",
+      "view": "View",
+      "featured": "Featured",
+      "loading": "Loading reviews…",
+      "emptyAll": "No reviews yet. Once clients submit reviews they'll appear here.",
+      "emptyPending": "All caught up — no pending reviews to moderate.",
+      "emptyApproved": "No approved reviews yet.",
+      "emptyRejected": "No rejected reviews.",
+      "approveToast": "Review approved",
+      "rejectToast": "Review rejected",
+      "featuredOnToast": "Featured on homepage",
+      "featuredOffToast": "Removed from homepage",
+      "notesLabel": "Internal admin notes",
+      "notesPlaceholder": "Optional notes for the team...",
+      "saveNotes": "Save notes",
+      "savedNotes": "Notes saved",
+      "lastActioned": "Last actioned",
+      "detailsTitle": "Review details"
+    },
+    "home": {
+      "loading": "Loading reviews…",
+      "empty": "Be the first to share your experience — your review could appear here."
     }
   }
 }

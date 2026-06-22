@@ -12,6 +12,7 @@ import {
 import { PublicLayout } from "@/components/layout/public-layout";
 import { PageHero, CtaBanner } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
+import { Magnetic } from "@/components/fx/magnetic";
 
 export const Route = createFileRoute("/faq")({
   head: () => ({
@@ -231,12 +232,16 @@ function Faq() {
             Can&apos;t find your answer? Our team responds in under 24 hours.
           </p>
           <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button asChild>
-              <Link to="/contact">Send a Message</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/services">Browse Services</Link>
-            </Button>
+            <Magnetic strength={14}>
+              <Button asChild>
+                <Link to="/contact">Send a Message</Link>
+              </Button>
+            </Magnetic>
+            <Magnetic strength={12}>
+              <Button asChild variant="outline">
+                <Link to="/services">Browse Services</Link>
+              </Button>
+            </Magnetic>
           </div>
         </div>
       </section>

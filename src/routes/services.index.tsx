@@ -28,6 +28,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { CtaBanner } from "@/components/marketing/page-sections";
 import { useI18n } from "@/lib/providers/i18n-provider";
+import { Magnetic } from "@/components/fx/magnetic";
+import { TiltCard } from "@/components/fx/tilt-card";
+import { AnimatedCounter } from "@/components/fx/animated-counter";
+import { ParallaxLayer } from "@/components/fx/parallax-layer";
 
 export const Route = createFileRoute("/services/")({
   head: () => ({
@@ -236,6 +240,12 @@ function ServicesOverview() {
     <PublicLayout>
       <section className="public-hero-gradient relative isolate flex min-h-[80vh] items-center overflow-hidden text-primary-foreground">
         <div className="absolute inset-0 bg-background/10" aria-hidden="true" />
+        <ParallaxLayer speed={-0.3} aria-hidden className="pointer-events-none absolute -top-24 -right-24 h-[32rem] w-[32rem]">
+          <div className="h-full w-full rounded-full bg-primary-foreground/10 blur-3xl" />
+        </ParallaxLayer>
+        <ParallaxLayer speed={0.2} aria-hidden className="pointer-events-none absolute -bottom-24 -left-24 h-[28rem] w-[28rem]">
+          <div className="h-full w-full rounded-full bg-accent/20 blur-3xl" />
+        </ParallaxLayer>
         <div className="relative mx-auto w-full max-w-7xl px-4 py-24 md:px-6">
           <p className="public-fade-up text-sm font-semibold uppercase tracking-[0.22em] text-primary-foreground/70">
             Professional services · Kigali, Rwanda
@@ -256,34 +266,42 @@ function ServicesOverview() {
             className="public-fade-up mt-8 flex flex-col gap-3 sm:flex-row"
             style={{ animationDelay: "240ms" }}
           >
-            <Button size="lg" variant="secondary" asChild>
-              <Link to="/signup" search={{ intent: "service" } as never}>
-                Get Started
-              </Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-              asChild
-            >
-              <Link to="/pricing">View Pricing</Link>
-            </Button>
+            <Magnetic strength={18}>
+              <Button size="lg" variant="secondary" asChild>
+                <Link to="/signup" search={{ intent: "service" } as never}>
+                  Get Started
+                </Link>
+              </Button>
+            </Magnetic>
+            <Magnetic strength={14}>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                asChild
+              >
+                <Link to="/pricing">View Pricing</Link>
+              </Button>
+            </Magnetic>
           </div>
           <div className="mt-14 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-primary-foreground/15 bg-primary-foreground/15 lg:grid-cols-4">
             {[
-              ["500+", "Clients Served"],
-              ["17", "Services Available"],
-              ["5", "Languages Supported"],
-              ["3 Days", "Avg Turnaround"],
-            ].map(([value, label], index) => (
+              { value: 500, suffix: "+", label: "Clients Served" },
+              { value: 17, suffix: "", label: "Services Available" },
+              { value: 5, suffix: "", label: "Languages Supported" },
+              { value: 3, suffix: " Days", label: "Avg Turnaround" },
+            ].map((stat, index) => (
               <div
-                key={label}
+                key={stat.label}
                 className="public-fade-up bg-primary/70 p-5 backdrop-blur-sm md:p-6"
                 style={{ animationDelay: `${320 + index * 80}ms` }}
               >
-                <strong className="block text-2xl md:text-3xl">{value}</strong>
-                <span className="text-sm text-primary-foreground/70">{label}</span>
+                <AnimatedCounter
+                  to={stat.value}
+                  suffix={stat.suffix}
+                  className="block text-2xl font-black md:text-3xl"
+                />
+                <span className="text-sm text-primary-foreground/70">{stat.label}</span>
               </div>
             ))}
           </div>
@@ -336,55 +354,60 @@ function ServicesOverview() {
                 </p>
                 <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                   {SERVICES.filter((service) => service.category === key).map((service, index) => (
-                    <Card
+                    <TiltCard
                       key={service.name}
-                      className={`scroll-reveal group border-t-[3px] ${styles.border} overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-lg`}
+                      max={6}
+                      className="scroll-reveal"
                       style={{ transitionDelay: `${index * 60}ms` }}
                     >
-                      <CardContent className="flex h-full flex-col p-6">
-                        <div className="flex items-start justify-between gap-4">
-                          <span
-                            className={`rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider ${styles.soft} ${styles.text}`}
-                          >
-                            {key}
-                          </span>
-                          <div
-                            className={`grid h-11 w-11 place-items-center rounded-xl ${styles.soft} ${styles.text}`}
-                          >
-                            <service.icon className="h-5 w-5" />
-                          </div>
-                        </div>
-                        <h2 className="mt-5 text-xl font-bold">{service.name}</h2>
-                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                          {service.desc}
-                        </p>
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {service.tags.map((tag) => (
+                      <Card
+                        className={`group h-full border-t-[3px] ${styles.border} overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-lg`}
+                      >
+                        <CardContent className="flex h-full flex-col p-6">
+                          <div className="flex items-start justify-between gap-4">
                             <span
-                              key={tag}
-                              className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground"
+                              className={`rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider ${styles.soft} ${styles.text}`}
                             >
-                              {tag}
+                              {key}
                             </span>
-                          ))}
-                        </div>
-                        <p className="mt-5 text-sm font-medium text-muted-foreground">
-                          {service.price}
-                        </p>
-                        <div className="mt-auto flex items-center gap-4 pt-6">
-                          <Button className={styles.button} asChild>
-                            <Link to="/dashboard/services">Apply Now</Link>
-                          </Button>
-                          <Link
-                            to="/pricing"
-                            className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
-                          >
-                            {t("servicesPage.learnMore")} <ArrowRight className="h-4 w-4" />
-                          </Link>
-                        </div>
-                        <span className="sr-only">{translatedFeatures.join(", ")}</span>
-                      </CardContent>
-                    </Card>
+                            <div
+                              className={`grid h-11 w-11 place-items-center rounded-xl ${styles.soft} ${styles.text}`}
+                            >
+                              <service.icon className="h-5 w-5" />
+                            </div>
+                          </div>
+                          <h2 className="mt-5 text-xl font-bold">{service.name}</h2>
+                          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                            {service.desc}
+                          </p>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {service.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                          <p className="mt-5 text-sm font-medium text-muted-foreground">
+                            {service.price}
+                          </p>
+                          <div className="mt-auto flex items-center gap-4 pt-6">
+                            <Button className={styles.button} asChild>
+                              <Link to="/dashboard/services">Apply Now</Link>
+                            </Button>
+                            <Link
+                              to="/pricing"
+                              className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
+                            >
+                              {t("servicesPage.learnMore")} <ArrowRight className="h-4 w-4" />
+                            </Link>
+                          </div>
+                          <span className="sr-only">{translatedFeatures.join(", ")}</span>
+                        </CardContent>
+                      </Card>
+                    </TiltCard>
                   ))}
                 </div>
               </div>

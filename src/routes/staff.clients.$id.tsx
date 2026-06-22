@@ -128,7 +128,6 @@ function Page() {
   }, [id]);
 
   const saveEdit = async () => {
-    console.log("saveEdit called", edit);
     const { data, error } = await supabase
       .from("users")
       .update({
@@ -140,7 +139,6 @@ function Page() {
       })
       .eq("id", client!.id)
       .select();
-    console.log("update result — error:", error, "rows updated:", data);
     if (error) {
       toast.error(error.message);
     } else if (!data || data.length === 0) {

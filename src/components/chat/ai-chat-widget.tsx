@@ -1,15 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight, Sparkles, X, Send, Minimize2, Maximize2 } from "lucide-react";
+import { ArrowRight, Sparkles, X, Send, Minimize2, Maximize2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { usePortal } from "@/lib/portal-context";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { useShouldShowChatWidget } from "@/lib/hooks/useShouldShowChatWidget";
 
+type MessageError = "network" | "rate_limit" | "generic" | null;
+
 interface Message {
   role: "user" | "assistant";
   content: string;
+  error?: MessageError;
+  retryOf?: string;
 }
 
 interface SystemPromptConfig {
@@ -180,6 +183,7 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
       // Keep last 10 messages for context (including the new user message)
       const conversationHistory = messages
         .concat([newUserMessage])
+        .filter((msg) => !msg.error)
         .slice(-10)
         .map((msg) => ({
           role: msg.role,
@@ -203,8 +207,13 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
         }),
       });
 
+      if (response.status === 429) {
+        throw Object.assign(new Error("rate_limit"), { kind: "rate_limit" as const });
+      }
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        throw Object.assign(new Error(`API error: ${response.status}`), {
+          kind: "generic" as const,
+        });
       }
 
       const data = await response.json();
@@ -216,15 +225,39 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error("Chat error:", error);
-      const errorMessage: Message = {
-        role: "assistant",
-        content:
-          "Sorry, I'm having trouble right now. Please contact us at sanbrothersgroup@gmail.com",
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      const kind = (error as { kind?: string })?.kind;
+      let errorContent: string;
+      let errorType: MessageError;
+      if (kind === "rate_limit") {
+        errorType = "rate_limit";
+        errorContent =
+          "I'm getting a lot of questions right now — please try again in a moment, or contact us directly at sanbrothersgroup@gmail.com.";
+      } else if (error instanceof TypeError) {
+        // fetch network failure
+        errorType = "network";
+        errorContent =
+          "Sorry, I'm having trouble connecting. Please contact us at sanbrothersgroup@gmail.com";
+      } else {
+        errorType = "generic";
+        errorContent =
+          "Sorry, something went wrong. Please contact us at sanbrothersgroup@gmail.com";
+      }
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: errorContent,
+          error: errorType,
+          retryOf: userMessage,
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const startNewConversation = () => {
+    setMessages([{ role: "assistant", content: config.greeting }]);
   };
 
   /**
@@ -288,6 +321,14 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
             </div>
             <div className="flex gap-2">
               <button
+                onClick={startNewConversation}
+                className="rounded-full p-2 hover:bg-primary-foreground/10"
+                aria-label="New conversation"
+                title="New conversation"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </button>
+              <button
                 onClick={() => setIsMinimized(!isMinimized)}
                 className="rounded-full p-2 hover:bg-primary-foreground/10"
                 aria-label={isMinimized ? "Maximize" : "Minimize"}
@@ -299,10 +340,7 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
                 )}
               </button>
               <button
-                onClick={() => {
-                  setIsOpen(false);
-                  setMessages([]);
-                }}
+                onClick={() => setIsOpen(false)}
                 className="rounded-full p-2 hover:bg-primary-foreground/10"
                 aria-label="Close chat"
               >
@@ -316,11 +354,12 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
             <>
               <div className="flex-1 space-y-4 overflow-y-auto p-4">
                 {!apiConfigured && messages.length <= 1 ? (
-                  <div className="rounded-lg border border-consultancy/30 bg-consultancy/10 px-3 py-2 text-xs text-foreground">
-                    ⚠ AI assistant not yet configured.{" "}
+                  <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-foreground">
+                    AI responses coming soon — for urgent matters,{" "}
                     <a className="font-semibold text-primary underline" href="/contact">
-                      Contact us
+                      contact us directly
                     </a>
+                    .
                   </div>
                 ) : null}
                 {messages.map((message, index) => (
@@ -342,7 +381,18 @@ Partner: Best of the Best Company Ltd (Product Shipping, China Sourcing, Scholar
                           : "rounded-tl-sm border border-border bg-card text-foreground shadow-sm"
                       }`}
                     >
-                      <p className="text-sm">{message.content}</p>
+                      <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                      {message.error && message.retryOf && index === messages.length - 1 && (
+                        <button
+                          type="button"
+                          onClick={() => sendMessage(message.retryOf!)}
+                          disabled={isLoading}
+                          className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline disabled:opacity-50"
+                        >
+                          <RotateCcw className="h-3 w-3" />
+                          Try again
+                        </button>
+                      )}
                       <span className="mt-1 hidden text-[9px] opacity-60 group-hover:block">
                         Just now
                       </span>
