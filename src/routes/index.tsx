@@ -186,7 +186,19 @@ function Hero() {
                     Talk to an expert
                   </Link>
                 </Button>
-              </Magnetic>
+             </Magnetic>
+            </div>
+
+            <div className="mt-4 flex justify-center md:justify-start">
+              <a
+                href="https://wa.me/250788687288"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Chat with us on WhatsApp →
+              </a>
             </div>
 
             <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground md:justify-start">

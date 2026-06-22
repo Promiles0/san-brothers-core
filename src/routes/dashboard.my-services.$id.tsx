@@ -15,6 +15,7 @@ import {
   Calendar,
   Hash,
   MessageSquare,
+  MessageCircle,
   ExternalLink,
   User,
   ChevronRight,
@@ -920,6 +921,16 @@ function ServiceDetailPage() {
             )}
           </div>
 
+          {/* WhatsApp quick-contact */}
+          <a
+            href={`https://wa.me/250788687288?text=${encodeURIComponent(`Hi San Brothers, I need help with my case ${sr.id}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg border border-green-500/40 bg-green-500/5 px-4 py-2.5 text-sm font-medium text-green-600 hover:bg-green-500/10 hover:border-green-500/60 transition-colors dark:text-green-400"
+          >
+            <MessageCircle className="h-4 w-4" />
+            Need help? Chat on WhatsApp
+          </a>
 
           {/* Activity timeline */}
           <div className="rounded-xl border border-border bg-card p-6">

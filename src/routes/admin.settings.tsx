@@ -343,6 +343,79 @@ function AdminSettings() {
           </div>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">SMS Notifications</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {(() => {
+            const configured = Boolean(import.meta.env.VITE_AFRICA_TALKING_API_KEY);
+            return (
+              <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-3">
+                <div>
+                  <p className="text-sm font-medium">Africa's Talking integration</p>
+                  <p className="text-xs text-muted-foreground">
+                    Provider for outbound SMS notifications
+                  </p>
+                </div>
+                <span
+                  className={
+                    configured
+                      ? "inline-flex items-center gap-1.5 rounded-full border border-green-500/40 bg-green-500/10 px-2.5 py-1 text-xs font-medium text-green-700 dark:text-green-400"
+                      : "inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-700 dark:text-amber-400"
+                  }
+                >
+                  <span
+                    className={
+                      "h-1.5 w-1.5 rounded-full " +
+                      (configured ? "bg-green-500" : "bg-amber-500")
+                    }
+                  />
+                  {configured ? "Active" : "Not configured"}
+                </span>
+              </div>
+            );
+          })()}
+
+          <div className="rounded-lg border border-border bg-muted/30 p-4">
+            <p className="mb-2 text-sm font-semibold">To activate SMS notifications:</p>
+            <ol className="list-decimal space-y-1 pl-5 text-sm text-muted-foreground">
+              <li>
+                Create an Africa's Talking account at{" "}
+                <a
+                  href="https://africastalking.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  africastalking.com
+                </a>
+              </li>
+              <li>
+                Add <code className="rounded bg-muted px-1 py-0.5 text-xs">VITE_AFRICA_TALKING_API_KEY</code>{" "}
+                to Cloudflare secrets
+              </li>
+              <li>
+                Add{" "}
+                <code className="rounded bg-muted px-1 py-0.5 text-xs">VITE_AFRICA_TALKING_USERNAME</code>{" "}
+                to Cloudflare secrets
+              </li>
+              <li>Redeploy — SMS will activate automatically</li>
+            </ol>
+          </div>
+
+          <div>
+            <p className="mb-2 text-sm font-semibold">Message templates</p>
+            <ul className="space-y-1.5 text-xs text-muted-foreground">
+              <li><span className="font-medium text-foreground">Case status update</span> — sent when a case status changes</li>
+              <li><span className="font-medium text-foreground">Payment received</span> — sent on successful payment</li>
+              <li><span className="font-medium text-foreground">Case completed</span> — sent when a case is marked complete</li>
+              <li><span className="font-medium text-foreground">New message from staff</span> — sent on inbound staff message</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

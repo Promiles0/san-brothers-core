@@ -351,9 +351,13 @@ function SettingsPage() {
           </Button>
 
           <div className="rounded-lg bg-yellow-500/10 p-3 text-sm text-yellow-700 dark:text-yellow-400">
-            <p className="font-medium">SMS notifications coming soon!</p>
+            <p className="font-medium">
+              {smsNotificationsEnabled
+                ? "You'll receive SMS updates on case status changes, payments, and messages."
+                : "SMS notifications are currently disabled."}
+            </p>
             <p className="mt-1 text-xs">
-              We're working on integrating SMS delivery. Your preferences are saved.
+              Standard message rates may apply. Powered by Africa's Talking (coming soon).
             </p>
           </div>
         </CardContent>
