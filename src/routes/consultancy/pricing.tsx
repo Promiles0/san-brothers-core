@@ -85,6 +85,31 @@ async function apply(slug: string, navigate: ReturnType<typeof useNavigate>) {
 
 function Pricing() {
   const navigate = useNavigate();
+  const [livePrices, setLivePrices] = useState<Record<string, { price: number; unit: UnitKey }>>(
+    {},
+  );
+
+  useEffect(() => {
+    void (async () => {
+      const { data } = await supabase
+        .from("service_prices")
+        .select("price_usd, unit, services!inner(slug, category)")
+        .eq("services.category", "consultancy");
+      if (!data) return;
+      const map: Record<string, { price: number; unit: UnitKey }> = {};
+      for (const row of data as Array<{
+        price_usd: number;
+        unit: UnitKey;
+        services: { slug: string } | { slug: string }[];
+      }>) {
+        const svc = Array.isArray(row.services) ? row.services[0] : row.services;
+        if (!svc?.slug) continue;
+        map[svc.slug] = { price: Number(row.price_usd), unit: row.unit };
+      }
+      setLivePrices(map);
+    })();
+  }, []);
+
   return (
     <ConsultancyLayout>
       <section className="border-b border-border bg-linear-to-b from-primary/5 to-background">
@@ -114,7 +139,11 @@ function Pricing() {
                 {ROWS.map((r) => (
                   <tr key={r.slug} className="border-b border-border last:border-0">
                     <td className="px-5 py-4 font-medium">{r.name}</td>
-                    <td className="px-5 py-4 text-muted-foreground">{r.range}</td>
+                    <td className="px-5 py-4 text-muted-foreground">
+                      {livePrices[r.slug]
+                        ? formatPrice(livePrices[r.slug].price, livePrices[r.slug].unit)
+                        : r.fallback}
+                    </td>
                     <td className="px-5 py-4 text-right">
                       <Button
                         size="sm"
