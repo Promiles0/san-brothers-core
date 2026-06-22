@@ -134,13 +134,14 @@ function Pricing() {
         if (error) throw error;
         if (cancelled) return;
         const map: Record<string, LivePrice> = {};
-        for (const row of (data ?? []) as Array<{
+        for (const row of (data ?? []) as unknown as Array<{
           price_usd: number;
           unit: PriceUnit;
           display_note: string | null;
-          services: { slug: string; is_active: boolean } | null;
+          services: { slug: string; is_active: boolean } | { slug: string; is_active: boolean }[] | null;
         }>) {
-          const slug = row.services?.slug;
+          const svc = Array.isArray(row.services) ? row.services[0] : row.services;
+          const slug = svc?.slug;
           if (!slug) continue;
           map[slug] = {
             price_usd: Number(row.price_usd),
