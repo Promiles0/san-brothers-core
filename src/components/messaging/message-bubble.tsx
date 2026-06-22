@@ -192,6 +192,35 @@ export function MessageBubble({
               <p className="whitespace-pre-wrap wrap-break-word">{m.content}</p>
             )}
 
+            {!mine && !m.is_internal && m.content && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => void handleTranslate()}
+                  disabled={translating}
+                  className="mt-1 flex items-center gap-1 text-xs text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100 disabled:opacity-60"
+                >
+                  {translating ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Languages className="h-3 w-3" />
+                  )}
+                  <span>{translation !== null ? "Hide translation" : "Translate"}</span>
+                </button>
+                {translation !== null && (
+                  <div className="mt-1 border-l-2 border-muted pl-2">
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground/60">
+                      Translated
+                    </p>
+                    <p className="text-sm italic whitespace-pre-wrap wrap-break-word text-muted-foreground">
+                      {translation}
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+
+
             <div
               className={cn(
                 "mt-1 flex items-center justify-end gap-1 text-[10px]",
