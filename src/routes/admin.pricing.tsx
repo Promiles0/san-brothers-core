@@ -490,92 +490,106 @@ function AdminPricing() {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* Service Pricing — moved visually to the top via flex order */}
+      <Card className="order-first">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Edit3 className="h-4 w-4 text-primary" />
-            Service Pricing Reference
+            Service Pricing
           </CardTitle>
           <CardDescription>
-            These prices appear on the public /pricing page. To update, edit src/messages/en.json
-            {" -> "}pricing.plans.
+            Live USD prices for all services. Edits sync to the public /pricing page automatically.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-300">
-            To change public prices: update the price field in src/messages/en.json under
-            pricing.plans.[category][n].price and redeploy.
-          </div>
-          <Tabs defaultValue="visa">
-            <TabsList className="flex h-auto flex-wrap justify-start gap-2 bg-transparent p-0">
-              {(Object.keys(SERVICE_PRICES) as ServiceCategory[]).map((category) => (
-                <TabsTrigger
-                  key={category}
-                  value={category}
-                  className="rounded-full border border-border bg-card px-4 py-2 capitalize data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
-                  {category}
-                </TabsTrigger>
+        <CardContent>
+          {loadingServicePrices ? (
+            <div className="space-y-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
               ))}
-            </TabsList>
-            {(Object.keys(SERVICE_PRICES) as ServiceCategory[]).map((category) => (
-              <TabsContent key={category} value={category}>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Service Name</TableHead>
-                      <TableHead>Current Price Display</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Link to Apply</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {SERVICE_PRICES[category].map((service, index) => (
-                      <TableRow key={service.key}>
-                        <TableCell className="font-medium">{service.name}</TableCell>
-                        <TableCell>
-                          {editingService?.key === service.key &&
-                          draftServicePrice !== service.price ? (
-                            <span className="inline-flex items-center gap-2">
-                              {draftServicePrice}
-                              <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300">
-                                unsaved
+            </div>
+          ) : servicePrices.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No service prices found.
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Service Name</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Unit</TableHead>
+                  <TableHead>Current Price (USD)</TableHead>
+                  <TableHead>Display Note</TableHead>
+                  <TableHead>Active?</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {CATEGORY_ORDER.flatMap((cat) => {
+                  const rows = servicePrices
+                    .filter((r) => r.services?.category === cat)
+                    .sort(
+                      (a, b) => (a.services?.sort_order ?? 0) - (b.services?.sort_order ?? 0),
+                    );
+                  if (rows.length === 0) return [];
+                  return [
+                    <TableRow key={`hdr-${cat}`} className="hover:bg-transparent">
+                      <TableCell colSpan={7} className="py-2">
+                        <Badge className={`capitalize ${CATEGORY_BADGES[cat]}`}>{cat}</Badge>
+                      </TableCell>
+                    </TableRow>,
+                    ...rows.map((row) => {
+                      const isCustomQuote =
+                        row.display_note === "Custom quote" && row.price_usd === 0;
+                      return (
+                        <TableRow key={row.id}>
+                          <TableCell className="font-bold">
+                            {row.services?.name_en ?? "—"}
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={`capitalize ${CATEGORY_BADGES[cat]}`}>{cat}</Badge>
+                          </TableCell>
+                          <TableCell className="text-sm">{UNIT_LABEL[row.unit]}</TableCell>
+                          <TableCell className="tabular-nums">
+                            {isCustomQuote ? (
+                              <span className="text-muted-foreground">Custom quote</span>
+                            ) : (
+                              `$${row.price_usd.toFixed(2)}`
+                            )}
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {row.display_note ?? "—"}
+                          </TableCell>
+                          <TableCell>
+                            {row.services?.is_active ? (
+                              <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-300">
+                                Active
                               </Badge>
-                            </span>
-                          ) : (
-                            service.price
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={`capitalize ${CATEGORY_BADGES[category]}`}>
-                            {category}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-mono text-xs text-muted-foreground">
-                          pricing.plans.{category}.{index}.price
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setEditingService({ ...service, category, index });
-                              setDraftServicePrice(service.price);
-                            }}
-                          >
-                            Edit
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TabsContent>
-            ))}
-          </Tabs>
+                            ) : (
+                              <Badge variant="secondary">Inactive</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openEditServicePrice(row)}
+                            >
+                              Edit
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    }),
+                  ];
+                })}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
+
 
       {/* Minute Packages */}
       <Card>
