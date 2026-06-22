@@ -173,8 +173,78 @@ function AdminPricing() {
       setRateUpdatedAt(
         (latestRateAudit?.[0] as { created_at: string } | undefined)?.created_at ?? null,
       );
+      try {
+        const { data, error } = await supabase
+          .from("service_prices")
+          .select(
+            "id, price_usd, unit, display_note, services(id, slug, name_en, category, sort_order, is_active)",
+          )
+          .order("sort_order", { foreignTable: "services", ascending: true });
+        if (error) throw error;
+        setServicePrices((data ?? []) as unknown as ServicePriceRow[]);
+      } catch {
+        toast.error("Failed to load service prices");
+      } finally {
+        setLoadingServicePrices(false);
+      }
     })();
   }, []);
+
+  const openEditServicePrice = (row: ServicePriceRow) => {
+    setEditingServicePrice(row);
+    setSpDraftPrice(String(row.price_usd));
+    setSpDraftUnit(row.unit);
+    setSpDraftNote(row.display_note ?? "");
+  };
+
+  const handleSaveServicePrice = async () => {
+    if (!editingServicePrice) return;
+    setSavingServicePrice(true);
+    try {
+      const newPrice = parseFloat(spDraftPrice);
+      if (isNaN(newPrice) || newPrice < 0) {
+        toast.error("Price must be a positive number");
+        return;
+      }
+      const noteTrim = spDraftNote.trim();
+      const { error } = await supabase
+        .from("service_prices")
+        .update({
+          price_usd: newPrice,
+          unit: spDraftUnit,
+          display_note: noteTrim || null,
+          updated_by: profile?.id ?? null,
+        })
+        .eq("id", editingServicePrice.id);
+      if (error) throw error;
+      const oldPrice = editingServicePrice.price_usd;
+      const serviceName = editingServicePrice.services?.name_en ?? "Unknown";
+      setServicePrices((prev) =>
+        prev.map((p) =>
+          p.id === editingServicePrice.id
+            ? { ...p, price_usd: newPrice, unit: spDraftUnit, display_note: noteTrim || null }
+            : p,
+        ),
+      );
+      toast.success("Price updated");
+      void logAudit({
+        action: "service_price_updated",
+        target_type: "service_price",
+        target_id: editingServicePrice.id,
+        metadata: {
+          service_name: serviceName,
+          old_price: oldPrice,
+          new_price: newPrice,
+          unit: spDraftUnit,
+        },
+      });
+      setEditingServicePrice(null);
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSavingServicePrice(false);
+    }
+  };
 
   const handleSaveRates = async () => {
     setSavingRates(true);
