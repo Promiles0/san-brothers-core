@@ -799,51 +799,72 @@ function AdminPricing() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!editingService} onOpenChange={(open) => !open && setEditingService(null)}>
+      <Dialog
+        open={!!editingServicePrice}
+        onOpenChange={(open) => !open && setEditingServicePrice(null)}
+      >
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Edit service price text</DialogTitle>
+            <DialogTitle>Edit Service Price</DialogTitle>
             <DialogDescription>
-              This is local guidance only. Copy the JSON path and snippet into src/messages/en.json.
+              Update the USD price, unit, and display note. Changes appear on the public /pricing
+              page immediately.
             </DialogDescription>
           </DialogHeader>
-          {editingService && (
+          {editingServicePrice && (
             <div className="space-y-4">
               <div>
                 <Label>Service</Label>
-                <Input value={editingService.name} readOnly />
+                <Input value={editingServicePrice.services?.name_en ?? ""} readOnly />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Price (USD)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={spDraftPrice}
+                    onChange={(e) => setSpDraftPrice(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label>Unit</Label>
+                  <Select
+                    value={spDraftUnit}
+                    onValueChange={(v) => setSpDraftUnit(v as PriceUnit)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {UNIT_OPTIONS.map((u) => (
+                        <SelectItem key={u} value={u}>
+                          {UNIT_LABEL[u]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div>
-                <Label>Price text</Label>
+                <Label>Display Note</Label>
                 <Input
-                  value={draftServicePrice}
-                  onChange={(e) => setDraftServicePrice(e.target.value)}
+                  value={spDraftNote}
+                  onChange={(e) => setSpDraftNote(e.target.value)}
+                  placeholder="e.g. Starting from, Custom quote"
                 />
-              </div>
-              <div className="rounded-lg border bg-muted/30 p-3">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground">JSON path</p>
-                <code className="mt-1 block text-xs">
-                  pricing.plans.{editingService.category}.{editingService.index}.price
-                </code>
-                <pre className="mt-3 overflow-auto rounded bg-background p-3 text-xs">{`"price": "${draftServicePrice}"`}</pre>
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (!editingService) return;
-                void navigator.clipboard.writeText(
-                  `pricing.plans.${editingService.category}.${editingService.index}.price`,
-                );
-                toast.success("JSON path copied");
-              }}
-            >
-              <Copy className="mr-2 h-4 w-4" />
-              Copy JSON path
+            <Button variant="outline" onClick={() => setEditingServicePrice(null)}>
+              Cancel
             </Button>
-            <Button onClick={() => setEditingService(null)}>Done</Button>
+            <Button onClick={handleSaveServicePrice} disabled={savingServicePrice}>
+              {savingServicePrice && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
