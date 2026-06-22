@@ -17,7 +17,7 @@ import { I18nProvider } from "@/lib/providers/i18n-provider";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import { AIChatWidget } from "@/components/chat/ai-chat-widget";
-import { CustomCursor } from "@/components/fx/custom-cursor";
+
 import { ScrollProgress } from "@/components/fx/scroll-progress";
 import { PageTransition } from "@/components/fx/page-transition";
 import { AutoReveal } from "@/components/fx/auto-reveal";
@@ -135,7 +135,6 @@ function RootComponent() {
         <I18nProvider>
           <AuthProvider>
             <ScrollProgress />
-            <CustomCursor />
             <AutoReveal />
             <PageTransition>
               <Outlet />
