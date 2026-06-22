@@ -61,18 +61,6 @@ function formatLivePrice(p: LivePrice): string {
   return base;
 }
 
-export const Route = createFileRoute("/pricing")({
-  head: () => ({
-    meta: [
-      { title: "Pricing - San Brothers" },
-      {
-        name: "description",
-        content: "Transparent pricing for visa, accounting, consultancy, and translation services.",
-      },
-    ],
-  }),
-  component: Pricing,
-});
 
 interface Plan {
   name: string;
