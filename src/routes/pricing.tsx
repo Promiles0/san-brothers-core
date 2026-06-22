@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Briefcase,
@@ -14,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { CtaBanner, PageHero } from "@/components/marketing/page-sections";
@@ -21,6 +23,43 @@ import { useI18n } from "@/lib/providers/i18n-provider";
 import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
 import { Magnetic } from "@/components/fx/magnetic";
 import { TiltCard } from "@/components/fx/tilt-card";
+import { supabase } from "@/lib/supabase";
+
+export const Route = createFileRoute("/pricing")({
+  head: () => ({
+    meta: [
+      { title: "Pricing - San Brothers" },
+      {
+        name: "description",
+        content: "Transparent pricing for visa, accounting, consultancy, and translation services.",
+      },
+    ],
+  }),
+  component: Pricing,
+});
+
+type PriceUnit = "flat" | "per_page" | "per_minute" | "per_month";
+
+interface LivePrice {
+  price_usd: number;
+  unit: PriceUnit;
+  display_note: string | null;
+}
+
+function formatLivePrice(p: LivePrice): string {
+  if (p.display_note === "Custom quote" && p.price_usd === 0) return "Custom quote";
+  const suffix =
+    p.unit === "per_page"
+      ? " / page"
+      : p.unit === "per_minute"
+        ? " / min"
+        : p.unit === "per_month"
+          ? " / mo"
+          : "";
+  const base = `$${p.price_usd.toFixed(2)}${suffix}`;
+  if (p.display_note && p.display_note !== "Custom quote") return `${p.display_note} ${base}`;
+  return base;
+}
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
