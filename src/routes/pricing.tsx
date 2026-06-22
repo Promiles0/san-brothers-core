@@ -243,10 +243,13 @@ function Pricing() {
                           </div>
                           <div>
                             <div className="text-4xl font-black tracking-tight text-foreground">
-                              {p.price}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {t("pricing.contactQuote")}
+                              {pricesLoading && !livePrices ? (
+                                <Skeleton className="h-9 w-32" />
+                              ) : livePrices?.[p.intent] ? (
+                                formatLivePrice(livePrices[p.intent])
+                              ) : (
+                                p.price
+                              )}
                             </div>
                           </div>
                           <p className="text-sm font-semibold italic text-muted-foreground">
