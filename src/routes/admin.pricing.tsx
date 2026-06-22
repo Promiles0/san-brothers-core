@@ -137,10 +137,13 @@ function AdminPricing() {
   const [packageForm, setPackageForm] = useState<PackageForm>(emptyForm);
   const [savingPackage, setSavingPackage] = useState(false);
   const [rateUpdatedAt, setRateUpdatedAt] = useState<string | null>(null);
-  const [editingService, setEditingService] = useState<
-    (ServicePrice & { category: ServiceCategory; index: number }) | null
-  >(null);
-  const [draftServicePrice, setDraftServicePrice] = useState("");
+  const [servicePrices, setServicePrices] = useState<ServicePriceRow[]>([]);
+  const [loadingServicePrices, setLoadingServicePrices] = useState(true);
+  const [editingServicePrice, setEditingServicePrice] = useState<ServicePriceRow | null>(null);
+  const [spDraftPrice, setSpDraftPrice] = useState("");
+  const [spDraftUnit, setSpDraftUnit] = useState<PriceUnit>("flat");
+  const [spDraftNote, setSpDraftNote] = useState("");
+  const [savingServicePrice, setSavingServicePrice] = useState(false);
 
   useEffect(() => {
     (async () => {
