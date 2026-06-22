@@ -120,6 +120,45 @@ const VALUE_LINES = ["Best for individuals", "Most popular for SMEs", "For growi
 function Pricing() {
   const { t, tRaw } = useI18n();
   const navigate = useNavigate();
+  const [livePrices, setLivePrices] = useState<Record<string, LivePrice> | null>(null);
+  const [pricesLoading, setPricesLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("service_prices")
+          .select("price_usd, unit, display_note, services!inner(slug, is_active)")
+          .eq("services.is_active", true);
+        if (error) throw error;
+        if (cancelled) return;
+        const map: Record<string, LivePrice> = {};
+        for (const row of (data ?? []) as Array<{
+          price_usd: number;
+          unit: PriceUnit;
+          display_note: string | null;
+          services: { slug: string; is_active: boolean } | null;
+        }>) {
+          const slug = row.services?.slug;
+          if (!slug) continue;
+          map[slug] = {
+            price_usd: Number(row.price_usd),
+            unit: row.unit,
+            display_note: row.display_note,
+          };
+        }
+        if (Object.keys(map).length > 0) setLivePrices(map);
+      } catch {
+        // graceful fallback to tRaw() data
+      } finally {
+        if (!cancelled) setPricesLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleGetStarted = async (intent: string) => {
     const destination = await resolveServiceIntentDestination(intent);
