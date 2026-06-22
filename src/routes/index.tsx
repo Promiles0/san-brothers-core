@@ -144,16 +144,26 @@ function Hero() {
     }
   })();
   return (
-    <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-secondary/40 via-background to-background" data-fx-skip>
+    <section
+      className="relative overflow-hidden border-b border-border bg-gradient-to-b from-secondary/40 via-background to-background"
+      data-fx-skip
+    >
       {/* Ambient mesh gradient — adapts to theme via tokens */}
       <div aria-hidden className="home-mesh opacity-60 dark:opacity-50" />
-      <ParallaxLayer speed={-0.25} aria-hidden className="pointer-events-none absolute -top-32 right-1/2 h-[28rem] w-[28rem] translate-x-1/2">
+      <ParallaxLayer
+        speed={-0.25}
+        aria-hidden
+        className="pointer-events-none absolute -top-32 right-1/2 h-[28rem] w-[28rem] translate-x-1/2"
+      >
         <div className="h-full w-full rounded-full bg-primary/10 blur-3xl" />
       </ParallaxLayer>
-      <ParallaxLayer speed={0.15} aria-hidden className="pointer-events-none absolute bottom-0 left-0 h-[20rem] w-[20rem]">
+      <ParallaxLayer
+        speed={0.15}
+        aria-hidden
+        className="pointer-events-none absolute bottom-0 left-0 h-[20rem] w-[20rem]"
+      >
         <div className="h-full w-full rounded-full bg-accent/10 blur-3xl" />
       </ParallaxLayer>
-
 
       <div className="relative mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
         <div className="grid items-center gap-12 md:grid-cols-2" data-fx-skip>
@@ -172,7 +182,11 @@ function Hero() {
 
             <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row md:justify-start">
               <Magnetic strength={18}>
-                <Button asChild size="lg" className="h-12 gap-2 px-7 text-base shadow-lg shadow-primary/30 transition-shadow hover:shadow-primary/50">
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-12 gap-2 px-7 text-base shadow-lg shadow-primary/30 transition-shadow hover:shadow-primary/50"
+                >
                   <Link to="/signup" search={undefined}>
                     Get started free
                     <ArrowRight className="h-4 w-4" />
@@ -186,7 +200,7 @@ function Hero() {
                     Talk to an expert
                   </Link>
                 </Button>
-             </Magnetic>
+              </Magnetic>
             </div>
 
             <div className="mt-4 flex justify-center md:justify-start">
@@ -218,7 +232,11 @@ function Hero() {
           </div>
 
           {/* Visual: original brand mark rendered as a transparent 3D texture */}
-          <div data-fx="zoom" data-fx-once="true" className="relative mx-auto h-[260px] w-full max-w-sm sm:h-[320px] md:h-[430px] md:max-w-md">
+          <div
+            data-fx="zoom"
+            data-fx-once="true"
+            className="relative mx-auto h-[260px] w-full max-w-sm sm:h-[320px] md:h-[430px] md:max-w-md"
+          >
             <Logo3DScene />
           </div>
         </div>
@@ -409,11 +427,7 @@ function ServicesGrid() {
 
         <div className="mt-12 grid gap-5 sm:grid-cols-2">
           {services.map((s, i) => (
-            <TiltCard
-              key={s.title}
-              max={6}
-              className={`home-fade-up home-delay-${i + 1}`}
-            >
+            <TiltCard key={s.title} max={6} className={`home-fade-up home-delay-${i + 1}`}>
               <Link
                 to={s.href}
                 className="service-card group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-6"
@@ -428,8 +442,12 @@ function ServicesGrid() {
                   </div>
                   <ArrowRight className="h-5 w-5 text-muted-foreground transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-primary" />
                 </div>
-                <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">{s.title}</h3>
-                <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+                <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">
+                  {s.title}
+                </h3>
+                <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">
+                  {s.desc}
+                </p>
                 <div className="relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-accent/20 transition-all group-hover:ring-accent/50 group-hover:shadow-[0_0_12px_color-mix(in_oklab,var(--accent)_30%,transparent)]">
                   <Sparkles className="h-3 w-3 text-accent" />
                   {s.outcome}
@@ -770,9 +788,7 @@ function SocialProof() {
                     <Star
                       key={n}
                       className={`h-4 w-4 ${
-                        n <= r.rating
-                          ? "fill-amber-400 text-amber-400"
-                          : "text-muted-foreground/30"
+                        n <= r.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"
                       }`}
                     />
                   ))}
@@ -793,9 +809,7 @@ function SocialProof() {
                     <div className="font-semibold text-card-foreground">
                       {r.client_display_name}
                     </div>
-                    <div className="text-muted-foreground">
-                      {relativeTime(r.created_at)}
-                    </div>
+                    <div className="text-muted-foreground">{relativeTime(r.created_at)}</div>
                   </div>
                 </figcaption>
               </figure>
@@ -806,9 +820,7 @@ function SocialProof() {
             <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10">
               <Star className="h-5 w-5 text-primary" />
             </div>
-            <p className="max-w-md text-sm text-muted-foreground">
-              {t("reviews.home.empty")}
-            </p>
+            <p className="max-w-md text-sm text-muted-foreground">{t("reviews.home.empty")}</p>
           </div>
         )}
       </div>
