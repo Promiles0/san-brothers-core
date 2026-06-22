@@ -1,14 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import {
-  Headphones,
-  Phone,
-  DollarSign,
-  Clock,
-  PhoneCall,
-  Star,
-  ArrowRight,
-} from "lucide-react";
+import { Headphones, Phone, DollarSign, Clock, PhoneCall, Star, ArrowRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
@@ -164,15 +156,18 @@ function LiveCallsPage() {
           ) : earnings ? (
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2 text-sm">
-                <Row label="Rate per minute (set by admin)" value={`$${earnings.ratePerMinute.toFixed(2)}`} />
+                <Row
+                  label="Rate per minute (set by admin)"
+                  value={`$${earnings.ratePerMinute.toFixed(2)}`}
+                />
                 <Row label="Calls handled" value={String(earnings.callCount)} />
                 <Row label="Minutes" value={`${earnings.totalMinutes} min`} />
                 <Row label="Total earned" value={`$${earnings.totalEarned.toFixed(2)}`} bold />
               </div>
               <div className="flex flex-col justify-between gap-3 rounded-lg border bg-muted/30 p-4">
                 <p className="text-xs text-muted-foreground">
-                  Earnings update automatically after each completed call. Rate is set by the
-                  admin and applies to all interpreters.
+                  Earnings update automatically after each completed call. Rate is set by the admin
+                  and applies to all interpreters.
                 </p>
                 <Button variant="outline" size="sm" className="w-fit" asChild>
                   <Link to="/staff/interpreter">
@@ -218,10 +213,7 @@ function LiveCallsPage() {
                 const clientObj = Array.isArray(call.client) ? call.client[0] : call.client;
                 const clientName = clientObj?.full_name ?? "Client";
                 return (
-                  <div
-                    key={call.id}
-                    className="flex flex-col gap-3 rounded-xl border bg-card p-4"
-                  >
+                  <div key={call.id} className="flex flex-col gap-3 rounded-xl border bg-card p-4">
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-semibold">{clientName}</p>
                       <Badge className={meta.className}>{meta.label}</Badge>

@@ -59,11 +59,7 @@ function StarRow({ value, size = 14 }: { value: number; size?: number }) {
         <Star
           key={n}
           style={{ width: size, height: size }}
-          className={cn(
-            n <= value
-              ? "fill-amber-400 text-amber-400"
-              : "text-muted-foreground/40",
-          )}
+          className={cn(n <= value ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40")}
         />
       ))}
     </div>
@@ -120,9 +116,7 @@ function AdminReviews() {
     const approved = reviews.filter((r) => r.status === "approved");
     const featured = approved.filter((r) => r.is_featured).length;
     const avg =
-      approved.length > 0
-        ? approved.reduce((s, r) => s + r.rating, 0) / approved.length
-        : 0;
+      approved.length > 0 ? approved.reduce((s, r) => s + r.rating, 0) / approved.length : 0;
     return { total, pending, featured, avg };
   }, [reviews]);
 
@@ -163,9 +157,7 @@ function AdminReviews() {
   const toggleFeatured = async (review: ReviewRow, next: boolean) => {
     setSavingId(review.id);
     // Optimistic update so the switch reflects instantly while disabled
-    setReviews((prev) =>
-      prev.map((r) => (r.id === review.id ? { ...r, is_featured: next } : r)),
-    );
+    setReviews((prev) => prev.map((r) => (r.id === review.id ? { ...r, is_featured: next } : r)));
     const { error } = await supabase
       .from("reviews")
       .update({ is_featured: next })
@@ -179,9 +171,7 @@ function AdminReviews() {
       toast.error(error.message);
       return;
     }
-    toast.success(
-      t(next ? "reviews.admin.featuredOnToast" : "reviews.admin.featuredOffToast"),
-    );
+    toast.success(t(next ? "reviews.admin.featuredOnToast" : "reviews.admin.featuredOffToast"));
   };
 
   const emptyCopy = (f: FilterTab) =>
@@ -282,8 +272,7 @@ function AdminReviews() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2">
         {FILTERS.map((f) => {
-          const count =
-            f === "all" ? reviews.length : reviews.filter((r) => r.status === f).length;
+          const count = f === "all" ? reviews.length : reviews.filter((r) => r.status === f).length;
           const isActive = filter === f;
           return (
             <button
@@ -342,23 +331,17 @@ function AdminReviews() {
                   <TableRow>
                     <TableHead>{t("reviews.admin.th.client")}</TableHead>
                     <TableHead>{t("reviews.admin.th.rating")}</TableHead>
-                    <TableHead className="min-w-[280px]">
-                      {t("reviews.admin.th.review")}
-                    </TableHead>
+                    <TableHead className="min-w-[280px]">{t("reviews.admin.th.review")}</TableHead>
                     <TableHead>{t("reviews.admin.th.service")}</TableHead>
                     <TableHead>{t("reviews.admin.th.status")}</TableHead>
                     <TableHead>{t("reviews.admin.th.submitted")}</TableHead>
-                    <TableHead className="text-right">
-                      {t("reviews.admin.th.actions")}
-                    </TableHead>
+                    <TableHead className="text-right">{t("reviews.admin.th.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.map((r) => (
                     <TableRow key={r.id}>
-                      <TableCell className="font-medium">
-                        {r.client_display_name}
-                      </TableCell>
+                      <TableCell className="font-medium">{r.client_display_name}</TableCell>
                       <TableCell>
                         <StarRow value={r.rating} />
                       </TableCell>
@@ -456,9 +439,7 @@ function AdminReviews() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold">{active.client_display_name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {fmt(active.created_at)}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{fmt(active.created_at)}</p>
                 </div>
                 <StarRow value={active.rating} size={16} />
               </div>

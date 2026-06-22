@@ -1,14 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import {
-  MessageCircle,
-  Search,
-  RefreshCw,
-  Inbox,
-  Users,
-  MessageSquare,
-  Clock,
-} from "lucide-react";
+import { MessageCircle, Search, RefreshCw, Inbox, Users, MessageSquare, Clock } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -41,12 +33,14 @@ const AVATAR_COLORS = [
 
 function initials(name?: string | null, fallback?: string) {
   const src = name?.trim() || fallback || "?";
-  return src
-    .split(/[\s@.]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? "")
-    .join("") || "?";
+  return (
+    src
+      .split(/[\s@.]+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase() ?? "")
+      .join("") || "?"
+  );
 }
 
 function avatarColor(seed: string) {
@@ -141,19 +135,19 @@ function AdminMessages() {
             Monitor all client conversations — read-only oversight.
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => void load(true)}
-          disabled={refreshing}
-        >
+        <Button variant="outline" size="sm" onClick={() => void load(true)} disabled={refreshing}>
           <RefreshCw className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")} />
           Refresh
         </Button>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <MiniStat icon={Users} label="Conversations" value={loading ? null : stats.conversations} tone="primary" />
+        <MiniStat
+          icon={Users}
+          label="Conversations"
+          value={loading ? null : stats.conversations}
+          tone="primary"
+        />
         <MiniStat
           icon={MessageSquare}
           label="Total messages"
@@ -244,7 +238,10 @@ function AdminMessages() {
                                 {c.last_message || "No messages yet"}
                               </p>
                               {c.total ? (
-                                <Badge variant="secondary" className="h-5 min-w-5 px-1.5 text-[10px]">
+                                <Badge
+                                  variant="secondary"
+                                  className="h-5 min-w-5 px-1.5 text-[10px]"
+                                >
                                   {c.total}
                                 </Badge>
                               ) : null}

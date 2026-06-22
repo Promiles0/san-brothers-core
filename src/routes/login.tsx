@@ -10,7 +10,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthLayoutEnhanced } from "@/components/auth/auth-layout-enhanced";
 import { EnhancedInput } from "@/components/auth/enhanced-input";
 import { ToggleSwitch } from "@/components/auth/toggle-switch";
-import { GoogleSignInButton, WeChatSignInButton, OrDivider } from "@/components/auth/google-signin-button";
+import {
+  GoogleSignInButton,
+  WeChatSignInButton,
+  OrDivider,
+} from "@/components/auth/google-signin-button";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase } from "@/lib/supabase";
 import { usePortal } from "@/lib/portal-context";

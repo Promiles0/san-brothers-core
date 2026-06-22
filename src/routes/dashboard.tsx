@@ -5,7 +5,6 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 
-
 export const Route = createFileRoute("/dashboard")({
   component: DashboardLayoutRoute,
 });

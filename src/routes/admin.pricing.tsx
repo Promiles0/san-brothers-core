@@ -1,14 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import {
-  Edit3,
-  GripVertical,
-  Loader2,
-  Plus,
-  Trash2,
-  DollarSign,
-  Package,
-} from "lucide-react";
+import { Edit3, GripVertical, Loader2, Plus, Trash2, DollarSign, Package } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -441,9 +433,7 @@ function AdminPricing() {
                 {CATEGORY_ORDER.flatMap((cat) => {
                   const rows = servicePrices
                     .filter((r) => r.services?.category === cat)
-                    .sort(
-                      (a, b) => (a.services?.sort_order ?? 0) - (b.services?.sort_order ?? 0),
-                    );
+                    .sort((a, b) => (a.services?.sort_order ?? 0) - (b.services?.sort_order ?? 0));
                   if (rows.length === 0) return [];
                   return [
                     <TableRow key={`hdr-${cat}`} className="hover:bg-transparent">
@@ -588,7 +578,6 @@ function AdminPricing() {
           )}
         </CardContent>
       </Card>
-
 
       {/* Minute Packages */}
       <Card>
@@ -829,10 +818,7 @@ function AdminPricing() {
                 </div>
                 <div>
                   <Label>Unit</Label>
-                  <Select
-                    value={spDraftUnit}
-                    onValueChange={(v) => setSpDraftUnit(v as PriceUnit)}
-                  >
+                  <Select value={spDraftUnit} onValueChange={(v) => setSpDraftUnit(v as PriceUnit)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>

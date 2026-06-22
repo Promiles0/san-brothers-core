@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+﻿import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
@@ -60,7 +60,6 @@ function formatLivePrice(p: LivePrice): string {
   if (p.display_note && p.display_note !== "Custom quote") return `${p.display_note} ${base}`;
   return base;
 }
-
 
 interface Plan {
   name: string;
@@ -138,7 +137,10 @@ function Pricing() {
           price_usd: number;
           unit: PriceUnit;
           display_note: string | null;
-          services: { slug: string; is_active: boolean } | { slug: string; is_active: boolean }[] | null;
+          services:
+            | { slug: string; is_active: boolean }
+            | { slug: string; is_active: boolean }[]
+            | null;
         }>) {
           const svc = Array.isArray(row.services) ? row.services[0] : row.services;
           const slug = svc?.slug;
@@ -239,7 +241,9 @@ function Pricing() {
                         ) : null}
                         <CardContent className="flex h-full flex-col gap-5 p-6 pt-7">
                           <div className="flex items-center justify-between">
-                            <h3 className="pr-24 text-lg font-semibold text-foreground">{p.name}</h3>
+                            <h3 className="pr-24 text-lg font-semibold text-foreground">
+                              {p.name}
+                            </h3>
                           </div>
                           <div>
                             <div className="text-4xl font-black tracking-tight text-foreground">

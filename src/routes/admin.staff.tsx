@@ -117,7 +117,8 @@ const CAPABILITY_DESCRIPTIONS: Partial<Record<Capability, string>> = {
 const CAPABILITY_GROUPS = [
   {
     title: "SERVICE HANDLING",
-    color: "border-l-blue-500 bg-blue-500/5 data-[checked=true]:border-blue-500 data-[checked=true]:bg-blue-500/10",
+    color:
+      "border-l-blue-500 bg-blue-500/5 data-[checked=true]:border-blue-500 data-[checked=true]:bg-blue-500/10",
     capabilities: [
       "handle_visa",
       "handle_accounting",
@@ -128,12 +129,14 @@ const CAPABILITY_GROUPS = [
   },
   {
     title: "CLIENT MANAGEMENT",
-    color: "border-l-emerald-500 bg-emerald-500/5 data-[checked=true]:border-emerald-500 data-[checked=true]:bg-emerald-500/10",
+    color:
+      "border-l-emerald-500 bg-emerald-500/5 data-[checked=true]:border-emerald-500 data-[checked=true]:bg-emerald-500/10",
     capabilities: ["register_clients_manually", "handle_claims", "approve_visa"] as Capability[],
   },
   {
     title: "ADMIN ACCESS",
-    color: "border-l-orange-500 bg-orange-500/5 data-[checked=true]:border-orange-500 data-[checked=true]:bg-orange-500/10",
+    color:
+      "border-l-orange-500 bg-orange-500/5 data-[checked=true]:border-orange-500 data-[checked=true]:bg-orange-500/10",
     capabilities: [
       "view_financial_reports",
       "manage_staff",
@@ -356,7 +359,9 @@ function AdminStaff() {
   );
   const mostActive = useMemo(
     () =>
-      [...staff].sort((a, b) => (caseCounts[b.id]?.active ?? 0) - (caseCounts[a.id]?.active ?? 0))[0],
+      [...staff].sort(
+        (a, b) => (caseCounts[b.id]?.active ?? 0) - (caseCounts[a.id]?.active ?? 0),
+      )[0],
     [caseCounts, staff],
   );
   const needsAttentionCount = staff.filter(
@@ -472,9 +477,11 @@ function AdminStaff() {
             <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Top Performer
             </p>
-            <p className="mt-1 font-semibold">{topPerformer?.full_name ?? topPerformer?.email ?? "No staff yet"}</p>
+            <p className="mt-1 font-semibold">
+              {topPerformer?.full_name ?? topPerformer?.email ?? "No staff yet"}
+            </p>
             <p className="text-xs text-muted-foreground">
-              {topPerformer ? caseCounts[topPerformer.id]?.completed ?? 0 : 0} cases completed
+              {topPerformer ? (caseCounts[topPerformer.id]?.completed ?? 0) : 0} cases completed
             </p>
           </CardContent>
         </Card>
@@ -484,9 +491,11 @@ function AdminStaff() {
             <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Most Active
             </p>
-            <p className="mt-1 font-semibold">{mostActive?.full_name ?? mostActive?.email ?? "No staff yet"}</p>
+            <p className="mt-1 font-semibold">
+              {mostActive?.full_name ?? mostActive?.email ?? "No staff yet"}
+            </p>
             <p className="text-xs text-muted-foreground">
-              {mostActive ? caseCounts[mostActive.id]?.active ?? 0 : 0} active cases
+              {mostActive ? (caseCounts[mostActive.id]?.active ?? 0) : 0} active cases
             </p>
           </CardContent>
         </Card>
@@ -535,101 +544,104 @@ function AdminStaff() {
                   const workloadWidth = Math.round((activeCases / maxActiveCases) * 100);
 
                   return (
-                  <TableRow key={u.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                          {initialsFor(u)}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate">{u.full_name ?? u.email}</p>
-                          <p className="truncate text-xs text-muted-foreground">{u.email}</p>
-                          <div className="mt-2 h-0.5 w-full rounded-full bg-muted">
-                            <div
-                              className={`h-0.5 rounded-full ${workloadClass(activeCases)}`}
-                              style={{ width: `${workloadWidth}%` }}
-                            />
+                    <TableRow key={u.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                            {initialsFor(u)}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate">{u.full_name ?? u.email}</p>
+                            <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+                            <div className="mt-2 h-0.5 w-full rounded-full bg-muted">
+                              <div
+                                className={`h-0.5 rounded-full ${workloadClass(activeCases)}`}
+                                style={{ width: `${workloadWidth}%` }}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className={`capitalize ${roleBadgeClass(u.role)}`}>
-                        {u.role}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center tabular-nums">
-                      <span className="inline-flex items-center gap-2">
-                        <span
-                          className={`h-2 w-2 rounded-full ${activeCases > 0 ? "bg-emerald-500" : "bg-muted-foreground/40"}`}
-                        />
-                        {activeCases}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center tabular-nums">
-                      <span className="inline-flex items-center justify-center gap-2">
-                        {completedCases}
-                        {completedCases > 3 && (
-                          <Badge className="bg-amber-500/15 text-[10px] text-amber-600 dark:text-amber-300">
-                            Top performer
-                          </Badge>
-                        )}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Switch
-                          checked={u.status === "active"}
-                          onCheckedChange={() => toggleStatus(u)}
-                        />
-                        <span className="inline-flex items-center gap-1.5 text-xs capitalize text-muted-foreground">
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="secondary"
+                          className={`capitalize ${roleBadgeClass(u.role)}`}
+                        >
+                          {u.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center tabular-nums">
+                        <span className="inline-flex items-center gap-2">
                           <span
-                            className={`h-2 w-2 rounded-full ${
-                              u.status === "active"
-                                ? "bg-emerald-500"
-                                : u.status === "invited"
-                                  ? "bg-amber-500"
-                                  : "bg-red-500"
-                            }`}
+                            className={`h-2 w-2 rounded-full ${activeCases > 0 ? "bg-emerald-500" : "bg-muted-foreground/40"}`}
                           />
-                          {u.status}
+                          {activeCases}
                         </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className={`text-xs ${activeTextClass(recentDays)}`}>
-                      {lastActive[u.id] ? (
-                        <span>
-                          {recentDays < 1 ? "● Online recently" : timeAgo(lastActive[u.id]!)}
+                      </TableCell>
+                      <TableCell className="text-center tabular-nums">
+                        <span className="inline-flex items-center justify-center gap-2">
+                          {completedCases}
+                          {completedCases > 3 && (
+                            <Badge className="bg-amber-500/15 text-[10px] text-amber-600 dark:text-amber-300">
+                              Top performer
+                            </Badge>
+                          )}
                         </span>
-                      ) : (
-                        <span className="text-red-400">No activity</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setSelectedStaffId(u.id)}
-                        >
-                          Capabilities
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            setEditingUser(u);
-                            setEditRole(
-                              (STAFF_ROLES.includes(u.role as StaffRole)
-                                ? u.role
-                                : "secretary") as StaffRole,
-                            );
-                          }}
-                        >
-                          Edit role
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Switch
+                            checked={u.status === "active"}
+                            onCheckedChange={() => toggleStatus(u)}
+                          />
+                          <span className="inline-flex items-center gap-1.5 text-xs capitalize text-muted-foreground">
+                            <span
+                              className={`h-2 w-2 rounded-full ${
+                                u.status === "active"
+                                  ? "bg-emerald-500"
+                                  : u.status === "invited"
+                                    ? "bg-amber-500"
+                                    : "bg-red-500"
+                              }`}
+                            />
+                            {u.status}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className={`text-xs ${activeTextClass(recentDays)}`}>
+                        {lastActive[u.id] ? (
+                          <span>
+                            {recentDays < 1 ? "● Online recently" : timeAgo(lastActive[u.id]!)}
+                          </span>
+                        ) : (
+                          <span className="text-red-400">No activity</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setSelectedStaffId(u.id)}
+                          >
+                            Capabilities
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              setEditingUser(u);
+                              setEditRole(
+                                (STAFF_ROLES.includes(u.role as StaffRole)
+                                  ? u.role
+                                  : "secretary") as StaffRole,
+                              );
+                            }}
+                          >
+                            Edit role
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
                   );
                 })}
               </TableBody>

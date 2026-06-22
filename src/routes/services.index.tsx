@@ -240,10 +240,18 @@ function ServicesOverview() {
     <PublicLayout>
       <section className="public-hero-gradient relative isolate flex min-h-[80vh] items-center overflow-hidden text-primary-foreground">
         <div className="absolute inset-0 bg-background/10" aria-hidden="true" />
-        <ParallaxLayer speed={-0.3} aria-hidden className="pointer-events-none absolute -top-24 -right-24 h-[32rem] w-[32rem]">
+        <ParallaxLayer
+          speed={-0.3}
+          aria-hidden
+          className="pointer-events-none absolute -top-24 -right-24 h-[32rem] w-[32rem]"
+        >
           <div className="h-full w-full rounded-full bg-primary-foreground/10 blur-3xl" />
         </ParallaxLayer>
-        <ParallaxLayer speed={0.2} aria-hidden className="pointer-events-none absolute -bottom-24 -left-24 h-[28rem] w-[28rem]">
+        <ParallaxLayer
+          speed={0.2}
+          aria-hidden
+          className="pointer-events-none absolute -bottom-24 -left-24 h-[28rem] w-[28rem]"
+        >
           <div className="h-full w-full rounded-full bg-accent/20 blur-3xl" />
         </ParallaxLayer>
         <div className="relative mx-auto w-full max-w-7xl px-4 py-24 md:px-6">

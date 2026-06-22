@@ -33,7 +33,7 @@ export function PublicNavbar() {
           <img
             src="/sanlogo-Photoroom.png"
             alt="San Brothers"
-            className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-110 group-hover:rotate-[-6deg]"
+            className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
           />
           <span className="hidden bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-sm font-semibold text-transparent sm:inline">
             San Brothers
@@ -120,7 +120,7 @@ export function PublicNavbar() {
                       <Button variant="outline" asChild>
                         <a href="/login">{t("common.login")}</a>
                       </Button>
-                      <Button asChild className="bg-gradient-to-r from-primary to-primary/80">
+                      <Button asChild className="bg-linear-to-r from-primary to-primary/80">
                         <a href="/signup">{t("common.signup")}</a>
                       </Button>
                     </>

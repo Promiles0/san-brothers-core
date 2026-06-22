@@ -151,7 +151,6 @@ function InterpreterCallScreen() {
         .eq("id", callId)
         .single();
 
-
       if (data?.status === "completed" || data?.status === "cancelled") {
         clearInterval(poll);
         window.location.href = "/staff";

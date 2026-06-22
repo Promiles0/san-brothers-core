@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+﻿import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABASE_URL || "";
 const SUPABASE_ANON_KEY =
@@ -28,7 +28,7 @@ export async function uploadToStorage(
     upsert?: boolean;
     contentType?: string;
     cacheControl?: string;
-  }
+  },
 ) {
   const normalizedPath = String(path || "").replace(/^\/+/, "");
   const encodedPath = encodeURI(normalizedPath);

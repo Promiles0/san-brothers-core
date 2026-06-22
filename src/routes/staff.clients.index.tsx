@@ -1,15 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import {
-  Search,
-  Plus,
-  MessageSquare,
-  LayoutGrid,
-  Table2,
-  Inbox,
-  Mail,
-  Phone,
-} from "lucide-react";
+import { Search, Plus, MessageSquare, LayoutGrid, Table2, Inbox, Mail, Phone } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useCapabilities } from "@/lib/staff/capability-context";
 import { useAllowedCategories, getCategoryLabel } from "@/lib/staff/capability-filters";
@@ -202,9 +193,7 @@ function Page() {
         <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5 text-sm">
           <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
           <span className="text-muted-foreground">Showing clients based on your capabilities:</span>
-          <span className="font-medium">
-            {allowedCategories.map(getCategoryLabel).join(" · ")}
-          </span>
+          <span className="font-medium">{allowedCategories.map(getCategoryLabel).join(" · ")}</span>
         </div>
       )}
 
@@ -274,10 +263,7 @@ function Page() {
             const walkIn = isWalkIn(c);
             const cc = counts[c.id];
             return (
-              <Card
-                key={c.id}
-                className="transition hover:shadow-md hover:-translate-y-0.5"
-              >
+              <Card key={c.id} className="transition hover:shadow-md hover:-translate-y-0.5">
                 <CardContent className="space-y-3 p-4">
                   <div className="flex items-start gap-3">
                     <div

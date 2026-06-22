@@ -233,7 +233,7 @@ function AdminOverview() {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-xl border border-border bg-gradient-to-br from-primary/10 via-background to-background p-6">
+      <div className="rounded-xl border border-border bg-linear-to-br from-primary/10 via-background to-background p-6">
         <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-primary">
           <ShieldCheck className="h-3.5 w-3.5" />
           Command Center

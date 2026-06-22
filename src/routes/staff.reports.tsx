@@ -38,9 +38,21 @@ interface CaseRow {
 
 const CATEGORY_META: Record<string, { label: string; color: string; bar: string }> = {
   visa: { label: "Visa", color: "text-blue-600 dark:text-blue-400", bar: "bg-blue-500" },
-  accounting: { label: "Accounting", color: "text-emerald-600 dark:text-emerald-400", bar: "bg-emerald-500" },
-  translation: { label: "Translation", color: "text-amber-600 dark:text-amber-400", bar: "bg-amber-500" },
-  consultancy: { label: "Consultancy", color: "text-violet-600 dark:text-violet-400", bar: "bg-violet-500" },
+  accounting: {
+    label: "Accounting",
+    color: "text-emerald-600 dark:text-emerald-400",
+    bar: "bg-emerald-500",
+  },
+  translation: {
+    label: "Translation",
+    color: "text-amber-600 dark:text-amber-400",
+    bar: "bg-amber-500",
+  },
+  consultancy: {
+    label: "Consultancy",
+    color: "text-violet-600 dark:text-violet-400",
+    bar: "bg-violet-500",
+  },
 };
 
 function Page() {
@@ -75,9 +87,7 @@ function Page() {
 
   const stats = useMemo(() => {
     const completed = rows.filter((r) => r.status === "completed");
-    const inProgress = rows.filter(
-      (r) => r.status !== "completed" && r.status !== "cancelled",
-    );
+    const inProgress = rows.filter((r) => r.status !== "completed" && r.status !== "cancelled");
     const urgent = rows.filter((r) => r.priority === "urgent").length;
     const durations = completed
       .filter((r) => r.completed_at)
@@ -86,9 +96,7 @@ function Page() {
         const end = new Date(r.completed_at as string).getTime();
         return (end - start) / (1000 * 60 * 60 * 24);
       });
-    const avgDays = durations.length
-      ? durations.reduce((a, b) => a + b, 0) / durations.length
-      : 0;
+    const avgDays = durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
     const completionRate = rows.length ? (completed.length / rows.length) * 100 : 0;
     return {
       total: rows.length,
@@ -120,10 +128,7 @@ function Page() {
   }, [rows]);
 
   const recentCompleted = useMemo(
-    () =>
-      rows
-        .filter((r) => r.status === "completed")
-        .slice(0, 8),
+    () => rows.filter((r) => r.status === "completed").slice(0, 8),
     [rows],
   );
 
@@ -298,7 +303,8 @@ function Page() {
                       {r.client?.full_name ?? r.client?.email ?? "—"}
                     </p>
                     <p className="truncate text-xs text-muted-foreground">
-                      {r.service?.name_en} · {CATEGORY_META[r.service_category]?.label ?? r.service_category}
+                      {r.service?.name_en} ·{" "}
+                      {CATEGORY_META[r.service_category]?.label ?? r.service_category}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">

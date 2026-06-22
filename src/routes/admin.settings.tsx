@@ -368,8 +368,7 @@ function AdminSettings() {
                 >
                   <span
                     className={
-                      "h-1.5 w-1.5 rounded-full " +
-                      (configured ? "bg-green-500" : "bg-amber-500")
+                      "h-1.5 w-1.5 rounded-full " + (configured ? "bg-green-500" : "bg-amber-500")
                     }
                   />
                   {configured ? "Active" : "Not configured"}
@@ -393,12 +392,17 @@ function AdminSettings() {
                 </a>
               </li>
               <li>
-                Add <code className="rounded bg-muted px-1 py-0.5 text-xs">VITE_AFRICA_TALKING_API_KEY</code>{" "}
+                Add{" "}
+                <code className="rounded bg-muted px-1 py-0.5 text-xs">
+                  VITE_AFRICA_TALKING_API_KEY
+                </code>{" "}
                 to Cloudflare secrets
               </li>
               <li>
                 Add{" "}
-                <code className="rounded bg-muted px-1 py-0.5 text-xs">VITE_AFRICA_TALKING_USERNAME</code>{" "}
+                <code className="rounded bg-muted px-1 py-0.5 text-xs">
+                  VITE_AFRICA_TALKING_USERNAME
+                </code>{" "}
                 to Cloudflare secrets
               </li>
               <li>Redeploy — SMS will activate automatically</li>
@@ -408,10 +412,22 @@ function AdminSettings() {
           <div>
             <p className="mb-2 text-sm font-semibold">Message templates</p>
             <ul className="space-y-1.5 text-xs text-muted-foreground">
-              <li><span className="font-medium text-foreground">Case status update</span> — sent when a case status changes</li>
-              <li><span className="font-medium text-foreground">Payment received</span> — sent on successful payment</li>
-              <li><span className="font-medium text-foreground">Case completed</span> — sent when a case is marked complete</li>
-              <li><span className="font-medium text-foreground">New message from staff</span> — sent on inbound staff message</li>
+              <li>
+                <span className="font-medium text-foreground">Case status update</span> — sent when
+                a case status changes
+              </li>
+              <li>
+                <span className="font-medium text-foreground">Payment received</span> — sent on
+                successful payment
+              </li>
+              <li>
+                <span className="font-medium text-foreground">Case completed</span> — sent when a
+                case is marked complete
+              </li>
+              <li>
+                <span className="font-medium text-foreground">New message from staff</span> — sent
+                on inbound staff message
+              </li>
             </ul>
           </div>
         </CardContent>

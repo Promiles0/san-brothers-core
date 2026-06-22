@@ -460,7 +460,6 @@ function ActiveCallPage() {
       .select()
       .single();
 
-
     if (error) {
       console.error("[EndCall] FAILED:", error.message, error.code);
       toast.error("Failed: " + error.message);
@@ -488,7 +487,6 @@ function ActiveCallPage() {
         paid = Math.max(0, o.paid_minutes_remaining - (usedMin - o.free_minutes_remaining));
       }
 
-
       await supabase
         .from("client_minutes")
         .update({ free_minutes_remaining: free, paid_minutes_remaining: paid })
@@ -499,7 +497,6 @@ function ActiveCallPage() {
   };
 
   // ── Render ────────────────────────────────────────────────────────────────────
-
 
   if (loading) {
     return (

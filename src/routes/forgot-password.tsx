@@ -87,16 +87,12 @@ function ForgotPasswordPageEnhanced() {
           </div>
 
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">
-              We've sent a password reset link to:
-            </p>
+            <p className="text-sm text-muted-foreground">We've sent a password reset link to:</p>
             <p className="font-medium text-foreground">{submittedEmail}</p>
           </div>
 
           <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4 text-left space-y-2">
-            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-              Next steps:
-            </p>
+            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Next steps:</p>
             <ol className="text-xs text-blue-800 dark:text-blue-200 space-y-1 list-decimal list-inside">
               <li>Check your email for the reset link</li>
               <li>Click the link to create a new password</li>
@@ -131,10 +127,7 @@ function ForgotPasswordPageEnhanced() {
       footer={
         <span>
           Remember your password?{" "}
-          <Link
-            to="/login"
-            className="font-medium text-primary hover:underline transition-colors"
-          >
+          <Link to="/login" className="font-medium text-primary hover:underline transition-colors">
             Sign in
           </Link>
         </span>

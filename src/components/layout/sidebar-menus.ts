@@ -69,16 +69,8 @@ export const sidebarMenus: Record<UserRole, SidebarItem[]> = {
   // by the client dashboard. These minimal stubs exist solely to satisfy the
   // Record<UserRole, SidebarItem[]> type; do not add nav items here without
   // also wiring real routes — broken `to`-less entries used to live here.
-  secretary: [
-    { label: "Logout", icon: LogOut, action: "logout", intent: "destructive" },
-  ],
-  manager: [
-    { label: "Logout", icon: LogOut, action: "logout", intent: "destructive" },
-  ],
-  translator: [
-    { label: "Logout", icon: LogOut, action: "logout", intent: "destructive" },
-  ],
-  admin: [
-    { label: "Logout", icon: LogOut, action: "logout", intent: "destructive" },
-  ],
+  secretary: [{ label: "Logout", icon: LogOut, action: "logout", intent: "destructive" }],
+  manager: [{ label: "Logout", icon: LogOut, action: "logout", intent: "destructive" }],
+  translator: [{ label: "Logout", icon: LogOut, action: "logout", intent: "destructive" }],
+  admin: [{ label: "Logout", icon: LogOut, action: "logout", intent: "destructive" }],
 };

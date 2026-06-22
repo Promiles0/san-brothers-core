@@ -293,9 +293,7 @@ function ServiceDetailPage() {
     }
     setReviewSubmitting(true);
     const displayName =
-      profile?.full_name?.trim() ||
-      user.email?.split("@")[0] ||
-      "Anonymous client";
+      profile?.full_name?.trim() || user.email?.split("@")[0] || "Anonymous client";
     const { data, error } = await supabase
       .from("reviews")
       .insert({
@@ -322,7 +320,6 @@ function ServiceDetailPage() {
     setReviewText("");
     toast.success(t("reviews.client.successToast"));
   };
-
 
   useEffect(() => {
     if (sr?.services?.name_en) {
@@ -465,11 +462,8 @@ function ServiceDetailPage() {
   // Progress calculation — build the visible step list, hiding the
   // "Submitted to Authority" step when the case doesn't go to an authority
   // (no authority_ref AND case never reached that status).
-  const hasAuthorityStep =
-    !!sr.authority_ref || sr.status === "submitted_to_authority";
-  const VISIBLE_STEPS = STEPS.filter(
-    (s) => s.key !== "submitted_to_authority" || hasAuthorityStep,
-  );
+  const hasAuthorityStep = !!sr.authority_ref || sr.status === "submitted_to_authority";
+  const VISIBLE_STEPS = STEPS.filter((s) => s.key !== "submitted_to_authority" || hasAuthorityStep);
   const isCompleted = sr.status === "completed";
   const isRejected = sr.status === "rejected";
   const isCancelled = sr.status === "cancelled";
@@ -704,7 +698,6 @@ function ServiceDetailPage() {
               })()}
             </div>
 
-
             {isRejected ? (
               <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-4">
                 <div className="flex items-start gap-3">
@@ -784,9 +777,7 @@ function ServiceDetailPage() {
                             <div
                               className={cn(
                                 "absolute top-4 h-0.5 -translate-y-1/2",
-                                isDone || isActive || isFrozenActive
-                                  ? "bg-blue-500"
-                                  : "bg-border",
+                                isDone || isActive || isFrozenActive ? "bg-blue-500" : "bg-border",
                               )}
                               style={{ left: 0, width: "50%" }}
                             />
@@ -854,7 +845,8 @@ function ServiceDetailPage() {
                       />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Step {Math.max(1, activeIdx + 1)} of {VISIBLE_STEPS.length} · {progressPct}% complete
+                      Step {Math.max(1, activeIdx + 1)} of {VISIBLE_STEPS.length} · {progressPct}%
+                      complete
                     </p>
                   </div>
                 </div>
@@ -1387,17 +1379,12 @@ function ServiceDetailPage() {
             <DialogTitle>{t("reviews.client.dialogTitle")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              {t("reviews.client.dialogIntro")}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("reviews.client.dialogIntro")}</p>
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t("reviews.client.ratingLabel")}
               </p>
-              <div
-                className="flex items-center gap-1"
-                onMouseLeave={() => setReviewHover(0)}
-              >
+              <div className="flex items-center gap-1" onMouseLeave={() => setReviewHover(0)}>
                 {[1, 2, 3, 4, 5].map((n) => {
                   const active = n <= (reviewHover || reviewRating);
                   return (
@@ -1412,9 +1399,7 @@ function ServiceDetailPage() {
                       <Star
                         className={cn(
                           "h-7 w-7 transition-colors",
-                          active
-                            ? "fill-amber-400 text-amber-400"
-                            : "text-muted-foreground/40",
+                          active ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40",
                         )}
                       />
                     </button>
@@ -1447,9 +1432,7 @@ function ServiceDetailPage() {
               {t("reviews.client.cancel")}
             </Button>
             <Button onClick={submitReview} disabled={reviewSubmitting}>
-              {reviewSubmitting
-                ? t("reviews.client.submitting")
-                : t("reviews.client.submit")}
+              {reviewSubmitting ? t("reviews.client.submitting") : t("reviews.client.submit")}
             </Button>
           </DialogFooter>
         </DialogContent>

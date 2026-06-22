@@ -256,4 +256,3 @@ function QuickReplies({ items, onPick }: { items: string[]; onPick: (t: string) 
     </div>
   );
 }
-

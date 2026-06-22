@@ -126,7 +126,6 @@ function Page() {
         return;
       }
 
-
       const { data: result, error } = await supabase.rpc("register_walk_in_client", {
         p_full_name: fullName.trim(),
         p_phone: normalizedPhone,
