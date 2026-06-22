@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ConsultancyLayout } from "@/components/layout/consultancy-layout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,13 +19,39 @@ export const Route = createFileRoute("/consultancy/pricing")({
   component: Pricing,
 });
 
-const ROWS = [
-  { slug: "company-registration", name: "Company Registration", range: "$150 – $300" },
-  { slug: "document-processing", name: "Document Processing", range: "$50 – $150" },
-  { slug: "trade-investment", name: "Trade & Investment", range: "$200 – $500" },
-  { slug: "business-planning", name: "Business Planning", range: "$300 – $1,000" },
-  { slug: "administrative-support", name: "Administrative Support", range: "$75 – $200 / mo" },
+type UnitKey = "flat" | "per_page" | "per_minute" | "per_month";
+
+const UNIT_SUFFIX: Record<UnitKey, string> = {
+  flat: "",
+  per_page: " / page",
+  per_minute: " / min",
+  per_month: " / mo",
+};
+
+interface RowDef {
+  slug: string;
+  name: string;
+  fallback: string;
+}
+
+const ROWS: RowDef[] = [
+  { slug: "company-registration", name: "Company Registration", fallback: "$150 – $300" },
+  { slug: "document-processing", name: "Document Processing", fallback: "$50 – $150" },
+  { slug: "trade-investment", name: "Trade & Investment", fallback: "$200 – $500" },
+  { slug: "business-planning", name: "Business Planning", fallback: "$300 – $1,000" },
+  { slug: "administrative-support", name: "Administrative Support", fallback: "$75 – $200 / mo" },
 ];
+
+function formatPrice(price: number, unit: UnitKey): string {
+  if (!Number.isFinite(price) || price <= 0) return "Custom quote";
+  const formatted = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: price % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(price);
+  return `${formatted}${UNIT_SUFFIX[unit] ?? ""}`;
+}
 
 const PACKAGES = [
   {
