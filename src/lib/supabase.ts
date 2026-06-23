@@ -6,10 +6,29 @@ const SUPABASE_ANON_KEY =
 
 let _client: SupabaseClient | null = null;
 
+function requireSupabaseConfig() {
+  const url = SUPABASE_URL.trim();
+  const key = SUPABASE_ANON_KEY.trim();
+
+  if (
+    !url ||
+    !key ||
+    url.includes("placeholder.supabase.co") ||
+    key === "placeholder-key" ||
+    url === "your_supabase_url" ||
+    key === "your_supabase_anon_key"
+  ) {
+    throw new Error(
+      "Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY before building the app.",
+    );
+  }
+
+  return { url, key };
+}
+
 function getSupabaseClient(): SupabaseClient {
   if (_client) return _client;
-  const url = SUPABASE_URL || "https://placeholder.supabase.co";
-  const key = SUPABASE_ANON_KEY || "placeholder-key";
+  const { url, key } = requireSupabaseConfig();
   _client = createClient(url, key, {
     auth: {
       persistSession: typeof window !== "undefined",
