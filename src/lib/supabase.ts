@@ -4,11 +4,28 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABA
 const SUPABASE_ANON_KEY =
   import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_ANON_KEY || "";
 
+declare global {
+  interface Window {
+    __SAN_BROTHERS_ENV__?: {
+      VITE_SUPABASE_URL?: string;
+      VITE_SUPABASE_ANON_KEY?: string;
+    };
+  }
+}
+
+function readPublicEnv(key: "VITE_SUPABASE_URL" | "VITE_SUPABASE_ANON_KEY") {
+  return (
+    import.meta.env[key] ||
+    (typeof window !== "undefined" ? window.__SAN_BROTHERS_ENV__?.[key] : undefined) ||
+    ""
+  );
+}
+
 let _client: SupabaseClient | null = null;
 
 function requireSupabaseConfig() {
-  const url = SUPABASE_URL.trim();
-  const key = SUPABASE_ANON_KEY.trim();
+  const url = (SUPABASE_URL || readPublicEnv("VITE_SUPABASE_URL")).trim();
+  const key = (SUPABASE_ANON_KEY || readPublicEnv("VITE_SUPABASE_ANON_KEY")).trim();
 
   if (
     !url ||

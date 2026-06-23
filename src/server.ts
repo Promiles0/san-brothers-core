@@ -12,6 +12,7 @@ interface CloudflareEnv {
   SUPABASE_URL?: string;
   VITE_SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
+  SUPABASE_ANON_KEY?: string;
   SUPABASE_PUBLISHABLE_KEY?: string;
   VITE_SUPABASE_ANON_KEY?: string;
   VITE_SUPABASE_PUBLISHABLE_KEY?: string;
@@ -252,6 +253,57 @@ function brandedErrorResponse(): Response {
   });
 }
 
+function escapeInlineJson(value: unknown): string {
+  return (JSON.stringify(value) ?? "null").replace(/[<>&\u2028\u2029]/g, (char) => {
+    switch (char) {
+      case "<":
+        return "\\u003c";
+      case ">":
+        return "\\u003e";
+      case "&":
+        return "\\u0026";
+      case "\u2028":
+        return "\\u2028";
+      case "\u2029":
+        return "\\u2029";
+      default:
+        return char;
+    }
+  });
+}
+
+async function injectPublicRuntimeEnv(
+  response: Response,
+  env: CloudflareEnv,
+): Promise<Response> {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!contentType.includes("text/html")) return response;
+
+  const supabaseUrl = env.VITE_SUPABASE_URL || env.SUPABASE_URL;
+  const supabaseAnonKey =
+    env.VITE_SUPABASE_ANON_KEY ||
+    env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    env.SUPABASE_PUBLISHABLE_KEY ||
+    env.SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) return response;
+
+  const html = await response.text();
+  const script = `<script>window.__SAN_BROTHERS_ENV__=${escapeInlineJson({
+    VITE_SUPABASE_URL: supabaseUrl,
+    VITE_SUPABASE_ANON_KEY: supabaseAnonKey,
+  })};</script>`;
+  const body = html.includes("</head>") ? html.replace("</head>", `${script}</head>`) : script + html;
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+
+  return new Response(body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 function isCatastrophicSsrErrorBody(body: string, responseStatus: number): boolean {
   let payload: unknown;
   try {
@@ -307,7 +359,8 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      const normalized = await normalizeCatastrophicSsrResponse(response);
+      return await injectPublicRuntimeEnv(normalized, env as CloudflareEnv);
     } catch (error) {
       console.error(error);
       return brandedErrorResponse();
