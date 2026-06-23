@@ -1,3 +1,4 @@
+$content = @'
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "san-brothers",
@@ -6,5 +7,13 @@
   "main": "dist/server/assets/server.js",
   "assets": {
     "directory": "./dist/client"
-  }
+  },
+  "routes": [
+    { "pattern": "sanbrothers.cn.com/*", "zone_name": "sanbrothers.cn.com" },
+    { "pattern": "www.sanbrothers.cn.com/*", "zone_name": "sanbrothers.cn.com" },
+    { "pattern": "translate.sanbrothers.cn.com/*", "zone_name": "sanbrothers.cn.com" },
+    { "pattern": "consultancy.sanbrothers.cn.com/*", "zone_name": "sanbrothers.cn.com" }
+  ]
 }
+'@
+Set-Content "wrangler.jsonc" $content -Encoding UTF8
