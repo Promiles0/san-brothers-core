@@ -1,4 +1,4 @@
-import "./lib/error-capture";
+﻿import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
@@ -355,6 +355,18 @@ export default {
       return response;
     }
 
+    // Subdomain rewriting — must run before TanStack handler
+    const hostname = url.hostname;
+    if (hostname === "translate.sanbrothers.cn.com" && !url.pathname.startsWith("/translate")) {
+      const rewritten = new URL(request.url);
+      rewritten.pathname = "/translate" + (url.pathname === "/" ? "" : url.pathname);
+      request = new Request(rewritten.toString(), request);
+    } else if (hostname === "consultancy.sanbrothers.cn.com" && !url.pathname.startsWith("/consultancy")) {
+      const rewritten = new URL(request.url);
+      rewritten.pathname = "/consultancy" + (url.pathname === "/" ? "" : url.pathname);
+      request = new Request(rewritten.toString(), request);
+    }
+
     // TanStack handler AFTER our custom routes
     try {
       const handler = await getServerEntry();
@@ -367,3 +379,4 @@ export default {
     }
   },
 };
+
