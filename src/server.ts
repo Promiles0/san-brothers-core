@@ -7,7 +7,11 @@ type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
 
-type ChildPortal = "translate" | "consultancy";
+// Subdomain → portal-prefix rewriting is handled by TanStack Router's
+// `rewrite` config in src/router.tsx (works for both SSR and client navigation).
+// Do NOT also rewrite here — having both causes ERR_TOO_MANY_REDIRECTS because
+// TanStack's `rewrite.output` then sees a mismatch between the incoming URL
+// path and the canonical external URL and redirects to reconcile.
 
 interface CloudflareEnv {
   STRIPE_SECRET_KEY?: string;
@@ -54,47 +58,8 @@ function rateLimitOk(userId: string): boolean {
   return true;
 }
 
-function getChildPortal(hostname: string): ChildPortal | null {
-  const normalized = hostname.toLowerCase();
-  if (normalized === "translate.sanbrothers.cn.com") return "translate";
-  if (normalized === "consultancy.sanbrothers.cn.com") return "consultancy";
-  return null;
-}
 
-function addPortalPrefix(pathname: string, portal: ChildPortal): string {
-  const portalRoot = `/${portal}`;
-  if (pathname === portalRoot || pathname.startsWith(`${portalRoot}/`)) {
-    return pathname;
-  }
-  if (pathname === "/") return `${portalRoot}/`;
-  return `${portalRoot}${pathname}`;
-}
 
-function isPageRequest(url: URL): boolean {
-  if (
-    url.pathname.startsWith("/api/") ||
-    url.pathname.startsWith("/assets/") ||
-    url.pathname.startsWith("/_build/") ||
-    url.pathname.startsWith("/__vite") ||
-    url.pathname === "/favicon.ico"
-  ) {
-    return false;
-  }
-
-  return !/\.[a-zA-Z0-9]+$/.test(url.pathname);
-}
-
-function rewritePortalSubdomainRequest(request: Request): Request {
-  const url = new URL(request.url);
-  const portal = getChildPortal(url.hostname);
-  if (!portal || !isPageRequest(url)) return request;
-
-  const rewrittenPathname = addPortalPrefix(url.pathname, portal);
-  if (rewrittenPathname === url.pathname) return request;
-
-  url.pathname = rewrittenPathname;
-  return new Request(url.toString(), request);
-}
 
 async function supabaseGet<T>(
   env: CloudflareEnv,
@@ -399,9 +364,11 @@ export default {
       return response;
     }
 
-    // Subdomain rewriting — must run before TanStack handler.
-    // TanStack Router also has the same rewrite configured for client navigation.
-    request = rewritePortalSubdomainRequest(request);
+    // Subdomain → portal-prefix rewriting is owned by TanStack Router's
+    // `rewrite` config (src/router.tsx) for both SSR and client navigation.
+    // Do not rewrite the request URL here.
+
+
 
     // TanStack handler AFTER our custom routes
     try {
