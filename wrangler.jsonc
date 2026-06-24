@@ -1,19 +1,30 @@
-$content = @'
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "san-brothers",
-  "compatibility_date": "2025-09-24",
-  "compatibility_flags": ["nodejs_compat"],
   "main": "dist/server/assets/server.js",
+  "compatibility_date": "2025-09-24",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "assets": {
-    "directory": "./dist/client"
+    "directory": "dist/client"
   },
   "routes": [
-    { "pattern": "sanbrothers.cn.com/*", "zone_name": "sanbrothers.cn.com" },
-    { "pattern": "www.sanbrothers.cn.com/*", "zone_name": "sanbrothers.cn.com" },
-    { "pattern": "translate.sanbrothers.cn.com/*", "zone_name": "sanbrothers.cn.com" },
-    { "pattern": "consultancy.sanbrothers.cn.com/*", "zone_name": "sanbrothers.cn.com" }
+    {
+      "pattern": "sanbrothers.cn.com/*",
+      "zone_name": "sanbrothers.cn.com"
+    },
+    {
+      "pattern": "www.sanbrothers.cn.com/*",
+      "zone_name": "sanbrothers.cn.com"
+    },
+    {
+      "pattern": "translate.sanbrothers.cn.com/*",
+      "zone_name": "sanbrothers.cn.com"
+    },
+    {
+      "pattern": "consultancy.sanbrothers.cn.com/*",
+      "zone_name": "sanbrothers.cn.com"
+    }
   ]
 }
-'@
-Set-Content "wrangler.jsonc" $content -Encoding UTF8
