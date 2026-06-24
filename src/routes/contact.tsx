@@ -239,9 +239,9 @@ function Contact() {
               <div className="mt-7 space-y-5 text-sm">
                 {[
                   [MapPin, "Florida House, 2nd Floor, KN 70 Street, Kigali, Rwanda"],
-                  [Phone, "+250 788 687 288 (Rwanda)"],
+                  // [Phone, "+250 788 687 288 (Rwanda)"],
                   [Phone, "+250 788 453 192 (Rwanda)"],
-                  [Phone, "+86 155 7739 0044 (China)"],
+                  // [Phone, "+86 155 7739 0044 (China)"],
                   [Mail, "sanbrothersgroup@gmail.com"],
                   [Clock, "Mon–Fri, 8:00 AM – 6:00 PM CAT"],
                 ].map(([Icon, text]) => (
