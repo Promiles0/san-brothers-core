@@ -28,7 +28,7 @@ import { PublicLayout } from "@/components/layout/public-layout";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase } from "@/lib/supabase";
 import { Magnetic } from "@/components/fx/magnetic";
-import { TiltCard } from "@/components/fx/tilt-card";
+
 import { AnimatedCounter } from "@/components/fx/animated-counter";
 import { ParallaxLayer } from "@/components/fx/parallax-layer";
 import { RotatingText } from "@/components/fx/rotating-text";
@@ -384,6 +384,7 @@ function ServicesGrid() {
     desc: string;
     outcome: string;
     href: string;
+    accent: string; // tailwind color e.g. "blue-500"
   }[] = [
     {
       icon: Plane,
@@ -391,6 +392,7 @@ function ServicesGrid() {
       desc: t("home.serviceDesc.visa"),
       outcome: "Student & work visas handled end to end",
       href: "/services/visa",
+      accent: "blue-500",
     },
     {
       icon: Calculator,
@@ -398,14 +400,15 @@ function ServicesGrid() {
       desc: t("home.serviceDesc.accounting"),
       outcome: "Books, tax filing & monthly reports",
       href: "/services/accounting",
+      accent: "emerald-500",
     },
     {
       icon: Languages,
       title: t("services.translation"),
       desc: t("home.serviceDesc.translation"),
       outcome: "Certified translation in 24 hours",
-      // href: "/services/translation",
       href: "/translate",
+      accent: "purple-500",
     },
     {
       icon: Briefcase,
@@ -413,8 +416,48 @@ function ServicesGrid() {
       desc: t("home.serviceDesc.consultancy"),
       outcome: "Company registration & advisory",
       href: "/consultancy",
+      accent: "amber-500",
     },
   ];
+
+  // Per-accent class map (must be literal strings so Tailwind keeps them).
+  const ACCENT: Record<
+    string,
+    { glow: string; ring: string; text: string; from: string; to: string; chip: string }
+  > = {
+    "blue-500": {
+      glow: "shadow-blue-500/30",
+      ring: "ring-blue-500/40",
+      text: "text-blue-500",
+      from: "from-blue-500/20",
+      to: "to-blue-500/0",
+      chip: "bg-blue-500/10 text-blue-500 ring-blue-500/30",
+    },
+    "emerald-500": {
+      glow: "shadow-emerald-500/30",
+      ring: "ring-emerald-500/40",
+      text: "text-emerald-500",
+      from: "from-emerald-500/20",
+      to: "to-emerald-500/0",
+      chip: "bg-emerald-500/10 text-emerald-500 ring-emerald-500/30",
+    },
+    "purple-500": {
+      glow: "shadow-purple-500/30",
+      ring: "ring-purple-500/40",
+      text: "text-purple-500",
+      from: "from-purple-500/20",
+      to: "to-purple-500/0",
+      chip: "bg-purple-500/10 text-purple-500 ring-purple-500/30",
+    },
+    "amber-500": {
+      glow: "shadow-amber-500/30",
+      ring: "ring-amber-500/40",
+      text: "text-amber-500",
+      from: "from-amber-500/20",
+      to: "to-amber-500/0",
+      chip: "bg-amber-500/10 text-amber-500 ring-amber-500/30",
+    },
+  };
 
   return (
     <section className="border-b border-border bg-background py-20 md:py-24">
@@ -426,35 +469,59 @@ function ServicesGrid() {
         />
 
         <div className="mt-12 grid gap-5 sm:grid-cols-2">
-          {services.map((s, i) => (
-            <TiltCard key={s.title} max={6} className={`home-fade-up home-delay-${i + 1}`}>
+          {services.map((s, i) => {
+            const a = ACCENT[s.accent];
+            return (
               <Link
+                key={s.title}
                 to={s.href}
-                className="service-card group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-6"
+                className={`service-card home-fade-up home-delay-${i + 1} group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-6 transition-[transform,box-shadow,border-color] duration-300 ease-out will-change-transform hover:-translate-y-1 hover:border-transparent hover:shadow-2xl hover:${a.glow}`}
               >
+                {/* Animated gradient corner glow */}
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br ${a.from} ${a.to} opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100`}
                 />
+                {/* Subtle grid texture */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:linear-gradient(var(--foreground)_1px,transparent_1px),linear-gradient(90deg,var(--foreground)_1px,transparent_1px)] [background-size:24px_24px]"
+                />
+                {/* Animated accent border line */}
+                <div
+                  aria-hidden
+                  className={`pointer-events-none absolute left-0 top-0 h-[2px] w-0 bg-current ${a.text} transition-all duration-500 group-hover:w-full`}
+                />
+
                 <div className="relative flex items-start justify-between">
-                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 text-primary ring-1 ring-primary/20 transition-all duration-300 group-hover:from-primary group-hover:to-primary/80 group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/30">
-                    <s.icon className="h-6 w-6" />
+                  <div
+                    className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${a.from} to-transparent ${a.text} ring-1 ${a.ring} transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}
+                  >
+                    <s.icon className="h-7 w-7" />
                   </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-primary" />
+                  <div
+                    className={`grid h-9 w-9 place-items-center rounded-full border border-border bg-background/50 ${a.text} transition-all duration-300 group-hover:border-transparent group-hover:bg-current`}
+                  >
+                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-background" />
+                  </div>
                 </div>
-                <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">
+
+                <h3 className="relative mt-6 text-xl font-bold tracking-tight text-card-foreground">
                   {s.title}
                 </h3>
-                <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">
+                <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">
                   {s.desc}
                 </p>
-                <div className="relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-accent/20 transition-all group-hover:ring-accent/50 group-hover:shadow-[0_0_12px_color-mix(in_oklab,var(--accent)_30%,transparent)]">
-                  <Sparkles className="h-3 w-3 text-accent" />
+
+                <div
+                  className={`relative mt-5 inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 transition-all ${a.chip}`}
+                >
+                  <Sparkles className="h-3 w-3" />
                   {s.outcome}
                 </div>
               </Link>
-            </TiltCard>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
