@@ -261,8 +261,8 @@ function Contact() {
                     className="w-full bg-success text-success-foreground hover:bg-success/90"
                     asChild
                   >
-                    <a href="https://wa.me/250788687288" target="_blank" rel="noopener noreferrer">
-                      <MessageCircle /> +250 788 687 288
+                    <a href="https://wa.me/250788453192" target="_blank" rel="noopener noreferrer">
+                      <MessageCircle /> Quick WhatsApp Chat
                     </a>
                   </Button>
                 </Magnetic>

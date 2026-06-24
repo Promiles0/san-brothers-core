@@ -7,6 +7,8 @@ type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
 
+type ChildPortal = "translate" | "consultancy";
+
 interface CloudflareEnv {
   STRIPE_SECRET_KEY?: string;
   SUPABASE_URL?: string;
@@ -50,6 +52,48 @@ function rateLimitOk(userId: string): boolean {
   bucket.push(now);
   rateBuckets.set(userId, bucket);
   return true;
+}
+
+function getChildPortal(hostname: string): ChildPortal | null {
+  const normalized = hostname.toLowerCase();
+  if (normalized === "translate.sanbrothers.cn.com") return "translate";
+  if (normalized === "consultancy.sanbrothers.cn.com") return "consultancy";
+  return null;
+}
+
+function addPortalPrefix(pathname: string, portal: ChildPortal): string {
+  const portalRoot = `/${portal}`;
+  if (pathname === portalRoot || pathname.startsWith(`${portalRoot}/`)) {
+    return pathname;
+  }
+  if (pathname === "/") return `${portalRoot}/`;
+  return `${portalRoot}${pathname}`;
+}
+
+function isPageRequest(url: URL): boolean {
+  if (
+    url.pathname.startsWith("/api/") ||
+    url.pathname.startsWith("/assets/") ||
+    url.pathname.startsWith("/_build/") ||
+    url.pathname.startsWith("/__vite") ||
+    url.pathname === "/favicon.ico"
+  ) {
+    return false;
+  }
+
+  return !/\.[a-zA-Z0-9]+$/.test(url.pathname);
+}
+
+function rewritePortalSubdomainRequest(request: Request): Request {
+  const url = new URL(request.url);
+  const portal = getChildPortal(url.hostname);
+  if (!portal || !isPageRequest(url)) return request;
+
+  const rewrittenPathname = addPortalPrefix(url.pathname, portal);
+  if (rewrittenPathname === url.pathname) return request;
+
+  url.pathname = rewrittenPathname;
+  return new Request(url.toString(), request);
 }
 
 async function supabaseGet<T>(
@@ -355,17 +399,9 @@ export default {
       return response;
     }
 
-    // Subdomain rewriting — must run before TanStack handler
-    const hostname = url.hostname;
-    if (hostname === "translate.sanbrothers.cn.com" && !url.pathname.startsWith("/translate")) {
-      const rewritten = new URL(request.url);
-      rewritten.pathname = "/translate" + (url.pathname === "/" ? "" : url.pathname);
-      request = new Request(rewritten.toString(), request);
-    } else if (hostname === "consultancy.sanbrothers.cn.com" && !url.pathname.startsWith("/consultancy")) {
-      const rewritten = new URL(request.url);
-      rewritten.pathname = "/consultancy" + (url.pathname === "/" ? "" : url.pathname);
-      request = new Request(rewritten.toString(), request);
-    }
+    // Subdomain rewriting — must run before TanStack handler.
+    // TanStack Router also has the same rewrite configured for client navigation.
+    request = rewritePortalSubdomainRequest(request);
 
     // TanStack handler AFTER our custom routes
     try {

@@ -311,9 +311,9 @@ function About() {
               <h2 className="text-2xl font-bold">{t("about.contactHeading")}</h2>
               <div className="mt-7 space-y-5 text-sm">
                 {[
-                  [Phone, "Rwanda: +250 788 687 288"],
+                  // [Phone, "Rwanda: +250 788 687 288"],
                   [Phone, "Rwanda: +250 788 453 192"],
-                  [Phone, "China: +86 155 7739 0044"],
+                  // [Phone, "China: +86 155 7739 0044"],
                   [Mail, "sanbrothersgroup@gmail.com"],
                   [Clock, "Mon–Fri 8:00–18:00 CAT"],
                 ].map(([Icon, text]) => (
@@ -332,7 +332,7 @@ function About() {
           </Card>
         </div>
       </section>
-      <section className="mx-auto max-w-5xl px-4 py-20 md:px-6">
+      {/* <section className="mx-auto max-w-5xl px-4 py-20 md:px-6">
         <div className="text-center">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Partnership</p>
           <h2 className="mt-3 text-3xl font-bold">Our Strategic Partner</h2>
@@ -362,7 +362,7 @@ function About() {
             <div className="text-2xl">🇷🇼 ↔ 🇨🇳</div>
           </CardContent>
         </Card>
-      </section>
+      </section> */}
       <CtaBanner
         title="Ready to work with a team that delivers?"
         subtitle="Create your free account and get expert support."
