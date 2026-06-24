@@ -480,7 +480,7 @@ function ServicesGrid() {
                 {/* Animated gradient corner glow */}
                 <div
                   aria-hidden
-                  className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-radial ${a.from} ${a.to} opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100`}
+                  className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br ${a.from} ${a.to} opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100`}
                 />
                 {/* Subtle grid texture */}
                 <div
