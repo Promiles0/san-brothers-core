@@ -364,9 +364,11 @@ export default {
       return response;
     }
 
-    // Subdomain rewriting — must run before TanStack handler.
-    // TanStack Router also has the same rewrite configured for client navigation.
-    request = rewritePortalSubdomainRequest(request);
+    // Subdomain → portal-prefix rewriting is owned by TanStack Router's
+    // `rewrite` config (src/router.tsx) for both SSR and client navigation.
+    // Do not rewrite the request URL here.
+
+
 
     // TanStack handler AFTER our custom routes
     try {
