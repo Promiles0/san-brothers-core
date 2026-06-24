@@ -7,7 +7,11 @@ type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
 
-type ChildPortal = "translate" | "consultancy";
+// Subdomain → portal-prefix rewriting is handled by TanStack Router's
+// `rewrite` config in src/router.tsx (works for both SSR and client navigation).
+// Do NOT also rewrite here — having both causes ERR_TOO_MANY_REDIRECTS because
+// TanStack's `rewrite.output` then sees a mismatch between the incoming URL
+// path and the canonical external URL and redirects to reconcile.
 
 interface CloudflareEnv {
   STRIPE_SECRET_KEY?: string;
