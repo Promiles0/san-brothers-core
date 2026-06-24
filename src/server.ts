@@ -58,47 +58,8 @@ function rateLimitOk(userId: string): boolean {
   return true;
 }
 
-function getChildPortal(hostname: string): ChildPortal | null {
-  const normalized = hostname.toLowerCase();
-  if (normalized === "translate.sanbrothers.cn.com") return "translate";
-  if (normalized === "consultancy.sanbrothers.cn.com") return "consultancy";
-  return null;
-}
 
-function addPortalPrefix(pathname: string, portal: ChildPortal): string {
-  const portalRoot = `/${portal}`;
-  if (pathname === portalRoot || pathname.startsWith(`${portalRoot}/`)) {
-    return pathname;
-  }
-  if (pathname === "/") return `${portalRoot}/`;
-  return `${portalRoot}${pathname}`;
-}
 
-function isPageRequest(url: URL): boolean {
-  if (
-    url.pathname.startsWith("/api/") ||
-    url.pathname.startsWith("/assets/") ||
-    url.pathname.startsWith("/_build/") ||
-    url.pathname.startsWith("/__vite") ||
-    url.pathname === "/favicon.ico"
-  ) {
-    return false;
-  }
-
-  return !/\.[a-zA-Z0-9]+$/.test(url.pathname);
-}
-
-function rewritePortalSubdomainRequest(request: Request): Request {
-  const url = new URL(request.url);
-  const portal = getChildPortal(url.hostname);
-  if (!portal || !isPageRequest(url)) return request;
-
-  const rewrittenPathname = addPortalPrefix(url.pathname, portal);
-  if (rewrittenPathname === url.pathname) return request;
-
-  url.pathname = rewrittenPathname;
-  return new Request(url.toString(), request);
-}
 
 async function supabaseGet<T>(
   env: CloudflareEnv,
