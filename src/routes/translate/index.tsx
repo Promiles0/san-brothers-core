@@ -18,6 +18,10 @@ import { TranslateLayout } from "@/components/layout/translate-layout";
 import { TranslateCta } from "@/components/marketing/translate-cta";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
+import { DotGrid } from "@/components/fx/dot-grid";
+import { Aurora } from "@/components/fx/aurora";
+import { WordMask } from "@/components/fx/word-mask";
+import { Magnetic } from "@/components/fx/magnetic";
 
 export const Route = createFileRoute("/translate/")({
   head: () => ({
