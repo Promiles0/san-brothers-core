@@ -15,6 +15,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ConsultancyLayout } from "@/components/layout/consultancy-layout";
 import { supabase } from "@/lib/supabase";
+import { Aurora } from "@/components/fx/aurora";
+import { CursorSpotlight } from "@/components/fx/cursor-spotlight";
+import { WordMask } from "@/components/fx/word-mask";
+import { Magnetic } from "@/components/fx/magnetic";
 
 export const Route = createFileRoute("/consultancy/")({
   head: () => ({
