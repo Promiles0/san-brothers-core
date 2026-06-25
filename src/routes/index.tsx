@@ -366,6 +366,46 @@ function FloatingPreview({
 //  Services
 // ────────────────────────────────────────────────────────────
 
+type ServiceAccent = "blue" | "emerald" | "purple" | "amber";
+
+const ACCENT: Record<
+  ServiceAccent,
+  { glow: string; ring: string; text: string; bg: string; iconBg: string; chipRing: string }
+> = {
+  blue: {
+    glow: "from-blue-500/20",
+    ring: "ring-blue-500/30",
+    text: "text-blue-500",
+    bg: "bg-blue-500",
+    iconBg: "from-blue-500/15 to-blue-500/5",
+    chipRing: "ring-blue-500/30",
+  },
+  emerald: {
+    glow: "from-emerald-500/20",
+    ring: "ring-emerald-500/30",
+    text: "text-emerald-500",
+    bg: "bg-emerald-500",
+    iconBg: "from-emerald-500/15 to-emerald-500/5",
+    chipRing: "ring-emerald-500/30",
+  },
+  purple: {
+    glow: "from-purple-500/20",
+    ring: "ring-purple-500/30",
+    text: "text-purple-500",
+    bg: "bg-purple-500",
+    iconBg: "from-purple-500/15 to-purple-500/5",
+    chipRing: "ring-purple-500/30",
+  },
+  amber: {
+    glow: "from-amber-500/20",
+    ring: "ring-amber-500/30",
+    text: "text-amber-500",
+    bg: "bg-amber-500",
+    iconBg: "from-amber-500/15 to-amber-500/5",
+    chipRing: "ring-amber-500/30",
+  },
+};
+
 function ServicesGrid() {
   const { t } = useI18n();
   const services: {
@@ -374,6 +414,7 @@ function ServicesGrid() {
     desc: string;
     outcome: string;
     href: string;
+    accent: ServiceAccent;
   }[] = [
     {
       icon: Plane,
@@ -381,6 +422,7 @@ function ServicesGrid() {
       desc: t("home.serviceDesc.visa"),
       outcome: "Student & work visas handled end to end",
       href: "/services/visa",
+      accent: "blue",
     },
     {
       icon: Calculator,
@@ -388,14 +430,15 @@ function ServicesGrid() {
       desc: t("home.serviceDesc.accounting"),
       outcome: "Books, tax filing & monthly reports",
       href: "/services/accounting",
+      accent: "emerald",
     },
     {
       icon: Languages,
       title: t("services.translation"),
       desc: t("home.serviceDesc.translation"),
       outcome: "Certified translation in 24 hours",
-      // href: "/services/translation",
       href: "https://translate.sanbrothers.cn.com/",
+      accent: "purple",
     },
     {
       icon: Briefcase,
@@ -403,6 +446,7 @@ function ServicesGrid() {
       desc: t("home.serviceDesc.consultancy"),
       outcome: "Company registration & advisory",
       href: "https://consultancy.sanbrothers.cn.com/",
+      accent: "amber",
     },
   ];
 
@@ -416,31 +460,58 @@ function ServicesGrid() {
         />
 
         <div className="mt-12 grid gap-5 sm:grid-cols-2">
-          {services.map((s, i) => (
-            <TiltCard key={s.title} max={6} className={`home-fade-up home-delay-${i + 1}`}>
+          {services.map((s, i) => {
+            const a = ACCENT[s.accent];
+            return (
               <Link
+                key={s.title}
                 to={s.href}
-                className="service-card group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-6"
+                className={`service-card home-fade-up home-delay-${i + 1} group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 ease-out will-change-transform hover:-translate-y-1 hover:border-transparent hover:shadow-2xl hover:${a.ring} hover:ring-1`}
               >
-                <div
+                {/* top accent line */}
+                <span
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  className={`pointer-events-none absolute inset-x-0 top-0 h-[2px] origin-left scale-x-0 ${a.bg} transition-transform duration-500 ease-out group-hover:scale-x-100`}
                 />
+                {/* corner glow */}
+                <span
+                  aria-hidden
+                  className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-radial ${a.glow} to-transparent opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100`}
+                />
+                {/* subtle grid */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:linear-gradient(to_right,currentColor_1px,transparent_1px),linear-gradient(to_bottom,currentColor_1px,transparent_1px)] [background-size:24px_24px]"
+                />
+
                 <div className="relative flex items-start justify-between">
-                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 text-primary ring-1 ring-primary/20 transition-all duration-300 group-hover:from-primary group-hover:to-primary/80 group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/30">
-                    <s.icon className="h-6 w-6" />
+                  <div
+                    className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${a.iconBg} ${a.text} ring-1 ${a.ring} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}
+                  >
+                    <s.icon className="h-7 w-7" />
                   </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-primary" />
+                  <div
+                    className={`grid h-9 w-9 place-items-center rounded-full border border-border bg-background ${a.text} transition-all duration-300 group-hover:${a.bg} group-hover:text-white group-hover:border-transparent`}
+                  >
+                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                  </div>
                 </div>
-                <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">{s.title}</h3>
-                <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
-                <div className="relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-accent/20 transition-all group-hover:ring-accent/50 group-hover:shadow-[0_0_12px_color-mix(in_oklab,var(--accent)_30%,transparent)]">
-                  <Sparkles className="h-3 w-3 text-accent" />
+
+                <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">
+                  {s.title}
+                </h3>
+                <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">
+                  {s.desc}
+                </p>
+                <div
+                  className={`relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground ring-1 ${a.chipRing}`}
+                >
+                  <Sparkles className={`h-3 w-3 ${a.text}`} />
                   {s.outcome}
                 </div>
               </Link>
-            </TiltCard>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
