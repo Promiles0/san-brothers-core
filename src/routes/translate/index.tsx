@@ -18,6 +18,10 @@ import { TranslateLayout } from "@/components/layout/translate-layout";
 import { TranslateCta } from "@/components/marketing/translate-cta";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { resolveServiceIntentDestination } from "@/lib/navigation/service-intents";
+import { DotGrid } from "@/components/fx/dot-grid";
+import { Aurora } from "@/components/fx/aurora";
+import { WordMask } from "@/components/fx/word-mask";
+import { Magnetic } from "@/components/fx/magnetic";
 
 export const Route = createFileRoute("/translate/")({
   head: () => ({
@@ -125,34 +129,47 @@ function TranslateHome() {
   return (
     <TranslateLayout>
       <section className="relative overflow-hidden border-b border-border bg-linear-to-b from-accent/10 via-background to-primary/5">
-        <div className="mx-auto max-w-4xl px-4 py-20 text-center md:px-6 md:py-28">
+        <Aurora tone="accent" opacity={0.32} />
+        <DotGrid
+          className="text-foreground/55 dark:text-foreground/40"
+          spacing={28}
+          dotSize={1.3}
+          radius={170}
+          strength={16}
+          repel
+        />
+        <div className="relative mx-auto max-w-4xl px-4 py-20 text-center md:px-6 md:py-28">
           <div className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
             {t("translate.home.eyebrow")}
           </div>
           <h1 className="mt-5 text-balance text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-            {t("translate.home.hero.title")}
+            <WordMask text={t("translate.home.hero.title")} resetKey={t("translate.home.hero.title")} />
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted-foreground md:text-xl">
             {t("translate.home.hero.subtitle")}
           </p>
           <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row">
-            <Button
-              size="lg"
-              className="h-14 gap-2 px-8 text-base"
-              onClick={() => void handleIntent("live-interpreter")}
-            >
-              <Phone className="h-5 w-5" />
-              {t("translate.home.hero.primaryCta")}
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-14 gap-2 px-8 text-base"
-              onClick={() => void handleIntent("document-translation")}
-            >
-              <FileText className="h-5 w-5" />
-              {t("translate.home.hero.secondaryCta")}
-            </Button>
+            <Magnetic strength={18}>
+              <Button
+                size="lg"
+                className="h-14 gap-2 px-8 text-base"
+                onClick={() => void handleIntent("live-interpreter")}
+              >
+                <Phone className="h-5 w-5" />
+                {t("translate.home.hero.primaryCta")}
+              </Button>
+            </Magnetic>
+            <Magnetic strength={14}>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-14 gap-2 px-8 text-base"
+                onClick={() => void handleIntent("document-translation")}
+              >
+                <FileText className="h-5 w-5" />
+                {t("translate.home.hero.secondaryCta")}
+              </Button>
+            </Magnetic>
           </div>
           <p className="mt-5 text-sm text-muted-foreground">{t("translate.home.hero.note")}</p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">

@@ -21,6 +21,7 @@ import {
   Award,
   HeartHandshake,
   Star,
+  Quote,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,9 @@ import { Magnetic } from "@/components/fx/magnetic";
 import { AnimatedCounter } from "@/components/fx/animated-counter";
 import { ParallaxLayer } from "@/components/fx/parallax-layer";
 import { RotatingText } from "@/components/fx/rotating-text";
+import { DotGrid } from "@/components/fx/dot-grid";
+import { Aurora } from "@/components/fx/aurora";
+import { CursorSpotlight } from "@/components/fx/cursor-spotlight";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -52,14 +56,9 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-// ────────────────────────────────────────────────────────────
-//  Page
-// ────────────────────────────────────────────────────────────
-
 function Home() {
   return (
     <PublicLayout>
-      <PageStyles />
       <Hero />
       <StatsStrip />
       <ServicesGrid />
@@ -69,61 +68,6 @@ function Home() {
       <CtaSection />
       <StickyContact />
     </PublicLayout>
-  );
-}
-
-// ────────────────────────────────────────────────────────────
-//  Stats strip with animated counters
-// ────────────────────────────────────────────────────────────
-
-function StatsStrip() {
-  const stats = [
-    { value: 500, suffix: "+", label: "Clients served" },
-    { value: 15, suffix: "+", label: "Countries reached" },
-    { value: 17, suffix: "", label: "Services offered" },
-    { value: 98, suffix: "%", label: "On-time delivery" },
-  ];
-  return (
-    <section className="border-b border-border bg-background py-12 md:py-16">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 md:grid-cols-4 md:px-6">
-        {stats.map((s) => (
-          <div
-            key={s.label}
-            className="rounded-2xl border border-border bg-card p-6 text-center transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
-          >
-            <AnimatedCounter
-              to={s.value}
-              suffix={s.suffix}
-              className="block bg-gradient-to-br from-primary to-accent bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-5xl"
-            />
-            <div className="mt-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">{s.label}</div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-// ────────────────────────────────────────────────────────────
-//  Inline keyframes (small, theme-agnostic)
-// ────────────────────────────────────────────────────────────
-
-function PageStyles() {
-  return (
-    <style>{`
-      @keyframes home-fade-up {
-        from { opacity: 0; transform: translateY(16px); }
-        to   { opacity: 1; transform: translateY(0); }
-      }
-      .home-fade-up { animation: home-fade-up 0.7s cubic-bezier(0.16,1,0.3,1) both; }
-      .home-delay-1 { animation-delay: 0.08s; }
-      .home-delay-2 { animation-delay: 0.16s; }
-      .home-delay-3 { animation-delay: 0.24s; }
-      .home-delay-4 { animation-delay: 0.32s; }
-      @media (prefers-reduced-motion: reduce) {
-        .home-fade-up { animation: none !important; opacity: 1 !important; transform: none !important; }
-      }
-    `}</style>
   );
 }
 
@@ -141,37 +85,73 @@ function Hero() {
       return [t("home.heroTitle")];
     }
   })();
+
+  // Cursor → ripple burst on logo click (handled inside Logo3DScene by lifting state).
+  const stageRef = useRef<HTMLDivElement>(null);
+  const rippleRef = useRef<HTMLDivElement>(null);
+
+  const fireRipple = (clientX: number, clientY: number) => {
+    const stage = stageRef.current;
+    const ripple = rippleRef.current;
+    if (!stage || !ripple) return;
+    const r = stage.getBoundingClientRect();
+    ripple.style.setProperty("--rx-x", `${clientX - r.left}px`);
+    ripple.style.setProperty("--rx-y", `${clientY - r.top}px`);
+    ripple.classList.remove("is-burst");
+    void ripple.offsetWidth;
+    ripple.classList.add("is-burst");
+  };
+
+  // Floating service glyphs at varied parallax depths.
+  const glyphs: { icon: LucideIcon; cls: string; speed: number }[] = [
+    { icon: Plane, cls: "left-[6%] top-[18%] text-primary", speed: -0.35 },
+    { icon: Languages, cls: "right-[8%] top-[10%] text-accent", speed: 0.25 },
+    { icon: Calculator, cls: "left-[12%] bottom-[14%] text-emerald-500", speed: 0.4 },
+    { icon: Briefcase, cls: "right-[10%] bottom-[18%] text-amber-500", speed: -0.2 },
+    { icon: Globe, cls: "left-[45%] top-[6%] text-primary", speed: 0.15 },
+  ];
+
   return (
     <section
       className="relative overflow-hidden border-b border-border bg-gradient-to-b from-secondary/40 via-background to-background"
       data-fx-skip
     >
-      {/* Ambient mesh gradient — adapts to theme via tokens */}
-      <div aria-hidden className="home-mesh opacity-60 dark:opacity-50" />
-      <ParallaxLayer
-        speed={-0.25}
-        aria-hidden
-        className="pointer-events-none absolute -top-32 right-1/2 h-[28rem] w-[28rem] translate-x-1/2"
-      >
-        <div className="h-full w-full rounded-full bg-primary/10 blur-3xl" />
-      </ParallaxLayer>
-      <ParallaxLayer
-        speed={0.15}
-        aria-hidden
-        className="pointer-events-none absolute bottom-0 left-0 h-[20rem] w-[20rem]"
-      >
-        <div className="h-full w-full rounded-full bg-accent/10 blur-3xl" />
-      </ParallaxLayer>
+      {/* Aurora drift behind everything */}
+      <Aurora tone="mixed" opacity={0.32} />
+
+      {/* Warped dot-grid that reacts to the cursor */}
+      <DotGrid
+        className="text-foreground/55 dark:text-foreground/40"
+        spacing={28}
+        dotSize={1.3}
+        radius={170}
+        strength={16}
+        repel
+      />
+
+      {/* Floating service glyphs */}
+      {glyphs.map(({ icon: Icon, cls, speed }, idx) => (
+        <ParallaxLayer
+          key={idx}
+          speed={speed}
+          aria-hidden
+          className={`pointer-events-none absolute hidden md:block ${cls}`}
+        >
+          <span className="fx-glyph block opacity-[0.10] dark:opacity-[0.14]" style={{ animationDelay: `${idx * 1.4}s` }}>
+            <Icon className="h-16 w-16" />
+          </span>
+        </ParallaxLayer>
+      ))}
 
       <div className="relative mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
         <div className="grid items-center gap-12 md:grid-cols-2" data-fx-skip>
           {/* Copy */}
           <div data-fx="slide-right" data-fx-once="true" className="text-center md:text-left">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground backdrop-blur">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
               Trusted in 15+ countries
             </span>
-            <h1 className="mt-6 text-balance text-4xl font-black leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
+            <h1 className="mt-6 text-balance text-4xl font-black leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
               <RotatingText phrases={rotatingPhrases} />
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg md:mx-0">
@@ -229,18 +209,24 @@ function Hero() {
             </ul>
           </div>
 
-          {/* Visual: original brand mark rendered as a transparent 3D texture */}
+          {/* 3D logo stage */}
           <div
+            ref={stageRef}
             data-fx="zoom"
             data-fx-once="true"
-            className="relative mx-auto h-[260px] w-full max-w-sm sm:h-[320px] md:h-[430px] md:max-w-md"
+            className="fx-logo-stage relative mx-auto h-[260px] w-full max-w-sm sm:h-[320px] md:h-[430px] md:max-w-md"
+            onPointerDown={(e) => fireRipple(e.clientX, e.clientY)}
           >
+            {/* cursor-following soft light inside the stage only */}
+            <CursorSpotlight size={320} blend="screen" />
             <Logo3DScene />
+            {/* click ripple layer */}
+            <div ref={rippleRef} className="fx-logo-ripple" aria-hidden />
           </div>
         </div>
 
         {/* Language strip */}
-        <div className="home-fade-up home-delay-3 mt-14 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t border-border pt-8 text-sm text-muted-foreground">
+        <div className="mt-14 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t border-border pt-8 text-sm text-muted-foreground">
           <span className="text-xs font-semibold uppercase tracking-widest">We speak</span>
           {[
             { flag: "🇬🇧", lang: "English" },
@@ -260,7 +246,14 @@ function Hero() {
   );
 }
 
+// ────────────────────────────────────────────────────────────
+//  3D Logo — cursor-tilt + magnetic pull
+// ────────────────────────────────────────────────────────────
+
 function Logo3DScene() {
+  // pointer state shared with the Logo3D mesh via ref
+  const pointer = useRef({ x: 0, y: 0 });
+
   return (
     <Canvas
       aria-label="San Brothers logo"
@@ -268,18 +261,28 @@ function Logo3DScene() {
       dpr={[1, 1.8]}
       gl={{ alpha: true, antialias: true }}
       style={{ background: "transparent" }}
+      onPointerMove={(e) => {
+        const target = e.currentTarget as HTMLElement;
+        const r = target.getBoundingClientRect();
+        pointer.current.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+        pointer.current.y = ((e.clientY - r.top) / r.height) * 2 - 1;
+      }}
+      onPointerLeave={() => {
+        pointer.current.x = 0;
+        pointer.current.y = 0;
+      }}
     >
       <ambientLight intensity={1.9} />
       <directionalLight position={[3, 4, 5]} intensity={2.25} />
       <directionalLight position={[-3, -1, 2]} intensity={0.75} color="#ff4b3f" />
       <Suspense fallback={null}>
-        <Logo3D />
+        <Logo3D pointer={pointer} />
       </Suspense>
     </Canvas>
   );
 }
 
-function Logo3D() {
+function Logo3D({ pointer }: { pointer: React.MutableRefObject<{ x: number; y: number }> }) {
   const groupRef = useRef<THREE.Group>(null);
   const texture = useLoader(THREE.TextureLoader, "/sanlogo-Photoroom.png");
 
@@ -287,12 +290,29 @@ function Logo3D() {
   texture.anisotropy = 8;
   texture.needsUpdate = true;
 
-  useFrame(({ clock }) => {
-    if (!groupRef.current) return;
+  useFrame(({ clock }, delta) => {
+    const g = groupRef.current;
+    if (!g) return;
     const t = clock.getElapsedTime();
-    groupRef.current.rotation.y = Math.sin(t * 0.55) * 0.18;
-    groupRef.current.rotation.x = Math.sin(t * 0.4) * 0.045 - 0.04;
-    groupRef.current.scale.setScalar(1 + Math.sin(t * 0.8) * 0.018);
+
+    // idle drift
+    const idleY = Math.sin(t * 0.55) * 0.18;
+    const idleX = Math.sin(t * 0.4) * 0.045 - 0.04;
+
+    // cursor-driven targets
+    const tx = idleY + pointer.current.x * 0.5;
+    const ty = idleX - pointer.current.y * 0.4;
+    const tz = pointer.current.x * 0.18; // small parallax push
+
+    // damped lerp toward target
+    const k = Math.min(1, delta * 4);
+    g.rotation.y += (tx - g.rotation.y) * k;
+    g.rotation.x += (ty - g.rotation.x) * k;
+    g.position.x += (pointer.current.x * 0.15 - g.position.x) * k;
+    g.position.y += (-pointer.current.y * 0.12 - g.position.y) * k;
+    g.position.z += (tz - g.position.z) * k;
+
+    g.scale.setScalar(1 + Math.sin(t * 0.8) * 0.018);
   });
 
   const image = texture.image as HTMLImageElement | undefined;
@@ -321,44 +341,57 @@ function Logo3D() {
   );
 }
 
-function FloatingPreview({
-  className,
-  icon: Icon,
-  tag,
-  title,
-  status,
-  tone,
-}: {
-  className?: string;
-  icon: LucideIcon;
-  tag: string;
-  title: string;
-  status: string;
-  tone: "primary" | "accent" | "success";
-}) {
-  const tones = {
-    primary: "bg-primary/10 text-primary",
-    accent: "bg-accent/15 text-accent",
-    success: "bg-success/15 text-success",
-  } as const;
+// ────────────────────────────────────────────────────────────
+//  Editorial counter band
+// ────────────────────────────────────────────────────────────
+
+function StatsStrip() {
+  const stats = [
+    { value: 500, suffix: "+", label: "Clients served" },
+    { value: 15, suffix: "+", label: "Countries reached" },
+    { value: 17, suffix: "", label: "Services offered" },
+    { value: 98, suffix: "%", label: "On-time delivery" },
+  ];
+  const marqueeWords = [
+    "Visa applicants",
+    "Importers",
+    "Diaspora families",
+    "Investors",
+    "Students",
+    "NGOs",
+    "Embassies",
+    "Founders",
+    "Translators",
+    "Consultants",
+  ];
   return (
-    <div
-      className={`glass-card rounded-2xl border border-border/70 p-4 shadow-2xl shadow-primary/10 ring-1 ring-white/5 ${className ?? ""}`}
-    >
-      <div className="flex items-center gap-3">
-        <div className={`grid h-10 w-10 place-items-center rounded-xl ${tones[tone]} shadow-inner`}>
-          <Icon className="h-5 w-5" />
-        </div>
-        <div className="min-w-0">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{tag}</div>
-          <div className="truncate text-sm font-semibold text-card-foreground">{title}</div>
+    <section className="relative overflow-hidden border-y border-accent/30 bg-foreground text-background">
+      {/* Marquee back-texture */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center opacity-[0.06]">
+        <div className="fx-marquee fx-marquee-slow whitespace-nowrap text-[6rem] font-black tracking-tighter">
+          {[...marqueeWords, ...marqueeWords].map((w, i) => (
+            <span key={i} className="px-8">
+              {w} ·
+            </span>
+          ))}
         </div>
       </div>
-      <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success ring-1 ring-success/30">
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success shadow-[0_0_8px_var(--success)]" />
-        {status}
+
+      <div className="relative mx-auto grid max-w-6xl grid-cols-2 divide-x divide-background/15 px-4 py-12 md:grid-cols-4 md:px-6 md:py-16">
+        {stats.map((s, i) => (
+          <div key={s.label} className={`px-4 text-center md:px-8 ${i === 0 ? "border-l-0" : ""}`}>
+            <AnimatedCounter
+              to={s.value}
+              suffix={s.suffix}
+              className="block text-5xl font-black tracking-tight sm:text-6xl md:text-7xl"
+            />
+            <div className="mt-2 text-[10px] font-bold uppercase tracking-[0.2em] text-background/60 sm:text-xs">
+              {s.label}
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -460,25 +493,22 @@ function ServicesGrid() {
         />
 
         <div className="mt-12 grid gap-5 sm:grid-cols-2">
-          {services.map((s, i) => {
+          {services.map((s) => {
             const a = ACCENT[s.accent];
             return (
               <Link
                 key={s.title}
                 to={s.href}
-                className={`service-card home-fade-up home-delay-${i + 1} group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 ease-out will-change-transform hover:-translate-y-1 hover:border-transparent hover:shadow-2xl hover:${a.ring} hover:ring-1`}
+                className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 ease-out will-change-transform hover:-translate-y-1 hover:border-transparent hover:shadow-2xl hover:${a.ring} hover:ring-1`}
               >
-                {/* top accent line */}
                 <span
                   aria-hidden
                   className={`pointer-events-none absolute inset-x-0 top-0 h-[2px] origin-left scale-x-0 ${a.bg} transition-transform duration-500 ease-out group-hover:scale-x-100`}
                 />
-                {/* corner glow */}
                 <span
                   aria-hidden
                   className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-radial ${a.glow} to-transparent opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100`}
                 />
-                {/* subtle grid */}
                 <span
                   aria-hidden
                   className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:linear-gradient(to_right,currentColor_1px,transparent_1px),linear-gradient(to_bottom,currentColor_1px,transparent_1px)] [background-size:24px_24px]"
@@ -500,9 +530,7 @@ function ServicesGrid() {
                 <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">
                   {s.title}
                 </h3>
-                <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">
-                  {s.desc}
-                </p>
+                <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
                 <div
                   className={`relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground ring-1 ${a.chipRing}`}
                 >
@@ -519,13 +547,17 @@ function ServicesGrid() {
 }
 
 // ────────────────────────────────────────────────────────────
-//  Why us
+//  Why us — Bento grid
 // ────────────────────────────────────────────────────────────
 
 function WhyUs() {
   const { t } = useI18n();
-  const items: { icon: LucideIcon; title: string; desc: string }[] = [
-    { icon: Globe, title: t("home.why.intl.title"), desc: t("home.why.intl.desc") },
+  const feature = {
+    icon: Globe,
+    title: t("home.why.intl.title"),
+    desc: t("home.why.intl.desc"),
+  };
+  const tiles: { icon: LucideIcon; title: string; desc: string }[] = [
     { icon: Clock, title: t("home.why.access.title"), desc: t("home.why.access.desc") },
     { icon: Languages, title: t("home.why.multi.title"), desc: t("home.why.multi.desc") },
     {
@@ -555,12 +587,51 @@ function WhyUs() {
           align="center"
         />
 
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((w, i) => (
+        <div className="mt-12 grid auto-rows-[minmax(180px,_auto)] gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Feature tile spans 2 cols on lg */}
+          <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-card to-accent/10 p-8 sm:col-span-2 sm:row-span-2 lg:col-span-2">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-primary/15 blur-3xl"
+            />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -bottom-16 -left-12 h-48 w-48 rounded-full bg-accent/15 blur-3xl"
+            />
+            <div className="relative">
+              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/30">
+                <feature.icon className="h-7 w-7" />
+              </div>
+              <h3 className="mt-6 text-2xl font-black tracking-tight text-card-foreground md:text-3xl">
+                {feature.title}
+              </h3>
+              <p className="mt-3 max-w-lg text-base leading-relaxed text-muted-foreground">
+                {feature.desc}
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {["EN", "中文", "RW", "FR", "AR"].map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-border bg-background/60 px-2.5 py-1 text-xs font-semibold text-muted-foreground backdrop-blur"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {tiles.map((w, i) => (
             <div
               key={w.title}
-              className={`home-fade-up home-delay-${(i % 4) + 1} group rounded-2xl border border-border bg-card p-6 transition-colors hover:border-accent/30`}
+              className={`group relative overflow-hidden rounded-3xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-accent/40 hover:shadow-xl ${
+                i === 1 ? "lg:row-span-2" : ""
+              }`}
             >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-primary to-accent opacity-0 transition-opacity group-hover:opacity-100"
+              />
               <div className="grid h-11 w-11 place-items-center rounded-xl bg-accent/10 text-accent">
                 <w.icon className="h-5 w-5" />
               </div>
@@ -584,11 +655,7 @@ function Process() {
     { icon: UserPlus, title: t("home.steps.register.title"), desc: t("home.steps.register.desc") },
     { icon: LayoutGrid, title: t("home.steps.choose.title"), desc: t("home.steps.choose.desc") },
     { icon: Upload, title: t("home.steps.upload.title"), desc: t("home.steps.upload.desc") },
-    {
-      icon: CheckCircle,
-      title: t("home.steps.track.title"),
-      desc: t("home.steps.track.desc"),
-    },
+    { icon: CheckCircle, title: t("home.steps.track.title"), desc: t("home.steps.track.desc") },
   ];
 
   const containerRef = useRef<HTMLOListElement | null>(null);
@@ -629,7 +696,6 @@ function Process() {
         />
 
         <div className="relative mt-12">
-          {/* Connecting track (desktop) */}
           <div
             aria-hidden
             className="pointer-events-none absolute left-0 right-0 top-[3.25rem] hidden h-0.5 rounded-full bg-border lg:block"
@@ -642,12 +708,18 @@ function Process() {
               <li
                 key={s.title}
                 data-step={i}
-                className={`process-step home-fade-up home-delay-${i + 1} relative rounded-2xl border border-border bg-card/80 p-6 backdrop-blur transition-all duration-500 ${
+                className={`process-step relative rounded-2xl border border-border bg-card/80 p-6 backdrop-blur transition-all duration-500 ${
                   lit[i] ? "is-lit border-primary/30 shadow-lg shadow-primary/10" : ""
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <span className="step-num grid h-10 w-10 place-items-center rounded-full bg-secondary text-sm font-bold text-muted-foreground">
+                  <span
+                    className={`grid h-10 w-10 place-items-center rounded-full text-sm font-bold transition-colors duration-500 ${
+                      lit[i]
+                        ? "bg-gradient-to-br from-primary to-accent text-primary-foreground"
+                        : "bg-secondary text-muted-foreground"
+                    }`}
+                  >
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <s.icon
@@ -666,12 +738,8 @@ function Process() {
 }
 
 // ────────────────────────────────────────────────────────────
-//  Social proof (real-data ready, hides gracefully when empty)
+//  Social proof
 // ────────────────────────────────────────────────────────────
-
-// Replace with real client logos when ready. Testimonials are fetched from the
-// `reviews` table where status='approved' AND is_featured=true.
-const REAL_LOGOS: { name: string; src?: string }[] = [];
 
 interface FeaturedReview {
   id: string;
@@ -705,18 +773,15 @@ const PARTNER_LOGOS: PartnerLogo[] = [
   { name: "Rwanda Development Board", src: "/logos/rdb.png", bgColor: "#FFFFFF" },
   { name: "Irembo Gov", src: "/logos/irembo-gov.png", bgColor: "#005FD3" },
   { name: "we the best ", src: "/logos/thebest .png", bgColor: "#FFFFFF" },
-  // Add more partner logos here as they become available
 ];
 
 function PartnerLogoMarquee() {
   const trackLogos = [...PARTNER_LOGOS, ...PARTNER_LOGOS];
-
   return (
     <div className="relative overflow-hidden rounded-xl border border-border bg-card/30 py-8">
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-background to-transparent sm:w-24" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-background to-transparent sm:w-24" />
-
-      <div className="group flex w-max animate-marquee gap-6 px-6 hover:paused sm:gap-8">
+      <div className="fx-marquee fx-marquee-pause gap-6 px-6 sm:gap-8">
         {trackLogos.map((logo, i) => (
           <div
             key={`${logo.name}-${i}`}
@@ -733,7 +798,6 @@ function PartnerLogoMarquee() {
 
 function SocialProof() {
   const { t } = useI18n();
-  const hasLogos = REAL_LOGOS.length > 0;
   const [featured, setFeatured] = useState<FeaturedReview[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
 
@@ -757,6 +821,9 @@ function SocialProof() {
     };
   }, []);
 
+  const hero = featured[0];
+  const rest = featured.slice(1);
+
   return (
     <section className="border-b border-border bg-secondary/40 py-20 md:py-24">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
@@ -767,28 +834,57 @@ function SocialProof() {
           align="center"
         />
 
-        {hasLogos ? (
-          <div className="mt-10 grid grid-cols-2 items-center gap-6 sm:grid-cols-3 md:grid-cols-5">
-            {REAL_LOGOS.map((l) => (
-              <div
-                key={l.name}
-                className="grid h-16 place-items-center rounded-xl border border-border bg-card text-sm font-semibold text-muted-foreground"
-              >
-                {l.src ? <img src={l.src} alt={l.name} loading="lazy" className="max-h-10 opacity-80" /> : l.name}
+        {/* Editorial pull-quote (when at least one featured review exists) */}
+        {hero ? (
+          <figure className="relative mx-auto mt-12 max-w-4xl overflow-hidden rounded-3xl border border-border bg-card p-8 sm:p-12">
+            <Quote
+              aria-hidden
+              className="absolute -left-2 -top-2 h-28 w-28 text-accent/15 sm:-left-4 sm:-top-4 sm:h-40 sm:w-40"
+              strokeWidth={1}
+            />
+            <div className="relative">
+              <div className="flex items-center gap-0.5">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <Star
+                    key={n}
+                    className={`h-5 w-5 ${
+                      n <= hero.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"
+                    }`}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-10">
-            <div className="mb-6 flex justify-center">
-              <span className="inline-block rounded-full border border-border bg-card px-3 py-1 text-xs font-bold uppercase tracking-widest text-accent">
-                PARTNERS & RECOGNITION
-              </span>
+              <blockquote className="mt-6 text-balance text-2xl font-medium leading-snug text-card-foreground sm:text-3xl md:text-4xl">
+                “{hero.review_text}”
+              </blockquote>
+              <figcaption className="mt-6 flex items-center gap-3 text-sm">
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                  {hero.client_display_name
+                    .split(" ")
+                    .map((p) => p[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase()}
+                </div>
+                <div>
+                  <div className="font-semibold text-card-foreground">{hero.client_display_name}</div>
+                  <div className="text-muted-foreground">{relativeTime(hero.created_at)}</div>
+                </div>
+              </figcaption>
             </div>
-            <PartnerLogoMarquee />
-          </div>
-        )}
+          </figure>
+        ) : null}
 
+        {/* Partner logos marquee */}
+        <div className="mt-12">
+          <div className="mb-6 flex justify-center">
+            <span className="inline-block rounded-full border border-border bg-card px-3 py-1 text-xs font-bold uppercase tracking-widest text-accent">
+              Partners & recognition
+            </span>
+          </div>
+          <PartnerLogoMarquee />
+        </div>
+
+        {/* Supporting reviews grid */}
         {loadingReviews ? (
           <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-live="polite">
             <span className="sr-only">{t("reviews.home.loading")}</span>
@@ -804,19 +900,12 @@ function SocialProof() {
                   <div className="h-3 w-11/12 rounded bg-muted" />
                   <div className="h-3 w-2/3 rounded bg-muted" />
                 </div>
-                <div className="flex items-center gap-3 border-t border-border pt-4">
-                  <div className="h-9 w-9 rounded-full bg-muted" />
-                  <div className="space-y-1.5">
-                    <div className="h-3 w-24 rounded bg-muted" />
-                    <div className="h-2.5 w-16 rounded bg-muted" />
-                  </div>
-                </div>
               </div>
             ))}
           </div>
-        ) : featured.length > 0 ? (
+        ) : rest.length > 0 ? (
           <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {featured.map((r) => (
+            {rest.map((r) => (
               <figure
                 key={r.id}
                 className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
@@ -851,14 +940,14 @@ function SocialProof() {
               </figure>
             ))}
           </div>
-        ) : (
+        ) : !hero ? (
           <div className="mt-12 flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-card/50 px-6 py-12 text-center">
             <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10">
               <Star className="h-5 w-5 text-primary" />
             </div>
             <p className="max-w-md text-sm text-muted-foreground">{t("reviews.home.empty")}</p>
           </div>
-        )}
+        ) : null}
       </div>
     </section>
   );
@@ -911,10 +1000,6 @@ function CtaSection() {
   );
 }
 
-// ────────────────────────────────────────────────────────────
-//  Sticky mobile contact
-// ────────────────────────────────────────────────────────────
-
 function StickyContact() {
   return (
     <div
@@ -932,10 +1017,6 @@ function StickyContact() {
   );
 }
 
-// ────────────────────────────────────────────────────────────
-//  Shared section header
-// ────────────────────────────────────────────────────────────
-
 function SectionHeader({
   eyebrow,
   title,
@@ -948,7 +1029,7 @@ function SectionHeader({
   align?: "left" | "center";
 }) {
   return (
-    <div className={`home-fade-up max-w-2xl ${align === "center" ? "mx-auto text-center" : "text-left"}`}>
+    <div className={`max-w-2xl ${align === "center" ? "mx-auto text-center" : "text-left"}`}>
       <span className="inline-block rounded-full border border-border bg-card px-3 py-1 text-xs font-bold uppercase tracking-widest text-accent">
         {eyebrow}
       </span>
