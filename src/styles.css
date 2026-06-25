@@ -709,6 +709,189 @@
   animation: fx-draw 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* ─── Word-mask reveal ─── */
+.fx-word-mask {
+  display: inline;
+}
+.fx-word-mask-clip {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  line-height: 1.05;
+  padding-bottom: 0.08em;
+}
+.fx-word-mask-word {
+  display: inline-block;
+  transform: translateY(110%);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.fx-word-mask.is-in .fx-word-mask-word {
+  animation: fx-word-rise 0.85s cubic-bezier(0.2, 0.9, 0.25, 1) forwards;
+}
+@keyframes fx-word-rise {
+  0% { transform: translateY(110%); opacity: 0; }
+  60% { opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* ─── Aurora ─── */
+.fx-aurora {
+  opacity: var(--fx-aurora-opacity, 0.35);
+}
+.fx-aurora-layer {
+  position: absolute;
+  inset: -20%;
+  filter: blur(60px);
+  will-change: transform;
+}
+.fx-aurora-a {
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    color-mix(in oklab, var(--primary) 55%, transparent),
+    transparent 25%,
+    color-mix(in oklab, var(--accent) 50%, transparent),
+    transparent 60%,
+    color-mix(in oklab, var(--primary) 45%, transparent)
+  );
+  animation: fx-aurora-spin 60s linear infinite;
+}
+.fx-aurora-b {
+  background: radial-gradient(
+    closest-side at 30% 40%,
+    color-mix(in oklab, var(--accent) 60%, transparent),
+    transparent 70%
+  ),
+  radial-gradient(
+    closest-side at 70% 60%,
+    color-mix(in oklab, var(--primary) 55%, transparent),
+    transparent 70%
+  );
+  animation: fx-aurora-drift 42s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+[data-tone="primary"] .fx-aurora-b {
+  background: radial-gradient(
+    closest-side at 35% 50%,
+    color-mix(in oklab, var(--primary) 70%, transparent),
+    transparent 70%
+  );
+}
+[data-tone="accent"] .fx-aurora-b {
+  background: radial-gradient(
+    closest-side at 60% 50%,
+    color-mix(in oklab, var(--accent) 70%, transparent),
+    transparent 70%
+  );
+}
+@keyframes fx-aurora-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes fx-aurora-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  25% { transform: translate3d(4%, -3%, 0) scale(1.08); }
+  50% { transform: translate3d(-3%, 2%, 0) scale(0.96); }
+  75% { transform: translate3d(2%, 4%, 0) scale(1.04); }
+}
+
+/* ─── Cursor spotlight ─── */
+.fx-cursor-spot {
+  background: radial-gradient(
+    var(--spot-size, 380px) circle at var(--mx, -9999px) var(--my, -9999px),
+    var(--spot-color, color-mix(in oklab, var(--primary) 60%, transparent)),
+    transparent 60%
+  );
+  transition: background 120ms linear;
+}
+
+/* ─── Logo3D wrapper: cursor ripple ─── */
+.fx-logo-stage { position: relative; }
+.fx-logo-ripple {
+  position: absolute;
+  left: var(--rx-x, 50%);
+  top: var(--rx-y, 50%);
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  margin-top: -6px;
+  border-radius: 9999px;
+  border: 2px solid color-mix(in oklab, var(--primary) 70%, transparent);
+  pointer-events: none;
+  opacity: 0;
+}
+.fx-logo-ripple.is-burst {
+  animation: fx-ripple-burst 0.75s cubic-bezier(0.2, 0.9, 0.25, 1) forwards;
+}
+@keyframes fx-ripple-burst {
+  0% { opacity: 0.9; transform: scale(0.4); border-width: 3px; }
+  100% { opacity: 0; transform: scale(28); border-width: 1px; }
+}
+
+/* ─── Marquee (editorial counter band + social proof) ─── */
+@keyframes fx-marquee-x {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes fx-marquee-x-rev {
+  from { transform: translate3d(-50%, 0, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+.fx-marquee {
+  display: flex;
+  width: max-content;
+  animation: fx-marquee-x 40s linear infinite;
+  will-change: transform;
+}
+.fx-marquee-rev {
+  animation: fx-marquee-x-rev 50s linear infinite;
+}
+.fx-marquee-slow {
+  animation-duration: 70s;
+}
+.fx-marquee-pause:hover { animation-play-state: paused; }
+
+/* ─── Floating glyph slow drift ─── */
+@keyframes fx-glyph-float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(0, -14px, 0) rotate(4deg); }
+}
+.fx-glyph {
+  animation: fx-glyph-float 9s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ─── Process stepper progress track ─── */
+.process-track {
+  background: linear-gradient(to right, var(--primary), var(--accent));
+  width: calc(var(--track, 0) * 100%);
+  transition: width 0.8s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+/* ─── Home mesh fallback (kept simple, very subtle) ─── */
+.home-mesh {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(900px circle at 15% 10%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 60%),
+    radial-gradient(700px circle at 85% 90%, color-mix(in oklab, var(--accent) 18%, transparent), transparent 60%);
+  pointer-events: none;
+}
+
+/* ─── Blueprint grid (consultancy) ─── */
+.fx-blueprint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--primary) 16%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--primary) 16%, transparent) 1px, transparent 1px),
+    linear-gradient(to right, color-mix(in oklab, var(--primary) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--primary) 8%, transparent) 1px, transparent 1px);
+  background-size: 96px 96px, 96px 96px, 16px 16px, 16px 16px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black, transparent 80%);
+  opacity: 0.55;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fx-page-in,
   .fx-page-fade,
