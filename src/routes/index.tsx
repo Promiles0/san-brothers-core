@@ -28,7 +28,7 @@ import { PublicLayout } from "@/components/layout/public-layout";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase } from "@/lib/supabase";
 import { Magnetic } from "@/components/fx/magnetic";
-
+import { TiltCard } from "@/components/fx/tilt-card";
 import { AnimatedCounter } from "@/components/fx/animated-counter";
 import { ParallaxLayer } from "@/components/fx/parallax-layer";
 import { RotatingText } from "@/components/fx/rotating-text";
@@ -96,9 +96,7 @@ function StatsStrip() {
               suffix={s.suffix}
               className="block bg-gradient-to-br from-primary to-accent bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-5xl"
             />
-            <div className="mt-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              {s.label}
-            </div>
+            <div className="mt-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">{s.label}</div>
           </div>
         ))}
       </div>
@@ -205,7 +203,7 @@ function Hero() {
 
             <div className="mt-4 flex justify-center md:justify-start">
               <a
-                href="https://wa.me/250788687288"
+                href="https://wa.me/250788453192"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
@@ -306,13 +304,7 @@ function Logo3D() {
     <group ref={groupRef} rotation={[0, -0.08, 0]}>
       <mesh position={[0.1, -0.12, -0.16]} scale={[1.01, 1.01, 1]}>
         <planeGeometry args={[width, height]} />
-        <meshBasicMaterial
-          map={texture}
-          transparent
-          opacity={0.22}
-          color="#160000"
-          depthWrite={false}
-        />
+        <meshBasicMaterial map={texture} transparent opacity={0.22} color="#160000" depthWrite={false} />
       </mesh>
       <mesh>
         <planeGeometry args={[width, height]} />
@@ -358,9 +350,7 @@ function FloatingPreview({
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-            {tag}
-          </div>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{tag}</div>
           <div className="truncate text-sm font-semibold text-card-foreground">{title}</div>
         </div>
       </div>
@@ -384,7 +374,6 @@ function ServicesGrid() {
     desc: string;
     outcome: string;
     href: string;
-    accent: string; // tailwind color e.g. "blue-500"
   }[] = [
     {
       icon: Plane,
@@ -392,7 +381,6 @@ function ServicesGrid() {
       desc: t("home.serviceDesc.visa"),
       outcome: "Student & work visas handled end to end",
       href: "/services/visa",
-      accent: "blue-500",
     },
     {
       icon: Calculator,
@@ -400,64 +388,23 @@ function ServicesGrid() {
       desc: t("home.serviceDesc.accounting"),
       outcome: "Books, tax filing & monthly reports",
       href: "/services/accounting",
-      accent: "emerald-500",
     },
     {
       icon: Languages,
       title: t("services.translation"),
       desc: t("home.serviceDesc.translation"),
       outcome: "Certified translation in 24 hours",
-      href: "/translate",
-      accent: "purple-500",
+      // href: "/services/translation",
+      href: "https://translate.sanbrothers.cn.com/",
     },
     {
       icon: Briefcase,
       title: t("services.consultancy"),
       desc: t("home.serviceDesc.consultancy"),
       outcome: "Company registration & advisory",
-      href: "/consultancy",
-      accent: "amber-500",
+      href: "https://consultancy.sanbrothers.cn.com/",
     },
   ];
-
-  // Per-accent class map (must be literal strings so Tailwind keeps them).
-  const ACCENT: Record<
-    string,
-    { glow: string; ring: string; text: string; from: string; to: string; chip: string }
-  > = {
-    "blue-500": {
-      glow: "shadow-blue-500/30",
-      ring: "ring-blue-500/40",
-      text: "text-blue-500",
-      from: "from-blue-500/20",
-      to: "to-blue-500/0",
-      chip: "bg-blue-500/10 text-blue-500 ring-blue-500/30",
-    },
-    "emerald-500": {
-      glow: "shadow-emerald-500/30",
-      ring: "ring-emerald-500/40",
-      text: "text-emerald-500",
-      from: "from-emerald-500/20",
-      to: "to-emerald-500/0",
-      chip: "bg-emerald-500/10 text-emerald-500 ring-emerald-500/30",
-    },
-    "purple-500": {
-      glow: "shadow-purple-500/30",
-      ring: "ring-purple-500/40",
-      text: "text-purple-500",
-      from: "from-purple-500/20",
-      to: "to-purple-500/0",
-      chip: "bg-purple-500/10 text-purple-500 ring-purple-500/30",
-    },
-    "amber-500": {
-      glow: "shadow-amber-500/30",
-      ring: "ring-amber-500/40",
-      text: "text-amber-500",
-      from: "from-amber-500/20",
-      to: "to-amber-500/0",
-      chip: "bg-amber-500/10 text-amber-500 ring-amber-500/30",
-    },
-  };
 
   return (
     <section className="border-b border-border bg-background py-20 md:py-24">
@@ -469,59 +416,31 @@ function ServicesGrid() {
         />
 
         <div className="mt-12 grid gap-5 sm:grid-cols-2">
-          {services.map((s, i) => {
-            const a = ACCENT[s.accent];
-            return (
+          {services.map((s, i) => (
+            <TiltCard key={s.title} max={6} className={`home-fade-up home-delay-${i + 1}`}>
               <Link
-                key={s.title}
                 to={s.href}
-                className={`service-card home-fade-up home-delay-${i + 1} group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-6 transition-[transform,box-shadow,border-color] duration-300 ease-out will-change-transform hover:-translate-y-1 hover:border-transparent hover:shadow-2xl hover:${a.glow}`}
+                className="service-card group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-6"
               >
-                {/* Animated gradient corner glow */}
                 <div
                   aria-hidden
-                  className={`pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br ${a.from} ${a.to} opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100`}
+                  className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                 />
-                {/* Subtle grid texture */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:linear-gradient(var(--foreground)_1px,transparent_1px),linear-gradient(90deg,var(--foreground)_1px,transparent_1px)] [background-size:24px_24px]"
-                />
-                {/* Animated accent border line */}
-                <div
-                  aria-hidden
-                  className={`pointer-events-none absolute left-0 top-0 h-[2px] w-0 bg-current ${a.text} transition-all duration-500 group-hover:w-full`}
-                />
-
                 <div className="relative flex items-start justify-between">
-                  <div
-                    className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${a.from} to-transparent ${a.text} ring-1 ${a.ring} transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}
-                  >
-                    <s.icon className="h-7 w-7" />
+                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 text-primary ring-1 ring-primary/20 transition-all duration-300 group-hover:from-primary group-hover:to-primary/80 group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/30">
+                    <s.icon className="h-6 w-6" />
                   </div>
-                  <div
-                    className={`grid h-9 w-9 place-items-center rounded-full border border-border bg-background/50 ${a.text} transition-all duration-300 group-hover:border-transparent group-hover:bg-current`}
-                  >
-                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-background" />
-                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-primary" />
                 </div>
-
-                <h3 className="relative mt-6 text-xl font-bold tracking-tight text-card-foreground">
-                  {s.title}
-                </h3>
-                <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {s.desc}
-                </p>
-
-                <div
-                  className={`relative mt-5 inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 transition-all ${a.chip}`}
-                >
-                  <Sparkles className="h-3 w-3" />
+                <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">{s.title}</h3>
+                <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+                <div className="relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-accent/20 transition-all group-hover:ring-accent/50 group-hover:shadow-[0_0_12px_color-mix(in_oklab,var(--accent)_30%,transparent)]">
+                  <Sparkles className="h-3 w-3 text-accent" />
                   {s.outcome}
                 </div>
               </Link>
-            );
-          })}
+            </TiltCard>
+          ))}
         </div>
       </div>
     </section>
@@ -644,10 +563,7 @@ function Process() {
             aria-hidden
             className="pointer-events-none absolute left-0 right-0 top-[3.25rem] hidden h-0.5 rounded-full bg-border lg:block"
           >
-            <div
-              className="process-track h-full rounded-full"
-              style={{ ["--track" as string]: String(trackPct) }}
-            />
+            <div className="process-track h-full rounded-full" style={{ ["--track" as string]: String(trackPct) }} />
           </div>
 
           <ol ref={containerRef} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -736,12 +652,7 @@ function PartnerLogoMarquee() {
             className="flex h-16 shrink-0 items-center justify-center rounded-lg px-6 shadow-sm transition-transform duration-300 hover:scale-105 sm:h-20 sm:px-8"
             style={{ backgroundColor: logo.bgColor }}
           >
-            <img
-              src={logo.src}
-              alt={logo.name}
-              className="h-9 w-auto object-contain sm:h-11"
-              loading="lazy"
-            />
+            <img src={logo.src} alt={logo.name} className="h-9 w-auto object-contain sm:h-11" loading="lazy" />
           </div>
         ))}
       </div>
@@ -792,11 +703,7 @@ function SocialProof() {
                 key={l.name}
                 className="grid h-16 place-items-center rounded-xl border border-border bg-card text-sm font-semibold text-muted-foreground"
               >
-                {l.src ? (
-                  <img src={l.src} alt={l.name} loading="lazy" className="max-h-10 opacity-80" />
-                ) : (
-                  l.name
-                )}
+                {l.src ? <img src={l.src} alt={l.name} loading="lazy" className="max-h-10 opacity-80" /> : l.name}
               </div>
             ))}
           </div>
@@ -812,17 +719,10 @@ function SocialProof() {
         )}
 
         {loadingReviews ? (
-          <div
-            className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
-            aria-busy="true"
-            aria-live="polite"
-          >
+          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-live="polite">
             <span className="sr-only">{t("reviews.home.loading")}</span>
             {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="flex animate-pulse flex-col gap-4 rounded-2xl border border-border bg-card p-6"
-              >
+              <div key={i} className="flex animate-pulse flex-col gap-4 rounded-2xl border border-border bg-card p-6">
                 <div className="flex items-center gap-1">
                   {[0, 1, 2, 3, 4].map((s) => (
                     <div key={s} className="h-4 w-4 rounded-sm bg-muted" />
@@ -873,9 +773,7 @@ function SocialProof() {
                       .toUpperCase()}
                   </div>
                   <div className="text-xs">
-                    <div className="font-semibold text-card-foreground">
-                      {r.client_display_name}
-                    </div>
+                    <div className="font-semibold text-card-foreground">{r.client_display_name}</div>
                     <div className="text-muted-foreground">{relativeTime(r.created_at)}</div>
                   </div>
                 </figcaption>
@@ -912,12 +810,8 @@ function CtaSection() {
         }}
       />
       <div className="relative mx-auto max-w-3xl px-4 text-center md:px-6">
-        <h2 className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl">
-          {t("home.ctaHeading")}
-        </h2>
-        <p className="mx-auto mt-4 max-w-xl text-base opacity-90 sm:text-lg">
-          {t("home.ctaSubtitle")}
-        </p>
+        <h2 className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl">{t("home.ctaHeading")}</h2>
+        <p className="mx-auto mt-4 max-w-xl text-base opacity-90 sm:text-lg">{t("home.ctaSubtitle")}</p>
         <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row">
           <Magnetic strength={18}>
             <Button asChild size="lg" variant="secondary" className="h-12 gap-2 px-7 text-base">
@@ -983,9 +877,7 @@ function SectionHeader({
   align?: "left" | "center";
 }) {
   return (
-    <div
-      className={`home-fade-up max-w-2xl ${align === "center" ? "mx-auto text-center" : "text-left"}`}
-    >
+    <div className={`home-fade-up max-w-2xl ${align === "center" ? "mx-auto text-center" : "text-left"}`}>
       <span className="inline-block rounded-full border border-border bg-card px-3 py-1 text-xs font-bold uppercase tracking-widest text-accent">
         {eyebrow}
       </span>
