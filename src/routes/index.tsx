@@ -28,7 +28,7 @@ import { PublicLayout } from "@/components/layout/public-layout";
 import { useI18n } from "@/lib/providers/i18n-provider";
 import { supabase } from "@/lib/supabase";
 import { Magnetic } from "@/components/fx/magnetic";
-import { TiltCard } from "@/components/fx/tilt-card";
+
 import { AnimatedCounter } from "@/components/fx/animated-counter";
 import { ParallaxLayer } from "@/components/fx/parallax-layer";
 import { RotatingText } from "@/components/fx/rotating-text";
