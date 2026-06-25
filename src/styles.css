@@ -906,7 +906,12 @@
   .fx-draw-icon line,
   .fx-draw-icon polyline,
   .fx-draw-icon rect,
-  .fx-magnetic {
+  .fx-magnetic,
+  .fx-aurora-layer,
+  .fx-glyph,
+  .fx-marquee,
+  .fx-marquee-rev,
+  .fx-logo-ripple {
     animation: none !important;
     transition: none !important;
     transform: none !important;
@@ -924,7 +929,8 @@
   .fx-rotating,
   .fx-rotating-active,
   .fx-rot-word-in,
-  .fx-rot-word-out {
+  .fx-rot-word-out,
+  .fx-word-mask-word {
     opacity: 1 !important;
     transform: none !important;
     filter: none !important;
@@ -933,3 +939,4 @@
   }
   .fx-scroll-progress { transition: none; }
 }
+
