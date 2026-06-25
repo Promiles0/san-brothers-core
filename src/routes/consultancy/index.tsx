@@ -93,41 +93,67 @@ function ConsultancyHome() {
     <ConsultancyLayout>
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border bg-linear-to-b from-primary/5 via-background to-accent/10">
-        <div className="mx-auto max-w-4xl px-4 py-20 text-center md:px-6 md:py-28">
+        <div className="fx-blueprint" aria-hidden />
+        <Aurora tone="primary" opacity={0.22} />
+        <CursorSpotlight size={420} blend="screen" />
+        <div className="relative mx-auto max-w-4xl px-4 py-20 text-center md:px-6 md:py-28">
           <div className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             San Brothers · Consultancy
           </div>
           <h1 className="mt-5 text-balance text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-            Expert Business Solutions
+            <WordMask text="Expert Business Solutions" resetKey="consultancy-hero" />
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted-foreground md:text-xl">
             Register your company, plan your growth, and navigate Rwandan business regulations with
             experts who speak your language.
           </p>
+
+          {/* Stat triplet */}
+          <div className="mx-auto mt-10 grid max-w-2xl grid-cols-3 divide-x divide-border rounded-2xl border border-border bg-card/60 py-5 backdrop-blur">
+            {[
+              { value: "500+", label: "Companies registered" },
+              { value: "15 yrs", label: "Experience" },
+              { value: "5", label: "Languages" },
+            ].map((s) => (
+              <div key={s.label} className="px-2 text-center md:px-4">
+                <div className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">{s.value}</div>
+                <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground sm:text-xs">
+                  {s.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap">
-            <Button
-              size="lg"
-              className="h-14 gap-2 px-6 text-base"
-              onClick={() => apply("company-registration")}
-            >
-              <Building2 className="h-5 w-5" /> Register a Company
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-14 gap-2 px-6 text-base"
-              onClick={() => apply("business-planning")}
-            >
-              <ClipboardCheck className="h-5 w-5" /> Business Planning
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-14 gap-2 px-6 text-base"
-              onClick={() => apply("trade-investment")}
-            >
-              <TrendingUp className="h-5 w-5" /> Trade & Investment
-            </Button>
+            <Magnetic strength={18}>
+              <Button
+                size="lg"
+                className="h-14 gap-2 px-6 text-base"
+                onClick={() => apply("company-registration")}
+              >
+                <Building2 className="h-5 w-5" /> Register a Company
+              </Button>
+            </Magnetic>
+            <Magnetic strength={14}>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-14 gap-2 px-6 text-base"
+                onClick={() => apply("business-planning")}
+              >
+                <ClipboardCheck className="h-5 w-5" /> Business Planning
+              </Button>
+            </Magnetic>
+            <Magnetic strength={14}>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-14 gap-2 px-6 text-base"
+                onClick={() => apply("trade-investment")}
+              >
+                <TrendingUp className="h-5 w-5" /> Trade & Investment
+              </Button>
+            </Magnetic>
           </div>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
             <span>🇬🇧 EN</span>
