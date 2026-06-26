@@ -36,6 +36,7 @@ import { Route as TranslateLiveRouteImport } from './routes/translate/live'
 import { Route as TranslateLanguagesRouteImport } from './routes/translate/languages'
 import { Route as TranslateHowItWorksRouteImport } from './routes/translate/how-it-works'
 import { Route as TranslateDocumentRouteImport } from './routes/translate/document'
+import { Route as TranslateBookRouteImport } from './routes/translate/book'
 import { Route as StaffVisaRouteImport } from './routes/staff.visa'
 import { Route as StaffTranslationRouteImport } from './routes/staff.translation'
 import { Route as StaffSettingsRouteImport } from './routes/staff.settings'
@@ -238,6 +239,11 @@ const TranslateHowItWorksRoute = TranslateHowItWorksRouteImport.update({
 const TranslateDocumentRoute = TranslateDocumentRouteImport.update({
   id: '/translate/document',
   path: '/translate/document',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TranslateBookRoute = TranslateBookRouteImport.update({
+  id: '/translate/book',
+  path: '/translate/book',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StaffVisaRoute = StaffVisaRouteImport.update({
@@ -642,6 +648,7 @@ export interface FileRoutesByFullPath {
   '/staff/settings': typeof StaffSettingsRoute
   '/staff/translation': typeof StaffTranslationRouteWithChildren
   '/staff/visa': typeof StaffVisaRouteWithChildren
+  '/translate/book': typeof TranslateBookRoute
   '/translate/document': typeof TranslateDocumentRoute
   '/translate/how-it-works': typeof TranslateHowItWorksRoute
   '/translate/languages': typeof TranslateLanguagesRoute
@@ -730,6 +737,7 @@ export interface FileRoutesByTo {
   '/staff/profile': typeof StaffProfileRoute
   '/staff/reports': typeof StaffReportsRoute
   '/staff/settings': typeof StaffSettingsRoute
+  '/translate/book': typeof TranslateBookRoute
   '/translate/document': typeof TranslateDocumentRoute
   '/translate/how-it-works': typeof TranslateHowItWorksRoute
   '/translate/languages': typeof TranslateLanguagesRoute
@@ -827,6 +835,7 @@ export interface FileRoutesById {
   '/staff/settings': typeof StaffSettingsRoute
   '/staff/translation': typeof StaffTranslationRouteWithChildren
   '/staff/visa': typeof StaffVisaRouteWithChildren
+  '/translate/book': typeof TranslateBookRoute
   '/translate/document': typeof TranslateDocumentRoute
   '/translate/how-it-works': typeof TranslateHowItWorksRoute
   '/translate/languages': typeof TranslateLanguagesRoute
@@ -926,6 +935,7 @@ export interface FileRouteTypes {
     | '/staff/settings'
     | '/staff/translation'
     | '/staff/visa'
+    | '/translate/book'
     | '/translate/document'
     | '/translate/how-it-works'
     | '/translate/languages'
@@ -1014,6 +1024,7 @@ export interface FileRouteTypes {
     | '/staff/profile'
     | '/staff/reports'
     | '/staff/settings'
+    | '/translate/book'
     | '/translate/document'
     | '/translate/how-it-works'
     | '/translate/languages'
@@ -1110,6 +1121,7 @@ export interface FileRouteTypes {
     | '/staff/settings'
     | '/staff/translation'
     | '/staff/visa'
+    | '/translate/book'
     | '/translate/document'
     | '/translate/how-it-works'
     | '/translate/languages'
@@ -1175,6 +1187,7 @@ export interface RootRouteChildren {
   ServicesConsultancyRoute: typeof ServicesConsultancyRoute
   ServicesTranslationRoute: typeof ServicesTranslationRoute
   ServicesVisaRoute: typeof ServicesVisaRoute
+  TranslateBookRoute: typeof TranslateBookRoute
   TranslateDocumentRoute: typeof TranslateDocumentRoute
   TranslateHowItWorksRoute: typeof TranslateHowItWorksRoute
   TranslateLanguagesRoute: typeof TranslateLanguagesRoute
@@ -1373,6 +1386,13 @@ declare module '@tanstack/react-router' {
       path: '/translate/document'
       fullPath: '/translate/document'
       preLoaderRoute: typeof TranslateDocumentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/translate/book': {
+      id: '/translate/book'
+      path: '/translate/book'
+      fullPath: '/translate/book'
+      preLoaderRoute: typeof TranslateBookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/staff/visa': {
@@ -2151,6 +2171,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesConsultancyRoute: ServicesConsultancyRoute,
   ServicesTranslationRoute: ServicesTranslationRoute,
   ServicesVisaRoute: ServicesVisaRoute,
+  TranslateBookRoute: TranslateBookRoute,
   TranslateDocumentRoute: TranslateDocumentRoute,
   TranslateHowItWorksRoute: TranslateHowItWorksRoute,
   TranslateLanguagesRoute: TranslateLanguagesRoute,

@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link as RouterLink, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
   Headphones,
@@ -13,7 +13,13 @@ import {
   Mic,
   ShieldCheck,
   Zap,
+  CalendarPlus,
+  CalendarClock,
+  Video,
+  MapPin,
+  X,
 } from "lucide-react";
+
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
@@ -564,12 +570,23 @@ function InterpreterLandingPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
       {/* Page header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Live Interpreter</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Connect instantly with a professional interpreter in seconds.
-        </p>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Live Interpreter</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Connect instantly with a professional interpreter in seconds.
+          </p>
+        </div>
+        <Button asChild variant="outline" className="gap-2">
+          <RouterLink to="/translate/book">
+            <CalendarPlus className="h-4 w-4" /> Schedule a Session
+          </RouterLink>
+        </Button>
       </div>
+
+      <UpcomingBookingsSection />
+
+
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* ── LEFT (3/5) ── */}
@@ -1197,6 +1214,172 @@ function StaticPkgCard({
       >
         Buy Now
       </Button>
+    </div>
+  );
+}
+
+// ── Upcoming Bookings ─────────────────────────────────────────────────────────
+interface UpcomingBookingRow {
+  id: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  language_from: string;
+  language_to: string;
+  booking_type: "remote" | "onsite";
+  status: "pending" | "confirmed";
+  location_type: string | null;
+  location_address: string | null;
+}
+
+function UpcomingBookingsSection() {
+  const { user } = useAuth();
+  const [rows, setRows] = useState<UpcomingBookingRow[] | null>(null);
+  const [flags, setFlags] = useState<Record<string, string>>({});
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+  const load = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("interpreter_bookings")
+      .select(
+        "id,scheduled_at,duration_minutes,language_from,language_to,booking_type,status,location_type,location_address",
+      )
+      .eq("client_id", user.id)
+      .gte("scheduled_at", new Date().toISOString())
+      .in("status", ["pending", "confirmed"])
+      .order("scheduled_at", { ascending: true });
+    setRows((data ?? []) as UpcomingBookingRow[]);
+  };
+
+  useEffect(() => {
+    void load();
+    void supabase
+      .from("supported_languages")
+      .select("code,flag_emoji")
+      .eq("is_active", true)
+      .then(({ data }) => {
+        const map: Record<string, string> = {};
+        for (const r of (data ?? []) as Array<{ code: string; flag_emoji: string | null }>) {
+          map[r.code] = r.flag_emoji ?? "🌐";
+        }
+        setFlags(map);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  const cancel = async (id: string) => {
+    if (!user) return;
+    setCancellingId(id);
+    const { error } = await supabase
+      .from("interpreter_bookings")
+      .update({
+        status: "cancelled",
+        cancelled_by: user.id,
+        cancelled_at: new Date().toISOString(),
+      })
+      .eq("id", id);
+    setCancellingId(null);
+    if (error) {
+      toast.error("Could not cancel booking");
+      return;
+    }
+    toast.success("Booking cancelled");
+    void load();
+  };
+
+  if (rows == null) {
+    return <Skeleton className="mb-6 h-32 rounded-xl" />;
+  }
+
+  if (rows.length === 0) {
+    return (
+      <div className="mb-6 rounded-xl border border-dashed bg-card p-6 text-center">
+        <CalendarClock className="mx-auto h-7 w-7 text-muted-foreground" />
+        <p className="mt-2 text-sm text-muted-foreground">
+          No upcoming bookings — schedule your first session
+        </p>
+        <Button asChild size="sm" className="mt-3 gap-2">
+          <RouterLink to="/translate/book">
+            <CalendarPlus className="h-4 w-4" /> Schedule a Session
+          </RouterLink>
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-6 space-y-3">
+      <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        Upcoming Bookings
+      </h2>
+      <div className="grid gap-3 md:grid-cols-2">
+        {rows.map((b) => {
+          const when = new Date(b.scheduled_at).toLocaleString("en-GB", {
+            timeZone: "Africa/Kigali",
+            weekday: "short",
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          });
+          const remote = b.booking_type === "remote";
+          return (
+            <div key={b.id} className="rounded-xl border bg-card p-4">
+              <div className="flex items-start justify-between gap-2">
+                <Badge
+                  className={cn(
+                    "gap-1",
+                    remote
+                      ? "bg-purple-500/15 text-purple-700 dark:text-purple-300"
+                      : "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+                  )}
+                >
+                  {remote ? <Video className="h-3 w-3" /> : <MapPin className="h-3 w-3" />}
+                  {remote ? "Remote" : "On-Site"}
+                </Badge>
+                <Badge
+                  className={cn(
+                    b.status === "confirmed"
+                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                      : "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+                  )}
+                >
+                  {b.status === "confirmed" ? "Confirmed" : "Awaiting Confirmation"}
+                </Badge>
+              </div>
+              <p className="mt-3 text-sm font-medium">{when} CAT</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {flags[b.language_from] ?? "🌐"} {b.language_from.toUpperCase()} →{" "}
+                {flags[b.language_to] ?? "🌐"} {b.language_to.toUpperCase()} ·{" "}
+                {b.duration_minutes >= 60
+                  ? `${(b.duration_minutes / 60).toFixed(b.duration_minutes % 60 === 0 ? 0 : 1)} hr`
+                  : `${b.duration_minutes} min`}
+              </p>
+              {!remote && b.location_address && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {b.location_type ? `${b.location_type} · ` : ""}
+                  {b.location_address}
+                </p>
+              )}
+              {b.status === "pending" && (
+                <div className="mt-3">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={cancellingId === b.id}
+                    onClick={() => void cancel(b.id)}
+                    className="gap-1"
+                  >
+                    <X className="h-3.5 w-3.5" /> Cancel
+                  </Button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

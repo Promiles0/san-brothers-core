@@ -1,6 +1,31 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Headphones, Phone, DollarSign, Clock, PhoneCall, Star, ArrowRight } from "lucide-react";
+import {
+  Headphones,
+  Phone,
+  DollarSign,
+  Clock,
+  PhoneCall,
+  Star,
+  ArrowRight,
+  CalendarClock,
+  Video,
+  MapPin,
+  Check,
+  X,
+} from "lucide-react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { logAudit } from "@/lib/audit";
+
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
@@ -234,6 +259,10 @@ function LiveCallsPage() {
         </CardContent>
       </Card>
 
+      <ScheduledBookingsCard />
+
+
+
       {/* Recent calls history */}
       <Card>
         <CardHeader className="pb-3">
@@ -348,5 +377,345 @@ function Row({ label, value, bold }: { label: string; value: string; bold?: bool
       <span className="text-muted-foreground">{label}</span>
       <span className={"tabular-nums " + (bold ? "font-bold text-foreground" : "")}>{value}</span>
     </div>
+  );
+}
+
+// ── Scheduled Bookings (staff management) ────────────────────────────────────
+interface BookingRow {
+  id: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  language_from: string;
+  language_to: string;
+  booking_type: "remote" | "onsite";
+  status: "pending" | "confirmed" | "rejected" | "cancelled" | "completed";
+  location_type: string | null;
+  location_address: string | null;
+  location_notes: string | null;
+  client_notes: string | null;
+  client: { full_name: string | null; email: string | null } | null;
+}
+
+type Tab = "pending" | "confirmed" | "all";
+
+function startOfWeek(d: Date) {
+  const x = new Date(d);
+  const day = x.getDay() === 0 ? 6 : x.getDay() - 1;
+  x.setDate(x.getDate() - day);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+
+function ScheduledBookingsCard() {
+  const { user } = useAuth();
+  const [rows, setRows] = useState<BookingRow[] | null>(null);
+  const [tab, setTab] = useState<Tab>("pending");
+  const [rejecting, setRejecting] = useState<BookingRow | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const load = async () => {
+    const { data } = await supabase
+      .from("interpreter_bookings")
+      .select(
+        "id,scheduled_at,duration_minutes,language_from,language_to,booking_type,status,location_type,location_address,location_notes,client_notes,client:users!client_id(full_name,email)",
+      )
+      .order("scheduled_at", { ascending: true })
+      .limit(200);
+    setRows((data ?? []) as unknown as BookingRow[]);
+  };
+
+  useEffect(() => {
+    void load();
+  }, []);
+
+  const filtered = (rows ?? []).filter((r) => {
+    if (tab === "pending") return r.status === "pending";
+    if (tab === "confirmed") return r.status === "confirmed";
+    return true;
+  });
+
+  const pendingCount = (rows ?? []).filter((r) => r.status === "pending").length;
+  const weekStart = startOfWeek(new Date());
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 7);
+  const isThisWeek = (iso: string) => {
+    const t = new Date(iso).getTime();
+    return t >= weekStart.getTime() && t < weekEnd.getTime();
+  };
+  const remoteWeek = (rows ?? []).filter(
+    (r) => r.booking_type === "remote" && isThisWeek(r.scheduled_at) && r.status !== "cancelled",
+  ).length;
+  const onsiteWeek = (rows ?? []).filter(
+    (r) => r.booking_type === "onsite" && isThisWeek(r.scheduled_at) && r.status !== "cancelled",
+  ).length;
+
+  const confirm = async (b: BookingRow) => {
+    if (!user) return;
+    setBusyId(b.id);
+    const { error } = await supabase
+      .from("interpreter_bookings")
+      .update({
+        status: "confirmed",
+        confirmed_by: user.id,
+        confirmed_at: new Date().toISOString(),
+      })
+      .eq("id", b.id);
+    setBusyId(null);
+    if (error) return toast.error(error.message);
+    toast.success("Booking confirmed");
+    void logAudit({
+      action: "booking_confirmed",
+      target_type: "interpreter_booking",
+      target_id: b.id,
+      metadata: { booking_type: b.booking_type, scheduled_at: b.scheduled_at },
+    });
+    void load();
+  };
+
+  const submitReject = async () => {
+    if (!rejecting || !user || !rejectReason.trim()) return;
+    setBusyId(rejecting.id);
+    const { error } = await supabase
+      .from("interpreter_bookings")
+      .update({ status: "rejected", rejection_reason: rejectReason.trim() })
+      .eq("id", rejecting.id);
+    setBusyId(null);
+    if (error) return toast.error(error.message);
+    toast.success("Booking rejected");
+    void logAudit({
+      action: "booking_rejected",
+      target_type: "interpreter_booking",
+      target_id: rejecting.id,
+      metadata: { reason: rejectReason.trim() },
+    });
+    setRejecting(null);
+    setRejectReason("");
+    void load();
+  };
+
+  const complete = async (b: BookingRow) => {
+    setBusyId(b.id);
+    const { error } = await supabase
+      .from("interpreter_bookings")
+      .update({ status: "completed" })
+      .eq("id", b.id);
+    setBusyId(null);
+    if (error) return toast.error(error.message);
+    toast.success("Marked completed");
+    void logAudit({
+      action: "booking_completed",
+      target_type: "interpreter_booking",
+      target_id: b.id,
+      metadata: {},
+    });
+    void load();
+  };
+
+  const fmt = (iso: string) =>
+    new Date(iso).toLocaleString("en-GB", {
+      timeZone: "Africa/Kigali",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+  return (
+    <>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <CalendarClock className="h-4 w-4 text-primary" />
+            Scheduled Bookings
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <StatCard
+              icon={<CalendarClock className="h-4 w-4" />}
+              label="Pending"
+              value={pendingCount}
+              highlight={pendingCount > 0}
+            />
+            <StatCard
+              icon={<Video className="h-4 w-4" />}
+              label="Remote this week"
+              value={remoteWeek}
+            />
+            <StatCard
+              icon={<MapPin className="h-4 w-4" />}
+              label="On-site this week"
+              value={onsiteWeek}
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {(["pending", "confirmed", "all"] as Tab[]).map((t) => (
+              <Button
+                key={t}
+                size="sm"
+                variant={tab === t ? "default" : "outline"}
+                onClick={() => setTab(t)}
+                className="capitalize"
+              >
+                {t}
+                {t === "pending" && pendingCount > 0 && (
+                  <span className="ml-1.5 rounded-full bg-amber-500/20 px-1.5 text-xs text-amber-700 dark:text-amber-300">
+                    {pendingCount}
+                  </span>
+                )}
+              </Button>
+            ))}
+          </div>
+
+          {rows == null ? (
+            <Skeleton className="h-32 w-full" />
+          ) : filtered.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No bookings to show.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Language Pair</TableHead>
+                    <TableHead>Date &amp; Time (CAT)</TableHead>
+                    <TableHead>Duration</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Notes</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((b) => {
+                    const remote = b.booking_type === "remote";
+                    const past = new Date(b.scheduled_at).getTime() < Date.now();
+                    return (
+                      <TableRow key={b.id}>
+                        <TableCell>
+                          <Badge
+                            className={cn(
+                              "gap-1",
+                              remote
+                                ? "bg-purple-500/15 text-purple-700 dark:text-purple-300"
+                                : "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+                            )}
+                          >
+                            {remote ? (
+                              <Video className="h-3 w-3" />
+                            ) : (
+                              <MapPin className="h-3 w-3" />
+                            )}
+                            {remote ? "Remote" : "On-Site"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {b.client?.full_name ?? b.client?.email ?? "—"}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {b.language_from.toUpperCase()} → {b.language_to.toUpperCase()}
+                        </TableCell>
+                        <TableCell className="text-sm">{fmt(b.scheduled_at)}</TableCell>
+                        <TableCell className="text-sm tabular-nums">
+                          {b.duration_minutes >= 60
+                            ? `${(b.duration_minutes / 60).toFixed(
+                                b.duration_minutes % 60 === 0 ? 0 : 1,
+                              )} hr`
+                            : `${b.duration_minutes} min`}
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate text-xs text-muted-foreground">
+                          {remote
+                            ? "—"
+                            : `${b.location_type ?? ""}${
+                                b.location_address ? " · " + b.location_address : ""
+                              }`}
+                        </TableCell>
+                        <TableCell className="max-w-[180px] truncate text-xs text-muted-foreground">
+                          {b.client_notes ?? b.location_notes ?? "—"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="capitalize">
+                            {b.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {b.status === "pending" && (
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                size="sm"
+                                className="gap-1 bg-emerald-600 hover:bg-emerald-700"
+                                disabled={busyId === b.id}
+                                onClick={() => void confirm(b)}
+                              >
+                                <Check className="h-3.5 w-3.5" /> Confirm
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="gap-1 border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-950/40"
+                                disabled={busyId === b.id}
+                                onClick={() => {
+                                  setRejecting(b);
+                                  setRejectReason("");
+                                }}
+                              >
+                                <X className="h-3.5 w-3.5" /> Reject
+                              </Button>
+                            </div>
+                          )}
+                          {b.status === "confirmed" && past && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={busyId === b.id}
+                              onClick={() => void complete(b)}
+                            >
+                              Mark Completed
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={!!rejecting} onOpenChange={(o) => !o && setRejecting(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject booking</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Please provide a reason. The client will see this message.
+          </p>
+          <Textarea
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            placeholder="e.g. No interpreter available for that time slot."
+            rows={3}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejecting(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => void submitReject()}
+              disabled={!rejectReason.trim() || busyId === rejecting?.id}
+            >
+              Reject booking
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
