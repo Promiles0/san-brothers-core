@@ -234,6 +234,10 @@ function LiveCallsPage() {
         </CardContent>
       </Card>
 
+      <ScheduledBookingsCard />
+
+
+
       {/* Recent calls history */}
       <Card>
         <CardHeader className="pb-3">
