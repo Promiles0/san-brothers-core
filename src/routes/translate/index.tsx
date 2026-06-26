@@ -215,7 +215,58 @@ function TranslateHome() {
         </div>
       </section>
 
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-20 md:px-6">
+        <div className="text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            <CalendarClock className="h-3.5 w-3.5" /> Schedule a Session
+          </div>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">
+            Plan ahead — book an interpreter
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
+            Reserve a remote call or an on-site interpreter for your next appointment.
+          </p>
+        </div>
+        <div className="mt-10 grid gap-6 md:grid-cols-2">
+          <Card className="group transition hover:-translate-y-1 hover:shadow-md">
+            <CardContent className="p-6">
+              <div className="grid h-12 w-12 place-items-center rounded-lg bg-purple-500/15 text-purple-600 dark:text-purple-300">
+                <Video className="h-6 w-6" />
+              </div>
+              <h3 className="mt-4 text-xl font-semibold">Book Remote Interpreter</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Schedule a video or audio call. Mon–Fri 08:00–18:00 CAT, pay per minute.
+              </p>
+              <Button asChild className="mt-5">
+                <Link to="/translate/book" search={{ type: "remote" }}>
+                  Book remote <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+          <Card className="group transition hover:-translate-y-1 hover:shadow-md">
+            <CardContent className="p-6">
+              <div className="grid h-12 w-12 place-items-center rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-300">
+                <MapPin className="h-6 w-6" />
+              </div>
+              <h3 className="mt-4 text-xl font-semibold">Book On-Site Interpreter</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Bank, hospital, immigration, court or business meetings — anywhere in Kigali.
+              </p>
+              <Button asChild variant="outline" className="mt-5">
+                <Link to="/translate/book" search={{ type: "onsite" }}>
+                  Book on-site <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       <section className="border-y border-border bg-muted/30">
+
         <div className="mx-auto max-w-7xl px-4 py-20 md:px-6">
           <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
             {t("translate.home.offeringsHeading")}
