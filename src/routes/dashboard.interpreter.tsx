@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link as RouterLink, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
   Headphones,
@@ -13,7 +13,13 @@ import {
   Mic,
   ShieldCheck,
   Zap,
+  CalendarPlus,
+  CalendarClock,
+  Video,
+  MapPin,
+  X,
 } from "lucide-react";
+
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
