@@ -564,12 +564,23 @@ function InterpreterLandingPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
       {/* Page header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Live Interpreter</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Connect instantly with a professional interpreter in seconds.
-        </p>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Live Interpreter</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Connect instantly with a professional interpreter in seconds.
+          </p>
+        </div>
+        <Button asChild variant="outline" className="gap-2">
+          <RouterLink to="/translate/book">
+            <CalendarPlus className="h-4 w-4" /> Schedule a Session
+          </RouterLink>
+        </Button>
       </div>
+
+      <UpcomingBookingsSection />
+
+
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* ── LEFT (3/5) ── */}
