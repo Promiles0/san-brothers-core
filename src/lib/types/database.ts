@@ -162,3 +162,37 @@ export interface AuditLogEntry {
   user_agent: string | null;
   created_at: string;
 }
+
+export type InterpreterBookingStatus =
+  | "pending"
+  | "confirmed"
+  | "rejected"
+  | "cancelled"
+  | "completed";
+export type InterpreterBookingType = "remote" | "onsite";
+
+export interface InterpreterBooking {
+  id: string;
+  client_id: string;
+  assigned_staff_id: string | null;
+  language_from: string;
+  language_to: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  status: InterpreterBookingStatus;
+  booking_type: InterpreterBookingType;
+  location_type: string | null;
+  location_address: string | null;
+  location_notes: string | null;
+  client_notes: string | null;
+  staff_notes: string | null;
+  rejection_reason: string | null;
+  confirmed_by: string | null;
+  confirmed_at: string | null;
+  cancelled_at: string | null;
+  cancelled_by: string | null;
+  interpreter_call_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
