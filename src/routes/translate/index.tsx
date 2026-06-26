@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Phone,
   FileText,
@@ -11,7 +11,12 @@ import {
   Users,
   Clock,
   Wallet,
+  CalendarClock,
+  Video,
+  MapPin,
+  ArrowRight,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { TranslateLayout } from "@/components/layout/translate-layout";
