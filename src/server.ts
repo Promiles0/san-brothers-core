@@ -25,6 +25,30 @@ interface CloudflareEnv {
   [key: string]: unknown;
 }
 
+function readBuildEnv(key: string): string | undefined {
+  const value = (import.meta.env as Record<string, string | undefined>)[key];
+  if (typeof value === "string" && value.trim()) return value.trim();
+
+  const processEnv =
+    typeof process !== "undefined"
+      ? (process.env as Record<string, string | undefined>)
+      : undefined;
+  const processValue = processEnv?.[key];
+  return typeof processValue === "string" && processValue.trim()
+    ? processValue.trim()
+    : undefined;
+}
+
+function readRuntimeEnv(env: unknown, key: keyof CloudflareEnv): string | undefined {
+  const runtime = env && typeof env === "object" ? (env as CloudflareEnv)[key] : undefined;
+  if (typeof runtime === "string" && runtime.trim()) return runtime.trim();
+  return readBuildEnv(String(key));
+}
+
+function hasRuntimeEnv(env: unknown): env is CloudflareEnv {
+  return env != null && typeof env === "object";
+}
+
 // ─── Stripe PaymentIntent endpoint ────────────────────────────────────────
 // Server-authoritative: amount is computed from DB pricing, never trusted
 // from the client. Requires an authenticated Supabase session.
@@ -66,7 +90,7 @@ async function supabaseGet<T>(
   path: string,
   apiKey: string,
 ): Promise<T | null> {
-  const url = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
+  const url = readRuntimeEnv(env, "SUPABASE_URL") || readRuntimeEnv(env, "VITE_SUPABASE_URL");
   if (!url) return null;
   const res = await fetch(`${url}/rest/v1/${path}`, {
     headers: {
@@ -84,11 +108,12 @@ async function verifySupabaseUser(
   env: CloudflareEnv,
   bearer: string,
 ): Promise<{ id: string } | null> {
-  const url = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
+  const url = readRuntimeEnv(env, "SUPABASE_URL") || readRuntimeEnv(env, "VITE_SUPABASE_URL");
   const anon =
-    env.SUPABASE_PUBLISHABLE_KEY ||
-    env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-    env.VITE_SUPABASE_ANON_KEY;
+    readRuntimeEnv(env, "SUPABASE_PUBLISHABLE_KEY") ||
+    readRuntimeEnv(env, "VITE_SUPABASE_PUBLISHABLE_KEY") ||
+    readRuntimeEnv(env, "VITE_SUPABASE_ANON_KEY") ||
+    readRuntimeEnv(env, "SUPABASE_ANON_KEY");
   if (!url || !anon) return null;
   const res = await fetch(`${url}/auth/v1/user`, {
     headers: { apikey: anon, Authorization: `Bearer ${bearer}` },
@@ -103,17 +128,7 @@ async function handleStripePaymentIntent(
   env: unknown,
 ): Promise<Response> {
   try {
-    const cfEnv = env as CloudflareEnv;
-    const secretKey = cfEnv.STRIPE_SECRET_KEY;
-    if (!secretKey) return jsonResponse({ error: "Stripe not configured" }, 500);
-
-    const serviceRoleKey = cfEnv.SUPABASE_SERVICE_ROLE_KEY;
-    if (!serviceRoleKey) {
-      return jsonResponse(
-        { error: "Server not configured for payment authorization" },
-        500,
-      );
-    }
+    const cfEnv = hasRuntimeEnv(env) ? env : {};
 
     // 1) Authenticate caller
     const authHeader = request.headers.get("authorization") || "";
@@ -121,6 +136,17 @@ async function handleStripePaymentIntent(
       ? authHeader.slice(7).trim()
       : "";
     if (!bearer) return jsonResponse({ error: "Unauthorized" }, 401);
+
+    const secretKey = readRuntimeEnv(cfEnv, "STRIPE_SECRET_KEY");
+    if (!secretKey) return jsonResponse({ error: "Stripe not configured" }, 500);
+
+    const serviceRoleKey = readRuntimeEnv(cfEnv, "SUPABASE_SERVICE_ROLE_KEY");
+    if (!serviceRoleKey) {
+      return jsonResponse(
+        { error: "Server not configured for payment authorization" },
+        500,
+      );
+    }
 
     const authedUser = await verifySupabaseUser(cfEnv, bearer);
     if (!authedUser) return jsonResponse({ error: "Unauthorized" }, 401);
@@ -288,12 +314,12 @@ async function injectPublicRuntimeEnv(
   const contentType = response.headers.get("content-type") ?? "";
   if (!contentType.includes("text/html")) return response;
 
-  const supabaseUrl = env.VITE_SUPABASE_URL || env.SUPABASE_URL;
+  const supabaseUrl = readRuntimeEnv(env, "VITE_SUPABASE_URL") || readRuntimeEnv(env, "SUPABASE_URL");
   const supabaseAnonKey =
-    env.VITE_SUPABASE_ANON_KEY ||
-    env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-    env.SUPABASE_PUBLISHABLE_KEY ||
-    env.SUPABASE_ANON_KEY;
+    readRuntimeEnv(env, "VITE_SUPABASE_ANON_KEY") ||
+    readRuntimeEnv(env, "VITE_SUPABASE_PUBLISHABLE_KEY") ||
+    readRuntimeEnv(env, "SUPABASE_PUBLISHABLE_KEY") ||
+    readRuntimeEnv(env, "SUPABASE_ANON_KEY");
 
   if (!supabaseUrl || !supabaseAnonKey) return response;
 
