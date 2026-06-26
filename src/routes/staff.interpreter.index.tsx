@@ -1,6 +1,31 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Headphones, Phone, DollarSign, Clock, PhoneCall, Star, ArrowRight } from "lucide-react";
+import {
+  Headphones,
+  Phone,
+  DollarSign,
+  Clock,
+  PhoneCall,
+  Star,
+  ArrowRight,
+  CalendarClock,
+  Video,
+  MapPin,
+  Check,
+  X,
+} from "lucide-react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { logAudit } from "@/lib/audit";
+
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
