@@ -215,7 +215,7 @@ function TranslateHome() {
         </div>
       </section>
 
-      </section>
+
 
       <section className="mx-auto max-w-7xl px-4 py-20 md:px-6">
         <div className="text-center">
