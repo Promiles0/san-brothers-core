@@ -86,6 +86,7 @@ interface UserRow {
   role: string;
   status: string;
   created_at: string;
+  staff_id: string | null;
 }
 
 function timeAgo(iso: string) {
