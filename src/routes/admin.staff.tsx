@@ -212,6 +212,13 @@ function AdminStaff() {
   const [filterRole, setFilterRole] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"name" | "cases" | "last_active">("last_active");
+  const [editingStaffIdFor, setEditingStaffIdFor] = useState<string | null>(null);
+  const [staffIdDraft, setStaffIdDraft] = useState("");
+  const [managerIds, setManagerIds] = useState<Set<string>>(new Set());
+  const [pendingManagerSwap, setPendingManagerSwap] = useState<{
+    newUser: UserRow;
+    currentUser: UserRow;
+  } | null>(null);
 
   const fetchStaff = useCallback(async () => {
     setLoading(true);
