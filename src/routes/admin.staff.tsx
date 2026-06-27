@@ -406,7 +406,8 @@ function AdminStaff() {
     const { error: delErr } = await supabase
       .from("staff_capabilities")
       .delete()
-      .eq("user_id", selectedStaffId);
+      .eq("user_id", selectedStaffId)
+      .neq("capability", "manage_assignments");
     if (delErr) {
       setCapsSaving(false);
       return toast.error(delErr.message);
