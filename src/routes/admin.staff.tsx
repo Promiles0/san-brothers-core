@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Activity, AlertTriangle, Loader2, Search, Trophy, UserPlus } from "lucide-react";
+import { Activity, AlertTriangle, Crown, Loader2, Search, Trophy, UserPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -86,6 +86,7 @@ interface UserRow {
   role: string;
   status: string;
   created_at: string;
+  staff_id: string | null;
 }
 
 function timeAgo(iso: string) {
@@ -211,12 +212,19 @@ function AdminStaff() {
   const [filterRole, setFilterRole] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"name" | "cases" | "last_active">("last_active");
+  const [editingStaffIdFor, setEditingStaffIdFor] = useState<string | null>(null);
+  const [staffIdDraft, setStaffIdDraft] = useState("");
+  const [managerIds, setManagerIds] = useState<Set<string>>(new Set());
+  const [pendingManagerSwap, setPendingManagerSwap] = useState<{
+    newUser: UserRow;
+    currentUser: UserRow;
+  } | null>(null);
 
   const fetchStaff = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
       .from("users")
-      .select("id,email,full_name,role,status,created_at")
+      .select("id,email,full_name,role,status,created_at,staff_id")
       .neq("role", "client")
       .order("created_at", { ascending: false });
     const rows = (data as UserRow[]) ?? [];
@@ -256,8 +264,105 @@ function AdminStaff() {
       .from("staff_capabilities")
       .select("capability")
       .eq("user_id", userId);
-    setSelectedCaps(new Set((data ?? []).map((r: { capability: Capability }) => r.capability)));
+    setSelectedCaps(
+      new Set(
+        (data ?? [])
+          .map((r: { capability: Capability }) => r.capability)
+          .filter((c: Capability) => c !== "manage_assignments"),
+      ),
+    );
   }, []);
+
+  const fetchManagers = useCallback(async () => {
+    const { data } = await supabase
+      .from("staff_capabilities")
+      .select("user_id")
+      .eq("capability", "manage_assignments");
+    setManagerIds(new Set((data ?? []).map((r: { user_id: string }) => r.user_id)));
+  }, []);
+
+  useEffect(() => {
+    fetchManagers();
+  }, [fetchManagers]);
+
+  const saveStaffId = async (user: UserRow, newValue: string) => {
+    const trimmed = newValue.trim();
+    setEditingStaffIdFor(null);
+    if (trimmed === (user.staff_id ?? "")) return;
+    const prev = user.staff_id;
+    setStaff((s) => s.map((u) => (u.id === user.id ? { ...u, staff_id: trimmed || null } : u)));
+    const { error } = await supabase
+      .from("users")
+      .update({ staff_id: trimmed || null })
+      .eq("id", user.id);
+    if (error) {
+      setStaff((s) => s.map((u) => (u.id === user.id ? { ...u, staff_id: prev } : u)));
+      toast.error(error.message);
+    } else {
+      toast.success("Staff ID updated");
+      void logAudit({
+        action: "staff_id_changed",
+        target_type: "user",
+        target_id: user.id,
+        metadata: { from: prev, to: trimmed || null },
+      });
+    }
+  };
+
+  const applyManager = async (newUser: UserRow, currentUser: UserRow | null) => {
+    if (currentUser) {
+      const { error: delErr } = await supabase
+        .from("staff_capabilities")
+        .delete()
+        .eq("user_id", currentUser.id)
+        .eq("capability", "manage_assignments");
+      if (delErr) return toast.error(delErr.message);
+    }
+    const { error: insErr } = await supabase
+      .from("staff_capabilities")
+      .insert({ user_id: newUser.id, capability: "manage_assignments", granted_by: profile?.id ?? null });
+    if (insErr) return toast.error(insErr.message);
+    toast.success(`${newUser.full_name ?? newUser.email} is now Case Manager`);
+    void logAudit({
+      action: "manager_assigned",
+      target_type: "user",
+      target_id: newUser.id,
+      metadata: { previous: currentUser?.id ?? null },
+    });
+    await fetchManagers();
+    if (selectedStaffId === newUser.id) await fetchCapsFor(newUser.id);
+  };
+
+  const removeManager = async (user: UserRow) => {
+    const { error } = await supabase
+      .from("staff_capabilities")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("capability", "manage_assignments");
+    if (error) return toast.error(error.message);
+    toast.success("Manager role removed");
+    void logAudit({
+      action: "manager_removed",
+      target_type: "user",
+      target_id: user.id,
+    });
+    await fetchManagers();
+    if (selectedStaffId === user.id) await fetchCapsFor(user.id);
+  };
+
+  const handleManagerToggle = (user: UserRow, makeManager: boolean) => {
+    if (!makeManager) {
+      void removeManager(user);
+      return;
+    }
+    const current = staff.find((s) => managerIds.has(s.id) && s.id !== user.id);
+    if (current) {
+      setPendingManagerSwap({ newUser: user, currentUser: current });
+    } else {
+      void applyManager(user, null);
+    }
+  };
+
 
   useEffect(() => {
     fetchStaff();
@@ -307,7 +412,8 @@ function AdminStaff() {
     const { error: delErr } = await supabase
       .from("staff_capabilities")
       .delete()
-      .eq("user_id", selectedStaffId);
+      .eq("user_id", selectedStaffId)
+      .neq("capability", "manage_assignments");
     if (delErr) {
       setCapsSaving(false);
       return toast.error(delErr.message);
@@ -369,6 +475,18 @@ function AdminStaff() {
       daysSince(lastActive[u.id]) > 7 ||
       ((caseCounts[u.id]?.active ?? 0) === 0 && (caseCounts[u.id]?.completed ?? 0) === 0),
   ).length;
+
+  const vacantStaffIds = useMemo(
+    () =>
+      staff
+        .filter((u) => u.staff_id && u.status !== "active")
+        .map((u) => ({ id: u.staff_id as string, name: u.full_name ?? u.email, status: u.status })),
+    [staff],
+  );
+  const currentManager = useMemo(
+    () => staff.find((s) => managerIds.has(s.id)) ?? null,
+    [staff, managerIds],
+  );
 
   const toggleStatus = async (u: UserRow) => {
     const next = u.status === "active" ? "inactive" : "active";
@@ -511,6 +629,33 @@ function AdminStaff() {
         </Card>
       </div>
 
+      {vacantStaffIds.length > 0 && (
+        <Card className="border-amber-500/30 bg-amber-500/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+              Vacant Staff IDs
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-2 text-xs text-muted-foreground">
+              These IDs belong to inactive staff and can be reassigned.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {vacantStaffIds.map((v) => (
+                <span
+                  key={v.id}
+                  className="inline-flex items-center gap-1.5 rounded border border-amber-500/30 bg-background px-2 py-1 font-mono text-xs"
+                  title={`${v.name} — ${v.status}`}
+                >
+                  {v.id}
+                  <span className="font-sans text-[10px] text-muted-foreground">({v.status})</span>
+                </span>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Staff members</CardTitle>
@@ -551,7 +696,41 @@ function AdminStaff() {
                             {initialsFor(u)}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="truncate">{u.full_name ?? u.email}</p>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="truncate">{u.full_name ?? u.email}</p>
+                              {managerIds.has(u.id) && (
+                                <Crown
+                                  className="h-3.5 w-3.5 text-amber-500"
+                                  aria-label="Case Manager"
+                                />
+                              )}
+                              {editingStaffIdFor === u.id ? (
+                                <Input
+                                  autoFocus
+                                  value={staffIdDraft}
+                                  onChange={(e) => setStaffIdDraft(e.target.value)}
+                                  onBlur={() => saveStaffId(u, staffIdDraft)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") saveStaffId(u, staffIdDraft);
+                                    if (e.key === "Escape") setEditingStaffIdFor(null);
+                                  }}
+                                  className="h-6 w-24 px-2 py-0 font-mono text-xs"
+                                  placeholder="SB-001"
+                                />
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingStaffIdFor(u.id);
+                                    setStaffIdDraft(u.staff_id ?? "");
+                                  }}
+                                  className="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-700 hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                  title="Click to edit Staff ID"
+                                >
+                                  {u.staff_id ?? "— set ID —"}
+                                </button>
+                              )}
+                            </div>
                             <p className="truncate text-xs text-muted-foreground">{u.email}</p>
                             <div className="mt-2 h-0.5 w-full rounded-full bg-muted">
                               <div
@@ -692,6 +871,31 @@ function AdminStaff() {
                   </span>
                 </p>
               )}
+
+              {selectedStaff && (
+                <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-amber-500/40 bg-amber-500/5 p-4 transition-colors hover:bg-amber-500/10">
+                  <Checkbox
+                    checked={managerIds.has(selectedStaff.id)}
+                    onCheckedChange={(v) => handleManagerToggle(selectedStaff, !!v)}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Crown className="h-4 w-4 text-amber-500" />
+                      <span className="font-semibold">Case Manager</span>
+                      {currentManager && currentManager.id !== selectedStaff.id && (
+                        <Badge variant="secondary" className="text-[10px]">
+                          Currently: {currentManager.full_name ?? currentManager.email}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Receives all client cases, assigns to staff, handles client messages and
+                      claims. Only one staff member can hold this role.
+                    </p>
+                  </div>
+                </label>
+              )}
               <div className="flex flex-wrap gap-2">
                 {Object.entries(PRESETS).map(([preset, caps]) => {
                   const active =
@@ -831,6 +1035,44 @@ function AdminStaff() {
             <Button onClick={handleInvite} disabled={inviting}>
               {inviting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Send invite
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!pendingManagerSwap}
+        onOpenChange={(o) => !o && setPendingManagerSwap(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Transfer Case Manager role?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            This will remove the Manager role from{" "}
+            <span className="font-semibold text-foreground">
+              {pendingManagerSwap?.currentUser.full_name ??
+                pendingManagerSwap?.currentUser.email}
+            </span>{" "}
+            and assign it to{" "}
+            <span className="font-semibold text-foreground">
+              {pendingManagerSwap?.newUser.full_name ?? pendingManagerSwap?.newUser.email}
+            </span>
+            . Continue?
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPendingManagerSwap(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (!pendingManagerSwap) return;
+                const swap = pendingManagerSwap;
+                setPendingManagerSwap(null);
+                await applyManager(swap.newUser, swap.currentUser);
+              }}
+            >
+              Transfer
             </Button>
           </DialogFooter>
         </DialogContent>
