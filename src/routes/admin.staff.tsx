@@ -267,6 +267,97 @@ function AdminStaff() {
     setSelectedCaps(new Set((data ?? []).map((r: { capability: Capability }) => r.capability)));
   }, []);
 
+  const fetchManagers = useCallback(async () => {
+    const { data } = await supabase
+      .from("staff_capabilities")
+      .select("user_id")
+      .eq("capability", "manage_assignments");
+    setManagerIds(new Set((data ?? []).map((r: { user_id: string }) => r.user_id)));
+  }, []);
+
+  useEffect(() => {
+    fetchManagers();
+  }, [fetchManagers]);
+
+  const saveStaffId = async (user: UserRow, newValue: string) => {
+    const trimmed = newValue.trim();
+    setEditingStaffIdFor(null);
+    if (trimmed === (user.staff_id ?? "")) return;
+    const prev = user.staff_id;
+    setStaff((s) => s.map((u) => (u.id === user.id ? { ...u, staff_id: trimmed || null } : u)));
+    const { error } = await supabase
+      .from("users")
+      .update({ staff_id: trimmed || null })
+      .eq("id", user.id);
+    if (error) {
+      setStaff((s) => s.map((u) => (u.id === user.id ? { ...u, staff_id: prev } : u)));
+      toast.error(error.message);
+    } else {
+      toast.success("Staff ID updated");
+      void logAudit({
+        action: "staff_id_changed",
+        target_type: "user",
+        target_id: user.id,
+        metadata: { from: prev, to: trimmed || null },
+      });
+    }
+  };
+
+  const applyManager = async (newUser: UserRow, currentUser: UserRow | null) => {
+    if (currentUser) {
+      const { error: delErr } = await supabase
+        .from("staff_capabilities")
+        .delete()
+        .eq("user_id", currentUser.id)
+        .eq("capability", "manage_assignments");
+      if (delErr) return toast.error(delErr.message);
+    }
+    const { error: insErr } = await supabase
+      .from("staff_capabilities")
+      .insert({ user_id: newUser.id, capability: "manage_assignments", granted_by: profile?.id ?? null });
+    if (insErr) return toast.error(insErr.message);
+    toast.success(`${newUser.full_name ?? newUser.email} is now Case Manager`);
+    void logAudit({
+      action: "manager_assigned",
+      target_type: "user",
+      target_id: newUser.id,
+      metadata: { previous: currentUser?.id ?? null },
+    });
+    await fetchManagers();
+    if (selectedStaffId === newUser.id) await fetchCapsFor(newUser.id);
+  };
+
+  const removeManager = async (user: UserRow) => {
+    const { error } = await supabase
+      .from("staff_capabilities")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("capability", "manage_assignments");
+    if (error) return toast.error(error.message);
+    toast.success("Manager role removed");
+    void logAudit({
+      action: "manager_removed",
+      target_type: "user",
+      target_id: user.id,
+    });
+    await fetchManagers();
+    if (selectedStaffId === user.id) await fetchCapsFor(user.id);
+  };
+
+  const handleManagerToggle = (user: UserRow, makeManager: boolean) => {
+    if (!makeManager) {
+      void removeManager(user);
+      return;
+    }
+    const current = staff.find((s) => managerIds.has(s.id) && s.id !== user.id);
+    if (current) {
+      setPendingManagerSwap({ newUser: user, currentUser: current });
+    } else {
+      void applyManager(user, null);
+    }
+  };
+
+
   useEffect(() => {
     fetchStaff();
   }, [fetchStaff]);
