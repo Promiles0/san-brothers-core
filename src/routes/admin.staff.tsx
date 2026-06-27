@@ -622,6 +622,33 @@ function AdminStaff() {
         </Card>
       </div>
 
+      {vacantStaffIds.length > 0 && (
+        <Card className="border-amber-500/30 bg-amber-500/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+              Vacant Staff IDs
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-2 text-xs text-muted-foreground">
+              These IDs belong to inactive staff and can be reassigned.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {vacantStaffIds.map((v) => (
+                <span
+                  key={v.id}
+                  className="inline-flex items-center gap-1.5 rounded border border-amber-500/30 bg-background px-2 py-1 font-mono text-xs"
+                  title={`${v.name} — ${v.status}`}
+                >
+                  {v.id}
+                  <span className="font-sans text-[10px] text-muted-foreground">({v.status})</span>
+                </span>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Staff members</CardTitle>
