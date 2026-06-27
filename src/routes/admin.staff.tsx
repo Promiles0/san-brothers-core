@@ -1032,6 +1032,44 @@ function AdminStaff() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={!!pendingManagerSwap}
+        onOpenChange={(o) => !o && setPendingManagerSwap(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Transfer Case Manager role?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            This will remove the Manager role from{" "}
+            <span className="font-semibold text-foreground">
+              {pendingManagerSwap?.currentUser.full_name ??
+                pendingManagerSwap?.currentUser.email}
+            </span>{" "}
+            and assign it to{" "}
+            <span className="font-semibold text-foreground">
+              {pendingManagerSwap?.newUser.full_name ?? pendingManagerSwap?.newUser.email}
+            </span>
+            . Continue?
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPendingManagerSwap(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (!pendingManagerSwap) return;
+                const swap = pendingManagerSwap;
+                setPendingManagerSwap(null);
+                await applyManager(swap.newUser, swap.currentUser);
+              }}
+            >
+              Transfer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
