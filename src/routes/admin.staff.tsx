@@ -864,6 +864,31 @@ function AdminStaff() {
                   </span>
                 </p>
               )}
+
+              {selectedStaff && (
+                <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-amber-500/40 bg-amber-500/5 p-4 transition-colors hover:bg-amber-500/10">
+                  <Checkbox
+                    checked={managerIds.has(selectedStaff.id)}
+                    onCheckedChange={(v) => handleManagerToggle(selectedStaff, !!v)}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Crown className="h-4 w-4 text-amber-500" />
+                      <span className="font-semibold">Case Manager</span>
+                      {currentManager && currentManager.id !== selectedStaff.id && (
+                        <Badge variant="secondary" className="text-[10px]">
+                          Currently: {currentManager.full_name ?? currentManager.email}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Receives all client cases, assigns to staff, handles client messages and
+                      claims. Only one staff member can hold this role.
+                    </p>
+                  </div>
+                </label>
+              )}
               <div className="flex flex-wrap gap-2">
                 {Object.entries(PRESETS).map(([preset, caps]) => {
                   const active =
