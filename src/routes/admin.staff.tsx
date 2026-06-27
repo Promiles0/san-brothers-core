@@ -217,7 +217,7 @@ function AdminStaff() {
     setLoading(true);
     const { data } = await supabase
       .from("users")
-      .select("id,email,full_name,role,status,created_at")
+      .select("id,email,full_name,role,status,created_at,staff_id")
       .neq("role", "client")
       .order("created_at", { ascending: false });
     const rows = (data as UserRow[]) ?? [];
