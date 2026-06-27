@@ -318,9 +318,11 @@ function AdminStaff() {
         .eq("capability", "manage_assignments");
       if (delErr) return toast.error(delErr.message);
     }
-    const { error: insErr } = await supabase
-      .from("staff_capabilities")
-      .insert({ user_id: newUser.id, capability: "manage_assignments", granted_by: profile?.id ?? null });
+    const { error: insErr } = await supabase.from("staff_capabilities").insert({
+      user_id: newUser.id,
+      capability: "manage_assignments",
+      granted_by: profile?.id ?? null,
+    });
     if (insErr) return toast.error(insErr.message);
     toast.success(`${newUser.full_name ?? newUser.email} is now Case Manager`);
     void logAudit({
@@ -362,7 +364,6 @@ function AdminStaff() {
       void applyManager(user, null);
     }
   };
-
 
   useEffect(() => {
     fetchStaff();
@@ -1040,10 +1041,7 @@ function AdminStaff() {
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={!!pendingManagerSwap}
-        onOpenChange={(o) => !o && setPendingManagerSwap(null)}
-      >
+      <Dialog open={!!pendingManagerSwap} onOpenChange={(o) => !o && setPendingManagerSwap(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Transfer Case Manager role?</DialogTitle>
@@ -1051,8 +1049,7 @@ function AdminStaff() {
           <p className="text-sm text-muted-foreground">
             This will remove the Manager role from{" "}
             <span className="font-semibold text-foreground">
-              {pendingManagerSwap?.currentUser.full_name ??
-                pendingManagerSwap?.currentUser.email}
+              {pendingManagerSwap?.currentUser.full_name ?? pendingManagerSwap?.currentUser.email}
             </span>{" "}
             and assign it to{" "}
             <span className="font-semibold text-foreground">

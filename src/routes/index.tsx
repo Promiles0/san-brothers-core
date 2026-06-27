@@ -137,7 +137,10 @@ function Hero() {
           aria-hidden
           className={`pointer-events-none absolute hidden md:block ${cls}`}
         >
-          <span className="fx-glyph block opacity-[0.10] dark:opacity-[0.14]" style={{ animationDelay: `${idx * 1.4}s` }}>
+          <span
+            className="fx-glyph block opacity-[0.10] dark:opacity-[0.14]"
+            style={{ animationDelay: `${idx * 1.4}s` }}
+          >
             <Icon className="h-16 w-16" />
           </span>
         </ParallaxLayer>
@@ -324,7 +327,13 @@ function Logo3D({ pointer }: { pointer: React.MutableRefObject<{ x: number; y: n
     <group ref={groupRef} rotation={[0, -0.08, 0]}>
       <mesh position={[0.1, -0.12, -0.16]} scale={[1.01, 1.01, 1]}>
         <planeGeometry args={[width, height]} />
-        <meshBasicMaterial map={texture} transparent opacity={0.22} color="#160000" depthWrite={false} />
+        <meshBasicMaterial
+          map={texture}
+          transparent
+          opacity={0.22}
+          color="#160000"
+          depthWrite={false}
+        />
       </mesh>
       <mesh>
         <planeGeometry args={[width, height]} />
@@ -367,7 +376,10 @@ function StatsStrip() {
   return (
     <section className="relative overflow-hidden border-y border-accent/30 bg-foreground text-background">
       {/* Marquee back-texture */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center opacity-[0.06]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 flex items-center opacity-[0.06]"
+      >
         <div className="fx-marquee fx-marquee-slow whitespace-nowrap text-[6rem] font-black tracking-tighter">
           {[...marqueeWords, ...marqueeWords].map((w, i) => (
             <span key={i} className="px-8">
@@ -530,7 +542,9 @@ function ServicesGrid() {
                 <h3 className="relative mt-5 text-lg font-bold tracking-tight text-card-foreground">
                   {s.title}
                 </h3>
-                <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+                <p className="relative mt-1 text-sm leading-relaxed text-muted-foreground">
+                  {s.desc}
+                </p>
                 <div
                   className={`relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground ring-1 ${a.chipRing}`}
                 >
@@ -700,7 +714,10 @@ function Process() {
             aria-hidden
             className="pointer-events-none absolute left-0 right-0 top-[3.25rem] hidden h-0.5 rounded-full bg-border lg:block"
           >
-            <div className="process-track h-full rounded-full" style={{ ["--track" as string]: String(trackPct) }} />
+            <div
+              className="process-track h-full rounded-full"
+              style={{ ["--track" as string]: String(trackPct) }}
+            />
           </div>
 
           <ol ref={containerRef} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -788,7 +805,12 @@ function PartnerLogoMarquee() {
             className="flex h-16 shrink-0 items-center justify-center rounded-lg px-6 shadow-sm transition-transform duration-300 hover:scale-105 sm:h-20 sm:px-8"
             style={{ backgroundColor: logo.bgColor }}
           >
-            <img src={logo.src} alt={logo.name} className="h-9 w-auto object-contain sm:h-11" loading="lazy" />
+            <img
+              src={logo.src}
+              alt={logo.name}
+              className="h-9 w-auto object-contain sm:h-11"
+              loading="lazy"
+            />
           </div>
         ))}
       </div>
@@ -848,7 +870,9 @@ function SocialProof() {
                   <Star
                     key={n}
                     className={`h-5 w-5 ${
-                      n <= hero.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"
+                      n <= hero.rating
+                        ? "fill-amber-400 text-amber-400"
+                        : "text-muted-foreground/30"
                     }`}
                   />
                 ))}
@@ -866,7 +890,9 @@ function SocialProof() {
                     .toUpperCase()}
                 </div>
                 <div>
-                  <div className="font-semibold text-card-foreground">{hero.client_display_name}</div>
+                  <div className="font-semibold text-card-foreground">
+                    {hero.client_display_name}
+                  </div>
                   <div className="text-muted-foreground">{relativeTime(hero.created_at)}</div>
                 </div>
               </figcaption>
@@ -886,10 +912,17 @@ function SocialProof() {
 
         {/* Supporting reviews grid */}
         {loadingReviews ? (
-          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-live="polite">
+          <div
+            className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+            aria-busy="true"
+            aria-live="polite"
+          >
             <span className="sr-only">{t("reviews.home.loading")}</span>
             {[0, 1, 2].map((i) => (
-              <div key={i} className="flex animate-pulse flex-col gap-4 rounded-2xl border border-border bg-card p-6">
+              <div
+                key={i}
+                className="flex animate-pulse flex-col gap-4 rounded-2xl border border-border bg-card p-6"
+              >
                 <div className="flex items-center gap-1">
                   {[0, 1, 2, 3, 4].map((s) => (
                     <div key={s} className="h-4 w-4 rounded-sm bg-muted" />
@@ -933,7 +966,9 @@ function SocialProof() {
                       .toUpperCase()}
                   </div>
                   <div className="text-xs">
-                    <div className="font-semibold text-card-foreground">{r.client_display_name}</div>
+                    <div className="font-semibold text-card-foreground">
+                      {r.client_display_name}
+                    </div>
                     <div className="text-muted-foreground">{relativeTime(r.created_at)}</div>
                   </div>
                 </figcaption>
@@ -970,8 +1005,12 @@ function CtaSection() {
         }}
       />
       <div className="relative mx-auto max-w-3xl px-4 text-center md:px-6">
-        <h2 className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl">{t("home.ctaHeading")}</h2>
-        <p className="mx-auto mt-4 max-w-xl text-base opacity-90 sm:text-lg">{t("home.ctaSubtitle")}</p>
+        <h2 className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl">
+          {t("home.ctaHeading")}
+        </h2>
+        <p className="mx-auto mt-4 max-w-xl text-base opacity-90 sm:text-lg">
+          {t("home.ctaSubtitle")}
+        </p>
         <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row">
           <Magnetic strength={18}>
             <Button asChild size="lg" variant="secondary" className="h-12 gap-2 px-7 text-base">
