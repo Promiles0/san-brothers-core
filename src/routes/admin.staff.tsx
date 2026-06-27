@@ -469,6 +469,18 @@ function AdminStaff() {
       ((caseCounts[u.id]?.active ?? 0) === 0 && (caseCounts[u.id]?.completed ?? 0) === 0),
   ).length;
 
+  const vacantStaffIds = useMemo(
+    () =>
+      staff
+        .filter((u) => u.staff_id && u.status !== "active")
+        .map((u) => ({ id: u.staff_id as string, name: u.full_name ?? u.email, status: u.status })),
+    [staff],
+  );
+  const currentManager = useMemo(
+    () => staff.find((s) => managerIds.has(s.id)) ?? null,
+    [staff, managerIds],
+  );
+
   const toggleStatus = async (u: UserRow) => {
     const next = u.status === "active" ? "inactive" : "active";
     setStaff((prev) => prev.map((s) => (s.id === u.id ? { ...s, status: next } : s)));
