@@ -14,6 +14,7 @@ export type Capability =
   | "approve_accounting"
   | "approve_consultancy"
   | "manage_consultancy_cases"
+  | "manage_assignments"
   | "view_financial_reports"
   | "manage_staff"
   | "manage_pricing"
