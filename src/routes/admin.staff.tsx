@@ -662,7 +662,41 @@ function AdminStaff() {
                             {initialsFor(u)}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="truncate">{u.full_name ?? u.email}</p>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="truncate">{u.full_name ?? u.email}</p>
+                              {managerIds.has(u.id) && (
+                                <Crown
+                                  className="h-3.5 w-3.5 text-amber-500"
+                                  aria-label="Case Manager"
+                                />
+                              )}
+                              {editingStaffIdFor === u.id ? (
+                                <Input
+                                  autoFocus
+                                  value={staffIdDraft}
+                                  onChange={(e) => setStaffIdDraft(e.target.value)}
+                                  onBlur={() => saveStaffId(u, staffIdDraft)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") saveStaffId(u, staffIdDraft);
+                                    if (e.key === "Escape") setEditingStaffIdFor(null);
+                                  }}
+                                  className="h-6 w-24 px-2 py-0 font-mono text-xs"
+                                  placeholder="SB-001"
+                                />
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingStaffIdFor(u.id);
+                                    setStaffIdDraft(u.staff_id ?? "");
+                                  }}
+                                  className="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-700 hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                                  title="Click to edit Staff ID"
+                                >
+                                  {u.staff_id ?? "— set ID —"}
+                                </button>
+                              )}
+                            </div>
                             <p className="truncate text-xs text-muted-foreground">{u.email}</p>
                             <div className="mt-2 h-0.5 w-full rounded-full bg-muted">
                               <div
