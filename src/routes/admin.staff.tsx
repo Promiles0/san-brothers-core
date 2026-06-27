@@ -264,7 +264,13 @@ function AdminStaff() {
       .from("staff_capabilities")
       .select("capability")
       .eq("user_id", userId);
-    setSelectedCaps(new Set((data ?? []).map((r: { capability: Capability }) => r.capability)));
+    setSelectedCaps(
+      new Set(
+        (data ?? [])
+          .map((r: { capability: Capability }) => r.capability)
+          .filter((c: Capability) => c !== "manage_assignments"),
+      ),
+    );
   }, []);
 
   const fetchManagers = useCallback(async () => {
