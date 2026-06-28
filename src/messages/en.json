@@ -1494,8 +1494,8 @@
       "actionRequired": "Action Required",
       "openCase": "Open case",
       "urgent": "Urgent",
-      "empty": "No cases found",
-      "emptyHint": "Try adjusting your filters"
+      "empty": "No cases assigned to you yet",
+      "emptyHint": "The manager will assign cases to you."
     },
     "clients": {
       "title": "Clients",
