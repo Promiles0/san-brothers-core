@@ -48,7 +48,7 @@ interface CaseRow {
   service: { id: string; name_en: string } | null;
 }
 
-type Filter = "all" | "unassigned" | "mine" | "awaiting" | "completed";
+type Filter = "all" | "awaiting" | "completed";
 type Sort = "newest" | "oldest" | "awaiting" | "name";
 
 const AVATAR_COLORS = [
@@ -260,9 +260,6 @@ export function StaffCasesList({
                     <StatusBadge status={r.status} />
                     {r.priority === "urgent" && (
                       <Badge variant="destructive">{t("staff.cases.urgent")}</Badge>
-                    )}
-                    {!r.assigned_staff_id && (
-                      <Badge variant="secondary">{t("staff.cases.unassigned")}</Badge>
                     )}
                     {r.progress_total > 0 && (
                       <span className="ml-auto text-xs text-muted-foreground">
