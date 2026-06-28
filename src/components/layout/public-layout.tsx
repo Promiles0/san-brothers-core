@@ -4,10 +4,12 @@ import { PublicFooter } from "./public-footer";
 
 export function PublicLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <>
       <PublicNavbar />
-      <main className="flex-1">{children}</main>
-      <PublicFooter />
-    </div>
+      <div className="flex min-h-screen flex-col bg-background">
+        <main className="flex-1 pt-20">{children}</main>
+        <PublicFooter />
+      </div>
+    </>
   );
 }

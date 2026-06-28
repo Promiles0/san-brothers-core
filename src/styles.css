@@ -423,11 +423,6 @@
     inset 0 1px 0 color-mix(in oklab, white 6%, transparent);
 }
 
-/* Push page content down so it doesn't hide under the floating nav */
-body {
-  padding-top: 4.5rem;
-}
-
 .glass-card {
   background: color-mix(in oklab, var(--card) 75%, transparent);
   backdrop-filter: blur(10px) saturate(140%);
@@ -526,6 +521,11 @@ body {
   from { opacity: 0; filter: blur(8px); }
   to   { opacity: 1; filter: blur(0); }
 }
+@keyframes fx-page-opacity {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.fx-page-opacity  { animation: fx-page-opacity 0.35s ease both; }
 .fx-page-in       { animation: fx-page-fade 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .fx-page-fade     { animation: fx-page-fade 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .fx-page-slide    { animation: fx-page-slide 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }

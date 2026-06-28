@@ -85,14 +85,14 @@ export function PublicNavbar() {
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild className="text-sm">
-                <a href="/login">{t("common.login")}</a>
+                <Link to="/login">{t("common.login")}</Link>
               </Button>
               <Button
                 size="sm"
                 asChild
                 className="bg-gradient-to-r from-primary to-primary/80 shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 rounded-xl text-sm"
               >
-                <a href="/signup">{t("common.signup")}</a>
+                <Link to="/signup">{t("common.signup")}</Link>
               </Button>
             </>
           )}
@@ -139,10 +139,10 @@ export function PublicNavbar() {
                   ) : (
                     <>
                       <Button variant="outline" asChild>
-                        <a href="/login">{t("common.login")}</a>
+                        <Link to="/login">{t("common.login")}</Link>
                       </Button>
                       <Button asChild className="bg-linear-to-r from-primary to-primary/80">
-                        <a href="/signup">{t("common.signup")}</a>
+                        <Link to="/signup">{t("common.signup")}</Link>
                       </Button>
                     </>
                   )}

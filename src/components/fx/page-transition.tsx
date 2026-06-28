@@ -30,7 +30,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
   const mode = pickMode(pathname);
 
   return (
-    <div key={key} data-fx-mode={mode} className={`fx-page-in fx-page-${mode}`}>
+    <div key={key} data-fx-mode={mode} className="fx-page-opacity">
       {children}
     </div>
   );
