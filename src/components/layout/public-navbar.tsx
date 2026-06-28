@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,14 @@ export function PublicNavbar() {
   const { t } = useI18n();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const links = [
     { href: "/", label: t("nav.home") },
@@ -27,20 +34,17 @@ export function PublicNavbar() {
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
-    <header className="glass-nav sticky top-0 z-50 w-full">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 md:px-6">
-        <Link to="/" className="group flex items-center gap-2">
-          <img
-            src="/sanlogo-Photoroom.png"
-            alt="San Brothers"
-            className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
-          />
-          <span className="hidden bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-sm font-semibold text-transparent sm:inline">
-            San Brothers
-          </span>
-        </Link>
-
-        <nav className="hidden items-center gap-0.5 md:flex">
+    <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-3 pointer-events-none">
+      <nav
+        className={[
+          "pointer-events-auto w-full max-w-6xl rounded-2xl transition-all duration-300",
+          "flex items-center justify-between gap-4 px-4 h-14",
+          scrolled ? "shadow-lg shadow-black/10 dark:shadow-black/30" : "",
+          "floating-nav",
+        ].join(" ")}
+      >
+        {/* LEFT — nav links */}
+        <div className="hidden items-center gap-0.5 md:flex flex-1">
           {links.map((l) => (
             <a
               key={l.href}
@@ -51,9 +55,25 @@ export function PublicNavbar() {
               {l.label}
             </a>
           ))}
-        </nav>
+        </div>
 
-        <div className="hidden items-center gap-1 md:flex">
+        {/* CENTER — logo + name */}
+        <Link
+          to="/"
+          className="group flex items-center gap-2 shrink-0 mx-auto md:mx-0 md:absolute md:left-1/2 md:-translate-x-1/2"
+        >
+          <img
+            src="/sanlogo-Photoroom.png"
+            alt="San Brothers"
+            className="h-7 w-7 object-contain transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+          />
+          <span className="hidden bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-sm font-semibold text-transparent sm:inline">
+            San Brothers
+          </span>
+        </Link>
+
+        {/* RIGHT — CTA */}
+        <div className="hidden items-center gap-1 md:flex flex-1 justify-end">
           <span className="icon-spin-hover inline-flex">
             <LanguageSwitcher />
           </span>
@@ -64,13 +84,13 @@ export function PublicNavbar() {
             <UserMenu />
           ) : (
             <>
-              <Button variant="ghost" size="sm" asChild>
+              <Button variant="ghost" size="sm" asChild className="text-sm">
                 <a href="/login">{t("common.login")}</a>
               </Button>
               <Button
                 size="sm"
                 asChild
-                className="bg-gradient-to-r from-primary to-primary/80 shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
+                className="bg-gradient-to-r from-primary to-primary/80 shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 rounded-xl text-sm"
               >
                 <a href="/signup">{t("common.signup")}</a>
               </Button>
@@ -78,7 +98,8 @@ export function PublicNavbar() {
           )}
         </div>
 
-        <div className="flex items-center gap-1 md:hidden">
+        {/* MOBILE — hamburger */}
+        <div className="flex items-center gap-1 md:hidden ml-auto">
           <span className="icon-spin-hover inline-flex">
             <ThemeToggle />
           </span>
@@ -130,7 +151,7 @@ export function PublicNavbar() {
             </SheetContent>
           </Sheet>
         </div>
-      </div>
+      </nav>
     </header>
   );
 }
