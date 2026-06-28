@@ -72,7 +72,7 @@ function ManagerQueuePage() {
   const [submitting, setSubmitting] = useState(false);
 
   const SELECT =
-    "id,status,priority,service_category,created_at,assigned_at,assigned_staff_id,client:users!service_requests_client_id_fkey(id,full_name,email),service:services(id,name_en),assignee:users!service_requests_assigned_staff_id_fkey(id,full_name,staff_id)";
+    "id,status,priority,service_category,created_at,assigned_at,assigned_staff_id,client:users!client_id(id,full_name,email),service:services(id,name_en),assignee:users!assigned_staff_id(id,full_name,staff_id)";
 
   const loadAll = async () => {
     setLoading(true);
