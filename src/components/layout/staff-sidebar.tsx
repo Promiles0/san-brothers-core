@@ -213,7 +213,10 @@ export function StaffSidebar({
         <Icon className="h-4 w-4 shrink-0" />
         {!collapsed && <span className="flex-1 text-left">{item.label}</span>}
         {!collapsed && badge ? (
-          <Badge variant="secondary" className="h-5 min-w-5 px-1.5">
+          <Badge
+            variant={item.badgeKey === "unassignedQueue" ? "destructive" : "secondary"}
+            className="h-5 min-w-5 px-1.5"
+          >
             {badge}
           </Badge>
         ) : null}
