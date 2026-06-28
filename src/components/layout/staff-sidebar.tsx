@@ -91,12 +91,13 @@ function useStaffCounts() {
     openClaims: 0,
     unreadMessages: 0,
     filteredClients: 0,
+    unassignedQueue: 0,
   });
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [visa, acc, claims, clients] = await Promise.all([
+        const [visa, acc, claims, clients, queue] = await Promise.all([
           supabase
             .from("service_requests")
             .select("id", { count: "exact", head: true })
@@ -128,6 +129,11 @@ function useStaffCounts() {
                     allowedCategories,
                   )
               : Promise.resolve({ count: 0 }),
+          supabase
+            .from("service_requests")
+            .select("id", { count: "exact", head: true })
+            .is("assigned_staff_id", null)
+            .eq("assignment_status", "unassigned"),
         ]);
         let unread = 0;
         if (user) {
@@ -145,6 +151,7 @@ function useStaffCounts() {
           openClaims: claims.count ?? 0,
           unreadMessages: unread,
           filteredClients: clients.count ?? 0,
+          unassignedQueue: queue.count ?? 0,
         });
       } catch {
         /* ignore */
