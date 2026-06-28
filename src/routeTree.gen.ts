@@ -41,6 +41,7 @@ import { Route as StaffVisaRouteImport } from './routes/staff.visa'
 import { Route as StaffTranslationRouteImport } from './routes/staff.translation'
 import { Route as StaffSettingsRouteImport } from './routes/staff.settings'
 import { Route as StaffReportsRouteImport } from './routes/staff.reports'
+import { Route as StaffQueueRouteImport } from './routes/staff.queue'
 import { Route as StaffProfileRouteImport } from './routes/staff.profile'
 import { Route as StaffMessagesRouteImport } from './routes/staff.messages'
 import { Route as StaffInterpreterRouteImport } from './routes/staff.interpreter'
@@ -79,6 +80,7 @@ import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as TranslateLiveIndexRouteImport } from './routes/translate/live/index'
 import { Route as StaffVisaIndexRouteImport } from './routes/staff.visa.index'
 import { Route as StaffTranslationIndexRouteImport } from './routes/staff.translation.index'
+import { Route as StaffQueueIndexRouteImport } from './routes/staff.queue.index'
 import { Route as StaffInterpreterIndexRouteImport } from './routes/staff.interpreter.index'
 import { Route as StaffConsultancyIndexRouteImport } from './routes/staff.consultancy.index'
 import { Route as StaffClientsIndexRouteImport } from './routes/staff.clients.index'
@@ -264,6 +266,11 @@ const StaffSettingsRoute = StaffSettingsRouteImport.update({
 const StaffReportsRoute = StaffReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffQueueRoute = StaffQueueRouteImport.update({
+  id: '/queue',
+  path: '/queue',
   getParentRoute: () => StaffRoute,
 } as any)
 const StaffProfileRoute = StaffProfileRouteImport.update({
@@ -456,6 +463,11 @@ const StaffTranslationIndexRoute = StaffTranslationIndexRouteImport.update({
   path: '/',
   getParentRoute: () => StaffTranslationRoute,
 } as any)
+const StaffQueueIndexRoute = StaffQueueIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StaffQueueRoute,
+} as any)
 const StaffInterpreterIndexRoute = StaffInterpreterIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -644,6 +656,7 @@ export interface FileRoutesByFullPath {
   '/staff/interpreter': typeof StaffInterpreterRouteWithChildren
   '/staff/messages': typeof StaffMessagesRoute
   '/staff/profile': typeof StaffProfileRoute
+  '/staff/queue': typeof StaffQueueRouteWithChildren
   '/staff/reports': typeof StaffReportsRoute
   '/staff/settings': typeof StaffSettingsRoute
   '/staff/translation': typeof StaffTranslationRouteWithChildren
@@ -684,6 +697,7 @@ export interface FileRoutesByFullPath {
   '/staff/clients/': typeof StaffClientsIndexRoute
   '/staff/consultancy/': typeof StaffConsultancyIndexRoute
   '/staff/interpreter/': typeof StaffInterpreterIndexRoute
+  '/staff/queue/': typeof StaffQueueIndexRoute
   '/staff/translation/': typeof StaffTranslationIndexRoute
   '/staff/visa/': typeof StaffVisaIndexRoute
   '/translate/live/': typeof TranslateLiveIndexRoute
@@ -772,6 +786,7 @@ export interface FileRoutesByTo {
   '/staff/clients': typeof StaffClientsIndexRoute
   '/staff/consultancy': typeof StaffConsultancyIndexRoute
   '/staff/interpreter': typeof StaffInterpreterIndexRoute
+  '/staff/queue': typeof StaffQueueIndexRoute
   '/staff/translation': typeof StaffTranslationIndexRoute
   '/staff/visa': typeof StaffVisaIndexRoute
   '/translate/live': typeof TranslateLiveIndexRoute
@@ -831,6 +846,7 @@ export interface FileRoutesById {
   '/staff/interpreter': typeof StaffInterpreterRouteWithChildren
   '/staff/messages': typeof StaffMessagesRoute
   '/staff/profile': typeof StaffProfileRoute
+  '/staff/queue': typeof StaffQueueRouteWithChildren
   '/staff/reports': typeof StaffReportsRoute
   '/staff/settings': typeof StaffSettingsRoute
   '/staff/translation': typeof StaffTranslationRouteWithChildren
@@ -871,6 +887,7 @@ export interface FileRoutesById {
   '/staff/clients/': typeof StaffClientsIndexRoute
   '/staff/consultancy/': typeof StaffConsultancyIndexRoute
   '/staff/interpreter/': typeof StaffInterpreterIndexRoute
+  '/staff/queue/': typeof StaffQueueIndexRoute
   '/staff/translation/': typeof StaffTranslationIndexRoute
   '/staff/visa/': typeof StaffVisaIndexRoute
   '/translate/live/': typeof TranslateLiveIndexRoute
@@ -931,6 +948,7 @@ export interface FileRouteTypes {
     | '/staff/interpreter'
     | '/staff/messages'
     | '/staff/profile'
+    | '/staff/queue'
     | '/staff/reports'
     | '/staff/settings'
     | '/staff/translation'
@@ -971,6 +989,7 @@ export interface FileRouteTypes {
     | '/staff/clients/'
     | '/staff/consultancy/'
     | '/staff/interpreter/'
+    | '/staff/queue/'
     | '/staff/translation/'
     | '/staff/visa/'
     | '/translate/live/'
@@ -1059,6 +1078,7 @@ export interface FileRouteTypes {
     | '/staff/clients'
     | '/staff/consultancy'
     | '/staff/interpreter'
+    | '/staff/queue'
     | '/staff/translation'
     | '/staff/visa'
     | '/translate/live'
@@ -1117,6 +1137,7 @@ export interface FileRouteTypes {
     | '/staff/interpreter'
     | '/staff/messages'
     | '/staff/profile'
+    | '/staff/queue'
     | '/staff/reports'
     | '/staff/settings'
     | '/staff/translation'
@@ -1157,6 +1178,7 @@ export interface FileRouteTypes {
     | '/staff/clients/'
     | '/staff/consultancy/'
     | '/staff/interpreter/'
+    | '/staff/queue/'
     | '/staff/translation/'
     | '/staff/visa/'
     | '/translate/live/'
@@ -1421,6 +1443,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/staff/reports'
       preLoaderRoute: typeof StaffReportsRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/queue': {
+      id: '/staff/queue'
+      path: '/queue'
+      fullPath: '/staff/queue'
+      preLoaderRoute: typeof StaffQueueRouteImport
       parentRoute: typeof StaffRoute
     }
     '/staff/profile': {
@@ -1688,6 +1717,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/staff/translation/'
       preLoaderRoute: typeof StaffTranslationIndexRouteImport
       parentRoute: typeof StaffTranslationRoute
+    }
+    '/staff/queue/': {
+      id: '/staff/queue/'
+      path: '/'
+      fullPath: '/staff/queue/'
+      preLoaderRoute: typeof StaffQueueIndexRouteImport
+      parentRoute: typeof StaffQueueRoute
     }
     '/staff/interpreter/': {
       id: '/staff/interpreter/'
@@ -2069,6 +2105,18 @@ const StaffInterpreterRouteChildren: StaffInterpreterRouteChildren = {
 const StaffInterpreterRouteWithChildren =
   StaffInterpreterRoute._addFileChildren(StaffInterpreterRouteChildren)
 
+interface StaffQueueRouteChildren {
+  StaffQueueIndexRoute: typeof StaffQueueIndexRoute
+}
+
+const StaffQueueRouteChildren: StaffQueueRouteChildren = {
+  StaffQueueIndexRoute: StaffQueueIndexRoute,
+}
+
+const StaffQueueRouteWithChildren = StaffQueueRoute._addFileChildren(
+  StaffQueueRouteChildren,
+)
+
 interface StaffTranslationRouteChildren {
   StaffTranslationIdRoute: typeof StaffTranslationIdRoute
   StaffTranslationIndexRoute: typeof StaffTranslationIndexRoute
@@ -2102,6 +2150,7 @@ interface StaffRouteChildren {
   StaffInterpreterRoute: typeof StaffInterpreterRouteWithChildren
   StaffMessagesRoute: typeof StaffMessagesRoute
   StaffProfileRoute: typeof StaffProfileRoute
+  StaffQueueRoute: typeof StaffQueueRouteWithChildren
   StaffReportsRoute: typeof StaffReportsRoute
   StaffSettingsRoute: typeof StaffSettingsRoute
   StaffTranslationRoute: typeof StaffTranslationRouteWithChildren
@@ -2120,6 +2169,7 @@ const StaffRouteChildren: StaffRouteChildren = {
   StaffInterpreterRoute: StaffInterpreterRouteWithChildren,
   StaffMessagesRoute: StaffMessagesRoute,
   StaffProfileRoute: StaffProfileRoute,
+  StaffQueueRoute: StaffQueueRouteWithChildren,
   StaffReportsRoute: StaffReportsRoute,
   StaffSettingsRoute: StaffSettingsRoute,
   StaffTranslationRoute: StaffTranslationRouteWithChildren,
