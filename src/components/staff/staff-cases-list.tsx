@@ -94,6 +94,7 @@ export function StaffCasesList({
   const [search, setSearch] = useState("");
 
   const load = async () => {
+    if (!user) return;
     setLoading(true);
     try {
       let q = supabase
@@ -102,10 +103,9 @@ export function StaffCasesList({
           "id,status,progress_step,progress_total,assigned_staff_id,priority,created_at,client:users(id,full_name,email,phone,tin_number),service:services(id,name_en)",
         )
         .eq("service_category", category)
+        .eq("assigned_staff_id", user.id)
         .order("created_at", { ascending: false });
-      if (filter === "unassigned") q = q.is("assigned_staff_id", null);
-      else if (filter === "mine" && user) q = q.eq("assigned_staff_id", user.id);
-      else if (filter === "awaiting") q = q.eq("status", "awaiting_client");
+      if (filter === "awaiting") q = q.eq("status", "awaiting_client");
       else if (filter === "completed") q = q.eq("status", "completed");
       const { data, error } = await q;
       if (error) throw error;
@@ -147,43 +147,16 @@ export function StaffCasesList({
     return list;
   }, [rows, search, sort]);
 
-  const assignAll = async () => {
-    if (!user) return;
-    const unassigned = filtered.filter((r) => !r.assigned_staff_id);
-    if (unassigned.length === 0) {
-      toast.info(t("staff.cases.nothingToAssign"));
-      return;
-    }
-    const { error } = await supabase
-      .from("service_requests")
-      .update({ assigned_staff_id: user.id })
-      .in(
-        "id",
-        unassigned.map((r) => r.id),
-      );
-    if (error) toast.error(error.message);
-    else {
-      toast.success(`${t("staff.cases.assigned")} ${unassigned.length}`);
-      void load();
-    }
-  };
-
   return (
     <div className="mx-auto w-full max-w-7xl space-y-5 animate-in fade-in duration-300">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{title}</h1>
-        <Button onClick={assignAll} size="sm">
-          <Plus className="mr-1 h-4 w-4" />
-          {t("staff.cases.assignToMe")}
-        </Button>
       </div>
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
           <TabsList>
             <TabsTrigger value="all">{t("staff.cases.all")}</TabsTrigger>
-            <TabsTrigger value="unassigned">{t("staff.cases.unassigned")}</TabsTrigger>
-            <TabsTrigger value="mine">{t("staff.cases.mine")}</TabsTrigger>
             <TabsTrigger value="awaiting">{t("staff.cases.awaiting")}</TabsTrigger>
             <TabsTrigger value="completed">{t("staff.cases.completed")}</TabsTrigger>
           </TabsList>
