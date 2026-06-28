@@ -14,6 +14,7 @@ import {
   LogOut,
   MessageCircle,
   User,
+  Inbox,
   type LucideIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -28,13 +29,26 @@ interface Item {
   icon: LucideIcon;
   to?: string;
   cap?: Capability;
-  badgeKey?: "unassignedVisa" | "unassignedAccounting" | "openClaims" | "unreadMessages" | "filteredClients";
+  badgeKey?:
+    | "unassignedVisa"
+    | "unassignedAccounting"
+    | "openClaims"
+    | "unreadMessages"
+    | "filteredClients"
+    | "unassignedQueue";
   action?: "logout";
   intent?: "destructive";
 }
 
 const items: Item[] = [
   { label: "Home", icon: LayoutDashboard, to: "/staff" },
+  {
+    label: "Queue",
+    icon: Inbox,
+    to: "/staff/queue",
+    cap: "manage_assignments",
+    badgeKey: "unassignedQueue",
+  },
   {
     label: "Visa Cases",
     icon: FileText,
