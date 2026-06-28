@@ -1494,8 +1494,8 @@
       "actionRequired": "Igikorwa gikenewe",
       "openCase": "Fungura dosiye",
       "urgent": "Byihutirwa",
-      "empty": "Nta dosiye yabonetse",
-      "emptyHint": "Gerageza guhindura filteri"
+      "empty": "Nta dosiye uragenerwa",
+      "emptyHint": "Umuyobozi azakugenera dosiye."
     },
     "clients": {
       "title": "Abakiriya",

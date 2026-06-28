@@ -14,6 +14,7 @@ import {
   LogOut,
   MessageCircle,
   User,
+  Inbox,
   type LucideIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -28,13 +29,26 @@ interface Item {
   icon: LucideIcon;
   to?: string;
   cap?: Capability;
-  badgeKey?: "unassignedVisa" | "unassignedAccounting" | "openClaims" | "unreadMessages" | "filteredClients";
+  badgeKey?:
+    | "unassignedVisa"
+    | "unassignedAccounting"
+    | "openClaims"
+    | "unreadMessages"
+    | "filteredClients"
+    | "unassignedQueue";
   action?: "logout";
   intent?: "destructive";
 }
 
 const items: Item[] = [
   { label: "Home", icon: LayoutDashboard, to: "/staff" },
+  {
+    label: "Queue",
+    icon: Inbox,
+    to: "/staff/queue",
+    cap: "manage_assignments",
+    badgeKey: "unassignedQueue",
+  },
   {
     label: "Visa Cases",
     icon: FileText,
@@ -77,12 +91,13 @@ function useStaffCounts() {
     openClaims: 0,
     unreadMessages: 0,
     filteredClients: 0,
+    unassignedQueue: 0,
   });
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [visa, acc, claims, clients] = await Promise.all([
+        const [visa, acc, claims, clients, queue] = await Promise.all([
           supabase
             .from("service_requests")
             .select("id", { count: "exact", head: true })
@@ -114,6 +129,11 @@ function useStaffCounts() {
                     allowedCategories,
                   )
               : Promise.resolve({ count: 0 }),
+          supabase
+            .from("service_requests")
+            .select("id", { count: "exact", head: true })
+            .is("assigned_staff_id", null)
+            .eq("assignment_status", "unassigned"),
         ]);
         let unread = 0;
         if (user) {
@@ -131,6 +151,7 @@ function useStaffCounts() {
           openClaims: claims.count ?? 0,
           unreadMessages: unread,
           filteredClients: clients.count ?? 0,
+          unassignedQueue: queue.count ?? 0,
         });
       } catch {
         /* ignore */
@@ -192,7 +213,10 @@ export function StaffSidebar({
         <Icon className="h-4 w-4 shrink-0" />
         {!collapsed && <span className="flex-1 text-left">{item.label}</span>}
         {!collapsed && badge ? (
-          <Badge variant="secondary" className="h-5 min-w-5 px-1.5">
+          <Badge
+            variant={item.badgeKey === "unassignedQueue" ? "destructive" : "secondary"}
+            className="h-5 min-w-5 px-1.5"
+          >
             {badge}
           </Badge>
         ) : null}

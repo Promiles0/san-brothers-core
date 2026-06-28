@@ -1494,8 +1494,8 @@
       "actionRequired": "需要处理",
       "openCase": "打开案件",
       "urgent": "紧急",
-      "empty": "未找到案件",
-      "emptyHint": "请调整筛选条件"
+      "empty": "尚未分配任何案件",
+      "emptyHint": "经理将会把案件分配给您。"
     },
     "clients": {
       "title": "客户",
