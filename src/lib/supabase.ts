@@ -1,9 +1,5 @@
 ﻿import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABASE_URL || "pending";
-const SUPABASE_ANON_KEY =
-  import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_ANON_KEY || "pending";
-
 declare global {
   interface Window {
     __SAN_BROTHERS_ENV__?: {
@@ -13,41 +9,62 @@ declare global {
   }
 }
 
-function readPublicEnv(key: "VITE_SUPABASE_URL" | "VITE_SUPABASE_ANON_KEY") {
-  return (
-    import.meta.env[key] ||
-    (typeof window !== "undefined" ? window.__SAN_BROTHERS_ENV__?.[key] : undefined) ||
-    ""
-  );
+function readEnv(key: "VITE_SUPABASE_URL" | "VITE_SUPABASE_ANON_KEY"): string {
+  // 1. Build-time (works when VITE_ vars are in wrangler.jsonc or .env)
+  const buildTime = import.meta.env[key] as string | undefined;
+  if (buildTime && buildTime.trim() && !buildTime.includes("pending")) {
+    return buildTime.trim();
+  }
+  // 2. Runtime injection (server.ts injects window.__SAN_BROTHERS_ENV__ from Cloudflare Secrets)
+  if (typeof window !== "undefined") {
+    const runtime = window.__SAN_BROTHERS_ENV__?.[key];
+    if (runtime && runtime.trim()) return runtime.trim();
+  }
+  return "";
 }
 
+// Client is created lazily — only when first used, by which time
+// window.__SAN_BROTHERS_ENV__ has been injected by the server.
 let _client: SupabaseClient | null = null;
 
-function requireSupabaseConfig() {
-  const url = (readPublicEnv("VITE_SUPABASE_URL") || SUPABASE_URL).replace("pending", "").trim();
-  const key = (readPublicEnv("VITE_SUPABASE_ANON_KEY") || SUPABASE_ANON_KEY)
-    .replace("pending", "")
-    .trim();
+function getSupabaseClient(): SupabaseClient {
+  // Reset client if env is now available (first call after hydration)
+  if (_client) return _client;
 
-  if (
-    !url ||
-    !key ||
-    url.includes("placeholder.supabase.co") ||
-    key === "placeholder-key" ||
-    url === "your_supabase_url" ||
-    key === "your_supabase_anon_key"
-  ) {
-    throw new Error(
-      "Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY before building the app.",
-    );
+  const url = readEnv("VITE_SUPABASE_URL");
+  const key = readEnv("VITE_SUPABASE_ANON_KEY");
+
+  if (!url || !key) {
+    // Return a no-op proxy so the app doesn't crash during SSR or
+    // before hydration — real calls will fail gracefully with auth errors.
+    console.warn("[Supabase] Config not yet available — will retry on next call after hydration.");
+    // Return a temporary stub that retries on next property access
+    return new Proxy({} as SupabaseClient, {
+      get(_t, prop) {
+        // On next access, try again (window.__SAN_BROTHERS_ENV__ may now be set)
+        const retryUrl = readEnv("VITE_SUPABASE_URL");
+        const retryKey = readEnv("VITE_SUPABASE_ANON_KEY");
+        if (retryUrl && retryKey) {
+          _client = createClient(retryUrl, retryKey, {
+            auth: {
+              persistSession: true,
+              autoRefreshToken: true,
+              detectSessionInUrl: true,
+            },
+          });
+          const value = _client[prop as keyof SupabaseClient];
+          return typeof value === "function"
+            ? (value as (...args: unknown[]) => unknown).bind(_client)
+            : value;
+        }
+        // Still not available — return a no-op function to prevent crashes
+        return typeof prop === "string"
+          ? () => Promise.resolve({ data: null, error: new Error("Supabase not configured") })
+          : undefined;
+      },
+    });
   }
 
-  return { url, key };
-}
-
-function getSupabaseClient(): SupabaseClient {
-  if (_client) return _client;
-  const { url, key } = requireSupabaseConfig();
   _client = createClient(url, key, {
     auth: {
       persistSession: typeof window !== "undefined",
