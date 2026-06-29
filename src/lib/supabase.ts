@@ -4,14 +4,26 @@ declare global {
   interface Window {
     __SAN_BROTHERS_ENV__?: {
       VITE_SUPABASE_URL?: string;
+      SUPABASE_URL?: string;
       VITE_SUPABASE_ANON_KEY?: string;
+      SUPABASE_ANON_KEY?: string;
+      VITE_SUPABASE_PUBLISHABLE_KEY?: string;
+      SUPABASE_PUBLISHABLE_KEY?: string;
     };
   }
 }
 
-function readEnv(key: "VITE_SUPABASE_URL" | "VITE_SUPABASE_ANON_KEY"): string {
+type PublicEnvKey =
+  | "VITE_SUPABASE_URL"
+  | "SUPABASE_URL"
+  | "VITE_SUPABASE_ANON_KEY"
+  | "SUPABASE_ANON_KEY"
+  | "VITE_SUPABASE_PUBLISHABLE_KEY"
+  | "SUPABASE_PUBLISHABLE_KEY";
+
+function readEnv(key: PublicEnvKey): string {
   // 1. Build-time (works when VITE_ vars are in wrangler.jsonc or .env)
-  const buildTime = import.meta.env[key] as string | undefined;
+  const buildTime = (import.meta.env as Record<string, string | undefined>)[key];
   if (buildTime && buildTime.trim() && !buildTime.includes("pending")) {
     return buildTime.trim();
   }
@@ -23,13 +35,26 @@ function readEnv(key: "VITE_SUPABASE_URL" | "VITE_SUPABASE_ANON_KEY"): string {
   return "";
 }
 
+function readFirstEnv(keys: PublicEnvKey[]): string {
+  for (const key of keys) {
+    const value = readEnv(key);
+    if (value) return value;
+  }
+  return "";
+}
+
 let _client: SupabaseClient | null = null;
 
 function getSupabaseClient(): SupabaseClient {
   if (_client) return _client;
 
-  const url = readEnv("VITE_SUPABASE_URL");
-  const key = readEnv("VITE_SUPABASE_ANON_KEY");
+  const url = readFirstEnv(["VITE_SUPABASE_URL", "SUPABASE_URL"]);
+  const key = readFirstEnv([
+    "VITE_SUPABASE_ANON_KEY",
+    "VITE_SUPABASE_PUBLISHABLE_KEY",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_PUBLISHABLE_KEY",
+  ]);
 
   if (!url || !key) {
     throw new Error(

@@ -65,21 +65,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // IMPORTANT: subscribe BEFORE getSession to avoid missing events
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-      // Defer profile fetch to avoid deadlock inside callback
-      setTimeout(() => fetchProfile(newSession?.user?.id ?? null), 0);
-    });
+    let sub: { subscription: { unsubscribe: () => void } } | null = null;
 
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      fetchProfile(data.session?.user?.id ?? null).finally(() => setLoading(false));
-    });
+    try {
+      // IMPORTANT: subscribe BEFORE getSession to avoid missing events
+      const { data } = supabase.auth.onAuthStateChange((_event, newSession) => {
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
+        // Defer profile fetch to avoid deadlock inside callback
+        setTimeout(() => fetchProfile(newSession?.user?.id ?? null), 0);
+      });
+      sub = data;
 
-    return () => sub.subscription.unsubscribe();
+      supabase.auth
+        .getSession()
+        .then(({ data }) => {
+          setSession(data.session);
+          setUser(data.session?.user ?? null);
+          fetchProfile(data.session?.user?.id ?? null).finally(() => setLoading(false));
+        })
+        .catch((error) => {
+          console.warn("[auth] session fetch failed", error);
+          setLoading(false);
+        });
+    } catch (error) {
+      console.warn("[auth] Supabase auth is unavailable", error);
+      setLoading(false);
+    }
+
+    return () => sub?.subscription.unsubscribe();
   }, [fetchProfile]);
 
   const signIn = useCallback<AuthContextValue["signIn"]>(async (email, password) => {
