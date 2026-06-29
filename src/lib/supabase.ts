@@ -25,7 +25,9 @@ let _client: SupabaseClient | null = null;
 
 function requireSupabaseConfig() {
   const url = (readPublicEnv("VITE_SUPABASE_URL") || SUPABASE_URL).replace("pending", "").trim();
-  const key = (readPublicEnv("VITE_SUPABASE_ANON_KEY") || SUPABASE_ANON_KEY).replace("pending", "").trim();
+  const key = (readPublicEnv("VITE_SUPABASE_ANON_KEY") || SUPABASE_ANON_KEY)
+    .replace("pending", "")
+    .trim();
 
   if (
     !url ||
