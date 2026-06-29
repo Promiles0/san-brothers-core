@@ -151,10 +151,7 @@ function NewClaimPage() {
       <Card>
         <CardContent className="space-y-4 pt-6">
           <div className="space-y-2">
-            <Label>
-              {t("dashboard.claims.linkedService")}{" "}
-              <span className="text-muted-foreground">({t("dashboard.common.optional")})</span>
-            </Label>
+            <Label>Which service is this claim about? *</Label>
             <Select value={srId} onValueChange={setSrId}>
               <SelectTrigger>
                 <SelectValue placeholder={t("dashboard.common.select")} />
@@ -162,7 +159,7 @@ function NewClaimPage() {
               <SelectContent>
                 {options.map((o) => (
                   <SelectItem key={o.id} value={o.id}>
-                    {o.services?.name_en ?? o.id.slice(0, 8)}
+                    {(o.services?.name_en ?? o.id.slice(0, 8)) + (o.status ? ` · ${o.status}` : "")}
                   </SelectItem>
                 ))}
               </SelectContent>
