@@ -23,46 +23,18 @@ function readEnv(key: "VITE_SUPABASE_URL" | "VITE_SUPABASE_ANON_KEY"): string {
   return "";
 }
 
-// Client is created lazily — only when first used, by which time
-// window.__SAN_BROTHERS_ENV__ has been injected by the server.
 let _client: SupabaseClient | null = null;
 
 function getSupabaseClient(): SupabaseClient {
-  // Reset client if env is now available (first call after hydration)
   if (_client) return _client;
 
   const url = readEnv("VITE_SUPABASE_URL");
   const key = readEnv("VITE_SUPABASE_ANON_KEY");
 
   if (!url || !key) {
-    // Return a no-op proxy so the app doesn't crash during SSR or
-    // before hydration — real calls will fail gracefully with auth errors.
-    console.warn("[Supabase] Config not yet available — will retry on next call after hydration.");
-    // Return a temporary stub that retries on next property access
-    return new Proxy({} as SupabaseClient, {
-      get(_t, prop) {
-        // On next access, try again (window.__SAN_BROTHERS_ENV__ may now be set)
-        const retryUrl = readEnv("VITE_SUPABASE_URL");
-        const retryKey = readEnv("VITE_SUPABASE_ANON_KEY");
-        if (retryUrl && retryKey) {
-          _client = createClient(retryUrl, retryKey, {
-            auth: {
-              persistSession: true,
-              autoRefreshToken: true,
-              detectSessionInUrl: true,
-            },
-          });
-          const value = _client[prop as keyof SupabaseClient];
-          return typeof value === "function"
-            ? (value as (...args: unknown[]) => unknown).bind(_client)
-            : value;
-        }
-        // Still not available — return a no-op function to prevent crashes
-        return typeof prop === "string"
-          ? () => Promise.resolve({ data: null, error: new Error("Supabase not configured") })
-          : undefined;
-      },
-    });
+    throw new Error(
+      "Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Cloudflare before loading the app.",
+    );
   }
 
   _client = createClient(url, key, {
