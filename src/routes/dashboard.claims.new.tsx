@@ -36,6 +36,7 @@ const REASONS = [
 
 interface SROpt {
   id: string;
+  status: string | null;
   services: { name_en: string } | null;
 }
 
