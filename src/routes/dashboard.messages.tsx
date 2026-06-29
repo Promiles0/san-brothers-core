@@ -45,6 +45,7 @@ function MessagesPage() {
       .from("conversations")
       .select("id,client_id,department,claimed_by,last_message_at,status,priority")
       .eq("client_id", user.id)
+      .eq("conversation_type", "client_manager")
       .order("last_message_at", { ascending: false });
     if (error) {
       toast.error(error.message);
@@ -123,6 +124,7 @@ function MessagesPage() {
       .insert({
         client_id: user.id,
         department: dep,
+        conversation_type: "client_manager",
         last_message_at: new Date().toISOString(),
       })
       .select("id")
@@ -198,7 +200,7 @@ function MessagesPage() {
               loading={loading}
               selectedId={selectedId}
               onSelect={handleSelect}
-              emptyText="No conversations yet. Tap New to start one."
+              emptyText="Send a message to our team. A manager will respond shortly."
             />
           </div>
 

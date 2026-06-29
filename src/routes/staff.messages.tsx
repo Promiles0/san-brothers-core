@@ -70,6 +70,7 @@ function StaffMessagesPage() {
       .select(
         "id,client_id,department,status,priority,claimed_by,claimed_at,hold_start,hold_reason,last_message_at,client:users!conversations_client_id_fkey(full_name,email),claimer:users!conversations_claimed_by_fkey(full_name,email)",
       )
+      .eq("conversation_type", "internal")
       .order("last_message_at", { ascending: false })
       .limit(200);
     if (!isAdmin) query = query.in("department", allowedDepartments);
@@ -322,10 +323,10 @@ function StaffMessagesPage() {
               onSelect={handleSelect}
               emptyText={
                 tab === "incoming"
-                  ? "No unclaimed conversations. 🎉"
+                  ? "No internal messages yet. The manager will contact you here about your assigned cases."
                   : tab === "mine"
-                    ? "You haven't claimed any conversations."
-                    : "No conversations."
+                    ? "No internal messages assigned to you yet."
+                    : "No internal messages yet. The manager will contact you here about your assigned cases."
               }
             />
           </div>

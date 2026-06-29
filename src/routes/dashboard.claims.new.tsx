@@ -36,6 +36,7 @@ const REASONS = [
 
 interface SROpt {
   id: string;
+  status: string | null;
   services: { name_en: string } | null;
 }
 
@@ -56,7 +57,7 @@ function NewClaimPage() {
     (async () => {
       const { data } = await supabase
         .from("service_requests")
-        .select("id,services(name_en)")
+        .select("id,status,services(name_en)")
         .eq("client_id", user.id)
         .order("created_at", { ascending: false });
       setOptions((data as unknown as SROpt[]) ?? []);
@@ -71,6 +72,10 @@ function NewClaimPage() {
 
   const submit = async () => {
     if (!user) return;
+    if (!srId) {
+      toast.error("Please select the service this claim is about.");
+      return;
+    }
     if (!reason) {
       toast.error(t("dashboard.claims.errReason"));
       return;
@@ -81,6 +86,22 @@ function NewClaimPage() {
     }
     setSubmitting(true);
     try {
+      let staffIdAtTime: string | null = null;
+      if (srId) {
+        const { data: srData } = await supabase
+          .from("service_requests")
+          .select("assigned_staff_id")
+          .eq("id", srId)
+          .maybeSingle();
+        if (srData?.assigned_staff_id) {
+          const { data: staffData } = await supabase
+            .from("users")
+            .select("staff_id")
+            .eq("id", srData.assigned_staff_id)
+            .maybeSingle();
+          staffIdAtTime = (staffData?.staff_id as string | null) ?? null;
+        }
+      }
       const { data: claim, error } = await supabase
         .from("claims")
         .insert({
@@ -89,6 +110,7 @@ function NewClaimPage() {
           reason_category: reason,
           description,
           status: "open",
+          staff_id_at_time: staffIdAtTime,
         })
         .select()
         .single();
@@ -129,10 +151,7 @@ function NewClaimPage() {
       <Card>
         <CardContent className="space-y-4 pt-6">
           <div className="space-y-2">
-            <Label>
-              {t("dashboard.claims.linkedService")}{" "}
-              <span className="text-muted-foreground">({t("dashboard.common.optional")})</span>
-            </Label>
+            <Label>Which service is this claim about? *</Label>
             <Select value={srId} onValueChange={setSrId}>
               <SelectTrigger>
                 <SelectValue placeholder={t("dashboard.common.select")} />
@@ -140,7 +159,7 @@ function NewClaimPage() {
               <SelectContent>
                 {options.map((o) => (
                   <SelectItem key={o.id} value={o.id}>
-                    {o.services?.name_en ?? o.id.slice(0, 8)}
+                    {(o.services?.name_en ?? o.id.slice(0, 8)) + (o.status ? ` · ${o.status}` : "")}
                   </SelectItem>
                 ))}
               </SelectContent>
