@@ -9,7 +9,8 @@
   },
   "vars": {
     "VITE_SUPABASE_URL": "https://hokqzznlvudldmrgpfhd.supabase.co",
-    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhva3F6em5sdnVkbGRtcmdwZmhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NTI0MzQsImV4cCI6MjA5NDUyODQzNH0.CwbeI2mzxWmjvOV6MGUObTbqgi7mVB47K3EyBlnwr94"
+    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhva3F6em5sdnVkbGRtcmdwZmhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NTI0MzQsImV4cCI6MjA5NDUyODQzNH0.CwbeI2mzxWmjvOV6MGUObTbqgi7mVB47K3EyBlnwr94",
+    "VITE_STRIPE_PUBLISHABLE_KEY": "pk_test_51Tcp7VRxGV8gy5RhJQiEXHoXAudNP3vePPrtjBoVmROVxueyqcm5QH7iEQjwkEuPbnG1DSjlHRmlpoTeA2IEf7vf00g42mPZsm"
   },
   "routes": [
     {
