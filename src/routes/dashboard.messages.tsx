@@ -45,6 +45,7 @@ function MessagesPage() {
       .from("conversations")
       .select("id,client_id,department,claimed_by,last_message_at,status,priority")
       .eq("client_id", user.id)
+      .eq("conversation_type", "client_manager")
       .order("last_message_at", { ascending: false });
     if (error) {
       toast.error(error.message);
