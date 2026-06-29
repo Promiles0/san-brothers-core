@@ -1,8 +1,8 @@
 ﻿import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABASE_URL || "";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABASE_URL || "pending";
 const SUPABASE_ANON_KEY =
-  import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_ANON_KEY || "";
+  import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_ANON_KEY || "pending";
 
 declare global {
   interface Window {
@@ -24,8 +24,8 @@ function readPublicEnv(key: "VITE_SUPABASE_URL" | "VITE_SUPABASE_ANON_KEY") {
 let _client: SupabaseClient | null = null;
 
 function requireSupabaseConfig() {
-  const url = (SUPABASE_URL || readPublicEnv("VITE_SUPABASE_URL")).trim();
-  const key = (SUPABASE_ANON_KEY || readPublicEnv("VITE_SUPABASE_ANON_KEY")).trim();
+  const url = (readPublicEnv("VITE_SUPABASE_URL") || SUPABASE_URL).replace("pending", "").trim();
+  const key = (readPublicEnv("VITE_SUPABASE_ANON_KEY") || SUPABASE_ANON_KEY).replace("pending", "").trim();
 
   if (
     !url ||
