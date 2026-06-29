@@ -200,7 +200,7 @@ function MessagesPage() {
               loading={loading}
               selectedId={selectedId}
               onSelect={handleSelect}
-              emptyText="No conversations yet. Tap New to start one."
+              emptyText="Send a message to our team. A manager will respond shortly."
             />
           </div>
 
