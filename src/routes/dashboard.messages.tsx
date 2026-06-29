@@ -124,6 +124,7 @@ function MessagesPage() {
       .insert({
         client_id: user.id,
         department: dep,
+        conversation_type: "client_manager",
         last_message_at: new Date().toISOString(),
       })
       .select("id")
