@@ -323,10 +323,10 @@ function StaffMessagesPage() {
               onSelect={handleSelect}
               emptyText={
                 tab === "incoming"
-                  ? "No unclaimed conversations. 🎉"
+                  ? "No internal messages yet. The manager will contact you here about your assigned cases."
                   : tab === "mine"
-                    ? "You haven't claimed any conversations."
-                    : "No conversations."
+                    ? "No internal messages assigned to you yet."
+                    : "No internal messages yet. The manager will contact you here about your assigned cases."
               }
             />
           </div>
