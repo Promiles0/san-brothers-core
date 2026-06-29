@@ -17,12 +17,33 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
+type StripeRuntimeWindow = Window & {
+  __SAN_BROTHERS_ENV__?: {
+    VITE_STRIPE_PUBLISHABLE_KEY?: string;
+    STRIPE_PUBLISHABLE_KEY?: string;
+  };
+};
+
+function readStripePublishableKey() {
+  const buildTime = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
+  if (buildTime?.trim()) return buildTime.trim();
+
+  if (typeof window === "undefined") return "";
+  const runtimeWindow = window as StripeRuntimeWindow;
+  return (
+    runtimeWindow.__SAN_BROTHERS_ENV__?.VITE_STRIPE_PUBLISHABLE_KEY ||
+    runtimeWindow.__SAN_BROTHERS_ENV__?.STRIPE_PUBLISHABLE_KEY ||
+    ""
+  ).trim();
+}
 
 let _stripePromise: Promise<StripeJs | null> | null = null;
+let _stripePromiseKey = "";
 function getStripe() {
-  if (!_stripePromise) {
-    _stripePromise = PUBLISHABLE_KEY ? loadStripe(PUBLISHABLE_KEY) : Promise.resolve(null);
+  const publishableKey = readStripePublishableKey();
+  if (!_stripePromise || _stripePromiseKey !== publishableKey) {
+    _stripePromiseKey = publishableKey;
+    _stripePromise = publishableKey ? loadStripe(publishableKey) : Promise.resolve(null);
   }
   return _stripePromise;
 }
@@ -73,7 +94,7 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
     if (propClientSecret) return;
 
     let cancelled = false;
-    if (!PUBLISHABLE_KEY) {
+    if (!readStripePublishableKey()) {
       const message = "Stripe publishable key is not configured.";
       console.error(message);
       setInitError(message);

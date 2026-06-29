@@ -15,6 +15,8 @@ type ServerEntry = {
 
 interface CloudflareEnv {
   STRIPE_SECRET_KEY?: string;
+  STRIPE_PUBLISHABLE_KEY?: string;
+  VITE_STRIPE_PUBLISHABLE_KEY?: string;
   SUPABASE_URL?: string;
   VITE_SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
@@ -320,13 +322,17 @@ async function injectPublicRuntimeEnv(
     readRuntimeEnv(env, "VITE_SUPABASE_PUBLISHABLE_KEY") ||
     readRuntimeEnv(env, "SUPABASE_PUBLISHABLE_KEY") ||
     readRuntimeEnv(env, "SUPABASE_ANON_KEY");
+  const stripePublishableKey =
+    readRuntimeEnv(env, "VITE_STRIPE_PUBLISHABLE_KEY") ||
+    readRuntimeEnv(env, "STRIPE_PUBLISHABLE_KEY");
 
-  if (!supabaseUrl || !supabaseAnonKey) return response;
+  if (!supabaseUrl && !supabaseAnonKey && !stripePublishableKey) return response;
 
   const html = await response.text();
   const script = `<script>window.__SAN_BROTHERS_ENV__=${escapeInlineJson({
     VITE_SUPABASE_URL: supabaseUrl,
     VITE_SUPABASE_ANON_KEY: supabaseAnonKey,
+    VITE_STRIPE_PUBLISHABLE_KEY: stripePublishableKey,
   })};</script>`;
   const body = html.includes("</head>") ? html.replace("</head>", `${script}</head>`) : script + html;
   const headers = new Headers(response.headers);
