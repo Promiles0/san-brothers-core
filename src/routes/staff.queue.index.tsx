@@ -72,8 +72,7 @@ function ManagerQueuePage() {
   const [submitting, setSubmitting] = useState(false);
 
   const SELECT =
-    "id,status,priority,service_category,created_at,assigned_at,assigned_staff_id,client:users!client_id(id,full_name,email),service:services(id,name_en),assignee:users!assigned_staff_id(id,full_name,staff_id)";
-
+    "id,status,priority,service_category,created_at,assigned_at,assigned_staff_id,client:users!service_requests_client_id_fkey(id,full_name,email),service:services!service_requests_service_id_fkey(id,name_en),assignee:users!service_requests_assigned_staff_id_fkey(id,full_name,staff_id)";
   const loadAll = async () => {
     setLoading(true);
     try {
@@ -180,9 +179,21 @@ function ManagerQueuePage() {
 
   const formattedStats = useMemo(
     () => [
-      { label: "Unassigned cases", value: unassignedCount, accent: "text-rose-600 dark:text-rose-400" },
-      { label: "Assigned today", value: assignedToday, accent: "text-emerald-600 dark:text-emerald-400" },
-      { label: "Total active cases", value: totalActive, accent: "text-blue-600 dark:text-blue-400" },
+      {
+        label: "Unassigned cases",
+        value: unassignedCount,
+        accent: "text-rose-600 dark:text-rose-400",
+      },
+      {
+        label: "Assigned today",
+        value: assignedToday,
+        accent: "text-emerald-600 dark:text-emerald-400",
+      },
+      {
+        label: "Total active cases",
+        value: totalActive,
+        accent: "text-blue-600 dark:text-blue-400",
+      },
     ],
     [unassignedCount, assignedToday, totalActive],
   );
