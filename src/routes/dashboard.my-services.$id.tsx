@@ -250,8 +250,8 @@ function ServiceDetailPage() {
 
     if (data?.assigned_staff_id) {
       const { data: staffData } = await supabase
-        .from("profiles")
-        .select("id,full_name,role")
+        .from("users")
+        .select("id,full_name,role,staff_id")
         .eq("id", data.assigned_staff_id)
         .maybeSingle();
       setStaff((staffData as Staff) ?? null);
