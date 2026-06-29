@@ -88,6 +88,7 @@ interface Staff {
   id: string;
   full_name: string;
   role: string;
+  staff_id: string | null;
 }
 
 interface TimelineEvent {
