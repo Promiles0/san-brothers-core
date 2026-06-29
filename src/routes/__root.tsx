@@ -130,7 +130,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
   const { theme, locale } = readSsrPrefs();
   const htmlClass = theme === "dark" ? "dark" : "";
   return (
-    <html lang={locale} className={htmlClass} suppressHydrationWarning>
+    <html lang={locale} className={htmlClass} suppressHydrationWarning translate="no">
       <head>
         <script dangerouslySetInnerHTML={{ __html: systemThemeFixScript }} />
         <HeadContent />
