@@ -1152,13 +1152,16 @@ function ServiceDetailPage() {
             {staff ? (
               <div className="px-5 py-4 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="relative grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white font-bold text-sm shrink-0">
-                    {staff.full_name.charAt(0).toUpperCase()}
-                    <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-card" />
+                  <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white font-bold text-sm shrink-0">
+                    {(staff.staff_id ?? "SB").slice(0, 2).toUpperCase()}
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">
-                      {staff.full_name}
+                      {staff.staff_id ? (
+                        <span className="font-mono font-bold text-sm">{staff.staff_id}</span>
+                      ) : (
+                        "Staff Member"
+                      )}
                     </p>
                     <p className="text-xs text-muted-foreground capitalize">
                       {staff.role?.replace(/_/g, " ")}
@@ -1168,7 +1171,7 @@ function ServiceDetailPage() {
                 <Button asChild size="sm" variant="outline" className="w-full h-8 text-xs">
                   <Link to="/dashboard/messages">
                     <MessageSquare className="h-3.5 w-3.5 mr-1.5" />
-                    Send Message
+                    Send a Message
                   </Link>
                 </Button>
               </div>
