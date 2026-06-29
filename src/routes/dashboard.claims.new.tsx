@@ -57,7 +57,7 @@ function NewClaimPage() {
     (async () => {
       const { data } = await supabase
         .from("service_requests")
-        .select("id,services(name_en)")
+        .select("id,status,services(name_en)")
         .eq("client_id", user.id)
         .order("created_at", { ascending: false });
       setOptions((data as unknown as SROpt[]) ?? []);
