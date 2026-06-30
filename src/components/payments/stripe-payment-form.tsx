@@ -233,7 +233,12 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
                 </Elements>
               )}
               {selectedMethod === "mtn-momo" && (
-                <MTNMoMoForm amount={amount} rwfAmount={rwfAmount} />
+                <MTNMoMoForm
+                  amount={amount}
+                  rwfAmount={rwfAmount}
+                  intent={intent}
+                  onSuccess={props.onSuccess}
+                />
               )}
               {selectedMethod === "paypal" && <PayPalForm />}
               {selectedMethod === "bank" && <BankTransferForm amount={amount} />}
