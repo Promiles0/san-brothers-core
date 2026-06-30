@@ -304,7 +304,6 @@ function PaymentMethodGrid({
       id: "mtn-momo",
       name: "MTN MoMo",
       icon: <span className="text-lg font-bold">MoMo</span>,
-      comingSoon: true,
     },
     {
       id: "paypal",
