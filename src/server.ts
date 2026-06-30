@@ -84,6 +84,369 @@ function rateLimitOk(userId: string): boolean {
   return true;
 }
 
+// ─── MTN MoMo (MADAPI Payments V1) ───────────────────────────────────────
+const MOMO_BASE_URL = "https://api.mtn.com/v1";
+const MOMO_CALLBACK_URL = "https://sanbrothers.cn.com/api/momo/callback";
+const RWF_PER_USD = 1285;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+let momoTokenCache: { token: string; expiresAt: number } | null = null;
+const momoInFlight = new Set<string>();
+
+async function getMomoAccessToken(env: CloudflareEnv): Promise<string | null> {
+  const now = Date.now();
+  if (momoTokenCache && momoTokenCache.expiresAt > now + 30_000) {
+    return momoTokenCache.token;
+  }
+  const key = readRuntimeEnv(env, "MTN_MOMO_CONSUMER_KEY" as keyof CloudflareEnv);
+  const secret = readRuntimeEnv(env, "MTN_MOMO_CONSUMER_SECRET" as keyof CloudflareEnv);
+  if (!key || !secret) return null;
+  const basic = btoa(`${key}:${secret}`);
+  const res = await fetch(`${MOMO_BASE_URL}/oauth/access_token`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${basic}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+    },
+    body: "grant_type=client_credentials",
+  });
+  if (!res.ok) {
+    console.error("[MoMo] OAuth failed", res.status, await res.text().catch(() => ""));
+    return null;
+  }
+  const data = (await res.json()) as { access_token?: string; expires_in?: number };
+  if (!data.access_token) return null;
+  const ttlMs = (data.expires_in ?? 3600) * 1000;
+  momoTokenCache = { token: data.access_token, expiresAt: now + ttlMs };
+  return data.access_token;
+}
+
+async function supabaseInsert(
+  env: CloudflareEnv,
+  table: string,
+  row: Record<string, unknown>,
+  serviceRoleKey: string,
+): Promise<boolean> {
+  const url = readRuntimeEnv(env, "SUPABASE_URL") || readRuntimeEnv(env, "VITE_SUPABASE_URL");
+  if (!url) return false;
+  const res = await fetch(`${url}/rest/v1/${table}`, {
+    method: "POST",
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify(row),
+  });
+  if (!res.ok) console.error("[Supabase insert]", table, res.status, await res.text().catch(() => ""));
+  return res.ok;
+}
+
+async function supabasePatch(
+  env: CloudflareEnv,
+  pathWithQuery: string,
+  row: Record<string, unknown>,
+  serviceRoleKey: string,
+): Promise<boolean> {
+  const url = readRuntimeEnv(env, "SUPABASE_URL") || readRuntimeEnv(env, "VITE_SUPABASE_URL");
+  if (!url) return false;
+  const res = await fetch(`${url}/rest/v1/${pathWithQuery}`, {
+    method: "PATCH",
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify(row),
+  });
+  if (!res.ok) console.error("[Supabase patch]", pathWithQuery, res.status, await res.text().catch(() => ""));
+  return res.ok;
+}
+
+type MomoInitiateBody = {
+  kind?: "service" | "minute_package";
+  service_id?: string;
+  service_request_id?: string;
+  minute_package_id?: string;
+  phone_number?: string;
+};
+
+async function handleMomoInitiatePayment(request: Request, env: unknown): Promise<Response> {
+  let lockKey: string | null = null;
+  try {
+    const cfEnv = hasRuntimeEnv(env) ? env : {};
+
+    const authHeader = request.headers.get("authorization") || "";
+    const bearer = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7).trim() : "";
+    if (!bearer) return jsonResponse({ error: "Unauthorized" }, 401);
+
+    const serviceRoleKey = readRuntimeEnv(cfEnv, "SUPABASE_SERVICE_ROLE_KEY");
+    if (!serviceRoleKey) return jsonResponse({ error: "Server not configured" }, 500);
+
+    const authedUser = await verifySupabaseUser(cfEnv, bearer);
+    if (!authedUser) return jsonResponse({ error: "Unauthorized" }, 401);
+
+    if (!rateLimitOk(authedUser.id)) return jsonResponse({ error: "Too many requests" }, 429);
+
+    const body = (await request.json().catch(() => null)) as MomoInitiateBody | null;
+    if (!body || !body.kind) return jsonResponse({ error: "Invalid request" }, 400);
+
+    const digits = (body.phone_number || "").replace(/\D/g, "");
+    if (digits.length !== 9 || !(digits.startsWith("078") || digits.startsWith("079"))) {
+      return jsonResponse({ error: "Invalid phone number. Use a 9-digit 078/079 number." }, 400);
+    }
+    const msisdn = `250${digits}`;
+
+    let amountRwf: number | null = null;
+    let description = "San Brothers payment";
+    let serviceRequestId: string | undefined;
+
+    if (body.kind === "service") {
+      if (!body.service_id) return jsonResponse({ error: "service_id required" }, 400);
+      if (body.service_request_id) {
+        const sr = await supabaseGet<{ id: string; client_id: string; service_id: string }>(
+          cfEnv,
+          `service_requests?id=eq.${encodeURIComponent(body.service_request_id)}&select=id,client_id,service_id`,
+          serviceRoleKey,
+        );
+        if (!sr) return jsonResponse({ error: "Service request not found" }, 404);
+        if (sr.client_id !== authedUser.id) return jsonResponse({ error: "Forbidden" }, 403);
+        if (sr.service_id !== body.service_id) return jsonResponse({ error: "Service mismatch" }, 400);
+        serviceRequestId = body.service_request_id;
+      }
+      const service = await supabaseGet<{
+        id: string;
+        name_en?: string;
+        price_usd_min: number | null;
+        price_usd_max: number | null;
+        is_active: boolean | null;
+      }>(
+        cfEnv,
+        `services?id=eq.${encodeURIComponent(body.service_id)}&select=id,name_en,price_usd_min,price_usd_max,is_active`,
+        serviceRoleKey,
+      );
+      if (!service) return jsonResponse({ error: "Service not found" }, 404);
+      if (service.is_active === false) return jsonResponse({ error: "Service not available" }, 400);
+      const usd = service.price_usd_min ?? service.price_usd_max;
+      if (!usd || usd <= 0) return jsonResponse({ error: "Price unavailable" }, 400);
+      amountRwf = Math.round(usd * RWF_PER_USD);
+      if (service.name_en) description = `San Brothers: ${service.name_en}`;
+    } else if (body.kind === "minute_package") {
+      if (!body.minute_package_id) return jsonResponse({ error: "minute_package_id required" }, 400);
+      const pkg = await supabaseGet<{ id: string; price_usd: number | null; is_active: boolean | null }>(
+        cfEnv,
+        `minute_packages?id=eq.${encodeURIComponent(body.minute_package_id)}&select=id,price_usd,is_active`,
+        serviceRoleKey,
+      );
+      if (!pkg) return jsonResponse({ error: "Package not found" }, 404);
+      if (pkg.is_active === false) return jsonResponse({ error: "Package not available" }, 400);
+      if (!pkg.price_usd || pkg.price_usd <= 0) return jsonResponse({ error: "Price unavailable" }, 400);
+      amountRwf = Math.round(pkg.price_usd * RWF_PER_USD);
+      description = "San Brothers: Interpreter Minutes";
+    } else {
+      return jsonResponse({ error: "Unsupported kind" }, 400);
+    }
+
+    lockKey = serviceRequestId || body.minute_package_id || null;
+    if (lockKey) {
+      if (momoInFlight.has(lockKey)) {
+        return jsonResponse({ error: "A payment is already in progress for this item." }, 409);
+      }
+      momoInFlight.add(lockKey);
+    }
+
+    const token = await getMomoAccessToken(cfEnv);
+    if (!token) {
+      if (lockKey) momoInFlight.delete(lockKey);
+      return jsonResponse({ error: "MoMo not configured" }, 500);
+    }
+
+    const externalTransactionId = crypto.randomUUID();
+
+    const momoRes = await fetch(`${MOMO_BASE_URL}/payments`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        countryCode: "RW",
+        transactionId: externalTransactionId,
+      },
+      body: JSON.stringify({
+        externalTransactionId,
+        countryCode: "RW",
+        transactionType: "MERCHANT_PAYMENT",
+        callbackURL: MOMO_CALLBACK_URL,
+        description,
+        payer: { payerIdType: "MSISDN", payerId: msisdn, payerNote: description },
+        amount: { amount: String(amountRwf), units: "RWF" },
+        totalAmount: { amount: String(amountRwf), units: "RWF" },
+      }),
+    });
+
+    const momoData = (await momoRes.json().catch(() => ({}))) as {
+      transactionId?: string;
+      data?: { transactionId?: string };
+      statusMessage?: string;
+      message?: string;
+    };
+
+    if (!momoRes.ok) {
+      if (lockKey) momoInFlight.delete(lockKey);
+      console.error("[MoMo initiate failed]", momoRes.status, momoData);
+      return jsonResponse(
+        { error: momoData.statusMessage || momoData.message || "MoMo request failed" },
+        400,
+      );
+    }
+
+    const providerRef = momoData.transactionId || momoData.data?.transactionId || null;
+
+    await supabaseInsert(
+      cfEnv,
+      "payments",
+      {
+        client_id: authedUser.id,
+        service_request_id: serviceRequestId ?? null,
+        amount_rwf: amountRwf,
+        currency: "RWF",
+        method: "momo",
+        status: "pending",
+        reference: externalTransactionId,
+        provider_ref: providerRef,
+        metadata: {
+          kind: body.kind,
+          service_id: body.service_id ?? null,
+          minute_package_id: body.minute_package_id ?? null,
+          msisdn,
+          momo_response: momoData,
+        },
+      },
+      serviceRoleKey,
+    );
+
+    return jsonResponse({
+      referenceId: externalTransactionId,
+      status: "pending",
+      message: "Payment prompt sent to your phone. Please approve it.",
+    });
+  } catch (err) {
+    if (lockKey) momoInFlight.delete(lockKey);
+    console.error("[MoMo initiate]", err);
+    return jsonResponse({ error: "MoMo payment failed" }, 500);
+  }
+}
+
+async function handleMomoStatusCheck(
+  request: Request,
+  env: unknown,
+  referenceId: string,
+): Promise<Response> {
+  try {
+    const cfEnv = hasRuntimeEnv(env) ? env : {};
+
+    const authHeader = request.headers.get("authorization") || "";
+    const bearer = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7).trim() : "";
+    if (!bearer) return jsonResponse({ error: "Unauthorized" }, 401);
+    const authedUser = await verifySupabaseUser(cfEnv, bearer);
+    if (!authedUser) return jsonResponse({ error: "Unauthorized" }, 401);
+
+    if (!UUID_RE.test(referenceId)) return jsonResponse({ error: "Invalid referenceId" }, 400);
+
+    const serviceRoleKey = readRuntimeEnv(cfEnv, "SUPABASE_SERVICE_ROLE_KEY");
+    if (!serviceRoleKey) return jsonResponse({ error: "Server not configured" }, 500);
+
+    const token = await getMomoAccessToken(cfEnv);
+    if (!token) return jsonResponse({ error: "MoMo not configured" }, 500);
+
+    const res = await fetch(`${MOMO_BASE_URL}/${referenceId}/transactionStatus`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        countryCode: "RW",
+        transactionId: referenceId,
+      },
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      statusCode?: string;
+      statusMessage?: string;
+      data?: { statusCode?: string; statusMessage?: string };
+    };
+    console.log("[MoMo Status] raw response:", JSON.stringify(data));
+
+    const innerCode = data.data?.statusCode ?? data.statusCode;
+    const innerMsg = data.data?.statusMessage ?? data.statusMessage ?? "";
+    const isSuccess = innerCode === "0000" || /success/i.test(innerMsg);
+    const isFailure =
+      !isSuccess &&
+      innerCode != null &&
+      innerCode !== "" &&
+      !/pending|in.?progress/i.test(innerMsg);
+
+    if (isSuccess) {
+      await supabasePatch(
+        cfEnv,
+        `payments?reference=eq.${encodeURIComponent(referenceId)}`,
+        { status: "completed", paid_at: new Date().toISOString() },
+        serviceRoleKey,
+      );
+      momoInFlight.delete(referenceId);
+      return jsonResponse({ status: "SUCCESSFUL", message: innerMsg || "Payment successful" });
+    }
+    if (isFailure) {
+      await supabasePatch(
+        cfEnv,
+        `payments?reference=eq.${encodeURIComponent(referenceId)}`,
+        { status: "failed" },
+        serviceRoleKey,
+      );
+      momoInFlight.delete(referenceId);
+      return jsonResponse({ status: "FAILED", message: innerMsg || "Payment failed" });
+    }
+    return jsonResponse({ status: "PENDING", message: innerMsg || "Awaiting confirmation" });
+  } catch (err) {
+    console.error("[MoMo status]", err);
+    return jsonResponse({ error: "Status check failed" }, 500);
+  }
+}
+
+async function handleMomoCallback(request: Request, env: unknown): Promise<Response> {
+  try {
+    const cfEnv = hasRuntimeEnv(env) ? env : {};
+    const serviceRoleKey = readRuntimeEnv(cfEnv, "SUPABASE_SERVICE_ROLE_KEY");
+    if (!serviceRoleKey) return jsonResponse({ received: true });
+
+    const body = (await request.json().catch(() => ({}))) as {
+      externalTransactionId?: string;
+      statusCode?: string;
+      data?: { externalTransactionId?: string; statusCode?: string };
+    };
+    const ext = body.externalTransactionId || body.data?.externalTransactionId;
+    const code = body.statusCode || body.data?.statusCode;
+    if (!ext || !UUID_RE.test(ext)) return jsonResponse({ received: true });
+
+    momoInFlight.delete(ext);
+
+    const update: Record<string, unknown> =
+      code === "0000"
+        ? { status: "completed", paid_at: new Date().toISOString() }
+        : { status: "failed" };
+    await supabasePatch(
+      cfEnv,
+      `payments?reference=eq.${encodeURIComponent(ext)}`,
+      update,
+      serviceRoleKey,
+    );
+    return jsonResponse({ received: true });
+  } catch (err) {
+    console.error("[MoMo callback]", err);
+    return jsonResponse({ received: true });
+  }
+}
 
 
 
@@ -394,6 +757,16 @@ export default {
     if (url.pathname === "/api/stripe/payment-intent" && request.method === "POST") {
       const response = await handleStripePaymentIntent(request, env);
       return response;
+    }
+    if (url.pathname === "/api/momo/pay" && request.method === "POST") {
+      return await handleMomoInitiatePayment(request, env);
+    }
+    if (url.pathname.startsWith("/api/momo/status/") && request.method === "GET") {
+      const referenceId = url.pathname.replace("/api/momo/status/", "");
+      return await handleMomoStatusCheck(request, env, referenceId);
+    }
+    if (url.pathname === "/api/momo/callback" && request.method === "POST") {
+      return await handleMomoCallback(request, env);
     }
 
     // Subdomain → portal-prefix rewriting is owned by TanStack Router's

@@ -233,7 +233,12 @@ export function StripePaymentForm(props: StripePaymentFormProps) {
                 </Elements>
               )}
               {selectedMethod === "mtn-momo" && (
-                <MTNMoMoForm amount={amount} rwfAmount={rwfAmount} />
+                <MTNMoMoForm
+                  amount={amount}
+                  rwfAmount={rwfAmount}
+                  intent={intent}
+                  onSuccess={props.onSuccess}
+                />
               )}
               {selectedMethod === "paypal" && <PayPalForm />}
               {selectedMethod === "bank" && <BankTransferForm amount={amount} />}
@@ -304,7 +309,6 @@ function PaymentMethodGrid({
       id: "mtn-momo",
       name: "MTN MoMo",
       icon: <span className="text-lg font-bold">MoMo</span>,
-      comingSoon: true,
     },
     {
       id: "paypal",
@@ -354,20 +358,84 @@ function PaymentMethodGrid({
   );
 }
 
-function MTNMoMoForm({ amount, rwfAmount }: { amount: number; rwfAmount: number }) {
+function MTNMoMoForm({
+  amount,
+  rwfAmount,
+  intent,
+  onSuccess,
+}: {
+  amount: number;
+  rwfAmount: number;
+  intent: PaymentIntentRequest | undefined;
+  onSuccess: (paymentIntentId: string) => void | Promise<void>;
+}) {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [loading, setLoading] = useState(false);
+  const [polling, setPolling] = useState(false);
+  const [referenceId, setReferenceId] = useState<string | null>(null);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    };
+  }, []);
 
   const formatPhoneNumber = (value: string) => {
-    const digits = value.replace(/\D/g, "");
-    if (digits.length <= 3) return digits;
-    if (digits.length <= 6) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
-    return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 9)}`;
+    const d = value.replace(/\D/g, "");
+    if (d.length <= 3) return d;
+    if (d.length <= 6) return `${d.slice(0, 3)} ${d.slice(3)}`;
+    return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6, 9)}`;
   };
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
-    setPhoneNumber(formatted);
+  const stopPolling = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+    setPolling(false);
+  };
+
+  const startPolling = async (refId: string) => {
+    const { supabase } = await import("@/lib/supabase");
+    let attempts = 0;
+    const MAX = 30;
+    setPolling(true);
+    pollIntervalRef.current = setInterval(async () => {
+      attempts += 1;
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData.session?.access_token;
+        const res = await fetch(`/api/momo/status/${refId}`, {
+          headers: { Authorization: `Bearer ${token ?? ""}` },
+        });
+        const payload = (await res.json().catch(() => ({}))) as {
+          status?: "SUCCESSFUL" | "FAILED" | "PENDING";
+          message?: string;
+        };
+        if (payload.status === "SUCCESSFUL") {
+          stopPolling();
+          toast.success("Payment received. Thank you!");
+          await onSuccess(refId);
+          return;
+        }
+        if (payload.status === "FAILED") {
+          stopPolling();
+          toast.error(payload.message || "Payment failed. Please try again.");
+          setReferenceId(null);
+          return;
+        }
+      } catch (e) {
+        console.error("[MoMo status poll]", e);
+      }
+      if (attempts >= MAX) {
+        stopPolling();
+        toast.error(
+          `Payment timed out. If you approved it, contact support with this reference: ${refId}`,
+          { duration: 10_000 },
+        );
+      }
+    }, 4000);
   };
 
   const handlePayment = async () => {
@@ -380,11 +448,48 @@ function MTNMoMoForm({ amount, rwfAmount }: { amount: number; rwfAmount: number 
       toast.error("Phone number must start with 078 or 079");
       return;
     }
+    if (!intent) {
+      toast.error("Payment intent details are missing.");
+      return;
+    }
 
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setLoading(false);
-    toast.error("MTN MoMo is not yet available. Please use Card payment or contact us.");
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        toast.error("Please sign in to continue with payment.");
+        setLoading(false);
+        return;
+      }
+
+      const res = await fetch("/api/momo/pay", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ...intent, phone_number: digits }),
+      });
+      const payload = (await res.json().catch(() => ({}))) as {
+        referenceId?: string;
+        error?: string;
+      };
+      if (!res.ok || !payload.referenceId) {
+        toast.error(payload.error || "Could not initiate payment.");
+        setLoading(false);
+        return;
+      }
+      setReferenceId(payload.referenceId);
+      toast.success("Payment prompt sent! Check your phone.");
+      startPolling(payload.referenceId);
+    } catch (e) {
+      console.error(e);
+      toast.error("MoMo payment failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -404,8 +509,9 @@ function MTNMoMoForm({ amount, rwfAmount }: { amount: number; rwfAmount: number 
             type="tel"
             placeholder="078X XXX XXX"
             value={phoneNumber}
-            onChange={handlePhoneChange}
+            onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
             maxLength={11}
+            disabled={polling}
             className="flex-1"
           />
         </div>
@@ -413,7 +519,9 @@ function MTNMoMoForm({ amount, rwfAmount }: { amount: number; rwfAmount: number 
 
       <Button
         onClick={handlePayment}
-        disabled={loading || phoneNumber.replace(/\D/g, "").length !== 9}
+        disabled={
+          loading || polling || phoneNumber.replace(/\D/g, "").length !== 9
+        }
         className="w-full"
       >
         {loading ? (
@@ -421,19 +529,28 @@ function MTNMoMoForm({ amount, rwfAmount }: { amount: number; rwfAmount: number 
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Sending payment request...
           </>
+        ) : polling ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Waiting for approval on your phone...
+          </>
         ) : (
-          `Pay RWF ${Math.round(amount * 1285).toLocaleString()} with MTN MoMo`
+          `Pay RWF ${rwfAmount.toLocaleString()} with MTN MoMo`
         )}
       </Button>
 
+      {polling && referenceId && (
+        <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs">
+          <p className="font-medium text-foreground">Approve the prompt on your phone.</p>
+          <p className="text-muted-foreground mt-1">
+            Reference: <span className="font-mono">{referenceId}</span>
+          </p>
+        </div>
+      )}
+
       <div className="rounded-lg bg-blue-500/10 p-3 text-sm text-blue-700 dark:text-blue-400">
         <p className="font-medium">ℹ️ You will receive a payment prompt on your phone.</p>
-        <p className="text-xs mt-1">Approve it to complete payment.</p>
-      </div>
-
-      <div className="rounded-lg bg-yellow-500/10 p-3 text-sm text-yellow-700 dark:text-yellow-400">
-        <p className="font-medium">⚠️ MTN MoMo coming soon!</p>
-        <p className="text-xs mt-1">Currently unavailable.</p>
+        <p className="text-xs mt-1">Approve it to complete payment. Amount: RWF {rwfAmount.toLocaleString()} (~${amount.toFixed(2)}).</p>
       </div>
     </div>
   );
