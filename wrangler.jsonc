@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "san-brothers",
+  "account_id": "1efdee2b1a350d45e1709e440846671c",
   "main": "dist/server/assets/server.js",
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
