@@ -554,14 +554,16 @@ async function handleMomoCallback(request: Request, env: unknown): Promise<Respo
     } | null;
     if (!body?.referenceId) return jsonResponse({ error: "Invalid payload" }, 400);
     const providerStatus = (body.status || "").toUpperCase();
-    let mapped = "pending";
-    if (providerStatus === "SUCCESSFUL") mapped = "succeeded";
+    let mapped: "completed" | "failed" | "pending" = "pending";
+    if (providerStatus === "SUCCESSFUL") mapped = "completed";
     else if (providerStatus === "FAILED" || providerStatus === "REJECTED") mapped = "failed";
     await supabaseUpdate(
       cfEnv,
-      `payments?provider_reference=eq.${encodeURIComponent(body.referenceId)}`,
+      `payments?reference=eq.${encodeURIComponent(body.referenceId)}`,
       serviceRoleKey,
-      { status: mapped },
+      mapped === "completed"
+        ? { status: mapped, paid_at: new Date().toISOString() }
+        : { status: mapped },
     );
     return jsonResponse({ ok: true });
   } catch (err) {
