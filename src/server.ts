@@ -433,11 +433,11 @@ async function handleMomoInitiatePayment(request: Request, env: unknown): Promis
 
     // Record pending payment first
     const paymentRes = await supabaseInsert(cfEnv, "payments", serviceRoleKey, {
-      user_id: authedUser.id,
+      client_id: authedUser.id,
       service_request_id: raw.service_request_id ?? null,
-      provider: "mtn_momo",
-      provider_reference: referenceId,
-      amount: priced.amount,
+      method: "momo",
+      reference: referenceId,
+      amount_rwf: priced.amount,
       currency: "RWF",
       status: "pending",
     });
@@ -469,7 +469,7 @@ async function handleMomoInitiatePayment(request: Request, env: unknown): Promis
       console.error("[MoMo] initiate failed", initiateRes.status, errText);
       await supabaseUpdate(
         cfEnv,
-        `payments?provider_reference=eq.${encodeURIComponent(referenceId)}`,
+        `payments?reference=eq.${encodeURIComponent(referenceId)}`,
         serviceRoleKey,
         { status: "failed" },
       );
@@ -499,41 +499,44 @@ async function handleMomoStatusCheck(
     const serviceRoleKey = readRuntimeEnv(cfEnv, "SUPABASE_SERVICE_ROLE_KEY");
     if (!serviceRoleKey) return jsonResponse({ error: "Server not configured" }, 500);
 
-    const record = await supabaseGet<{ id: string; user_id: string; status: string }>(
+    const record = await supabaseGet<{ id: string; client_id: string; status: string }>(
       cfEnv,
-      `payments?provider_reference=eq.${encodeURIComponent(referenceId)}&select=id,user_id,status`,
+      `payments?reference=eq.${encodeURIComponent(referenceId)}&select=id,client_id,status`,
       serviceRoleKey,
     );
     if (!record) return jsonResponse({ error: "Not found" }, 404);
-    if (record.user_id !== authedUser.id) return jsonResponse({ error: "Forbidden" }, 403);
+    if (record.client_id !== authedUser.id) return jsonResponse({ error: "Forbidden" }, 403);
 
-    if (record.status === "succeeded" || record.status === "failed") {
-      return jsonResponse({ status: record.status });
+    if (record.status === "completed" || record.status === "failed") {
+      return jsonResponse({ status: record.status === "completed" ? "SUCCESSFUL" : "FAILED" });
     }
 
     const token = await getMomoAccessToken(cfEnv);
-    if (!token) return jsonResponse({ status: record.status });
+    if (!token) return jsonResponse({ status: "PENDING" });
 
     const res = await fetch(`https://api.mtn.com/v1/payments/${encodeURIComponent(referenceId)}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (!res.ok) return jsonResponse({ status: record.status });
+    if (!res.ok) return jsonResponse({ status: "PENDING" });
     const body = (await res.json()) as { status?: string };
     const providerStatus = (body.status || "").toUpperCase();
-    let mapped = record.status;
-    if (providerStatus === "SUCCESSFUL") mapped = "succeeded";
+    let mapped: "completed" | "failed" | "pending" = "pending";
+    if (providerStatus === "SUCCESSFUL") mapped = "completed";
     else if (providerStatus === "FAILED" || providerStatus === "REJECTED") mapped = "failed";
-    else mapped = "pending";
 
     if (mapped !== record.status) {
       await supabaseUpdate(
         cfEnv,
-        `payments?provider_reference=eq.${encodeURIComponent(referenceId)}`,
+        `payments?reference=eq.${encodeURIComponent(referenceId)}`,
         serviceRoleKey,
-        { status: mapped },
+        mapped === "completed"
+          ? { status: mapped, paid_at: new Date().toISOString() }
+          : { status: mapped },
       );
     }
-    return jsonResponse({ status: mapped });
+    return jsonResponse({
+      status: mapped === "completed" ? "SUCCESSFUL" : mapped === "failed" ? "FAILED" : "PENDING",
+    });
   } catch (err) {
     console.error("[MoMo status]", err);
     return jsonResponse({ error: "Status check failed" }, 500);
@@ -551,14 +554,16 @@ async function handleMomoCallback(request: Request, env: unknown): Promise<Respo
     } | null;
     if (!body?.referenceId) return jsonResponse({ error: "Invalid payload" }, 400);
     const providerStatus = (body.status || "").toUpperCase();
-    let mapped = "pending";
-    if (providerStatus === "SUCCESSFUL") mapped = "succeeded";
+    let mapped: "completed" | "failed" | "pending" = "pending";
+    if (providerStatus === "SUCCESSFUL") mapped = "completed";
     else if (providerStatus === "FAILED" || providerStatus === "REJECTED") mapped = "failed";
     await supabaseUpdate(
       cfEnv,
-      `payments?provider_reference=eq.${encodeURIComponent(body.referenceId)}`,
+      `payments?reference=eq.${encodeURIComponent(body.referenceId)}`,
       serviceRoleKey,
-      { status: mapped },
+      mapped === "completed"
+        ? { status: mapped, paid_at: new Date().toISOString() }
+        : { status: mapped },
     );
     return jsonResponse({ ok: true });
   } catch (err) {
