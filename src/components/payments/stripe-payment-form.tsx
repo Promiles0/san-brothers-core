@@ -510,7 +510,7 @@ function MTNMoMoForm({
             placeholder="078X XXX XXX"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
-            maxLength={11}
+            maxLength={12}
             disabled={polling}
             className="flex-1"
           />
@@ -519,7 +519,7 @@ function MTNMoMoForm({
 
       <Button
         onClick={handlePayment}
-        disabled={loading || polling || phoneNumber.replace(/\D/g, "").length !== 10}
+        disabled={loading || polling || phoneNumber.replace(/\D/g, "").length !== 12}
         className="w-full"
       >
         {loading ? (
