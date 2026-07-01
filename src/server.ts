@@ -24,6 +24,8 @@ interface CloudflareEnv {
   SUPABASE_PUBLISHABLE_KEY?: string;
   VITE_SUPABASE_ANON_KEY?: string;
   VITE_SUPABASE_PUBLISHABLE_KEY?: string;
+  MTN_MOMO_CONSUMER_KEY?: string;
+  MTN_MOMO_CONSUMER_SECRET?: string;
   [key: string]: unknown;
 }
 
@@ -36,9 +38,7 @@ function readBuildEnv(key: string): string | undefined {
       ? (process.env as Record<string, string | undefined>)
       : undefined;
   const processValue = processEnv?.[key];
-  return typeof processValue === "string" && processValue.trim()
-    ? processValue.trim()
-    : undefined;
+  return typeof processValue === "string" && processValue.trim() ? processValue.trim() : undefined;
 }
 
 function readRuntimeEnv(env: unknown, key: keyof CloudflareEnv): string | undefined {
@@ -56,7 +56,12 @@ function hasRuntimeEnv(env: unknown): env is CloudflareEnv {
 // from the client. Requires an authenticated Supabase session.
 
 type IntentRequest =
-  | { kind: "service"; service_id: string; service_request_id?: string; metadata?: Record<string, string> }
+  | {
+      kind: "service";
+      service_id: string;
+      service_request_id?: string;
+      metadata?: Record<string, string>;
+    }
   | { kind: "minute_package"; minute_package_id: string; metadata?: Record<string, string> };
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -84,14 +89,7 @@ function rateLimitOk(userId: string): boolean {
   return true;
 }
 
-
-
-
-async function supabaseGet<T>(
-  env: CloudflareEnv,
-  path: string,
-  apiKey: string,
-): Promise<T | null> {
+async function supabaseGet<T>(env: CloudflareEnv, path: string, apiKey: string): Promise<T | null> {
   const url = readRuntimeEnv(env, "SUPABASE_URL") || readRuntimeEnv(env, "VITE_SUPABASE_URL");
   if (!url) return null;
   const res = await fetch(`${url}/rest/v1/${path}`, {
@@ -125,18 +123,13 @@ async function verifySupabaseUser(
   return user.id ? { id: user.id } : null;
 }
 
-async function handleStripePaymentIntent(
-  request: Request,
-  env: unknown,
-): Promise<Response> {
+async function handleStripePaymentIntent(request: Request, env: unknown): Promise<Response> {
   try {
     const cfEnv = hasRuntimeEnv(env) ? env : {};
 
     // 1) Authenticate caller
     const authHeader = request.headers.get("authorization") || "";
-    const bearer = authHeader.toLowerCase().startsWith("bearer ")
-      ? authHeader.slice(7).trim()
-      : "";
+    const bearer = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7).trim() : "";
     if (!bearer) return jsonResponse({ error: "Unauthorized" }, 401);
 
     const secretKey = readRuntimeEnv(cfEnv, "STRIPE_SECRET_KEY");
@@ -144,10 +137,7 @@ async function handleStripePaymentIntent(
 
     const serviceRoleKey = readRuntimeEnv(cfEnv, "SUPABASE_SERVICE_ROLE_KEY");
     if (!serviceRoleKey) {
-      return jsonResponse(
-        { error: "Server not configured for payment authorization" },
-        500,
-      );
+      return jsonResponse({ error: "Server not configured for payment authorization" }, 500);
     }
 
     const authedUser = await verifySupabaseUser(cfEnv, bearer);
@@ -309,14 +299,12 @@ function escapeInlineJson(value: unknown): string {
   });
 }
 
-async function injectPublicRuntimeEnv(
-  response: Response,
-  env: CloudflareEnv,
-): Promise<Response> {
+async function injectPublicRuntimeEnv(response: Response, env: CloudflareEnv): Promise<Response> {
   const contentType = response.headers.get("content-type") ?? "";
   if (!contentType.includes("text/html")) return response;
 
-  const supabaseUrl = readRuntimeEnv(env, "VITE_SUPABASE_URL") || readRuntimeEnv(env, "SUPABASE_URL");
+  const supabaseUrl =
+    readRuntimeEnv(env, "VITE_SUPABASE_URL") || readRuntimeEnv(env, "SUPABASE_URL");
   const supabaseAnonKey =
     readRuntimeEnv(env, "VITE_SUPABASE_ANON_KEY") ||
     readRuntimeEnv(env, "VITE_SUPABASE_PUBLISHABLE_KEY") ||
@@ -334,7 +322,9 @@ async function injectPublicRuntimeEnv(
     VITE_SUPABASE_ANON_KEY: supabaseAnonKey,
     VITE_STRIPE_PUBLISHABLE_KEY: stripePublishableKey,
   })};</script>`;
-  const body = html.includes("</head>") ? html.replace("</head>", `${script}</head>`) : script + html;
+  const body = html.includes("</head>")
+    ? html.replace("</head>", `${script}</head>`)
+    : script + html;
   const headers = new Headers(response.headers);
   headers.delete("content-length");
 
@@ -400,8 +390,6 @@ export default {
     // `rewrite` config (src/router.tsx) for both SSR and client navigation.
     // Do not rewrite the request URL here.
 
-
-
     // TanStack handler AFTER our custom routes
     try {
       const handler = await getServerEntry();
@@ -414,4 +402,3 @@ export default {
     }
   },
 };
-
