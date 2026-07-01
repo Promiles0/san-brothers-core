@@ -385,6 +385,16 @@ export default {
       const response = await handleStripePaymentIntent(request, env);
       return response;
     }
+    if (url.pathname === "/api/momo/pay" && request.method === "POST") {
+      return await handleMomoInitiatePayment(request, env);
+    }
+    if (url.pathname.startsWith("/api/momo/status/") && request.method === "GET") {
+      const referenceId = url.pathname.replace("/api/momo/status/", "");
+      return await handleMomoStatusCheck(request, env, referenceId);
+    }
+    if (url.pathname === "/api/momo/callback" && request.method === "POST") {
+      return await handleMomoCallback(request, env);
+    }
 
     // Subdomain → portal-prefix rewriting is owned by TanStack Router's
     // `rewrite` config (src/router.tsx) for both SSR and client navigation.
