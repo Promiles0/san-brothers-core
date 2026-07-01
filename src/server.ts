@@ -433,11 +433,11 @@ async function handleMomoInitiatePayment(request: Request, env: unknown): Promis
 
     // Record pending payment first
     const paymentRes = await supabaseInsert(cfEnv, "payments", serviceRoleKey, {
-      user_id: authedUser.id,
+      client_id: authedUser.id,
       service_request_id: raw.service_request_id ?? null,
-      provider: "mtn_momo",
-      provider_reference: referenceId,
-      amount: priced.amount,
+      method: "momo",
+      reference: referenceId,
+      amount_rwf: priced.amount,
       currency: "RWF",
       status: "pending",
     });
