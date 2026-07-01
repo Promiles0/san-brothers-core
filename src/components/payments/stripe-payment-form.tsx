@@ -519,9 +519,7 @@ function MTNMoMoForm({
 
       <Button
         onClick={handlePayment}
-        disabled={
-          loading || polling || phoneNumber.replace(/\D/g, "").length !== 9
-        }
+        disabled={loading || polling || phoneNumber.replace(/\D/g, "").length !== 10}
         className="w-full"
       >
         {loading ? (
@@ -550,7 +548,10 @@ function MTNMoMoForm({
 
       <div className="rounded-lg bg-blue-500/10 p-3 text-sm text-blue-700 dark:text-blue-400">
         <p className="font-medium">ℹ️ You will receive a payment prompt on your phone.</p>
-        <p className="text-xs mt-1">Approve it to complete payment. Amount: RWF {rwfAmount.toLocaleString()} (~${amount.toFixed(2)}).</p>
+        <p className="text-xs mt-1">
+          Approve it to complete payment. Amount: RWF {rwfAmount.toLocaleString()} (~$
+          {amount.toFixed(2)}).
+        </p>
       </div>
     </div>
   );
