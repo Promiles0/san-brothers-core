@@ -384,13 +384,14 @@ async function supabaseUpdate(
   });
 }
 
-interface MomoInitiateBody extends Partial<IntentRequest> {
+type MomoInitiateBody = {
   phone_number?: string;
   kind?: IntentRequest["kind"];
   service_id?: string;
   service_request_id?: string;
   minute_package_id?: string;
-}
+  metadata?: Record<string, string>;
+};
 
 async function handleMomoInitiatePayment(request: Request, env: unknown): Promise<Response> {
   try {
