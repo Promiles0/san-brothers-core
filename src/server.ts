@@ -469,7 +469,7 @@ async function handleMomoInitiatePayment(request: Request, env: unknown): Promis
       console.error("[MoMo] initiate failed", initiateRes.status, errText);
       await supabaseUpdate(
         cfEnv,
-        `payments?provider_reference=eq.${encodeURIComponent(referenceId)}`,
+        `payments?reference=eq.${encodeURIComponent(referenceId)}`,
         serviceRoleKey,
         { status: "failed" },
       );
