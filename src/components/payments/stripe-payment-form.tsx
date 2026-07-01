@@ -382,10 +382,10 @@ function MTNMoMoForm({
   }, []);
 
   const formatPhoneNumber = (value: string) => {
-    const d = value.replace(/\D/g, "");
-    if (d.length <= 3) return d;
-    if (d.length <= 6) return `${d.slice(0, 3)} ${d.slice(3)}`;
-    return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6, 9)}`;
+    const d = value.replace(/\D/g, "").slice(0, 10);
+    if (d.length <= 4) return d;
+    if (d.length <= 7) return `${d.slice(0, 4)} ${d.slice(4)}`;
+    return `${d.slice(0, 4)} ${d.slice(4, 7)} ${d.slice(7, 10)}`;
   };
 
   const stopPolling = () => {
@@ -440,8 +440,8 @@ function MTNMoMoForm({
 
   const handlePayment = async () => {
     const digits = phoneNumber.replace(/\D/g, "");
-    if (digits.length !== 9) {
-      toast.error("Please enter a valid 9-digit phone number");
+    if (digits.length !== 10) {
+      toast.error("Please enter a valid 10-digit phone number");
       return;
     }
     if (!digits.startsWith("078") && !digits.startsWith("079")) {
@@ -507,7 +507,7 @@ function MTNMoMoForm({
           </div>
           <Input
             type="tel"
-            placeholder="078X XXX XXX"
+            placeholder="0781 234 567"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
             maxLength={12}
@@ -519,7 +519,7 @@ function MTNMoMoForm({
 
       <Button
         onClick={handlePayment}
-        disabled={loading || polling || phoneNumber.replace(/\D/g, "").length !== 12}
+        disabled={loading || polling || phoneNumber.replace(/\D/g, "").length !== 10}
         className="w-full"
       >
         {loading ? (
