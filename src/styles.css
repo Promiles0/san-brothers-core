@@ -404,24 +404,29 @@
   background: color-mix(in oklab, var(--background) 55%, transparent);
 }
 
-/* ─── Floating pill navbar (Athleats-style liquid glass) ─── */
+/* ─── Floating pill navbar (pure glass morphism) ─── */
 .floating-nav {
-  background: color-mix(in oklab, var(--background) 55%, transparent);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
+  background: color-mix(in oklab, white 18%, transparent);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid color-mix(in oklab, white 35%, transparent);
   box-shadow:
-    0 2px 16px -4px color-mix(in oklab, var(--foreground) 8%, transparent),
-    inset 0 1px 0 color-mix(in oklab, white 10%, transparent);
+    inset 0 1px 0 color-mix(in oklab, white 55%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, white 8%, transparent),
+    0 10px 40px -12px rgb(0 0 0 / 0.18),
+    0 2px 8px -2px rgb(0 0 0 / 0.08);
 }
 
 .dark .floating-nav {
-  background: color-mix(in oklab, var(--background) 45%, transparent);
-  border-color: color-mix(in oklab, var(--border) 40%, transparent);
+  background: color-mix(in oklab, black 35%, transparent);
+  border-color: color-mix(in oklab, white 14%, transparent);
   box-shadow:
-    0 4px 24px -6px color-mix(in oklab, black 40%, transparent),
-    inset 0 1px 0 color-mix(in oklab, white 6%, transparent);
+    inset 0 1px 0 color-mix(in oklab, white 18%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, white 3%, transparent),
+    0 12px 48px -12px rgb(0 0 0 / 0.55),
+    0 2px 8px -2px rgb(0 0 0 / 0.35);
 }
+
 
 .glass-card {
   background: color-mix(in oklab, var(--card) 75%, transparent);
