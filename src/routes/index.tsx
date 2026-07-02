@@ -112,23 +112,31 @@ function Hero() {
     { icon: Globe, cls: "left-[45%] top-[6%] text-primary", speed: 0.15 },
   ];
 
+  const { resolvedTheme } = useTheme();
+  const raysColor = resolvedTheme === "dark" ? "#5B7FBF" : "#1F3864";
+
   return (
     <section
-      className="relative overflow-hidden border-b border-border bg-gradient-to-b from-secondary/40 via-background to-background"
+      className="relative overflow-hidden border-b border-border bg-background"
       data-fx-skip
     >
-      {/* Aurora drift behind everything */}
-      <Aurora tone="mixed" opacity={0.32} />
+      {/* WebGL light rays background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <LightRays
+          raysOrigin="top-center"
+          raysColor={raysColor}
+          raysSpeed={1.1}
+          lightSpread={1.2}
+          rayLength={2.2}
+          followMouse
+          mouseInfluence={0.12}
+          noiseAmount={0.05}
+          distortion={0.02}
+          fadeDistance={1.1}
+          saturation={1.0}
+        />
+      </div>
 
-      {/* Warped dot-grid that reacts to the cursor */}
-      <DotGrid
-        className="text-foreground/55 dark:text-foreground/40"
-        spacing={28}
-        dotSize={1.3}
-        radius={170}
-        strength={16}
-        repel
-      />
 
       {/* Floating service glyphs */}
       {glyphs.map(({ icon: Icon, cls, speed }, idx) => (
