@@ -33,8 +33,9 @@ import { Magnetic } from "@/components/fx/magnetic";
 import { AnimatedCounter } from "@/components/fx/animated-counter";
 import { ParallaxLayer } from "@/components/fx/parallax-layer";
 import { RotatingText } from "@/components/fx/rotating-text";
-import { DotGrid } from "@/components/fx/dot-grid";
-import { Aurora } from "@/components/fx/aurora";
+import { LightRays } from "@/components/fx/light-rays";
+import { useTheme } from "@/lib/providers/theme-provider";
+
 import { CursorSpotlight } from "@/components/fx/cursor-spotlight";
 
 export const Route = createFileRoute("/")({
